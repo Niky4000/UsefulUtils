@@ -1,2 +1,3 @@
 # UsefulUtils
-Here are my different useful utils
+Here are my different useful utils.
+I use them for different porposes.
