@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+    <!-- properties -->
+    <bean id="propertyConfigurer" class="ru.ibs.pmp.config.PmpProperties">
+        <property name="order" value="1"/>
+        <property name="fileEncoding" value="UTF-8"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="locations">
+            <list>
+                <value>file:${pmp.config.path:./modules/conf}/runtime.properties</value>
+                <value>classpath:common.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/common.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-smo/module-smo.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-pmp/common.properties</value>
+                <value>classpath:pmp.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-pmp/pmp.properties</value>
+                <value>classpath:nsi.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-pmp/nsi.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-persons-pmp/common.properties</value>
+                <value>classpath:persons-pmp.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-persons-pmp/persons-pmp.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-pmp-mailgw/mailgw.properties</value>
+                <value>classpath:common_mailgw.properties</value>
+            </list>
+        </property>
+    </bean>
+
+
+
+    <context:annotation-config/>
+    <!--<context:component-scan base-package="ru.ibs.pmp.api.mailgw.service.impl"/>-->
+    
+    <bean class="ru.ibs.module.pmp.mail.recovery.classes.MailServiceImplExt">
+        <!--        <property name="imapConfig" ref="imapConfig" />
+        <property name="mailSender" ref="mailSender" />-->
+    </bean>
+
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${runtime.mailgw.mail.host}" />
+        <property name="port" value="${runtime.mailgw.mail.port}" />
+        <property name="protocol" value="${runtime.mailgw.mail.protocol}" />
+        <property name="username" value="${runtime.mailgw.mail.username}" />
+        <property name="password" value="${runtime.mailgw.mail.password}" />
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtps.auth">${runtime.mailgw.mail.smtps.auth}</prop>
+                <prop key="mail.smtps.starttls.enable">${runtime.mailgw.mail.smtps.starttls.enable}</prop>
+                <prop key="mail.smtps.debug">${runtime.mailgw.mail.smtps.debug}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="imapConfig" class="java.util.Properties">
+        <constructor-arg>
+            <props>
+                <prop key="mail.imap.host">${runtime.mailgw.mail.imap.host}</prop>
+                <prop key="mail.imap.port">${runtime.mailgw.mail.imap.port}</prop>
+                <prop key="mail.store.protocol">${runtime.mailgw.mail.store.protocol}</prop>
+                <prop key="mail.imaps.auth">${runtime.mailgw.mail.imaps.auth}</prop>
+                <prop key="mail.imaps.ssl.enable">${runtime.mailgw.mail.imaps.ssl.enable}</prop>
+                <prop key="mail.imaps.debug">${runtime.mailgw.mail.imaps.debug}</prop>
+            </props>
+        </constructor-arg>
+    </bean>
+ 
+ 
+ 
+ 
+ 
+    <!--<tx:annotation-driven transaction-manager="txManager"/>-->
+
+    <bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate" primary="true">
+        <property name="transactionManager" ref="txManager"/>
+    </bean>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${db.driver}"/>
+        <property name="url" value="${runtime.pmp.db.url}"/>
+        <property name="username" value="${runtime.pmp.db.username}"/>
+        <property name="password" value="${runtime.pmp.db.password}"/>
+        <property name="initialSize" value="${runtime.pmp.db.pool.initialSize}"/>
+        <property name="maxTotal" value="${runtime.pmp.db.pool.maxSize}"/>
+        <property name="maxIdle" value="${runtime.pmp.db.pool.inactiveCount}"/>
+        <!--        <property name="maxConnLifetimeMillis" value="${runtime.db.maxConnLifetimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${runtime.db.timeBetweenEvictionRunsMillis}"/>-->
+    </bean>
+ 
+ 
+ 
+ 
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${db.hibernate.dialect}</prop>
+                <prop key="hibernate.format_sql">false</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <prop key="hibernate.connection.release_mode">on_close</prop>
+                <prop key="hibernate.connection.autocommit">false</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.generate_statistics">false</prop>
+                <prop key="hibernate.cache.use_structured_entries">true</prop>
+                <prop key="hibernate.jdbc.batch_size">100</prop>
+                <prop key="hibernate.order_inserts">true</prop>
+                <prop key="hibernate.jdbc.batch_versioned_data">true</prop>
+                <prop key="hibernate.order_updates">true</prop>
+            </props>
+        </property>
+
+        <property name="packagesToScan"
+                  value="ru.ibs.pmp.api.model,
+                         ru.ibs.pmp.auth.model,                  
+                         ru.ibs.pmp.service.jobtrack,
+                         ru.ibs.pmp.service.flk,
+                         ru.ibs.pmp.service.export.msk.policy.model,
+                         ru.ibs.pmp.service.export.msk.erzattachments.model,
+                         ru.ibs.pmp.service.export.msk.clinicalexamination.model,
+                         ru.ibs.pmp.service.check.msk,
+                         ru.ibs.pmp.service.expertise.model,
+                         ru.ibs.pmp.lpu.model.mo,
+                         ru.ibs.pmp.api.model.msk.export"/>
+    </bean>
+ 
+
+</beans>

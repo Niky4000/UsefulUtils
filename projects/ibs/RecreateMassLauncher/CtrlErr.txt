@@ -1,0 +1,11 @@
+select
+'update pmp_ctrl_error set invoice_id = '||inva.id||' where id = '||er.id as sql_update
+from pmp_ctrl_error er
+inner join pmp_mailgw_log ml on ml.id=er.response_id
+inner join pmp_mailgw_log ml2 on ml.parent_id=ml2.id
+inner join pmp_parcel p on p.id=ml2.parcel_id
+inner join pmp_parcel_s ps on ps.parcel_id=p.id
+inner join pmp_bill bi on ml.bill_id=bi.id
+inner join pmp_requirement re on bi.requirement_id=re.id
+inner join pmp_invoice_aud inva on inva.rev=p.version_number and inva.id=ps.invoice_id
+where re.period between to_date('2016-08-01','yyyy-MM-dd') and to_date('2017-05-01','yyyy-MM-dd')

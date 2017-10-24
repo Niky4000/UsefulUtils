@@ -1,0 +1,4 @@
+java -Xmx16G -Dpmp.config.path=D:\GIT\rmis\etc\recreate_26 -jar D:\GIT\pmp\tools\appserver\tomcat\webapps\module-pmp-bill-recreate.jar -mf 2186 2017-04
+java -Xmx16G -Dpmp.config.path=D:\GIT\rmis\etc\recreate_26 -jar D:\GIT\pmp\tools\appserver\tomcat\webapps\module-pmp-bill-recreate.jar -mf 1863 2017-04
+WAIT
+java -Xmx16G -Dpmp.config.path=D:\GIT\rmis\etc\recreate_26 -jar D:\GIT\pmp\tools\appserver\tomcat\webapps\module-pmp-bill-recreate.jar -ss 2186 2017-04

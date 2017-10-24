@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+
+    <!-- properties -->
+    <bean id="propertyConfigurer" class="ru.ibs.pmp.config.PmpProperties">
+        <property name="order" value="1"/>
+        <property name="fileEncoding" value="UTF-8"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="locations">
+            <list>
+                <value>file:${pmp.config.path:./modules/conf}/runtime.properties</value>
+                <value>classpath:common.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/common.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-smo/module-smo.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-pmp/common.properties</value>
+                <value>classpath:pmp.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-pmp/pmp.properties</value>
+                <value>classpath:nsi.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-pmp/nsi.properties</value>
+                
+                <value>file:${pmp.config.path:./modules/conf}/module-persons-pmp/common.properties</value>
+                <value>classpath:persons-pmp.properties</value>
+                <value>file:${pmp.config.path:./modules/conf}/module-persons-pmp/persons-pmp.properties</value>
+                
+                <value>file:${pmp.config.path:./modules/conf}/module-pmp-mailgw/mailgw.properties</value>
+                <!--<value>classpath:mailgw.properties</value>-->
+                <value>classpath:common_mailgw.properties</value>
+            </list>
+        </property>
+    </bean>
+
+
+
+    <!--<context:annotation-config/>-->
+    <!--    <context:component-scan base-package="ru.ibs.pmp.dao,
+    ru.ibs.pmp.api.patients,
+    ru.ibs.pmp.practitioners.dao,
+    ru.ibs.pmp.wars.module.pmp.bill.recreate,
+    ru.ibs.pmp.features.mailgw"/>-->
+    
+    <context:annotation-config />
+
+    <!-- services -->
+    <import resource="module-common.xml"/>
+    <import resource="pmp-datasource-context_recreate.xml"/>
+    <import resource="pmp-nsi-datasource-context.xml"/>
+    <import resource="nsi-read-context_recreate.xml"/>
+    <import resource="pmp-smo-datasource-context.xml"/>
+    <import resource="pmp-auth-datasource-context.xml"/>
+    <import resource="jpa-context.xml"/>
+    <import resource="lpu-datasource-context_recreate.xml"/>
+    <import resource="lpu-jpa-context_recreate.xml"/>
+    <!--<import resource="nsi-read-context.xml" />-->
+    <!--<import resource="persons-read-context.xml" />-->
+    <!--<import resource="pract-read-context.xml" />-->
+    <!--<import resource="mo-read-context.xml" />-->
+    <!--<import resource="list-bills-context.xml"/>-->
+    <bean primary="true" id="psevdoFindNsiEntry" class="ru.ibs.pmp.module.pmp.bill.recreate.dao.psevdo.nsi.PsevdoFindNsiEntry" />
+
+    <!--    <bean class="ru.ibs.pmp.ws.ListBillsTest">
+        <property name="entityManager" ref="lpuEntityManager"/>
+    </bean>-->
+    
+    <bean class="ru.ibs.pmp.ws.ListBillsTest"/>
+    
+</beans>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <tx:annotation-driven transaction-manager="authTxManager"/>
+
+<!--    <bean id="authTxMonInterceptor" class="ru.ibs.pmp.tx.TxMonInterceptor">
+        <property name="id" value="module-pmp-bill-recreate:authTxManager"/>
+        <property name="sessionFactory" ref="authSessionFactory"/>
+    </bean>-->
+
+    <bean id="authTxManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="authSessionFactory"/>
+        <!--<property name="entityInterceptor" ref="authTxMonInterceptor"/>-->
+    </bean>
+
+    <bean id="authTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate" primary="true">
+        <property name="transactionManager" ref="authTxManager"/>
+    </bean>
+
+    <bean id="authDataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${db.driver}"/>
+        <property name="url" value="${runtime.auth.db.url}"/>
+        <property name="username" value="${runtime.auth.db.username}"/>
+        <property name="password" value="${runtime.auth.db.password}"/>
+        <property name="initialSize" value="${runtime.auth.db.pool.initialSize}"/>
+        <property name="maxTotal" value="${runtime.auth.db.pool.maxSize}"/>
+        <property name="maxIdle" value="${runtime.auth.db.pool.inactiveCount}"/>
+    </bean>
+
+    <bean id="authSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="authDataSource"/>
+
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${db.hibernate.dialect}</prop>
+                <prop key="hibernate.format_sql">false</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <prop key="hibernate.connection.release_mode">on_close</prop>
+                <prop key="hibernate.connection.autocommit">false</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.generate_statistics">false</prop>
+                <prop key="hibernate.cache.use_structured_entries">true</prop>
+            </props>
+        </property>
+
+        <property name="packagesToScan"
+                  value="ru.ibs.pmp.auth.model"/>
+    </bean>
+
+</beans>

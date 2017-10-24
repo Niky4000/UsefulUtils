@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:cache="http://www.springframework.org/schema/cache" 
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/cache
+		http://www.springframework.org/schema/cache/spring-cache.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+	">
+
+	<!-- PUBLIC -->
+    <!-- FEATURES -->
+
+    <bean class="ru.ibs.pmp.nsi.features.impl.FindNsiDictionariesFeature" />
+    <bean class="ru.ibs.pmp.nsi.features.impl.FindNsiEntriesFeature" name="findNsiEntriesFeature"/>
+    <bean class="ru.ibs.pmp.nsi.features.impl.FindNsiEntriesPageFeature"/>
+    <bean class="ru.ibs.pmp.nsi.features.impl.FindNsiEntryFeature"/>
+    <bean class="ru.ibs.pmp.nsi.features.impl.GetNsiDictionaryVersionsFeature"/>
+    <bean class="ru.ibs.pmp.nsi.features.impl.GetNsiDisctionaryFeature"/>
+    <bean class="ru.ibs.pmp.nsi.features.impl.GetNSIMetadataFeature"/>
+    <!--<bean class="ru.ibs.pmp.nsi.features.impl.GetErrorNameByCodeFeatureImpl"/>-->
+
+	<!-- PRIVATE -->
+
+    <bean id="nsiReadTxManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="nsiReadSessionFactory"/>
+    </bean>
+
+    <bean id="nsiReadTxTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="nsiReadTxManager"/>
+    </bean>
+
+    <bean id="nsiReadDataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="${runtime.nsi.db.url}"/>
+        <property name="username" value="${runtime.nsi.db.username}"/>
+        <property name="password" value="${runtime.nsi.db.password}"/>
+        <property name="initialSize" value="${runtime.pmp.db.pool.initialSize}"/>
+        <property name="maxTotal" value="${runtime.pmp.db.pool.maxSize}"/>
+        <property name="maxIdle" value="${runtime.pmp.db.pool.inactiveCount}"/>
+    </bean>
+
+    <bean id="nsiReadSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="nsiReadDataSource"/>
+
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${db.hibernate.dialect}</prop>
+                <prop key="hibernate.format_sql">false</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <prop key="hibernate.connection.release_mode">on_close</prop>
+                <prop key="hibernate.connection.autocommit">false</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.generate_statistics">false</prop>
+                <prop key="hibernate.cache.use_structured_entries">true</prop>
+                <prop key="hibernate.jdbc.batch_size">100</prop>
+                <prop key="hibernate.order_inserts">true</prop>
+                <prop key="hibernate.jdbc.batch_versioned_data">true</prop>
+                <prop key="hibernate.order_updates">true</prop>
+            </props>
+        </property>
+
+        <property name="packagesToScan"
+                  value="ru.ibs.pmp.nsi.service"/>
+    </bean>
+
+    <bean id="nsiService" class="ru.ibs.pmp.nsi.service.NsiServiceImpl"/>
+    <bean id="nsiTableService" class="ru.ibs.pmp.nsi.service.NsiTableServiceImpl"/>
+</beans>
+
+
