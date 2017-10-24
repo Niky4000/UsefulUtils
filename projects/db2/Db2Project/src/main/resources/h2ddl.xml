@@ -1,0 +1,46 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    <changeSet author="Unknown" id="777">
+    
+        <createSequence schemaName="PMP_PROD" cycle="false" incrementBy="1" ordered="false" sequenceName="PMP_BILL_STATISTICS_SEQ" startValue="1"/>
+        
+        <createSequence schemaName="PMP_PROD" cycle="false" incrementBy="1" ordered="false" sequenceName="PMP_BILL_TIME_SEQ" startValue="1"/>
+    
+        <createTable schemaName="PMP_PROD" tableName="PMP_BILL_STATISTICS">
+            <column name="REQUIREMENT_ID" remarks="Идентификатор" type="NUMBER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED" remarks="Дата создания записи" type="timestamp"/>
+            <column name="FINISHED" remarks="Дата завершения операции" type="timestamp"/>
+            <column name="TYPE" remarks="Количество обработанных услуг (счетов)" type="VARCHAR2(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="INVOICE_COUNT" type="integer"/>
+            <column name="ID" type="NUMBER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REV" type="NUMBER"/>
+            <column name="PARAMETERS" type="VARCHAR2(1024 CHAR)"/>
+            <column name="USER_UNIQUEID" remarks="Логин пользователя" type="VARCHAR2(64)"/>
+        </createTable>
+
+        <createTable schemaName="PMP_PROD" tableName="PMP_BILL_STATISTICS_TIME">
+            <column name="ID" remarks="Идентификатор" type="NUMBER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FK" remarks="Ссылка на PMP_BILL_STATISTICS" type="NUMBER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OPERATION_DESCRIPTION" remarks="Описание операции" type="VARCHAR2(1024 CHAR)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED" remarks="Дата создания записи" type="timestamp"/>
+            <column name="ALAPSED_TIME" remarks="Длительность операции" type="NUMBER"/>
+        </createTable>
+
+        <!--<addForeignKeyConstraint baseTableSchemaName="PMP_PROD" referencedTableSchemaName="PMP_PROD" baseColumnNames="FK" baseTableName="PMP_BILL_STATISTICS_TIME" constraintName="PMP_BILL_STATISTICS_TIME_FK1" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID" referencedTableName="PMP_BILL_STATISTICS"/>-->
+
+    </changeSet>
+</databaseChangeLog>
