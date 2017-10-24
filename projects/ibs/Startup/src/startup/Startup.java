@@ -24,10 +24,10 @@ public class Startup {
                 Thread.sleep(1000);
                 System.out.println("Wait " + i + "...");
             }
-            Runtime.getRuntime().exec("cmd.exe /c start D:\\GIT\\MyTestProjects\\Startup\\tomcat_script.cmd");
+            Runtime.getRuntime().exec("cmd.exe /c start D:\\GIT\\UsefulUtils\\projects\\ibs\\Startup\\tomcat_script.cmd");
             Runtime.getRuntime().exec("notepad D:\\Documents\\catalina_opts.txt");
             Thread.sleep(4000);
-            Runtime.getRuntime().exec("cmd.exe /c start D:\\GIT\\MyTestProjects\\Startup\\build_path.cmd");
+            Runtime.getRuntime().exec("cmd.exe /c start D:\\GIT\\UsefulUtils\\projects\\ibs\\Startup\\build_path.cmd");
             Thread.sleep(4000);
             openDirs();
             Thread.sleep(100);
