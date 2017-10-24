@@ -1,0 +1,13 @@
+/projects/akka/akka-sample-cluster/target
+/projects/ibs/TomcatRestart/target
+/projects/ibs/Updater/target
+/projects/ibs/ZZZTestApplication/target
+/projects/jgit/JGitFlowTest/target
+/projects/jgit/ZJGit/target
+/projects/portforwarding/PortMapper/target/
+/projects/shh/apache_mina/apache-sshd-1.2.0/target
+/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-core/target
+/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/target
+/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-ldap/target
+/projects/shh/ApacheMinaTest/target
+/projects/shh/SshPortForwarding/target
