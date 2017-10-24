@@ -1,0 +1,1 @@
+java -jar "D:\GIT\MyTestProjects\TomcatRestart\target\TomcatRestart.jar" -i

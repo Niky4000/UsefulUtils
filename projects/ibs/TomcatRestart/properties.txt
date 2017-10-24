@@ -1,0 +1,12 @@
+host=172.29.4.26
+user=root
+password=%TGB5tgb
+zipArchPath=D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all.zip
+targetUnpackDir=D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all
+tomcatModulesDir=D:\\GIT\\pmp\\tools\\appserver\\tomcat\\webapps
+modules=\\modules
+pmpClientPath=\\PmpClient.war
+sshPmpClientPath=/home/mls/tomcat/webapps/PmpClient.war
+deleteDirPath= D:\\GIT\\pmp\\tools\\appserver\\tomcat\\log.fileBaseDir_IS_UNDEFINED,D:\\GIT\\pmp\\tools\\appserver\\tomcat\\temp,D:\\GIT\\pmp\\tools\\appserver\\tomcat\\work
+deleteFilesPath=D:\\GIT\\pmp\\tools\\appserver\\tomcat\\logs
+deleteDirsPath=D:\\GIT\\pmp\\tools\\appserver\\tomcat\\modules\\logs

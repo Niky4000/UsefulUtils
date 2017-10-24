@@ -1,0 +1,1 @@
+java -jar "D:\GIT\MyTestProjects\Startup\dist\Startup.jar" -d

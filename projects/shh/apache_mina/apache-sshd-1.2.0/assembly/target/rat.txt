@@ -1,0 +1,53 @@
+
+*****************************************************
+Summary
+-------
+Generated at: 2017-03-23T12:56:11+03:00
+Notes: 3
+Binaries: 0
+Archives: 0
+Standards: 13
+
+Apache Licensed: 13
+Generated Documents: 0
+
+JavaDocs are generated and so license header is optional
+Generated files do not required license headers
+
+0 Unknown Licenses
+
+*******************************
+
+Unapproved licenses:
+
+
+*******************************
+
+Archives:
+
+*****************************************************
+  Files with Apache License headers will be marked AL
+  Binary files (which do not require AL headers) will be marked B
+  Compressed archives will be marked A
+  Notices, licenses etc will be marked N
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/pom.xml
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/unix-bin.xml
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/unix-src.xml
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/windows-bin.xml
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/windows-src.xml
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/scp.bat
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/scp.sh
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sftp.bat
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sftp.sh
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/ssh.bat
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/ssh.sh
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sshd.bat
+  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sshd.sh
+  N     D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/LICENSE.txt
+  N     D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/NOTICE.txt
+  N     D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/README.txt
+ 
+*****************************************************
+ Printing headers for files without AL header...
+ 
+ 

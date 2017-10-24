@@ -1,0 +1,31 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Apache MINA SSHD
+
+
+From: 'an unknown organization'
+  - Bouncy Castle OpenPGP API (http://www.bouncycastle.org/java.html) org.bouncycastle:bcpg-jdk15on:jar:1.54
+    License: Bouncy Castle Licence  (http://www.bouncycastle.org/licence.html)    License: Apache Software License, Version 1.1  (http://www.apache.org/licenses/LICENSE-1.1)
+  - Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (http://www.bouncycastle.org/java.html) org.bouncycastle:bcpkix-jdk15on:jar:1.54
+    License: Bouncy Castle Licence  (http://www.bouncycastle.org/licence.html)
+  - Bouncy Castle Provider (http://www.bouncycastle.org/java.html) org.bouncycastle:bcprov-jdk15on:jar:1.54
+    License: Bouncy Castle Licence  (http://www.bouncycastle.org/licence.html)
+
+From: 'QOS.ch' (http://www.qos.ch)
+  - SLF4J API Module (http://www.slf4j.org/slf4j-api) org.slf4j:slf4j-api:jar:1.7.16:compile
+    License: MIT style  (http://www.slf4j.org/license.html)
+  - SLF4J JDK14 Binding (http://www.slf4j.org) org.slf4j:slf4j-jdk14:jar:1.7.16
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+  - Apache Mina SSHD :: Core (http://www.apache.org/sshd/sshd-core/) org.apache.sshd:sshd-core:jar:1.2.0
+    License: Apache 2.0 License  (http://www.apache.org/licenses/LICENSE-2.0)
+  - tomcat-apr (http://tomcat.apache.org/tomcat-apr) tomcat:tomcat-apr:jar:5.5.23
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+
+
