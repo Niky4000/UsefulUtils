@@ -1,0 +1,2 @@
+Using this command we are able to suspend and after connecting to debug jar process.
+-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=21044

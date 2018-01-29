@@ -1,1 +1,1 @@
-java -jar "D:\GIT\MyTestProjects\TomcatRestart\target\TomcatRestart.jar" -rl -i -conf D:\GIT\MyTestProjects\TomcatRestart\properties_remote.txt
+java -jar "D:\GIT\UsefulUtils\projects\ibs\TomcatRestart\target\TomcatRestart.jar" -rl -i -conf D:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties_remote.txt

@@ -5,15 +5,18 @@
  */
 package ru.ibs.pmp.zzztestapplication;
 
-import java.io.BufferedInputStream;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.LocationTextExtractionStrategy;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.Channels;
@@ -30,9 +33,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +46,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.apache.commons.lang.StringUtils;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+import ru.ibs.pmp.zzztestapplication.threads.TreadTest;
 
 /**
  *
@@ -55,11 +69,76 @@ public class SomeClass {
 //        handleNames();
 //        String hh="^(1|2)(0[1-9]|[1-2][0-9]|31(?!(?:0[2469]|11))|30(?!02))(0[1-9]|1[0-2])(\\d{2})([1-9]\\d?)$";
 //        encodingTrials();
-        StringBuilder exeptionStackTraceStr = new StringBuilder();
-        String toString = exeptionStackTraceStr.toString();
-        String allLocalIP = getAllLocalIP();
-        System.out.println(allLocalIP);
+//
+//        StringBuilder exeptionStackTraceStr = new StringBuilder();
+//        String toString = exeptionStackTraceStr.toString();
+//        String allLocalIP = getAllLocalIP();
+//        System.out.println(allLocalIP);
+//        testStack();
+//        System.out.println(org.apache.commons.lang.StringUtils.substring("1234567", 2, 4));
+//        System.out.println("1234567".substring(2, 4));
 
+//        representXmlAsSql2(testSAX().replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", ""));
+//        boolean b1 = someCheck("s", "s");
+//        boolean b2 = someCheck(null, null);
+//        boolean b3 = someCheck("", "");
+//        boolean b4 = someCheck(null, "s");
+//        boolean b5 = someCheck("p", null);
+//        debugPdfParsing();
+//        base64Decode();
+        testThreads();
+    }
+
+    private static void testThreads() throws InterruptedException {
+        TreadTest treadTest = new TreadTest(Thread.currentThread());
+        treadTest.start();
+        Thread.sleep(10 * 1000);
+        System.out.println("1");
+        Thread.sleep(10 * 1000);
+        System.out.println("2");
+        Thread.sleep(10 * 1000);
+        System.out.println("3");
+        Thread.sleep(10 * 1000);
+        System.out.println("4");
+        Thread.sleep(10 * 1000);
+        System.out.println("5");
+        Thread.sleep(10 * 1000);
+        System.out.println("6");
+        Thread.sleep(10 * 1000);
+        System.out.println("7");
+        Thread.sleep(10 * 1000);
+        System.out.println("8");
+        treadTest.interrupt();
+        treadTest.join();
+        System.out.println("Finished!");
+    }
+
+    private static void base64Decode() throws IOException {
+        String s = new String(Files.readAllBytes(new File("D:\\tmp\\urlencode.txt").toPath()));
+//        String decode = URLDecoder.decode(s, "cp1251");
+        String decode = new String(javax.xml.bind.DatatypeConverter.parseBase64Binary(s));
+        System.out.println(decode);
+        File saveFile = new File("D:\\tmp\\urldecode.txt");
+        if (saveFile.exists()) {
+            saveFile.delete();
+        }
+        Files.write(saveFile.toPath(), decode.getBytes(), StandardOpenOption.CREATE_NEW);
+    }
+
+    private static void debugPdfParsing() throws Exception {
+        File file = new File("D:\\tmp\\parcels\\2081\\77004\\20171101\\S_M1117.pdf");
+        LocationTextExtractionStrategy locationTextExtractionStrategy = new LocationTextExtractionStrategy();
+        PdfReader reader = new PdfReader(new FileInputStream(file));
+        String textFromPage = PdfTextExtractor.getTextFromPage(reader, 1, locationTextExtractionStrategy);
+        String matchedText = "Стоимость заявленного счета:";
+        String matchedText2 = "коп.";
+        String matchedText3 = "руб.,";
+        int indexOfMatchedText = textFromPage.indexOf(matchedText);
+        String substringTextFromPage = textFromPage.substring(indexOfMatchedText + matchedText.length(), textFromPage.length());
+        String matchedString = substringTextFromPage.substring(0, substringTextFromPage.indexOf(matchedText2));
+        String almostADigit = matchedString.replace(matchedText3, "").replace(" ", "");
+        Long totalBillPrice = Long.valueOf(almostADigit);
+        System.out.println(textFromPage);
     }
 
     private static String getAllLocalIP() {
@@ -1291,6 +1370,254 @@ public class SomeClass {
             }
         }
         return null;
+    }
+
+    private static void testStack() {
+        String moduleName = null;
+        String cleanStackStr = "ru.ibs.pmp.dao.hibernate.aspect.SyncAspect.interceptSyncDAOHibernateBegining(SyncAspect.java:103)\n"
+                + "ru.ibs.pmp.features.impl.IsLockOnMoAtPeriodExistsFeatureImpl.call(IsLockOnMoAtPeriodExistsFeatureImpl.java:23)\n"
+                + "ru.ibs.pmp.features.impl.IsLockOnMoAtPeriodExistsFeatureImpl.call(IsLockOnMoAtPeriodExistsFeatureImpl.java:14)\n"
+                + "ru.ibs.pmp.features.GetMedicalCasePojoFeature.call(GetMedicalCasePojoFeature.java:46)\n"
+                + "ru.ibs.pmp.features.GetMedicalCasePojoFeature.call(GetMedicalCasePojoFeature.java:21)\n"
+                + "ru.ibs.pmp.pmp.ws.impl.PmpWsImpl.getHospCaseV2(PmpWsImpl.java:1393)\n"
+                + "ru.ibs.pmp.auth.aspect.AuditAspect.execute(AuditAspect.java:93)\n"
+                + "ru.ibs.pmp.auth.aspect.AuditAspect.executeSoap(AuditAspect.java:66)";
+        if (cleanStackStr.contains("ru.ibs.pmp.pmp.ws.impl.PmpWsImpl")) {
+            moduleName = "PmpWsImpl";
+            Pattern pmpWsImplPattern = Pattern.compile("ru.ibs.pmp.pmp.ws.impl.PmpWsImpl.(.+?)\\(");
+            Matcher pmpWsImplMatcher = pmpWsImplPattern.matcher(cleanStackStr);
+            if (pmpWsImplMatcher.find()) {
+                String group = pmpWsImplMatcher.group(1);
+                moduleName += "." + group;
+            }
+        }
+        System.out.println(moduleName);
+    }
+
+    private static String testSAX() throws IOException {
+        return new String(Files.readAllBytes(new File("D:\\GIT\\pmp\\pmp\\module-pmp-bill-recreate\\src\\test\\resources\\recreate\\services_for_2397.sql").toPath()), "utf-8");
+    }
+
+    static class TableStructure {
+
+        private String tableName;
+        private List<String> fields = new ArrayList<>();
+        private List<String> values = new ArrayList<>();
+
+        public TableStructure(String tableName) {
+            this.tableName = tableName;
+        }
+
+        public void addField(String field) {
+            fields.add(field);
+        }
+
+        public void addValue(String value) {
+            values.add(value);
+        }
+
+        public String representAsSql() {
+            if (fields.size() != values.size()) {
+                throw new RuntimeException("fields.size()!=values.size()");
+            }
+            Map<String, Object> objMap = new HashMap<>(fields.size());
+            for (int i = 0; i < fields.size(); i++) {
+                objMap.put(fields.get(i), values.get(i));
+            }
+            return composeSql(tableName, objMap);
+        }
+
+        protected String composeSql(String tableName, Map<String, Object> objMap) {
+            List<String> columns = new ArrayList<String>(objMap.size());
+            List<Object> values = new ArrayList<Object>(objMap.size());
+            for (Map.Entry<String, Object> entry : objMap.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                columns.add(key);
+                values.add(value);
+            }
+            StringBuilder sb = new StringBuilder("insert into " + tableName + " (");
+            for (int i = 0; i < objMap.size(); i++) {
+                sb.append(columns.get(i));
+                if (i < objMap.size() - 1) {
+                    sb.append(",");
+                }
+            }
+            sb.append(") values(");
+            for (int i = 0; i < objMap.size(); i++) {
+                sb.append(getValueAsString(values.get(i)));
+                if (i < objMap.size() - 1) {
+                    sb.append(",");
+                }
+            }
+            sb.append(");");
+            return sb.toString();
+        }
+
+        protected String getValueAsString(Object value) {
+            if (value != null && value instanceof Date) {
+                return getDateAsString((Date) value);
+            } else if (value != null && value instanceof GregorianCalendar) {
+                return getDateAsString(((GregorianCalendar) value).getTime());
+            } else if (value != null && value instanceof Number) {
+                return "" + value + "";
+            } else if (value != null && value instanceof Boolean) {
+                return "" + (Boolean.valueOf(value.toString()) ? "1" : "0") + "";
+            } else if (value != null) {
+                return "'" + value + "'";
+            } else {
+                return "null";
+            }
+        }
+        private static final boolean ORACLE = false;
+
+        private String getDateAsString(Date date) {
+            // to_timestamp('07.03.17 18:07:02,439000000','DD.MM.RR HH24:MI:SSXFF')
+            if (ORACLE) {
+                return "to_date('" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date) + "','yyyy-MM-dd HH24:mi:ss')";
+            } else {
+                return "to_timestamp('" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date) + "','yyyy-MM-dd HH24:mi:ss')";
+            }
+        }
+    }
+
+    static class IntWrapper {
+
+        private int counter = 0;
+        private List<TableStructure> tableStructureList = new ArrayList<>();
+
+        public int getCounter() {
+            return counter;
+        }
+
+        public void inc() {
+            counter++;
+        }
+
+        public void dec() {
+            counter--;
+        }
+
+        public void addTableStructure(String tableName) {
+            tableStructureList.add(new TableStructure(tableName));
+        }
+
+        public void addField(String field) {
+            tableStructureList.get(tableStructureList.size() - 1).addField(field);
+        }
+
+        public void addValue(String value) {
+            tableStructureList.get(tableStructureList.size() - 1).addValue(value);
+        }
+
+        public String representAsSql() {
+            StringBuilder sb = new StringBuilder();
+            for (TableStructure tableStructure : tableStructureList) {
+                sb.append(tableStructure.representAsSql()).append("\n");
+            }
+            return sb.toString();
+        }
+    }
+
+    private static String representXmlAsSql(String xml) throws SAXException, ParserConfigurationException, IOException {
+        final IntWrapper counter = new IntWrapper();
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        SAXParser saxParser = factory.newSAXParser();
+        DefaultHandler handler = createHandler(counter);
+        saxParser.parse(new ByteArrayInputStream(xml.replace("\r", "").replace("\n", "").getBytes()), handler);
+        String sql = counter.representAsSql();
+        return sql;
+    }
+
+    private static DefaultHandler createHandler(final IntWrapper counter) {
+        DefaultHandler handler = new DefaultHandler() {
+
+            @Override
+            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                counter.inc();
+                System.out.println("Start Element :" + qName);
+                if (counter.getCounter() == 2) {
+                    counter.addTableStructure(qName);
+                }
+                if (counter.getCounter() == 3) {
+                    counter.addField(qName);
+                }
+            }
+
+            @Override
+            public void characters(char[] ch, int start, int length) throws SAXException {
+                String value = new String(ch, start, length);
+                if (value != null && value.startsWith("%") && value.substring(value.length() - 3, value.length() - 2).equals("%")) {
+                    try {
+                        value = URLDecoder.decode(value, "UTF-8");
+                    } catch (UnsupportedEncodingException ex) {
+                        Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+                        throw new RuntimeException(ex);
+                    }
+                }
+                System.out.println("Value : " + value);
+                counter.addValue(value);
+            }
+
+            @Override
+            public void endElement(String uri, String localName, String qName) throws SAXException {
+                counter.dec();
+            }
+
+        };
+        return handler;
+    }
+
+    private static String representXmlAsSql2(String xml) throws SAXException {
+        final IntWrapper counter = new IntWrapper();
+        DefaultHandler handler = createHandler(counter);
+        String parseXml = parseXml(xml, handler);
+        String sql = counter.representAsSql();
+        return sql;
+    }
+
+    private static String parseXml(String xml, DefaultHandler handler) throws SAXException {
+        Matcher matcher = xmlPattern.matcher(xml);
+        while (matcher.matches() && xml.replace("\n", "").replace("\r", "").length() > 0) {
+            String tag = xml.substring(xml.indexOf("<") + 1, xml.indexOf(">"));
+            String openTag = "<" + tag + ">";
+            String closeTag = "</" + tag + ">";
+            handler.startElement(null, null, tag, null);
+            String value = xml.substring(xml.lastIndexOf(openTag) + openTag.length(), xml.lastIndexOf(closeTag));
+//            depth++;
+            System.out.println("openTag=" + openTag);
+            String representXmlAsSql2 = parseXml(value, handler);
+            handler.endElement(null, null, null);
+//            return xml.substring(representXmlAsSql2.length(), xml.length());
+//            xml = xml.substring(openTag.length() + representXmlAsSql2.length() + closeTag.length(), xml.length());
+            xml = xml.substring(xml.indexOf(closeTag) + closeTag.length(), xml.length());
+        }
+//      else {
+//            depth--;
+        if (xml.replace("\n", "").replace("\r", "").length() > 0) {
+            handler.characters(xml.toCharArray(), 0, xml.length());
+        }
+        return xml;
+//        }
+    }
+    private static final Pattern xmlPattern = Pattern.compile("^.*<.+?>.*</.+?>.*$", Pattern.DOTALL);
+
+    private static boolean someCheck(String STAC_NOMLPU, String STAC_CODWDR) {
+//        boolean b = (STAC_NOMLPU.equals("s") && StringUtils.isNotBlank(STAC_CODWDR))
+//                || (STAC_NOMLPU.equals("s") && !"s".equals(STAC_CODWDR))
+//                || (STAC_NOMLPU.equals("p") && StringUtils.isNotBlank(STAC_CODWDR))
+//                || (STAC_NOMLPU.equals("b") && !"b".equals(STAC_CODWDR));
+//
+//        boolean b = (STAC_NOMLPU.equals("s") && StringUtils.isNotBlank(STAC_CODWDR) && STAC_CODWDR.equals("b"))
+//                || (STAC_NOMLPU.equals("p") && StringUtils.isNotBlank(STAC_CODWDR) && (STAC_CODWDR.equals("s") || STAC_CODWDR.equals("b")))
+//                || (STAC_NOMLPU.equals("b") && (StringUtils.isBlank(STAC_CODWDR) || STAC_CODWDR.equals("s")));
+//
+        boolean b = ("s".equals(STAC_NOMLPU) && "s".equals(STAC_CODWDR))
+                || ("s".equals(STAC_NOMLPU) && "b".equals(STAC_CODWDR))
+                || ("p".equals(STAC_NOMLPU) && StringUtils.isBlank(STAC_CODWDR))
+                || ("b".equals(STAC_NOMLPU) && "b".equals(STAC_CODWDR));
+
+        return !b;
     }
 
 }

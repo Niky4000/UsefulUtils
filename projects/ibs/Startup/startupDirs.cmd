@@ -1,1 +1,1 @@
-java -jar "D:\GIT\MyTestProjects\Startup\dist\Startup.jar" -d
+java -jar "D:\GIT\UsefulUtils\projects\ibs\Startup\dist\Startup.jar" -d
