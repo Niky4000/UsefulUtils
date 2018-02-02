@@ -125,11 +125,6 @@ public class RepairCommon implements RecreateCommon {
     }
 
     @Override
-    public Date getPeriodEnd(Date period) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public Session getSession() {
         Session session = sessionFactory.openSession();
         return session;

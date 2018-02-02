@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <tx:annotation-driven transaction-manager="pmpTransactionManager"/>
+
+    <bean id="pmpTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="pmpSessionFactory"/>
+    </bean>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${db.driver}"/>
+        <property name="url" value="${runtime.pmp.db.url}"/>
+        <property name="username" value="${runtime.pmp.db.username}"/>
+        <property name="password" value="${runtime.pmp.db.password}"/>
+        <property name="initialSize" value="${runtime.pmp.db.pool.initialSize}"/>
+        <property name="maxTotal" value="${runtime.pmp.db.pool.maxSize}"/>
+        <property name="maxIdle" value="${runtime.pmp.db.pool.inactiveCount}"/>
+    </bean>
+
+    <bean id="pmpSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${db.hibernate.dialect}</prop>
+                <prop key="hibernate.format_sql">false</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <prop key="hibernate.connection.release_mode">on_close</prop>
+                <prop key="hibernate.connection.autocommit">false</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.generate_statistics">false</prop>
+                <prop key="hibernate.cache.use_structured_entries">true</prop>
+                <prop key="hibernate.jdbc.batch_size">100</prop>
+                <prop key="hibernate.order_inserts">true</prop>
+                <prop key="hibernate.jdbc.batch_versioned_data">true</prop>
+                <prop key="hibernate.order_updates">true</prop>
+            </props>
+        </property>
+
+        <property name="packagesToScan"
+                  value="ru.ibs.pmp.api.model"/>
+    </bean>
+
+    <bean id="pmpTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate" primary="true">
+        <property name="transactionManager" ref="pmpTransactionManager"/>
+    </bean>
+
+</beans>
