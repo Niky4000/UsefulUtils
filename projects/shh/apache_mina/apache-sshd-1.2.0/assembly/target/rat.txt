@@ -2,7 +2,7 @@
 *****************************************************
 Summary
 -------
-Generated at: 2017-03-23T12:56:11+03:00
+Generated at: 2018-02-08T10:08:41+03:00
 Notes: 3
 Binaries: 0
 Archives: 0
@@ -30,22 +30,22 @@ Archives:
   Binary files (which do not require AL headers) will be marked B
   Compressed archives will be marked A
   Notices, licenses etc will be marked N
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/pom.xml
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/unix-bin.xml
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/unix-src.xml
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/windows-bin.xml
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/windows-src.xml
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/scp.bat
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/scp.sh
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sftp.bat
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sftp.sh
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/ssh.bat
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/ssh.sh
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sshd.bat
-  AL    D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sshd.sh
-  N     D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/LICENSE.txt
-  N     D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/NOTICE.txt
-  N     D:/GIT/MyTestProjects/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/README.txt
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/pom.xml
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/unix-bin.xml
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/unix-src.xml
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/windows-bin.xml
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/descriptors/windows-src.xml
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/scp.bat
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/scp.sh
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sftp.bat
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sftp.sh
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/ssh.bat
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/ssh.sh
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sshd.bat
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/bin/sshd.sh
+  N     D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/LICENSE.txt
+  N     D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/NOTICE.txt
+  N     D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/assembly/src/main/distribution/README.txt
  
 *****************************************************
  Printing headers for files without AL header...

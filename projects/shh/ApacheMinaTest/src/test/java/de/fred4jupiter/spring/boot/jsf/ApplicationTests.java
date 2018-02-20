@@ -51,7 +51,8 @@ public class ApplicationTests {
         Files.write(new File(clientFile).toPath(), "Hello Client!!!".getBytes(), StandardOpenOption.CREATE_NEW);
         Files.write(new File(serverFile).toPath(), "Hello Server!!!".getBytes(), StandardOpenOption.CREATE_NEW);
         sshClient.scpFrom("127.0.0.1", Integer.valueOf(properties.getProperty("server.port")), properties.getProperty("server.user.name"), properties.getProperty("server.user.password"), serverFile, clientDir);
-        sshClient.scpTo("127.0.0.1", Integer.valueOf(properties.getProperty("server.port")), properties.getProperty("server.user.name"), properties.getProperty("server.user.password"), serverDir + "\\" + clientFileName, clientFile);
+//        sshClient.scpTo("127.0.0.1", Integer.valueOf(properties.getProperty("server.port")), properties.getProperty("server.user.name"), properties.getProperty("server.user.password"), serverDir + "\\" + clientFileName, clientFile);
+        sshClient.scpTo("127.0.0.1", Integer.valueOf(properties.getProperty("server.port")), properties.getProperty("server.user.name"), properties.getProperty("server.user.password"), serverDir + "\\" + clientFileName, serverDir + "\\" + clientFileName);
 //        sshClient.scpTo("172.29.4.26", 22, "mls", "%TGB5tgb", "/tmp/ZZXXXX.txt", clientFile);
         Assert.assertTrue(new File(clientDir + "\\" + serverFileName).exists());
         Assert.assertTrue(new File(serverDir + "\\" + clientFileName).exists());

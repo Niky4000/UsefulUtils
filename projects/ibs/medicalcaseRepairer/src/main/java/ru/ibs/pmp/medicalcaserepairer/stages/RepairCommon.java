@@ -50,6 +50,7 @@ import ru.ibs.pmp.dao.SyncDAO;
 import ru.ibs.pmp.dao.hibernate.CommonAudDAOHibernate;
 import ru.ibs.pmp.dao.hibernate.CostAudDAOHibernate;
 import ru.ibs.pmp.dao.hibernate.InvoiceAudDAOHibernate;
+import ru.ibs.pmp.dao.hibernate.SyncDAOHibernate;
 import ru.ibs.pmp.lpu.dao.MoDao;
 import ru.ibs.pmp.module.pmp.bill.recreate.RecreateUtils;
 import ru.ibs.pmp.module.pmp.bill.recreate.bean.BillStatisticsBean;
@@ -163,7 +164,7 @@ public class RepairCommon implements RecreateCommon {
             public BillStatisticsBean doInTransaction(TransactionStatus status) {
                 Session session = getSession();
                 BillStatistics billStatistics = null;
-                billStatistics = new BillStatistics(requirement.getId(), requirement, new Date(), null, billOperation, 0, null, parameters, userId, ProcessUtils.getProcessId());
+                billStatistics = new BillStatistics(requirement.getId(), requirement, new Date(), null, billOperation, 0, null, parameters, userId, ProcessUtils.getProcessId(), new SyncDAOHibernate().getLocalIP());
                 Long id = (Long) session.save(billStatistics);
                 if (id != null) {
                     billStatistics.setId(id);

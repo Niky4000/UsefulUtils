@@ -50,6 +50,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.universalchardet.UniversalDetector;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -86,7 +87,32 @@ public class SomeClass {
 //        boolean b5 = someCheck("p", null);
 //        debugPdfParsing();
 //        base64Decode();
-        testThreads();
+//        testThreads();
+        handleHttpResponseString("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:getPersonsInfoResponse xmlns:ns2=\"http://erzl.org/services\"><ns2:getPersonsInfoRequest><ns2:client><ns2:orgCode>-1</ns2:orgCode><ns2:bpCode>1</ns2:bpCode><ns2:system>PUMP</ns2:system><ns2:user>mgms</ns2:user><ns2:password>ibs</ns2:password></ns2:client><ns2:ukl>111333</ns2:ukl><ns2:ukl>222777</ns2:ukl><ns2:ukl>25080285</ns2:ukl><ns2:ukl>30976035</ns2:ukl><ns2:date>2017-11-30</ns2:date></ns2:getPersonsInfoRequest><ns2:totalResults>0</ns2:totalResults></ns2:getPersonsInfoResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>");
+    }
+
+    private static byte[] encodeToUtf8(byte[] readAllBytes) throws IOException {
+        UniversalDetector detector = new UniversalDetector(null);
+        detector.handleData(readAllBytes, 0, readAllBytes.length);
+        detector.dataEnd();
+        String encoding = detector.getDetectedCharset();
+        detector.reset();
+        if (encoding == null) {
+            return readAllBytes;
+        }
+        Charset utf8charset = StandardCharsets.UTF_8;
+        Charset originalCharset = Charset.forName(encoding);
+        String reencoded2 = new String(readAllBytes, originalCharset);
+        return reencoded2.getBytes(utf8charset);
+    }
+
+    public static String handleHttpResponseString(String obj) {
+        Matcher matcher = Pattern.compile("^.+?Body>(.+?)<[^>]+?Body>.+$", Pattern.DOTALL).matcher(obj);
+        if (matcher.find()) {
+            String group = matcher.group(1);
+            return group;
+        }
+        return null;
     }
 
     private static void testThreads() throws InterruptedException {

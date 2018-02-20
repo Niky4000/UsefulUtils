@@ -5,10 +5,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.sshd.common.NamedFactory;
-import org.apache.sshd.common.forward.TcpipForwarder;
-import org.apache.sshd.common.forward.TcpipForwarderFactory;
 import org.apache.sshd.common.scp.helpers.DefaultScpFileOpener;
-import org.apache.sshd.common.session.ConnectionService;
 import org.apache.sshd.common.session.Session;
 import org.apache.sshd.common.util.GenericUtils;
 import org.apache.sshd.common.util.net.SshdSocketAddress;
@@ -24,9 +21,7 @@ import org.apache.sshd.server.session.ServerSession;
 import org.apache.sshd.server.shell.ProcessShellFactory;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import ru.ibs.pmp.apacheminatest.ApacheMina;
 
 /**
  *
@@ -129,7 +124,7 @@ public class ApacheMinaServerImpl implements ApacheMinaServer {
                 System.out.println("Server started!");
             } catch (IOException ex) {
                 ex.printStackTrace();
-                Logger.getLogger(ApacheMina.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ApacheMinaServerImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

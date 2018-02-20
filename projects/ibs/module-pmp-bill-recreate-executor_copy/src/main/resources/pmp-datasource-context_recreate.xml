@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--<tx:annotation-driven transaction-manager="txManager"/>-->
+
+    <bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="practTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate" primary="true">
+        <property name="transactionManager" ref="practTxManager"/>
+    </bean>
+    
+    <bean id="practTxManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="practSessionFactory"/>
+    </bean>
+
+    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate" primary="true">
+        <property name="transactionManager" ref="txManager"/>
+    </bean>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${db.driver}"/>
+        <property name="url" value="${runtime.pmp.db.url}"/>
+        <property name="username" value="${runtime.pmp.db.username}"/>
+        <property name="password" value="${runtime.pmp.db.password}"/>
+        <property name="initialSize" value="${runtime.pmp.db.pool.initialSize}"/>
+        <property name="maxTotal" value="${runtime.pmp.db.pool.maxSize}"/>
+        <property name="maxIdle" value="${runtime.pmp.db.pool.inactiveCount}"/>
+        <!--        <property name="maxConnLifetimeMillis" value="${runtime.db.maxConnLifetimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${runtime.db.timeBetweenEvictionRunsMillis}"/>-->
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${db.hibernate.dialect}</prop>
+                <prop key="hibernate.format_sql">false</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <prop key="hibernate.connection.release_mode">on_close</prop>
+                <prop key="hibernate.connection.autocommit">false</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.generate_statistics">false</prop>
+                <prop key="hibernate.cache.use_structured_entries">true</prop>
+                <prop key="hibernate.jdbc.batch_size">100</prop>
+                <prop key="hibernate.order_inserts">true</prop>
+                <prop key="hibernate.jdbc.batch_versioned_data">true</prop>
+                <prop key="hibernate.order_updates">true</prop>
+            </props>
+        </property>
+
+        <property name="packagesToScan"
+                  value="ru.ibs.pmp.api.model,
+                         ru.ibs.pmp.auth.model,                  
+                         ru.ibs.pmp.service.jobtrack,
+                         ru.ibs.pmp.service.flk,
+                         ru.ibs.pmp.service.export.msk.policy.model,
+                         ru.ibs.pmp.service.export.msk.erzattachments.model,
+                         ru.ibs.pmp.service.export.msk.clinicalexamination.model,
+                         ru.ibs.pmp.service.check.msk,
+                         ru.ibs.pmp.service.expertise.model,
+                         ru.ibs.pmp.lpu.model.mo"/>
+    </bean>
+    
+    <bean id="practSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${db.hibernate.dialect}</prop>
+                <prop key="hibernate.format_sql">false</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <prop key="hibernate.connection.release_mode">on_close</prop>
+                <prop key="hibernate.connection.autocommit">false</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.generate_statistics">false</prop>
+                <prop key="hibernate.cache.use_structured_entries">true</prop>
+                <prop key="hibernate.jdbc.batch_size">100</prop>
+                <prop key="hibernate.order_inserts">true</prop>
+                <prop key="hibernate.jdbc.batch_versioned_data">true</prop>
+                <prop key="hibernate.order_updates">true</prop>
+            </props>
+        </property>
+
+        <property name="packagesToScan"
+                  value="ru.ibs.pmp.api.practitioners.model.practitioner,ru.ibs.pmp.api.practitioners.model.audit.practitioner,ru.ibs.pmp.lpu.model.mo"/>
+    </bean>
+
+    <bean id="pmpSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${db.hibernate.dialect}</prop>
+                <prop key="hibernate.format_sql">false</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <prop key="hibernate.connection.release_mode">on_close</prop>
+                <prop key="hibernate.connection.autocommit">false</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.generate_statistics">false</prop>
+                <prop key="hibernate.cache.use_structured_entries">true</prop>
+                <prop key="hibernate.jdbc.batch_size">100</prop>
+                <prop key="hibernate.order_inserts">true</prop>
+                <prop key="hibernate.jdbc.batch_versioned_data">true</prop>
+                <prop key="hibernate.order_updates">true</prop>
+            </props>
+        </property>
+
+        <property name="packagesToScan"
+                  value="ru.ibs.pmp.api.model,
+                         ru.ibs.pmp.auth.model,                  
+                         ru.ibs.pmp.service.jobtrack,
+                         ru.ibs.pmp.service.flk,
+                         ru.ibs.pmp.service.export.msk.policy.model,
+                         ru.ibs.pmp.service.export.msk.erzattachments.model,
+                         ru.ibs.pmp.service.export.msk.clinicalexamination.model,
+                         ru.ibs.pmp.service.check.msk,
+                         ru.ibs.pmp.service.expertise.model,
+                         ru.ibs.pmp.lpu.model.mo"/>
+    </bean>
+
+<!--    <bean id="pmpTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="pmpSessionFactory" />
+    </bean>
+
+    <tx:annotation-driven transaction-manager="pmpTransactionManager" />-->
+
+
+</beans>

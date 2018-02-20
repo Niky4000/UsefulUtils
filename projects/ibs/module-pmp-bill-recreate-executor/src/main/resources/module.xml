@@ -1,28 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:util="http://www.springframework.org/schema/util" xmlns:task="http://www.springframework.org/schema/task"
-       xmlns:mvc="http://www.springframework.org/schema/mvc"
-       xmlns:jee="http://www.springframework.org/schema/jee"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
-                http://www.springframework.org/schema/jee
-		http://www.springframework.org/schema/jee/spring-jee.xsd
-                http://www.springframework.org/schema/tx
-		http://www.springframework.org/schema/tx/spring-tx.xsd">
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
-    <bean id="nsiService" class="ru.ibs.pmp.nsi.service.NsiServiceImpl"/>
+    <!-- properties -->
+    <bean id="propertyConfigurer" class="ru.ibs.pmp.recreate.ExecProperties">
+        <property name="order" value="1"/>
+        <property name="fileEncoding" value="UTF-8"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="locations">
+            <list>
+                <value>file:${config.path:./modules/conf/runtime.properties}</value>
+            </list>
+        </property>
+    </bean>
+    
+    <context:component-scan base-package="ru.ibs.pmp.module.recreate.exec,
+                                            ru.ibs.pmp.dao.hibernate">
+        <context:exclude-filter type="regex" expression="ru.ibs.pmp.module.recreate.exec.controller.*"/>
+    </context:component-scan>
+    
+    <bean class="ru.ibs.pmp.nsi.service.NsiServiceImpl"/>
+    <bean class="ru.ibs.pmp.module.recreate.exec.ExecuteRecreate" id="executeRecreate"/>
+    <bean class="ru.ibs.pmp.dao.hibernate.SyncDAOHibernate" id="syncDAO"/>
+    <!--<bean class="ru.ibs.pmp.dao.hibernate.SyncSaveDAOHibernate"/>-->
+    <bean class="ru.ibs.pmp.recreate.DebugConfig"/>
     
     <import resource="nsi-read-context_recreate.xml"/>
-    <import resource="pmp-nsi-datasource-context.xml"/>
     <import resource="pmp-datasource-context_recreate.xml"/>
-    <import resource="module_exec.xml"/>
-
-    
 </beans>

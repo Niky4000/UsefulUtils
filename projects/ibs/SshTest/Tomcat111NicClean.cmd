@@ -1,0 +1,1 @@
+java -jar "D:\GIT\UsefulUtils\projects\ibs\TomcatRestart\target\TomcatRestart.jar" -clean -conf D:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties_remote_111_nic.txt
