@@ -3,8 +3,9 @@ package ru.ibs.pmp.recreate;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import org.springframework.context.annotation.Bean;
@@ -19,11 +20,11 @@ import ru.ibs.pmp.dao.SyncSaveDAO;
 /**
  * @author NAnishhenko
  */
-@Configuration
+//@Configuration
 public class DebugConfig {
 
-    @Bean
-    @Primary
+//    @Bean
+//    @Primary
     public SyncSaveDAO getSyncSaveDAO() {
         SyncSaveDAO syncSaveDAO = (SyncSaveDAO) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SyncSaveDAO.class}, new InvocationHandler() {
             @Override
@@ -38,11 +39,11 @@ public class DebugConfig {
         return syncSaveDAO;
     }
 
-    @Bean
-    @Primary
+//    @Bean
+//    @Primary
     public SyncDAO getSyncDAO() {
 
-        Date period = Date.from(LocalDateTime.of(2018, 1, 1, 0, 0, 0).toInstant(ZoneOffset.UTC));
+        Date period = Date.from(LocalDateTime.of(2018, 1, 1, 0, 0, 0).toInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())));
 
         SyncDAO syncDAO = (SyncDAO) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SyncDAO.class}, new InvocationHandler() {
 
@@ -81,10 +82,9 @@ public class DebugConfig {
 //                        createPmpSync(1118, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
 //                        createPmpSync(1119, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
 //                        createPmpSync(1120, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId")});
-                    
                     return Arrays.asList(new PmpSync[]{createPmpSync(1863, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId")});
+//                    return Arrays.asList(new PmpSync[]{createPmpSync(4889, Date.from(LocalDateTime.of(2017, 11, 1, 0, 0, 0).toInstant(ZoneOffset.UTC)), RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId")});
 
-                    
                 } else if (methodName.equals("hashCode")) {
                     return 89;
                 }

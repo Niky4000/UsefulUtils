@@ -14,8 +14,10 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static ru.ibs.pmp.module.recreate.exec.ExecuteRecreate.isWindowsOS;
+import ru.ibs.pmp.module.recreate.exec.bean.OsEnum;
 import ru.ibs.pmp.module.recreate.exec.bean.ProcessBean;
 import ru.ibs.pmp.module.recreate.exec.bean.TargetSystemBean;
+import ru.ibs.pmp.module.recreate.exec.bean.TargetSystemBeanWrapper;
 
 /**
  * @author NAnishhenko
@@ -52,28 +54,40 @@ public class ExecuteThread extends Thread {
     public void executeProcess() throws InterruptedException {
         boolean result = true;
         while (true) {
-            ProcessBean processBean = taskQueue.take();
-            TargetSystemBean targetSystemBean = processBean.getTargetSystemBean();
-            String jarPath = targetSystemBean.getJarPath();
-            String confPath = targetSystemBean.getConfPath();
-            lpuInProcessSet.add(processBean.getMoId());
-//            TargetSystemBean targetSystemBean = quotaQueue.take();
+            ProcessBean processBean = null;
             try {
+                processBean = taskQueue.take();
+                TargetSystemBeanWrapper targetSystemBean = processBean.getTargetSystemBean();
+                String jarPath = targetSystemBean.getJarPath();
+                String confPath = targetSystemBean.getConfPath();
+                lpuInProcessSet.add(processBean.getMoId());
                 final String lpuId = processBean.getMoId();
                 final String periodStr = processBean.getPeriodYear() + "-" + addSymbols(processBean.getPeriodMonth());
                 final String operationMode = processBean.getOperationMode();
-//                String[] executeParams = {"java", "-Xmx40G", "-Dpmp.config.path=" + confPath, "-jar", jarPath, operationMode, lpuId, periodStr};
-                String[] executeParams = {"java -Xmx40G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + " " + lpuId + " " + periodStr};
-                log_info(StringUtils.join(executeParams, ", "));
-                targetSystemBean.setCommands(executeParams);
-                result = executeUtils.executeRemoteProcess(targetSystemBean);
+                String[] executeParams = null;
+                if (targetSystemBean.getOs().equals(OsEnum.LINUX)) {
+                    executeParams = new String[]{"java -Xmx40G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + " " + lpuId + " " + periodStr};
+                } else if (targetSystemBean.getOs().equals(OsEnum.WINDOWS)) {
+                    executeParams = new String[]{"cmd.exe /c start /wait java -Xmx40G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + " " + lpuId + " " + periodStr};
+                }
+                log_info("Server: " + targetSystemBean.getHost() + ": " + StringUtils.join(executeParams, ", "));
+                TargetSystemBeanWrapper targetSystemBeanWrapper = new TargetSystemBeanWrapper(targetSystemBean);
+                targetSystemBeanWrapper.setCommands(executeParams);
+                result = executeUtils.executeRemoteProcess(targetSystemBeanWrapper);
+                log_info("Server: " + targetSystemBean.getHost() + ": " + StringUtils.join(executeParams, ", ") + " process execute finished!");
+            } catch (InterruptedException ie) {
+//                log_info(this.getName() + " was interrapted!");
+                break;
             } catch (Exception e) {
                 e.printStackTrace();
                 log_error("Process Execute Exception!", e);
                 result = false;
+            } finally {
+                if (processBean != null) {
+                    lpuInProcessSet.remove(processBean.getMoId());
+                }
+//                log_info(this.getName() + " finalization actions were made!");
             }
-            lpuInProcessSet.remove(processBean.getMoId());
-//            backLinkQueue.put(true);
         }
     }
 

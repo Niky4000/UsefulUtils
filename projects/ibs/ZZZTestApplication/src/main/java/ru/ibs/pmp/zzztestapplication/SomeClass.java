@@ -88,7 +88,30 @@ public class SomeClass {
 //        debugPdfParsing();
 //        base64Decode();
 //        testThreads();
-        handleHttpResponseString("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:getPersonsInfoResponse xmlns:ns2=\"http://erzl.org/services\"><ns2:getPersonsInfoRequest><ns2:client><ns2:orgCode>-1</ns2:orgCode><ns2:bpCode>1</ns2:bpCode><ns2:system>PUMP</ns2:system><ns2:user>mgms</ns2:user><ns2:password>ibs</ns2:password></ns2:client><ns2:ukl>111333</ns2:ukl><ns2:ukl>222777</ns2:ukl><ns2:ukl>25080285</ns2:ukl><ns2:ukl>30976035</ns2:ukl><ns2:date>2017-11-30</ns2:date></ns2:getPersonsInfoRequest><ns2:totalResults>0</ns2:totalResults></ns2:getPersonsInfoResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>");
+//        handleHttpResponseString("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:getPersonsInfoResponse xmlns:ns2=\"http://erzl.org/services\"><ns2:getPersonsInfoRequest><ns2:client><ns2:orgCode>-1</ns2:orgCode><ns2:bpCode>1</ns2:bpCode><ns2:system>PUMP</ns2:system><ns2:user>mgms</ns2:user><ns2:password>ibs</ns2:password></ns2:client><ns2:ukl>111333</ns2:ukl><ns2:ukl>222777</ns2:ukl><ns2:ukl>25080285</ns2:ukl><ns2:ukl>30976035</ns2:ukl><ns2:date>2017-11-30</ns2:date></ns2:getPersonsInfoRequest><ns2:totalResults>0</ns2:totalResults></ns2:getPersonsInfoResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>");
+        testPattern();
+    }
+
+    private static void testPattern() {
+        Pattern win32ProcessPattern = Pattern.compile("^(.+?)\\s(.+?)\\s(\\d+?)$", Pattern.DOTALL);
+        Pattern win32ProcessPatternWithoutCmd = Pattern.compile("^(.+?)\\s(\\d+?)$", Pattern.DOTALL);
+        String str = "java.exe java -Xmx40G -Dpmp.config.path=C:\\recreateFor111\\2018_02_22__14_18_15\\conf\\runtime.properties -jar C:\\recreateFor111\\2018_02_22__14_18_15\\module-pmp-bill-recreate.jar -m 1932 2017-12 9640";
+        Matcher winMatcher = win32ProcessPattern.matcher(str);
+        if (winMatcher.find()) {
+            String processName = winMatcher.group(1);
+            String processCmd = winMatcher.group(2);
+            String processIdStr = winMatcher.group(3);
+//                    return new OsProcessBean(processName, Integer.valueOf(processIdStr), processCmd);
+            String hello = "";
+        } else {
+            Matcher winMatcherWithoutCmd = win32ProcessPatternWithoutCmd.matcher(str);
+            while (winMatcherWithoutCmd.find()) {
+                String processName = winMatcherWithoutCmd.group(1);
+                String processIdStr = winMatcherWithoutCmd.group(2);
+//                        return new OsProcessBean(processName, Integer.valueOf(processIdStr), null);
+                String hello = "";
+            }
+        }
     }
 
     private static byte[] encodeToUtf8(byte[] readAllBytes) throws IOException {

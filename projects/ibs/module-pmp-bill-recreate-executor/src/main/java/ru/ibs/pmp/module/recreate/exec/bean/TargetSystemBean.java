@@ -1,5 +1,7 @@
 package ru.ibs.pmp.module.recreate.exec.bean;
 
+import java.util.function.Function;
+
 /**
  * @author NAnishhenko
  */
@@ -14,14 +16,37 @@ public class TargetSystemBean {
     private final String password;
     private final Integer port;
     private final String workingDir;
-    private String jarPath;
-    private String confPath;
-    private String[] commands;
-    private String remoteWorkingDirFullPath;
-    private String remoteLibDirFullPath;
-    private String remoteConfDirFullPath;
+    private final Long minMemoryForRecreate;
+    private final Long minMemoryForSend;
+    private final String jarPath;
+    private final String confPath;
+    private final String remoteWorkingDirFullPath;
+    private final String remoteLibDirFullPath;
+    private final String remoteConfDirFullPath;
+    private final String remoteDbfDirFullPath;
+    private final String remoteDirName;
 
-    public TargetSystemBean(OsEnum os, int quota, String host, String user, String password, Integer port, String workingDir) {
+    protected TargetSystemBean() {
+        this.os = null;
+        this.quota = 0;
+        this.host = null;
+        this.user = null;
+        this.password = null;
+        this.port = null;
+        this.workingDir = null;
+        this.minMemoryForRecreate = null;
+        this.minMemoryForSend = null;
+        this.jarPath = null;
+        this.confPath = null;
+        this.remoteWorkingDirFullPath = null;
+        this.remoteLibDirFullPath = null;
+        this.remoteConfDirFullPath = null;
+        this.remoteDbfDirFullPath = null;
+        this.remoteDirName = null;
+    }
+
+    public TargetSystemBean(OsEnum os, int quota, String host, String user, String password, Integer port, String workingDir, Long minMemoryForRecreate, Long minMemoryForSend,
+            String jarPath, String confPath, String remoteWorkingDirFullPath, String remoteLibDirFullPath, String remoteConfDirFullPath, String remoteDbfDirFullPath, String remoteDirName) {
         this.os = os;
         this.quota = quota;
         this.host = host;
@@ -29,17 +54,15 @@ public class TargetSystemBean {
         this.password = password;
         this.port = port;
         this.workingDir = workingDir;
-    }
-
-    public TargetSystemBean(String[] commands) {
-        this.os = null;
-        this.quota = DEFAULT_QUOTA;
-        this.host = null;
-        this.user = null;
-        this.password = null;
-        this.port = null;
-        this.workingDir = null;
-        this.commands = commands;
+        this.minMemoryForRecreate = minMemoryForRecreate;
+        this.minMemoryForSend = minMemoryForSend;
+        this.jarPath = jarPath;
+        this.confPath = confPath;
+        this.remoteWorkingDirFullPath = remoteWorkingDirFullPath;
+        this.remoteLibDirFullPath = remoteLibDirFullPath;
+        this.remoteConfDirFullPath = remoteConfDirFullPath;
+        this.remoteDbfDirFullPath = remoteDbfDirFullPath;
+        this.remoteDirName = remoteDirName;
     }
 
     public OsEnum getOs() {
@@ -70,55 +93,43 @@ public class TargetSystemBean {
         return workingDir;
     }
 
-    public String getJarPath() {
-        return jarPath;
+    public Long getMinMemoryForRecreate() {
+        return minMemoryForRecreate;
     }
 
-    public void setJarPath(String jarPath) {
-        this.jarPath = jarPath;
+    public Long getMinMemoryForSend() {
+        return minMemoryForSend;
+    }
+
+    public String getJarPath() {
+        return jarPath;
     }
 
     public String getConfPath() {
         return confPath;
     }
 
-    public void setConfPath(String confPath) {
-        this.confPath = confPath;
-    }
-
     public String getRemoteWorkingDirFullPath() {
         return remoteWorkingDirFullPath;
-    }
-
-    public void setRemoteWorkingDirFullPath(String remoteWorkingDirFullPath) {
-        this.remoteWorkingDirFullPath = remoteWorkingDirFullPath;
     }
 
     public String getRemoteLibDirFullPath() {
         return remoteLibDirFullPath;
     }
 
-    public void setRemoteLibDirFullPath(String remoteLibDirFullPath) {
-        this.remoteLibDirFullPath = remoteLibDirFullPath;
-    }
-
     public String getRemoteConfDirFullPath() {
         return remoteConfDirFullPath;
     }
 
-    public void setRemoteConfDirFullPath(String remoteConfDirFullPath) {
-        this.remoteConfDirFullPath = remoteConfDirFullPath;
+    public String getRemoteDbfDirFullPath() {
+        return remoteDbfDirFullPath;
     }
 
-    public String[] getCommands() {
-        return commands;
+    public String getRemoteDirName() {
+        return remoteDirName;
     }
 
-    public void setCommands(String[] commands) {
-        this.commands = commands;
-    }
-
-    public String getS() {
+    public static Function<OsEnum, String> s = os -> {
         if (os.equals(OsEnum.LINUX)) {
             return "/";
         } else if (os.equals(OsEnum.WINDOWS)) {
@@ -126,5 +137,9 @@ public class TargetSystemBean {
         } else {
             return null;
         }
+    };
+
+    public String getS() {
+        return s.apply(os);
     }
 }

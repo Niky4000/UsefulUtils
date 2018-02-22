@@ -26,7 +26,7 @@ public class MyUserInfo implements UserInfo {
 
     @Override
     public boolean promptPassword(String message) {
-        System.out.println("promptPassword: " + message);
+//        System.out.println("promptPassword: " + message);
         return true;
     }
 

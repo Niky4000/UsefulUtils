@@ -37,7 +37,6 @@ public class SshClient {
     }
 
     public List<String> execCommand(String[] commands) throws Exception {
-        String ret = "";
         JSch jsch = new JSch();
         Session session = jsch.getSession(user, host, port);
         session.setPassword(password);
@@ -53,7 +52,6 @@ public class SshClient {
     }
 
     private List<String> execCommand(Channel channel, String command) throws JSchException, IOException {
-        String ret = "";
         ((com.jcraft.jsch.ChannelExec) channel).setCommand(command);
         channel.setInputStream(null);
         ((com.jcraft.jsch.ChannelExec) channel).setErrStream(System.err);
@@ -62,32 +60,15 @@ public class SshClient {
         byte[] tmp = new byte[1024];
         List<String> responseData = new ArrayList<>();
         while (true) {
-//            while (in.available() > 0) {
-//                int i = in.read(tmp, 0, 1024);
-//                if (i < 0) {
-//                    break;
-//                }
-//                System.out.print(new String(tmp, 0, i));
-//                ret += new String(tmp, 0, i);
-//            }
-
             String line;
             while ((line = in.readLine()) != null) {
                 responseData.add(line.replaceAll("\\s+", " ").trim());
             }
 
             if (channel.isClosed()) {
-//                if (in.available() > 0) {
-//                    continue;
-//                }
-                System.out.println("exit-status: " + channel.getExitStatus());
+//                System.out.println("exit-status: " + channel.getExitStatus());
                 break;
             }
-//            try {
-//                Thread.sleep(1000);
-//            } catch (Exception ee) {
-//                ee.printStackTrace();
-//            }
         }
         channel.disconnect();
         return responseData;
@@ -300,12 +281,12 @@ public class SshClient {
                 c = in.read();
                 sb.append((char) c);
             } while (c != '\n');
-            if (b == 1) { // error
-                System.out.print(sb.toString());
-            }
-            if (b == 2) { // fatal error
-                System.out.print(sb.toString());
-            }
+//            if (b == 1) { // error
+//                System.out.print(sb.toString());
+//            }
+//            if (b == 2) { // fatal error
+//                System.out.print(sb.toString());
+//            }
         }
         return b;
     }

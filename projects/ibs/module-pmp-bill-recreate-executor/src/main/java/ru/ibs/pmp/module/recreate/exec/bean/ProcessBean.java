@@ -21,7 +21,7 @@ public class ProcessBean {
     Date period;
     String parameters;
     String userId;
-    TargetSystemBean targetSystemBean;
+    TargetSystemBeanWrapper targetSystemBean;
 
     public String getOperationMode() {
         return operationMode;
@@ -87,11 +87,11 @@ public class ProcessBean {
         this.userId = userId;
     }
 
-    public TargetSystemBean getTargetSystemBean() {
+    public TargetSystemBeanWrapper getTargetSystemBean() {
         return targetSystemBean;
     }
 
-    public void setTargetSystemBean(TargetSystemBean targetSystemBean) {
+    public void setTargetSystemBean(TargetSystemBeanWrapper targetSystemBean) {
         this.targetSystemBean = targetSystemBean;
     }
 
