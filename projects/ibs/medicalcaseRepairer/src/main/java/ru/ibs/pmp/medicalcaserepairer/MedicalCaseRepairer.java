@@ -63,38 +63,22 @@ public class MedicalCaseRepairer {
     RecreateUtils recreateUtils;
     @Autowired
     protected RepairCommon recreateCommon;
-    LogThread logThread;
+    @Autowired
+    protected DbInit dbInit;
     File cacheFile;
+
     // Constants
     private static final String VERSION_NUMBER_BEAN = "versionNumberBean";
     private static final int SLICE = 500;
     private static final int LOG_INTERVAL = 1000;
     private static final BigDecimal div = BigDecimal.valueOf(100L);
-    private static Date initDate;
-    private static String initLpuId;
+
     private static final String processName = "REPAIR_MEDICAL_CASES";
 
-    public static void main(String args[]) throws Exception {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("repair_module.xml");
-        MedicalCaseRepairer medicalCaseRepairer = applicationContext.getBean(MedicalCaseRepairer.class);
-        medicalCaseRepairer.init();
-        boolean anyMatch = Arrays.stream(args).anyMatch(arg -> arg.equals("-d"));
-        if (anyMatch) {
-            medicalCaseRepairer.deleteCacheFile();
-        }
-        Long versionNumber = null;
-        if (args.length == 1) {
-            try {
-                versionNumber = Long.valueOf(args[0]);
-            } catch (Exception e) {
-                // Ignore Exception!
-            }
-        }
-        if (versionNumber == null) {
-            medicalCaseRepairer.repairMedicalCase();
-        } else {
-            medicalCaseRepairer.handleSingleVersion(versionNumber);
-        }
+    public void init() throws ParseException {
+        dbInit.init(processName);
+        cacheFile = serializeUtils.getSerFile(VERSION_NUMBER_BEAN);
+        recreateUtils.logMessage("SerializedObjectsDirName = " + cacheFile.getAbsolutePath() + "!", true, recreateCommon.createStopWatch(), null, RecreateImpl.LogType.INFO, null);
     }
 
     public void deleteCacheFile() {
@@ -108,36 +92,7 @@ public class MedicalCaseRepairer {
     public void handleSingleVersion(Long versionNumber) throws Exception, InterruptedException {
         StopwatchBean globalStopWatch = recreateCommon.createStopWatch();
         handleVersion(versionNumber, getLastVersionNumbers());
-        finalizationActions(globalStopWatch, recreateUtils.getBillStatistics().getId());
-    }
-
-    public void init() throws ParseException {
-        initDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2000-01-01 00:00:00");
-        initLpuId = "0000";
-        appInputParams.init(initLpuId, initDate);
-        recreateUtils.logMessage("Hello!", true, recreateCommon.createStopWatch(), null, RecreateImpl.LogType.INFO, null);
-        cacheFile = serializeUtils.getSerFile(VERSION_NUMBER_BEAN);
-        recreateUtils.logMessage("SerializedObjectsDirName = " + cacheFile.getAbsolutePath() + "!", true, recreateCommon.createStopWatch(), null, RecreateImpl.LogType.INFO, null);
-        logThread = initLogger();
-        recreateUtils.setLogThread(logThread);
-        logThread.setBillStatisticsTimeList(recreateUtils.getBillStatisticsTimeList());
-        recreateCommon.setSessionFactory(sessionFactory);
-        recreateCommon.setTx(tx);
-        recreateCommon.setRecreateUtils(recreateUtils);
-        Requirement requirement = createOrGetFakeRequirement();
-        BillStatisticsBean billStatistics = recreateCommon.createBillStatistics(requirement, initLpuId, initDate, BillStatistics.BillOperation.OTHERS, null, processName, false);
-        recreateUtils.setBillStatistics(billStatistics.getBillStatistics());
-        recreateUtils.logMessage("billStatistics with id = " + billStatistics.getBillStatistics().getId().toString() + " was created!", true, recreateCommon.createStopWatch(), null, RecreateImpl.LogType.INFO, null);
-    }
-
-    private LogThread initLogger() {
-        LogThread logThread = new LogThread(recreateCommon);
-        logThread.setDaemon(false);
-        logThread.start();
-        TimerThread timerThread = new TimerThread(logThread);
-        timerThread.setDaemon(true);
-        timerThread.start();
-        return logThread;
+        dbInit.finalizationActions(globalStopWatch, recreateUtils.getBillStatistics().getId());
     }
 
     public void repairMedicalCase() throws InterruptedException {
@@ -173,18 +128,7 @@ public class MedicalCaseRepairer {
                 serializeUtils.serializeObject(versionNumberBean, VERSION_NUMBER_BEAN);
             }
         }
-        finalizationActions(globalStopWatch, recreateUtils.getBillStatistics().getId());
-    }
-
-    private void finalizationActions(StopwatchBean globalStopWatch, Long billStatisticsId) throws InterruptedException {
-        recreateUtils.logMessage("billStatisticsId = " + billStatisticsId.toString() + "!", true, globalStopWatch, null, RecreateImpl.LogType.INFO, null);
-        recreateUtils.logMessage("Finished!", true, globalStopWatch, null, RecreateImpl.LogType.INFO, null);
-        logThread.interrupt();
-        logThread.join();
-        if (recreateUtils.getBillStatistics() != null) {
-            recreateUtils.flushLogMessage();
-        }
-        updateBillStatisticsFinishedDate(billStatisticsId);
+        dbInit.finalizationActions(globalStopWatch, recreateUtils.getBillStatistics().getId());
     }
 
     private void handleVersion(final Long versionNumber, Set<Long> lastVersionNumbers) throws Exception {
@@ -338,17 +282,6 @@ public class MedicalCaseRepairer {
         return lastVersionsList.stream().map(el -> el.longValue()).collect(Collectors.toSet());
     }
 
-    private void updateBillStatisticsFinishedDate(Long billStatisticsId) {
-        tx.execute(status -> {
-            Session session = sessionFactory.openSession();
-            BillStatistics billStatisticsDb = (BillStatistics) session.get(BillStatistics.class, billStatisticsId);
-            billStatisticsDb.setFinished(new Date());
-            session.flush();
-            session.close();
-            return null;
-        });
-    }
-
     String sqlQueryToGetLastVersions = "with main_q as(\n"
             + "select p.version_number,re.id as re_id,re.mo_id as lpu_id,re.period,b.id as bill_id,p.creation_date,\n"
             + "TO_DATE('1970-01-01 03:00:00','YYYY-MM-DD HH24:mi:ss') + REV_TIMESTAMP / 86400000 as create_time\n"
@@ -380,26 +313,4 @@ public class MedicalCaseRepairer {
             + "left join pmp_parcel p on p.bill_id=b.id\n"
             + "where re.id=(select distinct bb.requirement_id from pmp_bill bb inner join pmp_parcel pp on pp.bill_id=bb.id where pp.version_number=:versionNumber)";
 
-    private Requirement createOrGetFakeRequirement() {
-        Requirement requirement = tx.execute(status -> {
-            Session session = sessionFactory.openSession();
-            Requirement requirementDb = (Requirement) session.createCriteria(Requirement.class).add(Restrictions.eq("lpuId", initLpuId)).add(Restrictions.eq("period", initDate)).uniqueResult();
-            if (requirementDb == null) {
-                requirementDb = new Requirement();
-                requirementDb.setLpuId(initLpuId);
-                requirementDb.setPeriod(initDate);
-                requirementDb.setActive(false);
-                requirementDb.setStatusChangeDate(new Date());
-                requirementDb.setStatus(Requirement.RequirementStatus.DRAFT);
-                requirementDb.setCreationDate(new Date());
-                requirementDb.setVersion(0);
-                Long requirementId = (Long) session.save(requirementDb);
-                requirementDb.setId(requirementId);
-            }
-            session.flush();
-            session.close();
-            return requirementDb;
-        });
-        return requirement;
-    }
 }

@@ -368,11 +368,6 @@ public class RepairCommon implements RecreateCommon {
     }
 
     @Override
-    public void updateBillOnStage7(Bill bill, TransactionTemplate tx, SessionFactory sessionFactory, boolean good, boolean thisIsZeroBill) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public PersonDAO getPersonDAOImplWS() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -724,6 +719,11 @@ public class RepairCommon implements RecreateCommon {
 
     @Override
     public boolean setLock(String featureName, String lockData, Integer lpuId, Date period, List<BillStatisticsTime> billStatisticsTimeList) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Bill updateBillOnStage7(Bill bill, TransactionTemplate tx, SessionFactory sessionFactory, boolean good, boolean thisIsZeroBill) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

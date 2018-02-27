@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ru.ibs.pmp</groupId>
     <artifactId>medicalcaseRepairer</artifactId>
-    <version>1.180101.3</version>
+    <version>1.1802.2</version>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
@@ -248,7 +248,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>ru.ibs.pmp.medicalcaserepairer.MedicalCaseRepairer</mainClass>
+                            <mainClass>ru.ibs.pmp.medicalcaserepairer.Start</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

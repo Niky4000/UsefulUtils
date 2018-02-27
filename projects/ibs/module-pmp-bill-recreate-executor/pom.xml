@@ -150,7 +150,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>ru.ibs.pmp.apacheminaserver.Start</mainClass>
+                            <mainClass>ru.ibs.pmp.recreate.Start</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
