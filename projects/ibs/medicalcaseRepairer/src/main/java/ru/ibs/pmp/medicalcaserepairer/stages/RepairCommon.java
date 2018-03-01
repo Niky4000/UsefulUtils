@@ -153,11 +153,6 @@ public class RepairCommon implements RecreateCommon {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public BillStatisticsBean createBillStatistics(String lpuId, Date period, BillStatistics.BillOperation billOperation, String parameters, String userId, boolean doNotCreateRevisionEntity) throws TransactionException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     public BillStatisticsBean createBillStatistics(final Requirement requirement, String lpuId, Date period, BillStatistics.BillOperation billOperation, String parameters, String userId, boolean doNotCreateRevisionEntity) throws TransactionException {
         BillStatisticsBean billStatisticsBean = getTx().execute(new TransactionCallback<BillStatisticsBean>() {
             @Override
@@ -724,6 +719,21 @@ public class RepairCommon implements RecreateCommon {
 
     @Override
     public Bill updateBillOnStage7(Bill bill, TransactionTemplate tx, SessionFactory sessionFactory, boolean good, boolean thisIsZeroBill) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public BillStatisticsBean createBillStatisticsByLpu(String lpuId, Date period, BillStatistics.BillOperation billOperation, String parameters, String userId, boolean doNotCreateRevisionEntity) throws TransactionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public BillStatisticsBean createBillStatisticsBySmo(String smoOgrn, Date period, BillStatistics.BillOperation billOperation, String parameters, String userId, boolean doNotCreateRevisionEntity) throws TransactionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean canProcess(boolean notNeedToSetSyncFlag, String featureName, String callData, String lockData, Integer lpuId, Date period, List<BillStatisticsTime> billStatisticsTimeList) throws TransactionException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

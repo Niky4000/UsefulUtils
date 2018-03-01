@@ -205,6 +205,7 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
     public void uploadNewVersion(TargetSystemBeanWrapper targetSystemBean, String remoteDirName, File recreateJar, File pmpConfigPath) {
         try {
             SshClient sshClient = new SshClient(targetSystemBean.getHost(), targetSystemBean.getUser(), targetSystemBean.getPassword(), targetSystemBean.getPort());
+            sshClient.execCommand(new String[]{"mkdir " + targetSystemBean.getWorkingDir()});
             sshClient.execCommand(new String[]{"mkdir " + targetSystemBean.getRemoteWorkingDirFullPath()});
             sshClient.execCommand(new String[]{"mkdir " + targetSystemBean.getRemoteLibDirFullPath()});
             sshClient.execCommand(new String[]{"mkdir " + targetSystemBean.getRemoteConfDirFullPath()});
@@ -224,6 +225,9 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
 
             String s = FileSystems.getDefault().getSeparator();
             File tmpFileConfFile = new File(pmpConfigPath.getParent() + s + pmpConfigPath.getName() + "_tmp");
+            if (tmpFileConfFile.exists()) {
+                tmpFileConfFile.delete();
+            }
             Files.write(tmpFileConfFile.toPath(), modifiedConfigs3.getBytes(), StandardOpenOption.CREATE_NEW);
             sshClient.scpTo(targetSystemBean.getJarPath(), recreateJar.getAbsolutePath());
             sshClient.scpTo(targetSystemBean.getConfPath(), tmpFileConfFile.getAbsolutePath());

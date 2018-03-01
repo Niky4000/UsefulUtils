@@ -71,7 +71,10 @@ public class ExecuteRecreateDAO {
             Optional<BillStatistics> billStatistics = Optional.empty();
             Session session = sessionFactory.openSession();
             try {
-                billStatistics = Optional.ofNullable((BillStatistics) session.createCriteria(BillStatistics.class).add(Restrictions.eq("requirement", requirement)).setFirstResult(0).setMaxResults(1).uniqueResult());
+                billStatistics = Optional.ofNullable((BillStatistics) session.createCriteria(BillStatistics.class).add(Restrictions.eq("requirementId", requirement.getId())).setFirstResult(0).setMaxResults(1).uniqueResult());
+            } catch (Exception e) {
+                e.printStackTrace();
+                billStatistics = Optional.empty();
             } finally {
                 session.close();
             }

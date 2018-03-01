@@ -143,7 +143,7 @@ public class ParcelUpdater {
 
                 List<ParcelUpdateBean> parcelUpdateBeanList = new ArrayList<>(objList.size());
                 for (Object[] objs : objList) {
-                    parcelUpdateBeanList.add(new ParcelUpdateBean(((Number) objs[0]).longValue(), ((Number) objs[1]).longValue(), ((Number) objs[2]).longValue()));
+                    parcelUpdateBeanList.add(new ParcelUpdateBean(((Number) objs[0]).longValue(), ((Number) objs[1]).longValue(), ((Number) objs[2]).longValue(), period));
                 }
 //            Set<Long> allUniqueVersions = parcelUpdateBeanList.stream().map(ParcelUpdateBean::getVersionNumber).collect(Collectors.toCollection(TreeSet::new));
 
@@ -206,9 +206,10 @@ public class ParcelUpdater {
                         try {
                             int executeUpdate = 0;
                             for (ParcelUpdateBean parcelUpdateBean : parcelUpdateBeanListSlice) {
-                                executeUpdate += session.createSQLQuery("update " + tableName + " set case_id=:caseId,service_sum=:serviceSum,case_type=:caseType where id=:id")
+                                executeUpdate += session.createSQLQuery("update " + tableName + " set case_id=:caseId,service_sum=:serviceSum,case_type=:caseType,period=:period where id=:id")
                                         .setParameter("caseId", parcelUpdateBean.getMedicalCaseId())
                                         .setParameter("serviceSum", parcelUpdateBean.getInvoiceSum())
+                                        .setParameter("period", parcelUpdateBean.getPeriod())
                                         .setParameter("caseType", parcelUpdateBean.getMedicalCaseType())
                                         .setParameter("id", parcelUpdateBean.getId())
                                         .executeUpdate();
