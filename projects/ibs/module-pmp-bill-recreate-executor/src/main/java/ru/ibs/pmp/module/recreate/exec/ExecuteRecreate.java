@@ -56,7 +56,7 @@ import ru.ibs.pmp.module.recreate.exec.bean.TriFunction;
  * Created by Parfenov on 22.02.2017.
  */
 public class ExecuteRecreate {
-    
+
     private static final Logger log = LoggerFactory.getLogger(ExecuteRecreate.class);
     @Autowired
     private SyncDAO syncDAO;
@@ -80,7 +80,7 @@ public class ExecuteRecreate {
     static AtomicInteger currentThreadCount = new AtomicInteger(0);
     private static final Pattern pattern = Pattern.compile("^\\w+?\\{" + "moId=" + "(\\d+?)" + ", periodMonth=" + "(\\d+?)" + ", periodYear=" + "(\\d+?)" + "\\}$");
     public static boolean isWindowsOS = isWindows();
-    
+
     private LinkedBlockingQueue<ProcessBean> taskQueue;
     private List<ExecuteThread> executeThreadList = new ArrayList<>(PART_IN_WORK);
     private AtomicBoolean isItAllowedToExecuteViaTimer = new AtomicBoolean(true);
@@ -88,7 +88,7 @@ public class ExecuteRecreate {
     private LinkedList<TargetSystemBeanWrapper> targetSystemWrapperBeanLinkedList;
     private Map<String, TargetSystemBeanWrapper> targetSystemBeanCollectionByHost;
     private Set<String> lpuInProcessSet = Collections.synchronizedSet(new HashSet<>());
-    
+
     private Map<Date, Map<String, Map<String, Long>>> possibleRamUsageToLpuIdByTypeAndByPeriodGlobal = new HashMap<>(); // Память, которую мы резервируем для каждого процесса. Используется однопоточно.
 
     private boolean inited = false;
@@ -117,7 +117,7 @@ public class ExecuteRecreate {
             log.info("Executor no start::" + canStartExecutor);
         }
     }
-    
+
     public void executeMassRecreate() throws InterruptedException {
         isItAllowedToExecuteViaTimer.getAndSet(false);
         try {
@@ -132,6 +132,9 @@ public class ExecuteRecreate {
                 }
                 if (lockCount < PART_IN_WORK) { // PART_IN_WORK содержит максимально возможное число процессов, запущенных на разных серверах
                     List<PmpSync> allSyncs = syncDAO.getAllTasks(); // Получить все заявки
+//                    if (allSyncs == null || allSyncs.isEmpty() || allSyncs.size() > 0) {
+//                        throw new RuntimeException("Test Exception!!!");
+//                    }
                     // Убрать из списка блокировки
                     Set<PmpSync> pmpSyncAllList = allSyncs.stream().filter(sync -> !sync.getPmpSyncPK().getCallData().equals(RecreateBillsRequest.LOCK)).collect(Collectors.toSet());
                     Set<PmpSync> pmpSyncList = allSyncs.stream().filter(sync -> !sync.getPmpSyncPK().getCallData().equals(RecreateBillsRequest.LOCK)
@@ -144,7 +147,7 @@ public class ExecuteRecreate {
                                 .map(targetSystemBean -> targetSystemBeanCollectionByHost.get(targetSystemBean.getHost()))
                                 .collect(Collectors.groupingBy(targetSystemBean -> targetSystemBean.getHost(),
                                         Collectors.mapping(executeUtils::getProcessList, Collectors.collectingAndThen(Collectors.toList(), list -> list.get(0)))));
-                        
+
                         getServiceAmountForProcessBeans(pmpSyncAllList, allProcessesMapByHostIp); // Получить прогноз по занимаемой памяти для каждого процесса
 
                         TriFunction<Date, String, Integer, Long> getPossibleMemoryConsumption = (period, type, lpuId) -> {
@@ -209,8 +212,10 @@ public class ExecuteRecreate {
                             if (serverIp != null && targetSystemBeanCollectionByHost.containsKey(serverIp)) {
                                 TargetSystemBeanWrapper targetSystemBean = targetSystemBeanCollectionByHost.get(serverIp);
                                 setTaskToQueue(new LinkedList(Arrays.asList(memoryBean)), targetSystemBean, memoryBeanSetForSendOnParticularServer, lpuAndPeriodSet);
+                                log_info(memoryBean.getPmpSync().getPmpSyncPK().getLpuId() + ": last recreate was made on: " + serverIp + "!");
                             } else {
                                 memoryBeanSetForSendOnAnyServer.add(memoryBean);
+                                log_info(memoryBean.getPmpSync().getPmpSyncPK().getLpuId() + ": it wasn't found where last recreate happened!");
                             }
                         }
                         memoryBeanSet.addAll(memoryBeanSetForSendOnParticularServer);
@@ -239,11 +244,11 @@ public class ExecuteRecreate {
             isItAllowedToExecuteViaTimer.getAndSet(true);
         }
     }
-    
+
     private String getKeyForLpuAndPeriodSet(MemoryBean memoryBean) {
         return memoryBean.getPmpSync().getPmpSyncPK().getLpuId() + "__" + new SimpleDateFormat("yyyy_MM_dd").format(memoryBean.getPmpSync().getPmpSyncPK().getPeriod());
     }
-    
+
     private void setTaskToQueue(LinkedList<MemoryBean> memoryBeanSetForParticularPurpose, TargetSystemBeanWrapper targetSystemBeanWrapper, Set<MemoryBean> memoryBeanSet, Set<String> lpuAndPeriodSet) {
         Set<String> lpuAndPeriodSetLocal = new HashSet<>();
         while (!memoryBeanSetForParticularPurpose.isEmpty()) {
@@ -302,7 +307,7 @@ public class ExecuteRecreate {
             }
         }
     }
-    
+
     private void handleClaim(Collection<MemoryBean> memoryBeanCollection) {
 //        Iterator<MemoryBean> memoryBeanIterator = memoryBeanList.iterator();
 
@@ -412,11 +417,11 @@ public class ExecuteRecreate {
 //                        reservedMemory.remove(getMemoryKey(pmpSync));
         }
     }
-    
+
     private static String getMemoryKey(PmpSync pmpSync) {
         return pmpSync.getPmpSyncPK().getLpuId() + "_" + (new SimpleDateFormat("yyyy_MM_dd").format(pmpSync.getPmpSyncPK().getPeriod()));
     }
-    
+
     private boolean isItAllowedToExecuteLookingByMemoryCriteria(Long freeMemory, TargetSystemBean targetSystemBean, ProcessBean processBean) {
         if (processBean.getType().equals(RecreateBillsFeature.NAME)) {
             if (freeMemory > targetSystemBean.getMinMemoryForRecreate()) {
@@ -436,9 +441,10 @@ public class ExecuteRecreate {
             return false;
         }
     }
-    
+
     private void init() {
         if (!inited) {
+//            System.setProperty("log.name", "D:\\tmp\\zzzzzRecreateExecute.log");
             try {
                 log_info("jarPath: " + jarPath);
                 log_info("configPath: " + configPath);
@@ -467,7 +473,7 @@ public class ExecuteRecreate {
             }
         }
     }
-    
+
     private List<TargetSystemBean> initRemotes() {
         log_info("initRemotes...");
         recreateJar = new File(jarPath);
@@ -478,20 +484,20 @@ public class ExecuteRecreate {
         while (matcher.find()) {
             String targetSystemBeanStr = matcher.group(1);
             String[] targetSystemBeanStrSplited = targetSystemBeanStr.split(",");
-            
+
             OsEnum os = targetSystemBeanStrSplited[0].trim().equals("windows") ? OsEnum.WINDOWS : OsEnum.LINUX;
             String s = TargetSystemBean.s.apply(os);
             String workingDir = targetSystemBeanStrSplited[6].trim();
             File pmpConfigPath = new File(configPath);
-            
+
             String remoteWorkingDirFullPath = workingDir + s + remoteDirName + s;
             String remoteLibDirFullPath = workingDir + s + remoteDirName + s + "lib" + s;
             String remoteConfDirFullPath = workingDir + s + remoteDirName + s + "conf" + s;
             String remoteDbfDirFullPath = workingDir + s + "dbf";
-            
+
             String jarPath = remoteWorkingDirFullPath + recreateJar.getName();
             String confPath = remoteConfDirFullPath + pmpConfigPath.getName();
-            
+
             TargetSystemBean targetSystemBean = new TargetSystemBean(
                     os, Integer.valueOf(targetSystemBeanStrSplited[1].trim()).intValue(),
                     targetSystemBeanStrSplited[2].trim(), targetSystemBeanStrSplited[3].trim(), targetSystemBeanStrSplited[4].trim(),
@@ -504,9 +510,9 @@ public class ExecuteRecreate {
         }
         return targetSystemBeanList;
     }
-    
+
     Function<LocalDateTime, String> dateToRemoteDirName = now -> now.getYear() + "_" + intToStr(now.getMonthValue()) + "_" + intToStr(now.getDayOfMonth()) + "__" + intToStr(now.getHour()) + "_" + intToStr(now.getMinute()) + "_" + intToStr(now.getSecond());
-    
+
     private void updateRemotes(List<TargetSystemBean> targetSystemBeanList) {
         log_info("updateRemotes...");
 //        List<Thread> updateThreadList = new ArrayList<>(targetSystemBeanList.size());
@@ -530,7 +536,7 @@ public class ExecuteRecreate {
 //            }
 //        });
     }
-    
+
     private Long getMemoryConfig(String memStr) {
         if (memStr.contains("G")) {
             return Long.valueOf(memStr.replace("G", "")) * 1024L;
@@ -540,7 +546,7 @@ public class ExecuteRecreate {
             return null;
         }
     }
-    
+
     private void deleteOldRemotesDirs(List<TargetSystemBean> targetSystemBeanList) {
         Pattern dirnamePattern = Pattern.compile("^.*?(\\d\\d\\d\\d_\\d\\d_\\d\\d__\\d\\d_\\d\\d_\\d\\d).*$");
         for (final TargetSystemBean targetSystemBean : targetSystemBeanList) {
@@ -564,28 +570,31 @@ public class ExecuteRecreate {
             }
         }
     }
-    
+
     private void getServiceAmountForProcessBeans(Set<PmpSync> pmpSyncList, Map<String, List<OsProcessBean>> allProcessesMapByHostIp) {
-        Stream<QueueLpuBean> pmpSyncStream = pmpSyncList.stream().map(pmpSync -> new QueueLpuBean(pmpSync.getPmpSyncPK().getPeriod(), pmpSync.getFeatureName(), pmpSync.getPmpSyncPK().getLpuId() + ""));
-        
+        Stream<QueueLpuBean> pmpSyncStream = pmpSyncList.stream()
+                .map(pmpSync -> new QueueLpuBean(pmpSync.getPmpSyncPK().getPeriod(), pmpSync.getFeatureName(), pmpSync.getPmpSyncPK().getLpuId() + ""));
+
         for (Entry<String, List<OsProcessBean>> entry : allProcessesMapByHostIp.entrySet()) {
-            pmpSyncStream = Stream.concat(pmpSyncStream, entry.getValue().stream().map(process -> new QueueLpuBean(process.getPeriod(), process.getType(), process.getLpuId().toString())));
+            pmpSyncStream = Stream.concat(pmpSyncStream, entry.getValue().stream()
+                    .filter(process -> process.getPeriod() != null && process.getType() != null && process.getLpuId() != null)
+                    .map(process -> new QueueLpuBean(process.getPeriod(), process.getType(), process.getLpuId().toString())));
         }
-        
+
         Map<Date, Map<String, Set<String>>> lpuIdsByTypeAndByPeriod = pmpSyncStream
                 .collect(Collectors.groupingBy(QueueLpuBean::getPeriod,
                         Collectors.groupingBy(QueueLpuBean::getType,
                                 Collectors.mapping(QueueLpuBean::getLpuId, Collectors.toSet()))));
-        
+
         Map<Date, Map<String, Map<String, Long>>> possibleRamUsageToLpuIdByTypeAndByPeriod = new HashMap<>();
-        
+
         TriFunction<Date, String, String, Boolean> defineAlreadyCalculatedValues = (period, type, lpuId) -> {
             return Optional.ofNullable(possibleRamUsageToLpuIdByTypeAndByPeriodGlobal)
                     .map(map -> map.get(period))
                     .map(map -> map.get(type))
                     .map(map -> map.get(lpuId) != null).orElse(false);
         };
-        
+
         for (Entry<Date, Map<String, Set<String>>> entry : lpuIdsByTypeAndByPeriod.entrySet()) {
             final Date period = entry.getKey();
             Optional<Map<String, Set<String>>> entryValue = Optional.ofNullable(entry.getValue());
@@ -603,7 +612,7 @@ public class ExecuteRecreate {
                 };
                 Map<String, Long> possibleRamUsageToLpuId = objList.stream().collect(Collectors.groupingBy(objArray -> objArray[0].toString(),
                         Collectors.mapping(objArray -> ((Number) objArray[1]).longValue(), Collectors.collectingAndThen(Collectors.toList(), list -> possibleRamLoad.apply(list.get(0))))));
-                
+
                 if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period) == null) {
                     possibleRamUsageToLpuIdByTypeAndByPeriod.put(period, new HashMap<>());
                 }
@@ -611,7 +620,7 @@ public class ExecuteRecreate {
                     possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).put(RecreateBillsFeature.NAME, new HashMap<>());
                 }
                 possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.NAME).putAll(possibleRamUsageToLpuId);
-                
+
             }
             if (!lpuIdSetForSend.isEmpty()) {
                 Map<String, Long> possibleRamUsageToLpuId = lpuIdSetForSend.stream().collect(Collectors.groupingBy(lpuId -> lpuId, Collectors.mapping(lpuId -> lpuId, Collectors.collectingAndThen(Collectors.toList(), list -> 512L))));
@@ -654,7 +663,7 @@ public class ExecuteRecreate {
         }
         possibleRamUsageToLpuIdByTypeAndByPeriodGlobal = possibleRamUsageToLpuIdByTypeAndByPeriod;
     }
-    
+
     private static String intToStr(int k) {
         String kk = k + "";
         for (int i = kk.length(); i < 2; i++) {
@@ -662,7 +671,7 @@ public class ExecuteRecreate {
         }
         return kk;
     }
-    
+
     public void shutdown() {
 //        executor.shutdown();
         executeThreadList.stream().forEach(thread -> thread.interrupt());
@@ -674,30 +683,30 @@ public class ExecuteRecreate {
         log.info(message);
         System.out.println(message);
     }
-    
+
     private void log_error(String message, Exception e) {
         log.error(message, e);
         System.err.println(message);
     }
-    
+
     public void setConfigPath(String configPath) {
         this.configPath = configPath;
     }
-    
+
     public void setJarPath(String jarPath) {
         this.jarPath = jarPath;
     }
-    
+
     public void setCanStartExecutor(String canStartExecutor) {
         this.canStartExecutor = canStartExecutor;
     }
-    
+
     public String getCanStartExecutor() {
         return canStartExecutor;
     }
-    
+
     protected static boolean isWindows() {
         return System.getProperty("os.name").toLowerCase().indexOf("win") != -1;
     }
-    
+
 }

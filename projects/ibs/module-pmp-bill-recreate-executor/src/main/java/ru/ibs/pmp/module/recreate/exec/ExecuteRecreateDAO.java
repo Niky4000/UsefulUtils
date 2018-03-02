@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,11 @@ public class ExecuteRecreateDAO {
             Optional<BillStatistics> billStatistics = Optional.empty();
             Session session = sessionFactory.openSession();
             try {
-                billStatistics = Optional.ofNullable((BillStatistics) session.createCriteria(BillStatistics.class).add(Restrictions.eq("requirementId", requirement.getId())).setFirstResult(0).setMaxResults(1).uniqueResult());
+                billStatistics = Optional.ofNullable((BillStatistics) session.createCriteria(BillStatistics.class)
+                        .add(Restrictions.eq("requirementId", requirement.getId()))
+                        .add(Restrictions.eq("type", BillStatistics.BillOperation.RECREATE_BILL_MODULE))
+                        .addOrder(Order.desc("created"))
+                        .setFirstResult(0).setMaxResults(1).uniqueResult());
             } catch (Exception e) {
                 e.printStackTrace();
                 billStatistics = Optional.empty();
