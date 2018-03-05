@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="6.15">
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-git\src\main\java\org\apache\sshd\git\pack\GitPackCommand.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-git\src\main\java\org\apache\sshd\git\pack\GitPackCommandFactory.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-git\src\main\java\org\apache\sshd\git\pgm\EmbeddedCommandRunner.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-git\src\main\java\org\apache\sshd\git\pgm\GitPgmCommand.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-git\src\main\java\org\apache\sshd\git\pgm\GitPgmCommandFactory.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-git\src\main\java\org\apache\sshd\git\transport\GitSshdSession.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-git\src\main\java\org\apache\sshd\git\transport\GitSshdSessionFactory.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-git\src\main\java\org\apache\sshd\git\transport\GitSshdSessionProcess.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-git\src\test\java\org\apache\sshd\git\pack\GitPackCommandTest.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-git\src\test\java\org\apache\sshd\git\pgm\GitPgmCommandTest.java">
+</file>
+</checkstyle>

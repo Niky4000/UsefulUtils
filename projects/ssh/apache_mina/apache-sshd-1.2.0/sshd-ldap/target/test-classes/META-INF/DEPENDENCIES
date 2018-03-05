@@ -1,0 +1,19 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Apache MINA SSHD
+
+
+From: 'QOS.ch' (http://www.qos.ch)
+  - SLF4J API Module (http://www.slf4j.org/slf4j-api) org.slf4j:slf4j-api:jar:1.7.16:compile
+    License: MIT style  (http://www.slf4j.org/license.html)
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+  - Apache Mina SSHD :: Core (http://www.apache.org/sshd/sshd-core/) org.apache.sshd:sshd-core:jar:1.2.0
+    License: Apache 2.0 License  (http://www.apache.org/licenses/LICENSE-2.0)
+
+
+
+

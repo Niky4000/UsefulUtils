@@ -91,7 +91,7 @@ public class ExecuteRecreate {
 
     private Map<Date, Map<String, Map<String, Long>>> possibleRamUsageToLpuIdByTypeAndByPeriodGlobal = new HashMap<>(); // Память, которую мы резервируем для каждого процесса. Используется однопоточно.
 
-    private boolean inited = false;
+    private volatile boolean inited = false;
 
     // опрашиваем БД каждые 1 min
     @Scheduled(fixedDelay = 20000)
@@ -309,12 +309,7 @@ public class ExecuteRecreate {
     }
 
     private void handleClaim(Collection<MemoryBean> memoryBeanCollection) {
-//        Iterator<MemoryBean> memoryBeanIterator = memoryBeanList.iterator();
-
-//        LinkedList<TargetSystemBean> targetSystemBeanList = new LinkedList<>();
-//        LocalDateTime lastTargetSystemBeanCollectionUpdate = LocalDateTime.now();
         for (MemoryBean memoryBean : memoryBeanCollection) {
-//            MemoryBean memoryBean = memoryBeanIterator.next();
             PmpSync pmpSync = memoryBean.getPmpSync();
             String callData = pmpSync.getPmpSyncPK().getCallData();
             String operationMode = null;
@@ -333,7 +328,6 @@ public class ExecuteRecreate {
                 operationMode = "-ss";
                 callType = RecreateBillsFeature.SEND;
             }
-//            
             ProcessBean processBean = new ProcessBean();
             processBean.setMoId(moId);
             processBean.setOperationMode(operationMode);
@@ -343,78 +337,11 @@ public class ExecuteRecreate {
             processBean.setPeriod(pmpSync.getPmpSyncPK().getPeriod());
             processBean.setParameters(pmpSync.getParameters());
             processBean.setUserId(pmpSync.getUserId());
-
-//            boolean timeCondition = lastTargetSystemBeanCollectionUpdate.isAfter(LocalDateTime.now().minusSeconds(30L));
             if (callType == null) {
                 continue;
             }
-//            if (callType.equals(RecreateBillsFeature.SEND)) {
-//                String serverIp = executeRecreateDAO.getLastServerThatRecreatedBills(executeRecreateDAO.getRequirement(moId, Integer.valueOf(periodYear), Integer.valueOf(periodMonth)));
-//                if (serverIp != null && targetSystemBeanCollectionByHost.containsKey(serverIp)) {
-//                    TargetSystemBean targetSystemBean = targetSystemBeanCollectionByHost.get(serverIp);
-//                    Long freeMemory = executeUtils.getFreeMemory(new TargetSystemBeanWrapper(targetSystemBean));
-//                    if (!isItAllowedToExecuteLookingByMemoryCriteria(freeMemory, targetSystemBean, processBean)) {
-//                        continue;
-//                    }
-//                    List<OsProcessBean> processList = executeUtils.getProcessList(new TargetSystemBeanWrapper(targetSystemBean));
-//                    if (targetSystemBean.getQuota() >= processList.size()) {
-//                        for (int i = processList.size(); i < targetSystemBean.getQuota(); i++) {
-//                            targetSystemBeanList.offer(targetSystemBean);
-//                            lastTargetSystemBeanCollectionUpdate = LocalDateTime.now();
-//                            break;
-//                        }
-//                    } else {
-//                        log_info("No quotas available for send process!");
-//                        continue;
-//                    }
-//                } else {
-//                    log_info("Last serverIp was not found for current send process!");
-//                    TargetSystemBean targetSystemBean = targetSystemBeanCollection.get(0);
-//                    List<OsProcessBean> processList = executeUtils.getProcessList(new TargetSystemBeanWrapper(targetSystemBean));
-//                    if (targetSystemBean.getQuota() >= processList.size()) {
-//                        for (int i = processList.size(); i < targetSystemBean.getQuota(); i++) {
-//                            targetSystemBeanList.offer(targetSystemBean);
-//                            lastTargetSystemBeanCollectionUpdate = LocalDateTime.now();
-//                            break;
-//                        }
-//                    } else {
-//                        log_info("No quotas available for send process!");
-//                        continue;
-//                    }
-//                }
-//            }
-//            else if (callType.equals(RecreateBillsFeature.NAME)) {
-//                if (targetSystemBeanList.isEmpty() || timeCondition) {
-//                    for (TargetSystemBean targetSystemBean : targetSystemBeanCollection) {
-//                        Long freeMemory = executeUtils.getFreeMemory(new TargetSystemBeanWrapper(targetSystemBean));
-//
-//                        if (!isItAllowedToExecuteLookingByMemoryCriteria(freeMemory, targetSystemBean, processBean)) {
-//                            continue;
-//                        }
-////                                    reservedMemory.put(getMemoryKey(pmpSync), memoryBean.getPossibleMemoryUsage());
-//                        List<OsProcessBean> processList = executeUtils.getProcessList(new TargetSystemBeanWrapper(targetSystemBean));
-//                        if (processList == null) {
-//                            continue;
-//                        }
-//                        if (targetSystemBean.getQuota() >= processList.size()) {
-//                            for (int i = processList.size(); i < targetSystemBean.getQuota(); i++) {
-//                                targetSystemBeanList.offer(targetSystemBean);
-//                                lastTargetSystemBeanCollectionUpdate = LocalDateTime.now();
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            if (targetSystemBeanList.isEmpty()) {
-//                log_info("No quotas available!");
-//                break;
-//            }
             processBean.setTargetSystemBean(memoryBean.getTargetSystemBeanWrapper());
-//            processBean.setTargetSystemBean(targetSystemBeanList.poll());
             taskQueue.offer(processBean);
-//            memoryBeanIterator.remove();
-//                        reservedMemory.remove(getMemoryKey(pmpSync));
         }
     }
 
@@ -707,6 +634,24 @@ public class ExecuteRecreate {
 
     protected static boolean isWindows() {
         return System.getProperty("os.name").toLowerCase().indexOf("win") != -1;
+    }
+
+    @Scheduled(cron = "0 0/20 16,21,22,23 * * *")
+    public void cleanExecute() {
+        init();
+        for (TargetSystemBean targetSystemBean : targetSystemBeanCollection) {
+            ProcessBean processBean = new ProcessBean();
+            processBean.setMoId(null);
+            processBean.setOperationMode("-clean");
+            processBean.setPeriodYear(null);
+            processBean.setPeriodMonth(null);
+            processBean.setType(null);
+            processBean.setPeriod(null);
+            processBean.setParameters(null);
+            processBean.setUserId(null);
+            processBean.setTargetSystemBean(new TargetSystemBeanWrapper(targetSystemBean));
+            taskQueue.offer(processBean);
+        }
     }
 
 }

@@ -1,0 +1,49 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1518073726460
+Build-Jdk: 1.8.0_112
+Built-By: NAnishhenko
+Bundle-Description: The Apache Software Foundation provides support for 
+ the Apache community of open-source software projects.    The Apache pr
+ ojects are characterized by a collaborative, consensus based developmen
+ t process, an open and    pragmatic software license, and a desire to c
+ reate high quality software that leads the way in its field.    We cons
+ ider ourselves not simply a group of projects sharing a server, but rat
+ her a community of developers    and users.
+Bundle-DocURL: http://www.apache.org/
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Apache Mina SSHD :: Git
+Bundle-SymbolicName: org.apache.sshd.git
+Bundle-Vendor: The Apache Software Foundation
+Bundle-Version: 1.2.0
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.apache.sshd.git.pack;uses:="org.apache.sshd.server";
+ version="1.2.0",org.apache.sshd.git.pgm;uses:="org.apache.sshd.server,o
+ rg.eclipse.jgit.lib";version="1.2.0",org.apache.sshd.git.transport;uses
+ :="org.apache.sshd.client,org.apache.sshd.client.channel,org.apache.ssh
+ d.common.util.logging,org.eclipse.jgit.errors,org.eclipse.jgit.transpor
+ t,org.eclipse.jgit.util,org.slf4j";version="1.2.0"
+Implementation-Title: Apache Mina SSHD :: Git
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Vendor-Id: org.apache.sshd
+Implementation-Version: 1.2.0
+Import-Package: org.apache.sshd.client;version="[1.2,2)",org.apache.sshd
+ .client.channel;version="[1.2,2)",org.apache.sshd.client.future;version
+ ="[1.2,2)",org.apache.sshd.client.session;version="[1.2,2)",org.apache.
+ sshd.common;version="[1.2,2)",org.apache.sshd.common.channel;version="[
+ 1.2,2)",org.apache.sshd.common.future;version="[1.2,2)",org.apache.sshd
+ .common.util;version="[1.2,2)",org.apache.sshd.common.util.logging;vers
+ ion="[1.2,2)",org.apache.sshd.server;version="[1.2,2)",org.apache.sshd.
+ server.scp;version="[1.2,2)",org.eclipse.jgit.api;version="[3.4,4)",org
+ .eclipse.jgit.errors;version="[3.4,4)",org.eclipse.jgit.lib;version="[3
+ .4,4)",org.eclipse.jgit.pgm;version="[3.4,4)";resolution:=optional,org.
+ eclipse.jgit.pgm.internal;version="[3.4,4)";resolution:=optional,org.ec
+ lipse.jgit.pgm.opt;version="[3.4,4)";resolution:=optional,org.eclipse.j
+ git.transport;version="[3.4,4)",org.eclipse.jgit.util;version="[3.4,4)"
+ ,org.eclipse.jgit.util.io;version="[3.4,4)",org.kohsuke.args4j;resoluti
+ on:=optional,org.slf4j;version="[1.7,2)"
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.7))"
+Specification-Title: Apache Mina SSHD :: Git
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 1.2.0
+Tool: Bnd-2.3.0.201405100607

@@ -1,0 +1,39 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1518073725266
+Build-Jdk: 1.8.0_112
+Built-By: NAnishhenko
+Bundle-Description: The Apache Software Foundation provides support for 
+ the Apache community of open-source software projects.    The Apache pr
+ ojects are characterized by a collaborative, consensus based developmen
+ t process, an open and    pragmatic software license, and a desire to c
+ reate high quality software that leads the way in its field.    We cons
+ ider ourselves not simply a group of projects sharing a server, but rat
+ her a community of developers    and users.
+Bundle-DocURL: http://www.apache.org/
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Apache Mina SSHD :: LDAP
+Bundle-SymbolicName: org.apache.sshd.ldap
+Bundle-Vendor: The Apache Software Foundation
+Bundle-Version: 1.2.0
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.apache.sshd.common.util.net;version="1.2.0";uses:="j
+ avax.naming,javax.naming.directory",org.apache.sshd.server.auth;version
+ ="1.2.0";uses:="org.apache.sshd.common.util.net,org.apache.sshd.server.
+ session",org.apache.sshd.server.auth.password;version="1.2.0";uses:="or
+ g.apache.sshd.server.auth,org.apache.sshd.server.session",org.apache.ss
+ hd.server.auth.pubkey;version="1.2.0";uses:="org.apache.sshd.server.aut
+ h,org.apache.sshd.server.session"
+Implementation-Title: Apache Mina SSHD :: LDAP
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Vendor-Id: org.apache.sshd
+Implementation-Version: 1.2.0
+Import-Package: javax.naming,javax.naming.directory,org.apache.sshd.comm
+ on.config.keys;version="[1.2,2)",org.apache.sshd.common.util,org.apache
+ .sshd.common.util.buffer;version="[1.2,2)",org.apache.sshd.server.sessi
+ on;version="[1.2,2)",org.slf4j;version="[1.7,2)"
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.7))"
+Specification-Title: Apache Mina SSHD :: LDAP
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 1.2.0
+Tool: Bnd-2.3.0.201405100607

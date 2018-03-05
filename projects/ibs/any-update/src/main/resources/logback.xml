@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    
+    <property name="PATTERN" value="%d{HH:mm:ss.SSS} [%thread] [%-5level] %logger{36} - %msg%n"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${logs_dir:-.}/system.log</file>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logs_dir:-.}/system.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover monthly -->
+            <!--<fileNamePattern>system-%d{yyyy-MM}.log.zip</fileNamePattern>-->
+            <!-- rollover dayly -->
+            <fileNamePattern>system-%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+            <maxHistory>12</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+    
+    <root level="info">
+        <!--<appender-ref ref="STDOUT"/>-->
+        <appender-ref ref="FILE"/>
+    </root>
+    
+</configuration>

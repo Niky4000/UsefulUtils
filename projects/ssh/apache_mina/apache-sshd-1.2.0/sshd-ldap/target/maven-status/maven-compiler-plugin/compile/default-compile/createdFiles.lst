@@ -1,0 +1,4 @@
+org\apache\sshd\common\util\net\LdapNetworkConnector.class
+org\apache\sshd\server\auth\password\LdapPasswordAuthenticator.class
+org\apache\sshd\server\auth\LdapAuthenticator.class
+org\apache\sshd\server\auth\pubkey\LdapPublickeyAuthenticator.class

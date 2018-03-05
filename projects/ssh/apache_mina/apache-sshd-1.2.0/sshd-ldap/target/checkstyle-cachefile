@@ -1,0 +1,8 @@
+#Thu Feb 08 10:08:41 MSK 2018
+D\:\\GIT\\UsefulUtils\\projects\\shh\\apache_mina\\apache-sshd-1.2.0\\sshd-ldap\\src\\main\\java\\org\\apache\\sshd\\common\\util\\net\\LdapNetworkConnector.java=1508835091034
+D\:\\GIT\\UsefulUtils\\projects\\shh\\apache_mina\\apache-sshd-1.2.0\\sshd-ldap\\src\\main\\java\\org\\apache\\sshd\\server\\auth\\LdapAuthenticator.java=1508835091034
+D\:\\GIT\\UsefulUtils\\projects\\shh\\apache_mina\\apache-sshd-1.2.0\\sshd-ldap\\src\\main\\java\\org\\apache\\sshd\\server\\auth\\password\\LdapPasswordAuthenticator.java=1508835091049
+D\:\\GIT\\UsefulUtils\\projects\\shh\\apache_mina\\apache-sshd-1.2.0\\sshd-ldap\\src\\main\\java\\org\\apache\\sshd\\server\\auth\\pubkey\\LdapPublickeyAuthenticator.java=1508835091049
+D\:\\GIT\\UsefulUtils\\projects\\shh\\apache_mina\\apache-sshd-1.2.0\\sshd-ldap\\src\\test\\java\\org\\apache\\sshd\\server\\auth\\pubkey\\LdapPublickeyAuthenticatorTest.java=1508835091049
+D\:\\GIT\\UsefulUtils\\projects\\shh\\apache_mina\\apache-sshd-1.2.0\\sshd-ldap\\src\\test\\java\\org\\apache\\sshd\\server\\auth\\password\\LdapPasswordAuthenticatorTest.java=1508835091049
+configuration*?=AF4DE6BF8F0ECEBB42EEE7EB5C1C8DFC65C0A68C

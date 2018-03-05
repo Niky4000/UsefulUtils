@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="6.15">
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-ldap\src\main\java\org\apache\sshd\common\util\net\LdapNetworkConnector.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-ldap\src\main\java\org\apache\sshd\server\auth\LdapAuthenticator.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-ldap\src\main\java\org\apache\sshd\server\auth\password\LdapPasswordAuthenticator.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-ldap\src\main\java\org\apache\sshd\server\auth\pubkey\LdapPublickeyAuthenticator.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-ldap\src\test\java\org\apache\sshd\server\auth\BaseAuthenticatorTest.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-ldap\src\test\java\org\apache\sshd\server\auth\password\LdapPasswordAuthenticatorTest.java">
+</file>
+<file name="D:\GIT\UsefulUtils\projects\shh\apache_mina\apache-sshd-1.2.0\sshd-ldap\src\test\java\org\apache\sshd\server\auth\pubkey\LdapPublickeyAuthenticatorTest.java">
+</file>
+</checkstyle>

@@ -1,0 +1,49 @@
+
+*****************************************************
+Summary
+-------
+Generated at: 2018-02-08T10:08:41+03:00
+Notes: 1
+Binaries: 0
+Archives: 0
+Standards: 11
+
+Apache Licensed: 11
+Generated Documents: 0
+
+JavaDocs are generated and so license header is optional
+Generated files do not required license headers
+
+0 Unknown Licenses
+
+*******************************
+
+Unapproved licenses:
+
+
+*******************************
+
+Archives:
+
+*****************************************************
+  Files with Apache License headers will be marked AL
+  Binary files (which do not require AL headers) will be marked B
+  Compressed archives will be marked A
+  Notices, licenses etc will be marked N
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/pom.xml
+  N     D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/README.txt
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/src/main/java/org/apache/sshd/git/pack/GitPackCommand.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/src/main/java/org/apache/sshd/git/pack/GitPackCommandFactory.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/src/main/java/org/apache/sshd/git/pgm/EmbeddedCommandRunner.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/src/main/java/org/apache/sshd/git/pgm/GitPgmCommand.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/src/main/java/org/apache/sshd/git/pgm/GitPgmCommandFactory.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/src/main/java/org/apache/sshd/git/transport/GitSshdSession.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/src/main/java/org/apache/sshd/git/transport/GitSshdSessionFactory.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/src/main/java/org/apache/sshd/git/transport/GitSshdSessionProcess.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/src/test/java/org/apache/sshd/git/pack/GitPackCommandTest.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-git/src/test/java/org/apache/sshd/git/pgm/GitPgmCommandTest.java
+ 
+*****************************************************
+ Printing headers for files without AL header...
+ 
+ 

@@ -1,0 +1,8 @@
+org\apache\sshd\git\pack\GitPackCommand.class
+org\apache\sshd\git\pgm\EmbeddedCommandRunner.class
+org\apache\sshd\git\transport\GitSshdSessionFactory.class
+org\apache\sshd\git\transport\GitSshdSession.class
+org\apache\sshd\git\pack\GitPackCommandFactory.class
+org\apache\sshd\git\pgm\GitPgmCommandFactory.class
+org\apache\sshd\git\pgm\GitPgmCommand.class
+org\apache\sshd\git\transport\GitSshdSessionProcess.class

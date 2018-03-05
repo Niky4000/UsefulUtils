@@ -1,0 +1,45 @@
+
+*****************************************************
+Summary
+-------
+Generated at: 2018-02-08T10:08:41+03:00
+Notes: 0
+Binaries: 0
+Archives: 0
+Standards: 8
+
+Apache Licensed: 8
+Generated Documents: 0
+
+JavaDocs are generated and so license header is optional
+Generated files do not required license headers
+
+0 Unknown Licenses
+
+*******************************
+
+Unapproved licenses:
+
+
+*******************************
+
+Archives:
+
+*****************************************************
+  Files with Apache License headers will be marked AL
+  Binary files (which do not require AL headers) will be marked B
+  Compressed archives will be marked A
+  Notices, licenses etc will be marked N
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-ldap/pom.xml
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-ldap/src/main/java/org/apache/sshd/common/util/net/LdapNetworkConnector.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-ldap/src/main/java/org/apache/sshd/server/auth/LdapAuthenticator.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-ldap/src/main/java/org/apache/sshd/server/auth/password/LdapPasswordAuthenticator.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-ldap/src/main/java/org/apache/sshd/server/auth/pubkey/LdapPublickeyAuthenticator.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-ldap/src/test/java/org/apache/sshd/server/auth/BaseAuthenticatorTest.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-ldap/src/test/java/org/apache/sshd/server/auth/password/LdapPasswordAuthenticatorTest.java
+  AL    D:/GIT/UsefulUtils/projects/shh/apache_mina/apache-sshd-1.2.0/sshd-ldap/src/test/java/org/apache/sshd/server/auth/pubkey/LdapPublickeyAuthenticatorTest.java
+ 
+*****************************************************
+ Printing headers for files without AL header...
+ 
+ 

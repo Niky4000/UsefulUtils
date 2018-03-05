@@ -60,15 +60,19 @@ public class ExecuteThread extends Thread {
                 TargetSystemBeanWrapper targetSystemBean = processBean.getTargetSystemBean();
                 String jarPath = targetSystemBean.getJarPath();
                 String confPath = targetSystemBean.getConfPath();
-                lpuInProcessSet.add(processBean.getMoId());
-                final String lpuId = processBean.getMoId();
-                final String periodStr = processBean.getPeriodYear() + "-" + addSymbols(processBean.getPeriodMonth());
-                final String operationMode = processBean.getOperationMode();
                 String[] executeParams = null;
+                final String operationMode = processBean.getOperationMode();
+                String lpuId = "";
+                String periodStr = "";
+                if (processBean.getMoId() != null) {
+                    lpuInProcessSet.add(processBean.getMoId());
+                    lpuId = " " + processBean.getMoId();
+                    periodStr = " " + processBean.getPeriodYear() + "-" + addSymbols(processBean.getPeriodMonth());
+                }
                 if (targetSystemBean.getOs().equals(OsEnum.LINUX)) {
-                    executeParams = new String[]{"java -Xmx40G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + " " + lpuId + " " + periodStr};
+                    executeParams = new String[]{"java -Xmx40G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + lpuId + periodStr};
                 } else if (targetSystemBean.getOs().equals(OsEnum.WINDOWS)) {
-                    executeParams = new String[]{"cmd.exe /c start /wait java -Xmx40G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + " " + lpuId + " " + periodStr};
+                    executeParams = new String[]{"cmd.exe /c start /wait java -Xmx40G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + lpuId + periodStr};
                 }
                 log_info("Server: " + targetSystemBean.getHost() + ": " + StringUtils.join(executeParams, ", "));
                 TargetSystemBeanWrapper targetSystemBeanWrapper = new TargetSystemBeanWrapper(targetSystemBean);
@@ -83,7 +87,7 @@ public class ExecuteThread extends Thread {
                 log_error("Process Execute Exception!", e);
                 result = false;
             } finally {
-                if (processBean != null) {
+                if (processBean != null && processBean.getMoId() != null) {
                     lpuInProcessSet.remove(processBean.getMoId());
                 }
 //                log_info(this.getName() + " finalization actions were made!");

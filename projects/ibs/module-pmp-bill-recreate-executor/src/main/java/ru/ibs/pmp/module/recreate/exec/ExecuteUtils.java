@@ -2,25 +2,10 @@ package ru.ibs.pmp.module.recreate.exec;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import static ru.ibs.pmp.module.recreate.exec.ExecuteRecreate.isWindowsOS;
-import ru.ibs.pmp.module.recreate.exec.bean.OsEnum;
 import ru.ibs.pmp.module.recreate.exec.bean.OsProcessBean;
 import ru.ibs.pmp.module.recreate.exec.bean.RunProcessResultBean;
-import ru.ibs.pmp.module.recreate.exec.bean.TargetSystemBean;
 import ru.ibs.pmp.module.recreate.exec.bean.TargetSystemBeanWrapper;
 
 /**

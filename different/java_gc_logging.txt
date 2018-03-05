@@ -1,0 +1,3 @@
+-server -Xms4g -Xmx6g -XX:MaxGCPauseMillis=150 -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=1g -XX:+UseG1GC -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:GCLogFileSize=5m -XX:NumberOfGCLogFiles=10  -XX:+UseGCLogFileRotation -XX:+PrintHeapAtGC -Xloggc:C:\opt\tomcat_erzl_for_emias3\logs\gc-%t.log
+ 
+http://gceasy.io/index.jsp#banner

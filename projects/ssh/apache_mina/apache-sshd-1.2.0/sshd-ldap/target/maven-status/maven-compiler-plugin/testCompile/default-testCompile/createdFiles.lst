@@ -1,0 +1,4 @@
+org\apache\sshd\server\auth\BaseAuthenticatorTest$1.class
+org\apache\sshd\server\auth\BaseAuthenticatorTest.class
+org\apache\sshd\server\auth\pubkey\LdapPublickeyAuthenticatorTest.class
+org\apache\sshd\server\auth\password\LdapPasswordAuthenticatorTest.class

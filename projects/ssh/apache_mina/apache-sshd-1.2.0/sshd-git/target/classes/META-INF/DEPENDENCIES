@@ -1,0 +1,51 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Apache MINA SSHD
+
+
+From: 'an unknown organization'
+  - JavaEWAH (http://code.google.com/p/javaewah/) com.googlecode.javaewah:JavaEWAH:bundle:0.7.9
+    License: Apache 2  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - JGit - Core (http://www.eclipse.org/jgit//org.eclipse.jgit) org.eclipse.jgit:org.eclipse.jgit:jar:3.4.1.201406201815-r
+    License: Eclipse Distribution License (New BSD License) 
+  - JGit Archive Formats (http://www.eclipse.org/jgit//org.eclipse.jgit.archive) org.eclipse.jgit:org.eclipse.jgit.archive:jar:3.4.1.201406201815-r
+    License: Eclipse Distribution License (New BSD License) 
+  - JGit - Console User Interface (http://www.eclipse.org/jgit//org.eclipse.jgit.console) org.eclipse.jgit:org.eclipse.jgit.console:jar:3.4.1.201406201815-r
+    License: Eclipse Distribution License (New BSD License) 
+  - JGit - Command Line Interface (http://www.eclipse.org/jgit//org.eclipse.jgit.pgm) org.eclipse.jgit:org.eclipse.jgit.pgm:jar:3.4.1.201406201815-r
+    License: Eclipse Distribution License (New BSD License) 
+  - JGit - AWT User Interface (http://www.eclipse.org/jgit//org.eclipse.jgit.ui) org.eclipse.jgit:org.eclipse.jgit.ui:jar:3.4.1.201406201815-r
+    License: Eclipse Distribution License (New BSD License) 
+  - XZ for Java (http://tukaani.org/xz/java.html) org.tukaani:xz:jar:1.4
+    License: Public Domain 
+
+From: 'Kohsuke Kawaguchi' (http://www.kohsuke.org/)
+  - args4j (http://args4j.dev.java.net/args4j/) args4j:args4j:jar:2.0.12
+
+
+From: 'OSGi Alliance' (http://www.osgi.org)
+  - osgi.core (http://www.osgi.org) org.osgi:org.osgi.core:jar:4.3.1
+    License: Apache License, Version 2.0  (http://opensource.org/licenses/apache2.0.php)
+
+From: 'QOS.ch' (http://www.qos.ch)
+  - SLF4J API Module (http://www.slf4j.org/slf4j-api) org.slf4j:slf4j-api:jar:1.7.16:compile
+    License: MIT style  (http://www.slf4j.org/license.html)
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+  - Apache Commons Codec (http://commons.apache.org/proper/commons-codec/) commons-codec:commons-codec:jar:1.9
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Commons Compress (http://commons.apache.org/proper/commons-compress/) org.apache.commons:commons-compress:jar:1.6
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache HttpClient (http://hc.apache.org/httpcomponents-client) org.apache.httpcomponents:httpclient:jar:4.4.1
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache HttpCore (http://hc.apache.org/httpcomponents-core-ga) org.apache.httpcomponents:httpcore:jar:4.4.1
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Mina SSHD :: Core (http://www.apache.org/sshd/sshd-core/) org.apache.sshd:sshd-core:jar:1.2.0
+    License: Apache 2.0 License  (http://www.apache.org/licenses/LICENSE-2.0)
+
+
+
+
