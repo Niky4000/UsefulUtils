@@ -47,7 +47,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>ru.ibs.pmp.sshportforwarding.PortForwardingR</mainClass>
+                            <mainClass>ru.ibs.pmp.sshportforwarding.SshPortForward</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

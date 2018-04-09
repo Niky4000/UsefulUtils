@@ -18,6 +18,8 @@ public class TargetSystemBean {
     private final String workingDir;
     private final Long minMemoryForRecreate;
     private final Long minMemoryForSend;
+    private final String javaPath;
+    private final String cachePath;
     private final String jarPath;
     private final String confPath;
     private final String remoteWorkingDirFullPath;
@@ -36,6 +38,8 @@ public class TargetSystemBean {
         this.workingDir = null;
         this.minMemoryForRecreate = null;
         this.minMemoryForSend = null;
+        this.javaPath = null;
+        this.cachePath = null;
         this.jarPath = null;
         this.confPath = null;
         this.remoteWorkingDirFullPath = null;
@@ -45,8 +49,9 @@ public class TargetSystemBean {
         this.remoteDirName = null;
     }
 
-    public TargetSystemBean(OsEnum os, int quota, String host, String user, String password, Integer port, String workingDir, Long minMemoryForRecreate, Long minMemoryForSend,
-            String jarPath, String confPath, String remoteWorkingDirFullPath, String remoteLibDirFullPath, String remoteConfDirFullPath, String remoteDbfDirFullPath, String remoteDirName) {
+    public TargetSystemBean(OsEnum os, int quota, String host, String user, String password, Integer port, String workingDir, Long minMemoryForRecreate,
+            Long minMemoryForSend, String javaPath, String cachePath, String jarPath, String confPath, String remoteWorkingDirFullPath,
+            String remoteLibDirFullPath, String remoteConfDirFullPath, String remoteDbfDirFullPath, String remoteDirName) {
         this.os = os;
         this.quota = quota;
         this.host = host;
@@ -56,6 +61,8 @@ public class TargetSystemBean {
         this.workingDir = workingDir;
         this.minMemoryForRecreate = minMemoryForRecreate;
         this.minMemoryForSend = minMemoryForSend;
+        this.javaPath = javaPath;
+        this.cachePath = cachePath;
         this.jarPath = jarPath;
         this.confPath = confPath;
         this.remoteWorkingDirFullPath = remoteWorkingDirFullPath;
@@ -101,6 +108,14 @@ public class TargetSystemBean {
         return minMemoryForSend;
     }
 
+    public String getJavaPath() {
+        return javaPath;
+    }
+
+    public String getCachePath() {
+        return cachePath;
+    }
+
     public String getJarPath() {
         return jarPath;
     }
@@ -130,7 +145,7 @@ public class TargetSystemBean {
     }
 
     public static Function<OsEnum, String> s = os -> {
-        if (os.equals(OsEnum.LINUX)) {
+        if (os.equals(OsEnum.LINUX) || os.equals(OsEnum.AIX)) {
             return "/";
         } else if (os.equals(OsEnum.WINDOWS)) {
             return "\\";

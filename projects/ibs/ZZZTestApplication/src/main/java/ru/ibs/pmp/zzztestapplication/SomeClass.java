@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -89,7 +91,25 @@ public class SomeClass {
 //        base64Decode();
 //        testThreads();
 //        handleHttpResponseString("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:getPersonsInfoResponse xmlns:ns2=\"http://erzl.org/services\"><ns2:getPersonsInfoRequest><ns2:client><ns2:orgCode>-1</ns2:orgCode><ns2:bpCode>1</ns2:bpCode><ns2:system>PUMP</ns2:system><ns2:user>mgms</ns2:user><ns2:password>ibs</ns2:password></ns2:client><ns2:ukl>111333</ns2:ukl><ns2:ukl>222777</ns2:ukl><ns2:ukl>25080285</ns2:ukl><ns2:ukl>30976035</ns2:ukl><ns2:date>2017-11-30</ns2:date></ns2:getPersonsInfoRequest><ns2:totalResults>0</ns2:totalResults></ns2:getPersonsInfoResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>");
-        testPattern();
+//        testPattern();
+        testSemaphore();
+    }
+
+    private static void testSemaphore() throws InterruptedException {
+        final Semaphore semaphore = new Semaphore(0);
+//        new FutureTask<>();
+        new Thread(() -> {
+            try {
+                Thread.sleep(20 * 1000);
+                semaphore.release();
+                System.out.println("semaphore was released! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            } catch (InterruptedException ex) {
+                Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }).start();
+        System.out.println("Waiting for semaphore! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        semaphore.acquire();
+        System.out.println("Waiting for semaphore finished! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
     }
 
     private static void testPattern() {

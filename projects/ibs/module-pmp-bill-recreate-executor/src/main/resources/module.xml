@@ -33,6 +33,7 @@
     
     <bean class="ru.ibs.pmp.nsi.service.NsiServiceImpl"/>
     <bean class="ru.ibs.pmp.module.recreate.exec.ExecuteRecreate" id="executeRecreate"/>
+    <bean class="ru.ibs.pmp.module.recreate.exec.JammedService"/>
     <bean class="ru.ibs.pmp.dao.hibernate.SyncDAOHibernate" id="syncDAO"/>
     <bean class="ru.ibs.pmp.dao.hibernate.SyncSaveDAOHibernate"/>
     <bean class="ru.ibs.pmp.module.recreate.exec.ExecuteRecreateDAO"/>

@@ -32,6 +32,7 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
 //    private static final String[] GET_PROCESS_LIST_WIN = new String[]{"TASKLIST"};
     private static final String[] GET_PROCESS_LIST_WIN = new String[]{"WMIC path win32_process get Caption,Processid,Commandline"};
     private static final String[] GET_PROCESS_LIST_LIN = new String[]{"ps -eF | grep recreate"};
+    private static final String[] GET_PROCESS_LIST_AIX = new String[]{"ps -ef | grep recreate"};
     private static final Logger log = LoggerFactory.getLogger(ExecuteThread.class);
     private static final Pattern win32ProcessPattern = Pattern.compile("^(.+?)\\s(.+?)\\s(\\d+?)$", Pattern.DOTALL);
     private static final Pattern win32ProcessPatternWithoutCmd = Pattern.compile("^(.+?)\\s(\\d+?)$", Pattern.DOTALL);
@@ -46,52 +47,65 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
         if (osType.equals(OsEnum.WINDOWS)) {
             TargetSystemBeanWrapper targetSystemBean_ = targetSystemBeanObj.orElse(new TargetSystemBeanWrapper(GET_PROCESS_LIST_WIN));
             targetSystemBean_.setCommands(GET_PROCESS_LIST_WIN);
-            List<String> responseData = executeProcessFunction.apply(targetSystemBean_);
-            if (responseData == null) {
-                return null;
-            }
-            List<OsProcessBean> processList = responseData.stream().map(str -> {
-                Matcher winMatcher = win32ProcessPattern.matcher(str);
-                if (winMatcher.find()) {
-                    String processName = winMatcher.group(1);
-                    String processCmd = winMatcher.group(2);
-                    String processIdStr = winMatcher.group(3);
-                    return new OsProcessBean(processName, Integer.valueOf(processIdStr), processCmd);
-                } else {
-                    Matcher winMatcherWithoutCmd = win32ProcessPatternWithoutCmd.matcher(str);
-                    while (winMatcherWithoutCmd.find()) {
-                        String processName = winMatcherWithoutCmd.group(1);
-                        String processIdStr = winMatcherWithoutCmd.group(2);
-                        return new OsProcessBean(processName, Integer.valueOf(processIdStr), null);
-                    }
-                }
-                return null;
-            }).filter(bean -> bean != null && bean.getProcessCmd() != null && bean.getProcessCmd().contains("java") && bean.getProcessCmd().contains("recreate") && !bean.getProcessCmd().contains("-Dcommon.cas.base"))
-                    .collect(Collectors.toList());
-
-            return processList;
+            return handleWindowsResponseData(executeProcessFunction, targetSystemBean_);
         } else if (osType.equals(OsEnum.LINUX)) {
             TargetSystemBeanWrapper targetSystemBean_ = targetSystemBeanObj.orElse(new TargetSystemBeanWrapper(GET_PROCESS_LIST_LIN));
             targetSystemBean_.setCommands(GET_PROCESS_LIST_LIN);
             List<String> responseData = executeProcessFunction.apply(targetSystemBean_);
-            if (responseData == null) {
-                return null;
-            }
-            List<OsProcessBean> processList = responseData.stream().map(str -> {
-                Matcher linuxMatcher = linuxProcessPattern.matcher(str);
-                if (linuxMatcher.find()) {
-                    String processName = linuxMatcher.group(1);
-                    String processCmd = linuxMatcher.group(2);
-                    String processIdStr = processName;
-                    return new OsProcessBean(processName, Integer.valueOf(processIdStr), processCmd);
-                }
-                return null;
-            }).filter(bean -> bean != null && bean.getProcessCmd() != null && bean.getProcessCmd().contains("java") && bean.getProcessCmd().contains("recreate") && !bean.getProcessCmd().contains("-Dcommon.cas.base"))
-                    .collect(Collectors.toList());
-
-            return processList;
+            return handleLinuxResponseData(responseData);
+        } else if (osType.equals(OsEnum.AIX)) {
+            TargetSystemBeanWrapper targetSystemBean_ = targetSystemBeanObj.orElse(new TargetSystemBeanWrapper(GET_PROCESS_LIST_AIX));
+            targetSystemBean_.setCommands(GET_PROCESS_LIST_AIX);
+            List<String> responseData = executeProcessFunction.apply(targetSystemBean_);
+            return handleLinuxResponseData(responseData);
         }
         return null;
+    }
+
+    private List<OsProcessBean> handleLinuxResponseData(List<String> responseData) {
+        if (responseData == null) {
+            return null;
+        }
+        List<OsProcessBean> processList = responseData.stream().map(str -> {
+            Matcher linuxMatcher = linuxProcessPattern.matcher(str);
+            if (linuxMatcher.find()) {
+                String processName = linuxMatcher.group(1);
+                String processCmd = linuxMatcher.group(2);
+                String processIdStr = processName;
+                return new OsProcessBean(processName, Integer.valueOf(processIdStr), processCmd);
+            }
+            return null;
+        }).filter(bean -> bean != null && bean.getProcessCmd() != null && bean.getProcessCmd().contains("java") && bean.getProcessCmd().contains("recreate") && !bean.getProcessCmd().contains("-Dcommon.cas.base"))
+                .collect(Collectors.toList());
+
+        return processList;
+    }
+
+    private List<OsProcessBean> handleWindowsResponseData(Function<TargetSystemBeanWrapper, List<String>> executeProcessFunction, TargetSystemBeanWrapper targetSystemBean_) {
+        List<String> responseData = executeProcessFunction.apply(targetSystemBean_);
+        if (responseData == null) {
+            return null;
+        }
+        List<OsProcessBean> processList = responseData.stream().map(str -> {
+            Matcher winMatcher = win32ProcessPattern.matcher(str);
+            if (winMatcher.find()) {
+                String processName = winMatcher.group(1);
+                String processCmd = winMatcher.group(2);
+                String processIdStr = winMatcher.group(3);
+                return new OsProcessBean(processName, Integer.valueOf(processIdStr), processCmd);
+            } else {
+                Matcher winMatcherWithoutCmd = win32ProcessPatternWithoutCmd.matcher(str);
+                while (winMatcherWithoutCmd.find()) {
+                    String processName = winMatcherWithoutCmd.group(1);
+                    String processIdStr = winMatcherWithoutCmd.group(2);
+                    return new OsProcessBean(processName, Integer.valueOf(processIdStr), null);
+                }
+            }
+            return null;
+        }).filter(bean -> bean != null && bean.getProcessCmd() != null && bean.getProcessCmd().contains("java") && bean.getProcessCmd().contains("recreate") && !bean.getProcessCmd().contains("-Dcommon.cas.base"))
+                .collect(Collectors.toList());
+
+        return processList;
     }
 
     @Override
@@ -116,7 +130,7 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
 
     private List<String> runSshProcess(TargetSystemBeanWrapper targetSystemBean) {
         try {
-            SshClient sshClient = new SshClient(targetSystemBean.getHost(), targetSystemBean.getUser(), targetSystemBean.getPassword(), targetSystemBean.getPort());
+            SshClient sshClient = new SshClient(targetSystemBean.getHost(), targetSystemBean.getUser(), targetSystemBean.getPassword(), targetSystemBean.getPort(), !targetSystemBean.getOs().equals(OsEnum.AIX));
             return sshClient.execCommand(targetSystemBean.getCommands());
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,6 +148,8 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
             commands = new String[]{"wmic OS get FreePhysicalMemory /Value"};
         } else if (osType.equals(OsEnum.LINUX)) {
             commands = new String[]{"cat /proc/meminfo"};
+        } else if (osType.equals(OsEnum.AIX)) {
+            commands = new String[]{"svmon -G -O unit=MB"};
         }
         targetSystemBean.setCommands(commands);
         List<String> freeMemoryList = executeProcessFunction.apply(targetSystemBean);
@@ -159,6 +175,19 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
                     break;
                 }
             }
+        } else if (osType.equals(OsEnum.AIX)) {
+            for (String str : freeMemoryList) {
+                if (str.contains("memory")) {
+                    String digit = "[\\d\\.]+?\\s";
+                    Matcher matcher = Pattern.compile("^memory\\s" + digit + digit + "(" + digit + ")" + ".+$").matcher(str);
+                    if (matcher.find()) {
+                        String digitStr = matcher.group(1);
+                        Long freeMemory = digitStr.contains(".") ? Long.valueOf(digitStr.substring(0, digitStr.indexOf("."))) : Long.valueOf(digitStr);
+                        return freeMemory; // Megabytes
+                    }
+                    break;
+                }
+            }
         }
         return 0L;
     }
@@ -173,7 +202,7 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
             String[] commands = null;
             if (osType.equals(OsEnum.WINDOWS)) {
                 commands = new String[]{"dir " + targetSystemBean.getWorkingDir()};
-            } else if (osType.equals(OsEnum.LINUX)) {
+            } else if (osType.equals(OsEnum.LINUX) || osType.equals(OsEnum.AIX)) {
                 commands = new String[]{"ls -l " + targetSystemBean.getWorkingDir()};
             }
             targetSystemBean.setCommands(commands);
@@ -186,7 +215,7 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
                         String[] commandsForDelete = null;
                         if (targetSystemBean.getOs().equals(OsEnum.WINDOWS)) {
                             commandsForDelete = new String[]{"rmdir " + targetSystemBean.getWorkingDir() + targetSystemBean.getS() + dirName + " /s /q"};
-                        } else if (targetSystemBean.getOs().equals(OsEnum.LINUX)) {
+                        } else if (targetSystemBean.getOs().equals(OsEnum.LINUX) || targetSystemBean.getOs().equals(OsEnum.AIX)) {
                             commandsForDelete = new String[]{"rm -rf " + targetSystemBean.getWorkingDir() + targetSystemBean.getS() + dirName};
                         }
                         targetSystemBean.setCommands(commandsForDelete);
@@ -204,7 +233,7 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
     @Override
     public void uploadNewVersion(TargetSystemBeanWrapper targetSystemBean, String remoteDirName, File recreateJar, File pmpConfigPath) {
         try {
-            SshClient sshClient = new SshClient(targetSystemBean.getHost(), targetSystemBean.getUser(), targetSystemBean.getPassword(), targetSystemBean.getPort());
+            SshClient sshClient = new SshClient(targetSystemBean.getHost(), targetSystemBean.getUser(), targetSystemBean.getPassword(), targetSystemBean.getPort(), !targetSystemBean.getOs().equals(OsEnum.AIX));
             sshClient.execCommand(new String[]{"mkdir " + targetSystemBean.getWorkingDir()});
             sshClient.execCommand(new String[]{"mkdir " + targetSystemBean.getRemoteWorkingDirFullPath()});
             sshClient.execCommand(new String[]{"mkdir " + targetSystemBean.getRemoteLibDirFullPath()});
@@ -223,12 +252,20 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
             Matcher matcher3 = Pattern.compile("^runtime.pmp.recreate-executor.configPath=.+$", Pattern.MULTILINE).matcher(modifiedConfigs2);
             String modifiedConfigs3 = matcher3.replaceFirst("runtime.pmp.recreate-executor.configPath=" + (targetSystemBean.getRemoteConfDirFullPath() + targetSystemBean.getS() + pmpConfigPath.getName()).replace("\\\\", "\\").replace("\\", "\\\\\\\\"));
 
+            String modifiedConfigs4;
+            Matcher matcher4 = Pattern.compile("^runtime.recreate.tmpdir=.+$", Pattern.MULTILINE).matcher(modifiedConfigs3);
+            if (targetSystemBean.getCachePath() != null) {
+                modifiedConfigs4 = matcher4.replaceFirst("runtime.recreate.tmpdir=" + targetSystemBean.getCachePath().replace("\\\\", "\\").replace("\\", "\\\\\\\\"));
+            } else {
+                modifiedConfigs4 = matcher4.replaceFirst("");
+            }
+
             String s = FileSystems.getDefault().getSeparator();
             File tmpFileConfFile = new File(pmpConfigPath.getParent() + s + pmpConfigPath.getName() + "_tmp");
             if (tmpFileConfFile.exists()) {
                 tmpFileConfFile.delete();
             }
-            Files.write(tmpFileConfFile.toPath(), modifiedConfigs3.getBytes(), StandardOpenOption.CREATE_NEW);
+            Files.write(tmpFileConfFile.toPath(), modifiedConfigs4.getBytes(), StandardOpenOption.CREATE_NEW);
             sshClient.scpTo(targetSystemBean.getJarPath(), recreateJar.getAbsolutePath());
             sshClient.scpTo(targetSystemBean.getConfPath(), tmpFileConfFile.getAbsolutePath());
             tmpFileConfFile.delete();
@@ -285,4 +322,16 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
         return new RunProcessResultBean(result, outputConsumer.getProcessOutput(), outputConsumer.getResponseData());
     }
 
+    public void killAllProcesses(TargetSystemBeanWrapper targetSystemBean) {
+        List<OsProcessBean> processList = getProcessList(targetSystemBean);
+        Optional<TargetSystemBeanWrapper> targetSystemBeanObj = Optional.ofNullable(targetSystemBean);
+        OsEnum osType = targetSystemBeanObj.map(tt -> tt.getOs()).orElse(isWindowsOS ? OsEnum.WINDOWS : OsEnum.LINUX);
+        Function<TargetSystemBeanWrapper, List<String>> executeProcessFunction = targetSystemBean == null ? this::runProcessInBackgroungAndGetResponseDataOnly : this::runSshProcess;
+        if (osType.equals(OsEnum.AIX)) {
+            for (OsProcessBean processBean : processList) {
+                targetSystemBean.setCommands(new String[]{"kill -9 " + processBean.getProcessId().toString()});
+                executeProcessFunction.apply(targetSystemBean);
+            }
+        }
+    }
 }

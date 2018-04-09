@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,125 +122,130 @@ public class ExecuteRecreate {
     public void executeMassRecreate() throws InterruptedException {
         isItAllowedToExecuteViaTimer.getAndSet(false);
         try {
-            Map<String, Boolean> result = new HashMap<>();
-            if (executeRecreateDAO.checkForRecreateJarExisting(recreateJar)) {
-                String pmpConfigPath = configPath;
-                int lockCount = 0;
-                try {
-                    lockCount = syncDAO.getLockCount();
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
-                if (lockCount < PART_IN_WORK) { // PART_IN_WORK содержит максимально возможное число процессов, запущенных на разных серверах
-                    List<PmpSync> allSyncs = syncDAO.getAllTasks(); // Получить все заявки
+//            Map<String, Boolean> result = new HashMap<>();
+//            if (executeRecreateDAO.checkForRecreateJarExisting(recreateJar)) {
+//            String pmpConfigPath = configPath;
+            int lockCount = 0;
+            try {
+                lockCount = syncDAO.getLockCount();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            if (lockCount < PART_IN_WORK) { // PART_IN_WORK содержит максимально возможное число процессов, запущенных на разных серверах
+                List<PmpSync> allSyncs = syncDAO.getAllTasks(); // Получить все заявки
 //                    if (allSyncs == null || allSyncs.isEmpty() || allSyncs.size() > 0) {
 //                        throw new RuntimeException("Test Exception!!!");
 //                    }
-                    // Убрать из списка блокировки
-                    Set<PmpSync> pmpSyncAllList = allSyncs.stream().filter(sync -> !sync.getPmpSyncPK().getCallData().equals(RecreateBillsRequest.LOCK)).collect(Collectors.toSet());
-                    Set<PmpSync> pmpSyncList = allSyncs.stream().filter(sync -> !sync.getPmpSyncPK().getCallData().equals(RecreateBillsRequest.LOCK)
-                            && !Optional.ofNullable(sync.getFailed()).orElse(false)
-                            && !Optional.ofNullable(sync.getInProgress()).orElse(false)
-                    ).collect(Collectors.toSet());
-                    if (!pmpSyncList.isEmpty()) { // Если заявки вообще есть, то продолжить
-                        log_info("pmpSyncList size = " + pmpSyncList.size() + "!");
-                        Map<String, List<OsProcessBean>> allProcessesMapByHostIp = targetSystemBeanCollection.stream()
-                                .map(targetSystemBean -> targetSystemBeanCollectionByHost.get(targetSystemBean.getHost()))
-                                .collect(Collectors.groupingBy(targetSystemBean -> targetSystemBean.getHost(),
-                                        Collectors.mapping(executeUtils::getProcessList, Collectors.collectingAndThen(Collectors.toList(), list -> list.get(0)))));
+                // Убрать из списка блокировки
+                Set<PmpSync> pmpSyncAllList = allSyncs.stream().filter(sync -> !sync.getPmpSyncPK().getCallData().equals(RecreateBillsRequest.LOCK)).collect(Collectors.toSet());
+                Set<PmpSync> pmpSyncList = allSyncs.stream().filter(sync -> !sync.getPmpSyncPK().getCallData().equals(RecreateBillsRequest.LOCK)
+                        && !Optional.ofNullable(sync.getFailed()).orElse(false)
+                        && !Optional.ofNullable(sync.getInProgress()).orElse(false)
+                ).collect(Collectors.toSet());
+                if (!pmpSyncList.isEmpty()) { // Если заявки вообще есть, то продолжить
+                    log_info("pmpSyncList size = " + pmpSyncList.size() + "!");
+                    Map<String, List<OsProcessBean>> allProcessesMapByHostIp = targetSystemBeanCollection.stream()
+                            .map(targetSystemBean -> targetSystemBeanCollectionByHost.get(targetSystemBean.getHost()))
+                            .collect(Collectors.groupingBy(targetSystemBean -> targetSystemBean.getHost(),
+                                    Collectors.mapping(executeUtils::getProcessList, Collectors.collectingAndThen(Collectors.toList(), list -> list.get(0)))));
 
-                        getServiceAmountForProcessBeans(pmpSyncAllList, allProcessesMapByHostIp); // Получить прогноз по занимаемой памяти для каждого процесса
+                    getServiceAmountForProcessBeans(pmpSyncAllList, allProcessesMapByHostIp); // Получить прогноз по занимаемой памяти для каждого процесса
 
-                        TriFunction<Date, String, Integer, Long> getPossibleMemoryConsumption = (period, type, lpuId) -> {
-                            return Optional.ofNullable(possibleRamUsageToLpuIdByTypeAndByPeriodGlobal)
-                                    .map(map -> map.get(period))
-                                    .map(map -> map.get(type))
-                                    .map(map -> map.get(Optional.ofNullable(lpuId).map(lpuId_ -> lpuId_.toString()).orElse(""))).orElse(512L);
-                        };
+                    TriFunction<Date, String, Integer, Long> getPossibleMemoryConsumption = (period, type, lpuId) -> {
+                        return Optional.ofNullable(possibleRamUsageToLpuIdByTypeAndByPeriodGlobal)
+                                .map(map -> map.get(period))
+                                .map(map -> map.get(type))
+                                .map(map -> map.get(Optional.ofNullable(lpuId).map(lpuId_ -> lpuId_.toString()).orElse(""))).orElse(512L);
+                    };
 
-                        // Map: key - тип заявки (формирование, отправка или ПОСОБР); value - заявка и соответствующий ей прогноз по занимаемой памяти.
-                        Map<String, Set<MemoryBean>> memoryBeanMapToFeatureName = pmpSyncList.stream()
-                                .map(pmpSync -> new MemoryBean(pmpSync, Optional.ofNullable(possibleRamUsageToLpuIdByTypeAndByPeriodGlobal.get(pmpSync.getPmpSyncPK().getPeriod()))
-                                .map(map -> map.get(pmpSync.getFeatureName())).map(map -> map.get(pmpSync.getPmpSyncPK().getLpuId() + "")).orElse(512L))).sorted()
-                                .collect(Collectors.groupingBy(memoryBean -> memoryBean.getPmpSync().getFeatureName(), TreeMap::new, Collectors.toCollection(TreeSet::new)));
+                    // Map: key - тип заявки (формирование, отправка или ПОСОБР); value - заявка и соответствующий ей прогноз по занимаемой памяти.
+                    Map<String, Set<MemoryBean>> memoryBeanMapToFeatureName = pmpSyncList.stream()
+                            .map(pmpSync -> new MemoryBean(pmpSync, Optional.ofNullable(possibleRamUsageToLpuIdByTypeAndByPeriodGlobal.get(pmpSync.getPmpSyncPK().getPeriod()))
+                            .map(map -> map.get(pmpSync.getFeatureName())).map(map -> map.get(pmpSync.getPmpSyncPK().getLpuId() + "")).orElse(512L))).sorted()
+                            .collect(Collectors.groupingBy(memoryBean -> memoryBean.getPmpSync().getFeatureName(), TreeMap::new, Collectors.toCollection(TreeSet::new)));
 
-                        // Оценить примерно свободную память на серверах.
-                        for (TargetSystemBean targetSystemBean : targetSystemBeanCollection) {
-                            Long freeMemory = executeUtils.getFreeMemory(new TargetSystemBeanWrapper(targetSystemBean));
-                            TargetSystemBeanWrapper targetSystemBeanByHost = targetSystemBeanCollectionByHost.get(targetSystemBean.getHost());
-                            List<OsProcessBean> processList = allProcessesMapByHostIp.get(targetSystemBean.getHost());
-                            long usedServerMemory = processList.stream().map(process -> getPossibleMemoryConsumption.apply(process.getPeriod(), process.getType(), process.getLpuId())).mapToLong(i -> i.longValue()).sum();
-                            // Посчитали свободную память сервера без учёта наших процессов, которые на нём уже запущены.
-                            // Это надо на случай нормального пересчёта, если планировщик был перезапущен! Подсчёт приблизительный и оценочный.
-                            // Нам надо примерно оценить на сколько забит сервер.
-                            // Здесь проблема в том, что точно мы это посчитать не можем по причине того, что процесс может увеличивать
-                            // количество потребляемой памяти по ходу своей работы. То есть getProcessMemory и сложить результаты не получится.
-                            // Результат может быть обманчивым, а именно заниженным. Поэтому ориентируемся на прогнозируемый объём занимаемой памяти.
-                            targetSystemBeanByHost.setFreeMemory(freeMemory - usedServerMemory);
-                            targetSystemBeanByHost.setProcessSet(new HashSet<>(processList));
-                        }
-
-                        // В этот список закидываем заявки, которые мы решили распределить по серверам.
-                        Set<MemoryBean> memoryBeanSet = new HashSet<>();
-                        Set<MemoryBean> memoryBeanSetForPosobr = Optional.ofNullable(memoryBeanMapToFeatureName.get(RecreateBillsFeature.CALC_POSOBR)).orElse(new HashSet<>());
-                        Set<MemoryBean> memoryBeanSetForSend = Optional.ofNullable(memoryBeanMapToFeatureName.get(RecreateBillsFeature.SEND)).orElse(new HashSet<>());
-                        Set<MemoryBean> memoryBeanSetForRecreate = Optional.ofNullable(memoryBeanMapToFeatureName.get(RecreateBillsFeature.NAME)).orElse(new HashSet<>());
-                        LinkedList<MemoryBean> memoryBeanSetForPosobrLinkedList = new LinkedList(memoryBeanSetForPosobr);
-                        LinkedList<MemoryBean> memoryBeanSetForSendLinkedList = new LinkedList(memoryBeanSetForSend);
-                        LinkedList<MemoryBean> memoryBeanSetForRecreateLinkedList = new LinkedList(memoryBeanSetForRecreate);
-
-                        // Это нужно для того, чтобы не засовывать одно и тоже ЛПУ за один и тот же период одновременно и на формирование и на отправку!
-                        Set<String> lpuAndPeriodSet = new HashSet<>();
-                        //
-                        Iterator<TargetSystemBeanWrapper> targetSystemBeanWrapperIterator = targetSystemWrapperBeanLinkedList.iterator();
-                        while (targetSystemBeanWrapperIterator.hasNext()) {
-                            TargetSystemBeanWrapper targetSystemBeanWrapper = targetSystemBeanWrapperIterator.next();
-                            setTaskToQueue(memoryBeanSetForRecreateLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
-                        }
-                        //
-                        //
-                        // Эти заявки выполнять на определённом сервере
-                        Set<MemoryBean> memoryBeanSetForSendOnParticularServer = new HashSet<>();
-                        // Эти заявки выполнять на любом сервере
-                        Set<MemoryBean> memoryBeanSetForSendOnAnyServer = new HashSet<>();
-                        while (!memoryBeanSetForSendLinkedList.isEmpty()) {
-                            MemoryBean memoryBean = memoryBeanSetForSendLinkedList.pollFirst();
-                            String periodMonth = new SimpleDateFormat("MM").format(memoryBean.getPmpSync().getPmpSyncPK().getPeriod());
-                            String periodYear = new SimpleDateFormat("yyyy").format(memoryBean.getPmpSync().getPmpSyncPK().getPeriod());
-                            String serverIp = executeRecreateDAO.getLastServerThatRecreatedBills(executeRecreateDAO.getRequirement(
-                                    Integer.valueOf(memoryBean.getPmpSync().getPmpSyncPK().getLpuId()).toString(),
-                                    Integer.valueOf(periodYear), Integer.valueOf(periodMonth)));
-                            if (serverIp != null && targetSystemBeanCollectionByHost.containsKey(serverIp)) {
-                                TargetSystemBeanWrapper targetSystemBean = targetSystemBeanCollectionByHost.get(serverIp);
-                                setTaskToQueue(new LinkedList(Arrays.asList(memoryBean)), targetSystemBean, memoryBeanSetForSendOnParticularServer, lpuAndPeriodSet);
-                                log_info(memoryBean.getPmpSync().getPmpSyncPK().getLpuId() + ": last recreate was made on: " + serverIp + "!");
-                            } else {
-                                memoryBeanSetForSendOnAnyServer.add(memoryBean);
-                                log_info(memoryBean.getPmpSync().getPmpSyncPK().getLpuId() + ": it wasn't found where last recreate happened!");
-                            }
-                        }
-                        memoryBeanSet.addAll(memoryBeanSetForSendOnParticularServer);
-                        LinkedList<MemoryBean> memoryBeanSetForSendOnAnyServerLinkedList = new LinkedList(memoryBeanSetForSendOnAnyServer);
-                        //
-                        //
-
-                        Iterator<TargetSystemBeanWrapper> targetSystemBeanWrapperDescendingIterator = targetSystemWrapperBeanLinkedList.descendingIterator();
-                        while (targetSystemBeanWrapperDescendingIterator.hasNext()) {
-                            TargetSystemBeanWrapper targetSystemBeanWrapper = targetSystemBeanWrapperDescendingIterator.next();
-                            setTaskToQueue(memoryBeanSetForPosobrLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
-                            setTaskToQueue(memoryBeanSetForSendOnAnyServerLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
-                        }
-
-                        // Отправляем заявки на реальное исполнение!
-                        handleClaim(memoryBeanSet);
-                        log_info("Finished!");
+                    // Оценить примерно свободную память на серверах.
+                    for (TargetSystemBean targetSystemBean : targetSystemBeanCollection) {
+                        Long freeMemory = executeUtils.getFreeMemory(new TargetSystemBeanWrapper(targetSystemBean));
+                        TargetSystemBeanWrapper targetSystemBeanByHost = targetSystemBeanCollectionByHost.get(targetSystemBean.getHost());
+                        List<OsProcessBean> processList = allProcessesMapByHostIp.get(targetSystemBean.getHost());
+                        long usedServerMemory = processList.stream().map(process -> getPossibleMemoryConsumption.apply(process.getPeriod(), process.getType(), process.getLpuId())).mapToLong(i -> i.longValue()).sum();
+                        // Посчитали свободную память сервера без учёта наших процессов, которые на нём уже запущены.
+                        // Это надо на случай нормального пересчёта, если планировщик был перезапущен! Подсчёт приблизительный и оценочный.
+                        // Нам надо примерно оценить на сколько забит сервер.
+                        // Здесь проблема в том, что точно мы это посчитать не можем по причине того, что процесс может увеличивать
+                        // количество потребляемой памяти по ходу своей работы. То есть getProcessMemory и сложить результаты не получится.
+                        // Результат может быть обманчивым, а именно заниженным. Поэтому ориентируемся на прогнозируемый объём занимаемой памяти.
+                        targetSystemBeanByHost.setFreeMemory(freeMemory - usedServerMemory);
+                        targetSystemBeanByHost.setProcessSet(new HashSet<>(processList));
                     }
-                } else {
-                    log_info("To many locks!");
+
+                    // В этот список закидываем заявки, которые мы решили распределить по серверам.
+                    Set<MemoryBean> memoryBeanSet = new HashSet<>();
+                    Set<MemoryBean> memoryBeanSetForPosobr = Optional.ofNullable(memoryBeanMapToFeatureName.get(RecreateBillsFeature.CALC_POSOBR)).orElse(new HashSet<>());
+                    Set<MemoryBean> memoryBeanSetForSmoFlk = Optional.ofNullable(memoryBeanMapToFeatureName.get(RecreateBillsFeature.SMO_BILL_FLK)).orElse(new HashSet<>());
+                    Set<MemoryBean> memoryBeanSetForSend = Optional.ofNullable(memoryBeanMapToFeatureName.get(RecreateBillsFeature.SEND)).orElse(new HashSet<>());
+                    Set<MemoryBean> memoryBeanSetForRecreate = Optional.ofNullable(memoryBeanMapToFeatureName.get(RecreateBillsFeature.NAME)).orElse(new HashSet<>());
+                    LinkedList<MemoryBean> memoryBeanSetForPosobrLinkedList = new LinkedList(memoryBeanSetForPosobr);
+                    LinkedList<MemoryBean> memoryBeanSetForSmoFlkLinkedList = new LinkedList(memoryBeanSetForSmoFlk);
+                    LinkedList<MemoryBean> memoryBeanSetForSendLinkedList = new LinkedList(memoryBeanSetForSend);
+                    LinkedList<MemoryBean> memoryBeanSetForRecreateLinkedList = new LinkedList(memoryBeanSetForRecreate);
+                    Collections.sort(memoryBeanSetForRecreateLinkedList, (t1, t2) -> t1.getPmpSync().getCreated().before(t2.getPmpSync().getCreated()) ? -1 : 1);
+
+                    // Это нужно для того, чтобы не засовывать одно и тоже ЛПУ за один и тот же период одновременно и на формирование и на отправку!
+                    Set<String> lpuAndPeriodSet = new HashSet<>();
+
+                    // Эти заявки выполнять на определённом сервере
+                    Set<MemoryBean> memoryBeanSetForSendOnParticularServer = new HashSet<>();
+                    // Эти заявки выполнять на любом сервере
+                    Set<MemoryBean> memoryBeanSetForSendOnAnyServer = new HashSet<>();
+                    while (!memoryBeanSetForSendLinkedList.isEmpty()) {
+                        MemoryBean memoryBean = memoryBeanSetForSendLinkedList.pollFirst();
+                        String periodMonth = new SimpleDateFormat("MM").format(memoryBean.getPmpSync().getPmpSyncPK().getPeriod());
+                        String periodYear = new SimpleDateFormat("yyyy").format(memoryBean.getPmpSync().getPmpSyncPK().getPeriod());
+                        String serverIp = executeRecreateDAO.getLastServerThatRecreatedBills(executeRecreateDAO.getRequirement(
+                                Integer.valueOf(memoryBean.getPmpSync().getPmpSyncPK().getLpuId()).toString(),
+                                Integer.valueOf(periodYear), Integer.valueOf(periodMonth)));
+                        if (serverIp != null && targetSystemBeanCollectionByHost.containsKey(serverIp)) {
+                            TargetSystemBeanWrapper targetSystemBean = targetSystemBeanCollectionByHost.get(serverIp);
+                            setTaskToQueue(new LinkedList(Arrays.asList(memoryBean)), targetSystemBean, memoryBeanSetForSendOnParticularServer, lpuAndPeriodSet);
+                            log_info(memoryBean.getPmpSync().getPmpSyncPK().getLpuId() + ": last recreate was made on: " + serverIp + "!");
+                        } else {
+                            memoryBeanSetForSendOnAnyServer.add(memoryBean);
+                            log_info(memoryBean.getPmpSync().getPmpSyncPK().getLpuId() + ": it wasn't found where last recreate happened!");
+                        }
+                    }
+                    memoryBeanSet.addAll(memoryBeanSetForSendOnParticularServer);
+                    LinkedList<MemoryBean> memoryBeanSetForSendOnAnyServerLinkedList = new LinkedList(memoryBeanSetForSendOnAnyServer);
+                    //
+                    //
+
+                    Iterator<TargetSystemBeanWrapper> targetSystemBeanWrapperDescendingIterator = targetSystemWrapperBeanLinkedList.descendingIterator();
+                    while (targetSystemBeanWrapperDescendingIterator.hasNext()) {
+                        TargetSystemBeanWrapper targetSystemBeanWrapper = targetSystemBeanWrapperDescendingIterator.next();
+                        setTaskToQueue(memoryBeanSetForPosobrLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
+                        setTaskToQueue(memoryBeanSetForSmoFlkLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
+                        setTaskToQueue(memoryBeanSetForSendOnAnyServerLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
+                    }
+                    //
+                    // Заявки на переформирование счетов
+                    Iterator<TargetSystemBeanWrapper> targetSystemBeanWrapperIterator = targetSystemWrapperBeanLinkedList.iterator();
+                    while (targetSystemBeanWrapperIterator.hasNext()) {
+                        TargetSystemBeanWrapper targetSystemBeanWrapper = targetSystemBeanWrapperIterator.next();
+                        setTaskToQueue(memoryBeanSetForRecreateLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
+                    }
+                    //
+                    //
+                    // Отправляем заявки на реальное исполнение!
+                    handleClaim(memoryBeanSet);
+                    log_info("Finished!");
                 }
             } else {
-                log_info("Warning!!! ${pmp.recreate.jar.path} does not exists!!!");
+                log_info("To many locks!");
             }
+//            } else {
+//                log_info("Warning!!! ${pmp.recreate.jar.path} does not exists!!!");
+//            }
         } finally {
             isItAllowedToExecuteViaTimer.getAndSet(true);
         }
@@ -295,7 +301,7 @@ public class ExecuteRecreate {
                 lpuAndPeriodSet.add(keyForLpuAndPeriodSet);
                 memoryBeanSet.add(memoryBean);
             } else {
-                log_info("Task was skipped! Server = " + targetSystemBeanWrapper.getHost()
+                log_info("Task was skipped for " + memoryBean.getPmpSync().getPmpSyncPK().getLpuId() + "! Server = " + targetSystemBeanWrapper.getHost()
                         + " freeMemory = " + freeMemory.toString()
                         + " possibleMemoryUsage = " + possibleMemoryUsage.toString()
                         + " remainedMemory = " + remainedMemory.toString()
@@ -327,10 +333,19 @@ public class ExecuteRecreate {
             } else if (callData.startsWith(RecreateBillsRequest.SEND_BILLS_VIRTUAL_REQUEST)) {
                 operationMode = "-ss";
                 callType = RecreateBillsFeature.SEND;
+            } else if (callData.startsWith(RecreateBillsRequest.SMO_BILL_FLK_VIRTUAL_REQUEST)) {
+                operationMode = "-smoflk";
+                callType = RecreateBillsFeature.SMO_BILL_FLK;
             }
+            BigDecimal usage = BigDecimal.valueOf(memoryBean.getPossibleMemoryUsage()).divide(BigDecimal.valueOf(1024L));
+            if (callType.equals(RecreateBillsFeature.SEND)) {
+                usage = BigDecimal.valueOf(1024L * 10L);
+            }
+            Long possibleMemoryUsage = Math.max(16L, Math.min(Math.round(usage.longValue() + 2L + usage.multiply(BigDecimal.valueOf(0.4)).longValue()), 80L));
             ProcessBean processBean = new ProcessBean();
             processBean.setMoId(moId);
             processBean.setOperationMode(operationMode);
+            processBean.setPossibleMemoryUsage(possibleMemoryUsage);
             processBean.setPeriodYear(periodYear);
             processBean.setPeriodMonth(periodMonth);
             processBean.setType(callType);
@@ -401,18 +416,28 @@ public class ExecuteRecreate {
         }
     }
 
-    private List<TargetSystemBean> initRemotes() {
+    // Потом сделать private! public - это для отладки!
+    public List<TargetSystemBean> initRemotes() {
         log_info("initRemotes...");
         recreateJar = new File(jarPath);
         Pattern pattern = Pattern.compile("\\{(.+?)\\}");
         Matcher matcher = pattern.matcher(remotesConfig);
         List<TargetSystemBean> targetSystemBeanList = new LinkedList<>();
         String remoteDirName = dateToRemoteDirName.apply(LocalDateTime.now());
+//        String remoteDirName = "2018_03_05__15_38_35"; // debug!!!
         while (matcher.find()) {
             String targetSystemBeanStr = matcher.group(1);
             String[] targetSystemBeanStrSplited = targetSystemBeanStr.split(",");
 
-            OsEnum os = targetSystemBeanStrSplited[0].trim().equals("windows") ? OsEnum.WINDOWS : OsEnum.LINUX;
+            String osStr = targetSystemBeanStrSplited[0].trim();
+            OsEnum os;
+            if (osStr.equals("aix")) {
+                os = OsEnum.AIX;
+            } else if (osStr.equals("windows")) {
+                os = OsEnum.WINDOWS;
+            } else {
+                os = OsEnum.LINUX;
+            }
             String s = TargetSystemBean.s.apply(os);
             String workingDir = targetSystemBeanStrSplited[6].trim();
             File pmpConfigPath = new File(configPath);
@@ -430,6 +455,8 @@ public class ExecuteRecreate {
                     targetSystemBeanStrSplited[2].trim(), targetSystemBeanStrSplited[3].trim(), targetSystemBeanStrSplited[4].trim(),
                     Integer.valueOf(targetSystemBeanStrSplited[5].trim()).intValue(), workingDir,
                     getMemoryConfig(targetSystemBeanStrSplited[7].trim()), getMemoryConfig(targetSystemBeanStrSplited[8].trim()),
+                    targetSystemBeanStrSplited[9].trim().equals("null") ? null : targetSystemBeanStrSplited[9].trim(),
+                    targetSystemBeanStrSplited[10].trim().equals("null") ? null : targetSystemBeanStrSplited[10].trim(),
                     jarPath, confPath, remoteWorkingDirFullPath, remoteLibDirFullPath,
                     remoteConfDirFullPath, remoteDbfDirFullPath, remoteDirName
             );
@@ -509,7 +536,7 @@ public class ExecuteRecreate {
         }
 
         Map<Date, Map<String, Set<String>>> lpuIdsByTypeAndByPeriod = pmpSyncStream
-                .collect(Collectors.groupingBy(QueueLpuBean::getPeriod,
+                .collect(Collectors.groupingBy(QueueLpuBean::getPeriod, TreeMap::new,
                         Collectors.groupingBy(QueueLpuBean::getType,
                                 Collectors.mapping(QueueLpuBean::getLpuId, Collectors.toSet()))));
 
@@ -528,12 +555,13 @@ public class ExecuteRecreate {
             final Set<String> lpuIdSetForRecreate = entryValue.map(map -> map.get(RecreateBillsFeature.NAME)).orElse(new HashSet<>()).stream().filter(lpuId -> !defineAlreadyCalculatedValues.apply(period, RecreateBillsFeature.NAME, lpuId)).collect(Collectors.toSet());
             final Set<String> lpuIdSetForSend = entryValue.map(map -> map.get(RecreateBillsFeature.SEND)).orElse(new HashSet<>()).stream().filter(lpuId -> !defineAlreadyCalculatedValues.apply(period, RecreateBillsFeature.SEND, lpuId)).collect(Collectors.toSet());
             final Set<String> lpuIdSetForPosobr = entryValue.map(map -> map.get(RecreateBillsFeature.CALC_POSOBR)).orElse(new HashSet<>()).stream().filter(lpuId -> !defineAlreadyCalculatedValues.apply(period, RecreateBillsFeature.CALC_POSOBR, lpuId)).collect(Collectors.toSet());
+            final Set<String> lpuIdSetForSmoFlk = entryValue.map(map -> map.get(RecreateBillsFeature.SMO_BILL_FLK)).orElse(new HashSet<>()).stream().filter(lpuId -> !defineAlreadyCalculatedValues.apply(period, RecreateBillsFeature.SMO_BILL_FLK, lpuId)).collect(Collectors.toSet());
             if (!lpuIdSetForRecreate.isEmpty()) {
                 Date periodEnd = Date.from(LocalDateTime.ofInstant(period.toInstant(), ZoneId.systemDefault()).plusMonths(1L).minusSeconds(1L).toInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())));
                 List<Object[]> objList = executeRecreateDAO.getServiceCount(period, periodEnd, lpuIdSetForRecreate);
 //            Map<Object, List<Object[]>> objectsCountByLpuId =
                 Function<Long, Long> possibleRamLoad = serviceCount -> {
-                    BigDecimal k = BigDecimal.valueOf(1); // Это поправочный импирический коэффициент! Формула тоже приблизительная, и основанная на приблизительной статистике.
+                    BigDecimal k = BigDecimal.valueOf(3.2); // Это поправочный импирический коэффициент! Формула тоже приблизительная, и основанная на приблизительной статистике.
                     BigDecimal totalMemoryUsage = k.multiply(BigDecimal.valueOf(serviceCount).multiply(BigDecimal.valueOf(40L * 1024L).divide(BigDecimal.valueOf(400L * 1000L))));
                     return totalMemoryUsage.compareTo(BigDecimal.valueOf(512L)) == 1 ? totalMemoryUsage.longValue() : 512L;
                 };
@@ -550,7 +578,7 @@ public class ExecuteRecreate {
 
             }
             if (!lpuIdSetForSend.isEmpty()) {
-                Map<String, Long> possibleRamUsageToLpuId = lpuIdSetForSend.stream().collect(Collectors.groupingBy(lpuId -> lpuId, Collectors.mapping(lpuId -> lpuId, Collectors.collectingAndThen(Collectors.toList(), list -> 512L))));
+                Map<String, Long> possibleRamUsageToLpuId = lpuIdSetForSend.stream().collect(Collectors.groupingBy(lpuId -> lpuId, Collectors.mapping(lpuId -> lpuId, Collectors.collectingAndThen(Collectors.toList(), list -> 1024L * 10L)))); // Это надо доделать!!!
                 if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period) == null) {
                     possibleRamUsageToLpuIdByTypeAndByPeriod.put(period, new HashMap<>());
                 }
@@ -568,6 +596,16 @@ public class ExecuteRecreate {
                     possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).put(RecreateBillsFeature.CALC_POSOBR, new HashMap<>());
                 }
                 possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.CALC_POSOBR).putAll(possibleRamUsageToLpuId);
+            }
+            if (!lpuIdSetForSmoFlk.isEmpty()) {
+                Map<String, Long> possibleRamUsageToLpuId = lpuIdSetForSmoFlk.stream().collect(Collectors.groupingBy(lpuId -> lpuId, Collectors.mapping(lpuId -> lpuId, Collectors.collectingAndThen(Collectors.toList(), list -> 512L))));
+                if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period) == null) {
+                    possibleRamUsageToLpuIdByTypeAndByPeriod.put(period, new HashMap<>());
+                }
+                if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.SMO_BILL_FLK) == null) {
+                    possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).put(RecreateBillsFeature.SMO_BILL_FLK, new HashMap<>());
+                }
+                possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.SMO_BILL_FLK).putAll(possibleRamUsageToLpuId);
             }
         }
         for (Entry<Date, Map<String, Map<String, Long>>> entry : possibleRamUsageToLpuIdByTypeAndByPeriodGlobal.entrySet()) {

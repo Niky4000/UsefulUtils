@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -180,11 +181,12 @@ public class AdditionalDebugConfig {
 
         SyncDAO syncDAO = (SyncDAO) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SyncDAO.class}, new InvocationHandler() {
 
-            private PmpSync createPmpSync(int lpuId, Date period, String callData, String featureName, String parameters, String userId) {
+            private PmpSync createPmpSync(int lpuId, Date period, String callData, String featureName, String parameters, String userId, Date created) {
                 PmpSync pmpSync = new PmpSync(lpuId, period, callData);
                 pmpSync.setFeatureName(featureName);
                 pmpSync.setParameters(parameters);
                 pmpSync.setUserId(userId);
+                pmpSync.setCreated(created);
                 return pmpSync;
             }
 
@@ -193,29 +195,29 @@ public class AdditionalDebugConfig {
                 String methodName = method.getName();
                 if (methodName.equals("getLockCount")) {
                     return 0;
-                } else if (methodName.equals("getAll")) {
+                } else if (methodName.equals("getAllTasks")) {
 
                     return Arrays.asList(new PmpSync[]{ //
-                        createPmpSync(1101, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1102, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1103, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1104, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1105, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1106, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1107, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1108, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1109, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1110, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1111, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1112, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1113, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1114, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1115, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1116, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1117, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1118, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1119, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
-                        createPmpSync(1120, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId")});
+                        createPmpSync(1101, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 12:34:00")),
+                        createPmpSync(1102, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 12:44:00")),
+                        createPmpSync(1103, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 12:54:00")),
+                        createPmpSync(1104, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 13:14:00")),
+                        createPmpSync(1105, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 13:24:00")),
+                        createPmpSync(1106, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 13:34:00")),
+                        createPmpSync(1107, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 13:44:00")),
+                        createPmpSync(1108, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 13:54:00")),
+                        createPmpSync(1109, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 14:14:00")),
+                        createPmpSync(1110, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 14:24:00")),
+                        createPmpSync(1111, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 14:34:00")),
+                        createPmpSync(1112, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 14:44:00")),
+                        createPmpSync(1113, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 14:54:00")),
+                        createPmpSync(1114, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 15:14:00")),
+                        createPmpSync(1115, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 15:24:00")),
+                        createPmpSync(1116, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 15:34:00")),
+                        createPmpSync(1117, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 15:44:00")),
+                        createPmpSync(1118, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 15:54:00")),
+                        createPmpSync(1119, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 16:14:00")),
+                        createPmpSync(1120, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-02-08 16:24:00"))});
 //
 //                    return Arrays.asList(new PmpSync[]{createPmpSync(1863, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId"),
 //                        createPmpSync(4889, period, RecreateBillsRequest.RECREATE_BILLS_VIRTUAL_REQUEST, RecreateBillsFeature.NAME, "", "userId2")});

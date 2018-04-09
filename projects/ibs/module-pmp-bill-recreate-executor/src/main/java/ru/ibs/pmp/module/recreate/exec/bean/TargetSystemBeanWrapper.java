@@ -16,8 +16,9 @@ public class TargetSystemBeanWrapper extends TargetSystemBean {
     public TargetSystemBeanWrapper(TargetSystemBean targetSystemBean) {
         super(targetSystemBean.getOs(), targetSystemBean.getQuota(), targetSystemBean.getHost(), targetSystemBean.getUser(), targetSystemBean.getPassword(),
                 targetSystemBean.getPort(), targetSystemBean.getWorkingDir(), targetSystemBean.getMinMemoryForRecreate(), targetSystemBean.getMinMemoryForSend(),
-                targetSystemBean.getJarPath(), targetSystemBean.getConfPath(), targetSystemBean.getRemoteWorkingDirFullPath(), targetSystemBean.getRemoteLibDirFullPath(),
-                targetSystemBean.getRemoteConfDirFullPath(), targetSystemBean.getRemoteDbfDirFullPath(), targetSystemBean.getRemoteDirName());
+                targetSystemBean.getJavaPath(), targetSystemBean.getCachePath(), targetSystemBean.getJarPath(), targetSystemBean.getConfPath(),
+                targetSystemBean.getRemoteWorkingDirFullPath(), targetSystemBean.getRemoteLibDirFullPath(), targetSystemBean.getRemoteConfDirFullPath(),
+                targetSystemBean.getRemoteDbfDirFullPath(), targetSystemBean.getRemoteDirName());
     }
 
     public TargetSystemBeanWrapper(String[] commands) {

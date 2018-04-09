@@ -62,6 +62,8 @@ public class ExecuteThread extends Thread {
                 String confPath = targetSystemBean.getConfPath();
                 String[] executeParams = null;
                 final String operationMode = processBean.getOperationMode();
+                Long possibleMemoryUsage = processBean.getPossibleMemoryUsage() != null ? processBean.getPossibleMemoryUsage() : 4L;
+                String javaPath = targetSystemBean.getJavaPath();
                 String lpuId = "";
                 String periodStr = "";
                 if (processBean.getMoId() != null) {
@@ -69,10 +71,10 @@ public class ExecuteThread extends Thread {
                     lpuId = " " + processBean.getMoId();
                     periodStr = " " + processBean.getPeriodYear() + "-" + addSymbols(processBean.getPeriodMonth());
                 }
-                if (targetSystemBean.getOs().equals(OsEnum.LINUX)) {
-                    executeParams = new String[]{"java -Xmx40G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + lpuId + periodStr};
+                if (targetSystemBean.getOs().equals(OsEnum.LINUX) || targetSystemBean.getOs().equals(OsEnum.AIX)) {
+                    executeParams = new String[]{(javaPath != null ? javaPath : "java") + " -XX:GCTimeRatio=19 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -Xmx" + possibleMemoryUsage + "G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + lpuId + periodStr};
                 } else if (targetSystemBean.getOs().equals(OsEnum.WINDOWS)) {
-                    executeParams = new String[]{"cmd.exe /c start /wait java -Xmx40G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + lpuId + periodStr};
+                    executeParams = new String[]{"cmd.exe /c start /wait java -XX:GCTimeRatio=19 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -Xmx" + possibleMemoryUsage + "G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + lpuId + periodStr};
                 }
                 log_info("Server: " + targetSystemBean.getHost() + ": " + StringUtils.join(executeParams, ", "));
                 TargetSystemBeanWrapper targetSystemBeanWrapper = new TargetSystemBeanWrapper(targetSystemBean);

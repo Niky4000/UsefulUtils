@@ -26,7 +26,7 @@ public class ExecuteRecreateTest {
                 .put("runtime.pmp.recreate-executor.jarPath", "/home/pmp/recreate/recreate.jar")
                 .put("runtime.pmp.start-recreate-executor", "true")
                 .put("runtime.pmp.recreate-executor.configPath", "/home/pmp/common/runtime.properties")
-                .put("runtime.executor.remotes", "{windows, 15, 192.168.192.116, hello, world, 9084, C:\\\\recreateFor111, 4G, 1G},{linux, 2, 192.168.192.111, hello, world, 9084, /home/lin1/recreate1, 4G, 1G},{linux, 2, 192.168.192.112, hello, world, 9084, /home/lin2/recreate2, 4G, 1G},{linux, 1, 192.168.192.113, hello, world, 9084, /home/lin3/recreate3, 4G, 1G}")
+                .put("runtime.executor.remotes", "{windows, 15, 192.168.192.116, hello, world, 9084, C:\\\\recreateFor111, 4G, 1G, null, null},{linux, 2, 192.168.192.111, hello, world, 9084, /home/lin1/recreate1, 4G, 1G, null, null},{linux, 2, 192.168.192.112, hello, world, 9084, /home/lin2/recreate2, 4G, 1G, null, null},{linux, 1, 192.168.192.113, hello, world, 9084, /home/lin3/recreate3, 4G, 1G, null, null}")
                 .build();
         ExecPropertiesForDebug.setProperties(configs);
         ApplicationContext context = new ClassPathXmlApplicationContext("module_test.xml");

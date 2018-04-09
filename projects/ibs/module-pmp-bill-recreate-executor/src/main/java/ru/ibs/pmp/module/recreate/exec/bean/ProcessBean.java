@@ -21,6 +21,7 @@ public class ProcessBean {
     Date period;
     String parameters;
     String userId;
+    Long possibleMemoryUsage;
     TargetSystemBeanWrapper targetSystemBean;
 
     public String getOperationMode() {
@@ -85,6 +86,14 @@ public class ProcessBean {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public Long getPossibleMemoryUsage() {
+        return possibleMemoryUsage;
+    }
+
+    public void setPossibleMemoryUsage(Long possibleMemoryUsage) {
+        this.possibleMemoryUsage = possibleMemoryUsage;
     }
 
     public TargetSystemBeanWrapper getTargetSystemBean() {

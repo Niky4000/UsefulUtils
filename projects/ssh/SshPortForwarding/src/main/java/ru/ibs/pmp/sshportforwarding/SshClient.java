@@ -1,4 +1,4 @@
-package ru.ibs.pmp.module.recreate.exec;
+package ru.ibs.pmp.sshportforwarding;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -16,7 +16,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import ru.ibs.pmp.module.recreate.exec.bean.MyUserInfo;
 
 /**
  *
@@ -28,14 +27,12 @@ public class SshClient {
     private final String user;
     private final String password;
     private final int port;
-    private final boolean ptimestamp;
 
-    public SshClient(String host, String user, String password, int port, boolean ptimestamp) {
+    public SshClient(String host, String user, String password, int port) {
         this.host = host;
         this.user = user;
         this.password = password;
         this.port = port;
-        this.ptimestamp = ptimestamp;
     }
 
     public List<String> execCommand(String[] commands) throws Exception {
@@ -187,7 +184,7 @@ public class SshClient {
             UserInfo ui = new MyUserInfo(password);
             session.setUserInfo(ui);
             session.connect();
-//            boolean ptimestamp = false;
+            boolean ptimestamp = true;
             // exec 'scp -t rfile' remotely
             String command = "scp " + (ptimestamp ? "-p" : "") + " -t " + rfile;
             Channel channel = session.openChannel("exec");
