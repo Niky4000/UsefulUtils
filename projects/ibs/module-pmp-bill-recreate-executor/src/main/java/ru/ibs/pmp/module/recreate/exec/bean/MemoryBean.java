@@ -10,11 +10,13 @@ public class MemoryBean implements Comparable<MemoryBean> {
 
     private final PmpSync pmpSync;
     private final Long possibleMemoryUsage;
+    private final Long serviceCount;
     private TargetSystemBeanWrapper targetSystemBeanWrapper;
 
-    public MemoryBean(PmpSync pmpSync, Long possibleMemoryUsage) {
+    public MemoryBean(PmpSync pmpSync, RamBean ramBean) {
         this.pmpSync = pmpSync;
-        this.possibleMemoryUsage = possibleMemoryUsage;
+        this.possibleMemoryUsage = ramBean.getRamUsage();
+        this.serviceCount = ramBean.getServiceCount();
     }
 
     public PmpSync getPmpSync() {
@@ -23,6 +25,10 @@ public class MemoryBean implements Comparable<MemoryBean> {
 
     public Long getPossibleMemoryUsage() {
         return possibleMemoryUsage;
+    }
+
+    public Long getServiceCount() {
+        return serviceCount;
     }
 
     public TargetSystemBeanWrapper getTargetSystemBeanWrapper() {

@@ -100,6 +100,7 @@ public class DbInit {
     public void finalizationActions(StopwatchBean globalStopWatch, Long billStatisticsId) throws InterruptedException {
         recreateUtils.logMessage("billStatisticsId = " + billStatisticsId.toString() + "!", true, globalStopWatch, null, RecreateImpl.LogType.INFO, null);
         recreateUtils.logMessage("Finished!", true, globalStopWatch, null, RecreateImpl.LogType.INFO, null);
+        logThread.setTimerInterraption(false);
         logThread.interrupt();
         logThread.join();
         if (recreateUtils.getBillStatistics() != null) {

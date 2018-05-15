@@ -11,12 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -49,6 +48,7 @@ import ru.ibs.pmp.module.recreate.exec.bean.OsEnum;
 import ru.ibs.pmp.module.recreate.exec.bean.OsProcessBean;
 import ru.ibs.pmp.module.recreate.exec.bean.ProcessBean;
 import ru.ibs.pmp.module.recreate.exec.bean.QueueLpuBean;
+import ru.ibs.pmp.module.recreate.exec.bean.RamBean;
 import ru.ibs.pmp.module.recreate.exec.bean.TargetSystemBean;
 import ru.ibs.pmp.module.recreate.exec.bean.TargetSystemBeanWrapper;
 import ru.ibs.pmp.module.recreate.exec.bean.TriFunction;
@@ -90,7 +90,7 @@ public class ExecuteRecreate {
     private Map<String, TargetSystemBeanWrapper> targetSystemBeanCollectionByHost;
     private Set<String> lpuInProcessSet = Collections.synchronizedSet(new HashSet<>());
 
-    private Map<Date, Map<String, Map<String, Long>>> possibleRamUsageToLpuIdByTypeAndByPeriodGlobal = new HashMap<>(); // Память, которую мы резервируем для каждого процесса. Используется однопоточно.
+    private Map<Date, Map<String, Map<String, RamBean>>> possibleRamUsageToLpuIdByTypeAndByPeriodGlobal = new HashMap<>(); // Память, которую мы резервируем для каждого процесса. Используется однопоточно.
 
     private volatile boolean inited = false;
 
@@ -144,24 +144,33 @@ public class ExecuteRecreate {
                 ).collect(Collectors.toSet());
                 if (!pmpSyncList.isEmpty()) { // Если заявки вообще есть, то продолжить
                     log_info("pmpSyncList size = " + pmpSyncList.size() + "!");
-                    Map<String, List<OsProcessBean>> allProcessesMapByHostIp = targetSystemBeanCollection.stream()
-                            .map(targetSystemBean -> targetSystemBeanCollectionByHost.get(targetSystemBean.getHost()))
-                            .collect(Collectors.groupingBy(targetSystemBean -> targetSystemBean.getHost(),
-                                    Collectors.mapping(executeUtils::getProcessList, Collectors.collectingAndThen(Collectors.toList(), list -> list.get(0)))));
 
+                    Map<String, List<OsProcessBean>> allProcessesMapByHostIp = getAllProcessesMapByHostIp();
                     getServiceAmountForProcessBeans(pmpSyncAllList, allProcessesMapByHostIp); // Получить прогноз по занимаемой памяти для каждого процесса
 
                     TriFunction<Date, String, Integer, Long> getPossibleMemoryConsumption = (period, type, lpuId) -> {
                         return Optional.ofNullable(possibleRamUsageToLpuIdByTypeAndByPeriodGlobal)
                                 .map(map -> map.get(period))
                                 .map(map -> map.get(type))
-                                .map(map -> map.get(Optional.ofNullable(lpuId).map(lpuId_ -> lpuId_.toString()).orElse(""))).orElse(512L);
+                                .map(map -> map.get(Optional.ofNullable(lpuId).map(lpuId_ -> lpuId_.toString()).orElse("")))
+                                .map(map -> map.getRamUsage())
+                                .orElse(512L);
                     };
 
                     // Map: key - тип заявки (формирование, отправка или ПОСОБР); value - заявка и соответствующий ей прогноз по занимаемой памяти.
                     Map<String, Set<MemoryBean>> memoryBeanMapToFeatureName = pmpSyncList.stream()
-                            .map(pmpSync -> new MemoryBean(pmpSync, Optional.ofNullable(possibleRamUsageToLpuIdByTypeAndByPeriodGlobal.get(pmpSync.getPmpSyncPK().getPeriod()))
-                            .map(map -> map.get(pmpSync.getFeatureName())).map(map -> map.get(pmpSync.getPmpSyncPK().getLpuId() + "")).orElse(512L))).sorted()
+                            .map(pmpSync -> {
+                                Date period = pmpSync.getPmpSyncPK().getPeriod();
+                                String featureName = pmpSync.getFeatureName();
+                                String lpuId = pmpSync.getPmpSyncPK().getLpuId() + "";
+                                Optional<RamBean> optionalRamBean = Optional.ofNullable(possibleRamUsageToLpuIdByTypeAndByPeriodGlobal.get(period))
+                                        .map(map -> map.get(featureName))
+                                        .map(map -> map.get(lpuId))
+                                        .map(map -> map);
+                                RamBean ramBean = optionalRamBean.orElse(new RamBean(512L, new Date(), -1L));
+                                return new MemoryBean(pmpSync, ramBean);
+                            }
+                            ).sorted()
                             .collect(Collectors.groupingBy(memoryBean -> memoryBean.getPmpSync().getFeatureName(), TreeMap::new, Collectors.toCollection(TreeSet::new)));
 
                     // Оценить примерно свободную память на серверах.
@@ -239,6 +248,13 @@ public class ExecuteRecreate {
                     // Отправляем заявки на реальное исполнение!
                     handleClaim(memoryBeanSet);
                     log_info("Finished!");
+                } else {
+                    Date now = new Date();
+                    Map<Date, Map<String, Map<String, RamBean>>> possibleRamUsageToLpuIdByTypeAndByPeriod = new HashMap<>();
+                    refreshPossibleRamUsage(now, possibleRamUsageToLpuIdByTypeAndByPeriod);
+//                    Set<PmpSync> oldRamUsageRows = getOldRamUsageRows(now);
+//                    Map<String, List<OsProcessBean>> allProcessesMapByHostIp = getAllProcessesMapByHostIp();
+//                    getServiceAmountForProcessBeans(oldRamUsageRows, allProcessesMapByHostIp);
                 }
             } else {
                 log_info("To many locks!");
@@ -249,6 +265,13 @@ public class ExecuteRecreate {
         } finally {
             isItAllowedToExecuteViaTimer.getAndSet(true);
         }
+    }
+
+    private Map<String, List<OsProcessBean>> getAllProcessesMapByHostIp() {
+        return targetSystemBeanCollection.stream()
+                .map(targetSystemBean -> targetSystemBeanCollectionByHost.get(targetSystemBean.getHost()))
+                .collect(Collectors.groupingBy(targetSystemBean -> targetSystemBean.getHost(),
+                        Collectors.mapping(executeUtils::getProcessList, Collectors.collectingAndThen(Collectors.toList(), list -> list.get(0)))));
     }
 
     private String getKeyForLpuAndPeriodSet(MemoryBean memoryBean) {
@@ -338,10 +361,11 @@ public class ExecuteRecreate {
                 callType = RecreateBillsFeature.SMO_BILL_FLK;
             }
             BigDecimal usage = BigDecimal.valueOf(memoryBean.getPossibleMemoryUsage()).divide(BigDecimal.valueOf(1024L));
-            if (callType.equals(RecreateBillsFeature.SEND)) {
-                usage = BigDecimal.valueOf(1024L * 10L);
-            }
-            Long possibleMemoryUsage = Math.max(16L, Math.min(Math.round(usage.longValue() + 2L + usage.multiply(BigDecimal.valueOf(0.4)).longValue()), 80L));
+//            if (callType.equals(RecreateBillsFeature.SEND)) {
+//                usage = BigDecimal.valueOf(1024L * 10L);
+//            }
+            Long possibleMemoryUsage = Math.max(8L, Math.min(Math.round(usage.longValue() + 2L + usage.multiply(BigDecimal.valueOf(0.4)).longValue()), 80L));
+            log_info("Claim handled for moId: " + moId + " operationMode: " + operationMode + " serviceCount: " + memoryBean.getServiceCount() + " possibleMemoryUsage: " + possibleMemoryUsage + "!");
             ProcessBean processBean = new ProcessBean();
             processBean.setMoId(moId);
             processBean.setOperationMode(operationMode);
@@ -526,8 +550,7 @@ public class ExecuteRecreate {
     }
 
     private void getServiceAmountForProcessBeans(Set<PmpSync> pmpSyncList, Map<String, List<OsProcessBean>> allProcessesMapByHostIp) {
-        Stream<QueueLpuBean> pmpSyncStream = pmpSyncList.stream()
-                .map(pmpSync -> new QueueLpuBean(pmpSync.getPmpSyncPK().getPeriod(), pmpSync.getFeatureName(), pmpSync.getPmpSyncPK().getLpuId() + ""));
+        Stream<QueueLpuBean> pmpSyncStream = pmpSyncList.stream().map(pmpSync -> new QueueLpuBean(pmpSync.getPmpSyncPK().getPeriod(), pmpSync.getFeatureName(), pmpSync.getPmpSyncPK().getLpuId() + ""));
 
         for (Entry<String, List<OsProcessBean>> entry : allProcessesMapByHostIp.entrySet()) {
             pmpSyncStream = Stream.concat(pmpSyncStream, entry.getValue().stream()
@@ -540,13 +563,17 @@ public class ExecuteRecreate {
                         Collectors.groupingBy(QueueLpuBean::getType,
                                 Collectors.mapping(QueueLpuBean::getLpuId, Collectors.toSet()))));
 
-        Map<Date, Map<String, Map<String, Long>>> possibleRamUsageToLpuIdByTypeAndByPeriod = new HashMap<>();
+        Map<Date, Map<String, Map<String, RamBean>>> possibleRamUsageToLpuIdByTypeAndByPeriod = new HashMap<>();
+
+        final Date now = new Date();
 
         TriFunction<Date, String, String, Boolean> defineAlreadyCalculatedValues = (period, type, lpuId) -> {
-            return Optional.ofNullable(possibleRamUsageToLpuIdByTypeAndByPeriodGlobal)
+            Optional<Boolean> optionalValue = Optional.ofNullable(possibleRamUsageToLpuIdByTypeAndByPeriodGlobal)
                     .map(map -> map.get(period))
                     .map(map -> map.get(type))
-                    .map(map -> map.get(lpuId) != null).orElse(false);
+                    .map(map -> map.get(lpuId))
+                    .map(map -> dateCriteria(map, now));
+            return optionalValue.orElse(false);
         };
 
         for (Entry<Date, Map<String, Set<String>>> entry : lpuIdsByTypeAndByPeriod.entrySet()) {
@@ -556,39 +583,64 @@ public class ExecuteRecreate {
             final Set<String> lpuIdSetForSend = entryValue.map(map -> map.get(RecreateBillsFeature.SEND)).orElse(new HashSet<>()).stream().filter(lpuId -> !defineAlreadyCalculatedValues.apply(period, RecreateBillsFeature.SEND, lpuId)).collect(Collectors.toSet());
             final Set<String> lpuIdSetForPosobr = entryValue.map(map -> map.get(RecreateBillsFeature.CALC_POSOBR)).orElse(new HashSet<>()).stream().filter(lpuId -> !defineAlreadyCalculatedValues.apply(period, RecreateBillsFeature.CALC_POSOBR, lpuId)).collect(Collectors.toSet());
             final Set<String> lpuIdSetForSmoFlk = entryValue.map(map -> map.get(RecreateBillsFeature.SMO_BILL_FLK)).orElse(new HashSet<>()).stream().filter(lpuId -> !defineAlreadyCalculatedValues.apply(period, RecreateBillsFeature.SMO_BILL_FLK, lpuId)).collect(Collectors.toSet());
-            if (!lpuIdSetForRecreate.isEmpty()) {
+
+            final Set<String> lpuIdSetForRecreateAndForSend = new HashSet<>();
+            lpuIdSetForRecreateAndForSend.addAll(lpuIdSetForRecreate);
+            lpuIdSetForRecreateAndForSend.addAll(lpuIdSetForSend);
+
+            if (!lpuIdSetForRecreateAndForSend.isEmpty()) {
                 Date periodEnd = Date.from(LocalDateTime.ofInstant(period.toInstant(), ZoneId.systemDefault()).plusMonths(1L).minusSeconds(1L).toInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())));
-                List<Object[]> objList = executeRecreateDAO.getServiceCount(period, periodEnd, lpuIdSetForRecreate);
+                List<Object[]> objList = executeRecreateDAO.getServiceCount(period, periodEnd, lpuIdSetForRecreateAndForSend);
+//                List<Object[]> objList = new ArrayList<>(); // Debug!
+//                objList.add(new Object[]{objList_.get(0)[0], 708000L});
+                for (Object[] objs : objList) {
+                    log_info("lpuId: " + objs[0].toString() + " serviceCount: " + objs[1].toString());
+                }
 //            Map<Object, List<Object[]>> objectsCountByLpuId =
-                Function<Long, Long> possibleRamLoad = serviceCount -> {
-                    BigDecimal k = BigDecimal.valueOf(3.2); // Это поправочный импирический коэффициент! Формула тоже приблизительная, и основанная на приблизительной статистике.
+                Function<Long, RamBean> possibleRamLoad = serviceCount -> {
+                    BigDecimal k = BigDecimal.valueOf(1); // Это поправочный импирический коэффициент! Формула тоже приблизительная, и основанная на приблизительной статистике.
                     BigDecimal totalMemoryUsage = k.multiply(BigDecimal.valueOf(serviceCount).multiply(BigDecimal.valueOf(40L * 1024L).divide(BigDecimal.valueOf(400L * 1000L))));
-                    return totalMemoryUsage.compareTo(BigDecimal.valueOf(512L)) == 1 ? totalMemoryUsage.longValue() : 512L;
+                    Long ramUsage = totalMemoryUsage.compareTo(BigDecimal.valueOf(512L)) == 1 ? totalMemoryUsage.longValue() : 512L;
+                    return new RamBean(ramUsage, new Date(), serviceCount);
                 };
-                Map<String, Long> possibleRamUsageToLpuId = objList.stream().collect(Collectors.groupingBy(objArray -> objArray[0].toString(),
+                Map<String, RamBean> possibleRamUsageToLpuId = objList.stream().collect(Collectors.groupingBy(objArray -> objArray[0].toString(), TreeMap::new,
                         Collectors.mapping(objArray -> ((Number) objArray[1]).longValue(), Collectors.collectingAndThen(Collectors.toList(), list -> possibleRamLoad.apply(list.get(0))))));
+                log_info("--------------------------------------");
+                for (Entry<String, RamBean> ramEntry : possibleRamUsageToLpuId.entrySet()) {
+                    String lpuId = ramEntry.getKey();
+                    Long ramUsage = ramEntry.getValue().getRamUsage();
+                    log_info("lpuId: " + lpuId + " ramUsage: " + ramUsage.toString());
+                }
 
                 if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period) == null) {
                     possibleRamUsageToLpuIdByTypeAndByPeriod.put(period, new HashMap<>());
                 }
+
+                Map<String, RamBean> possibleRamUsageToLpuIdForRecreate = possibleRamUsageToLpuId.entrySet().stream().filter(en -> lpuIdSetForRecreate.contains(en.getKey())).collect(Collectors.toMap(k -> k.getKey(), v -> v.getValue()));
                 if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.NAME) == null) {
                     possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).put(RecreateBillsFeature.NAME, new HashMap<>());
                 }
-                possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.NAME).putAll(possibleRamUsageToLpuId);
+                possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.NAME).putAll(possibleRamUsageToLpuIdForRecreate);
 
-            }
-            if (!lpuIdSetForSend.isEmpty()) {
-                Map<String, Long> possibleRamUsageToLpuId = lpuIdSetForSend.stream().collect(Collectors.groupingBy(lpuId -> lpuId, Collectors.mapping(lpuId -> lpuId, Collectors.collectingAndThen(Collectors.toList(), list -> 1024L * 10L)))); // Это надо доделать!!!
-                if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period) == null) {
-                    possibleRamUsageToLpuIdByTypeAndByPeriod.put(period, new HashMap<>());
-                }
+                Map<String, RamBean> possibleRamUsageToLpuIdForSend = possibleRamUsageToLpuId.entrySet().stream().filter(en -> lpuIdSetForSend.contains(en.getKey())).collect(Collectors.toMap(k -> k.getKey(), v -> v.getValue()));
                 if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.SEND) == null) {
                     possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).put(RecreateBillsFeature.SEND, new HashMap<>());
                 }
-                possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.SEND).putAll(possibleRamUsageToLpuId);
+                possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.SEND).putAll(possibleRamUsageToLpuIdForSend);
+
             }
+//            if (!lpuIdSetForSend.isEmpty()) {
+//                Map<String, RamBean> possibleRamUsageToLpuId = lpuIdSetForSend.stream().collect(Collectors.groupingBy(lpuId -> lpuId, Collectors.mapping(lpuId -> lpuId, Collectors.collectingAndThen(Collectors.toList(), list -> new RamBean(1024L * 10L, new Date(), 0L))))); // Это надо доделать!!!
+//                if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period) == null) {
+//                    possibleRamUsageToLpuIdByTypeAndByPeriod.put(period, new HashMap<>());
+//                }
+//                if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.SEND) == null) {
+//                    possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).put(RecreateBillsFeature.SEND, new HashMap<>());
+//                }
+//                possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.SEND).putAll(possibleRamUsageToLpuId);
+//            }
             if (!lpuIdSetForPosobr.isEmpty()) {
-                Map<String, Long> possibleRamUsageToLpuId = lpuIdSetForPosobr.stream().collect(Collectors.groupingBy(lpuId -> lpuId, Collectors.mapping(lpuId -> lpuId, Collectors.collectingAndThen(Collectors.toList(), list -> 512L))));
+                Map<String, RamBean> possibleRamUsageToLpuId = lpuIdSetForPosobr.stream().collect(Collectors.groupingBy(lpuId -> lpuId, Collectors.mapping(lpuId -> lpuId, Collectors.collectingAndThen(Collectors.toList(), list -> new RamBean(512L, new Date(), -2L)))));
                 if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period) == null) {
                     possibleRamUsageToLpuIdByTypeAndByPeriod.put(period, new HashMap<>());
                 }
@@ -598,7 +650,7 @@ public class ExecuteRecreate {
                 possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.CALC_POSOBR).putAll(possibleRamUsageToLpuId);
             }
             if (!lpuIdSetForSmoFlk.isEmpty()) {
-                Map<String, Long> possibleRamUsageToLpuId = lpuIdSetForSmoFlk.stream().collect(Collectors.groupingBy(lpuId -> lpuId, Collectors.mapping(lpuId -> lpuId, Collectors.collectingAndThen(Collectors.toList(), list -> 512L))));
+                Map<String, RamBean> possibleRamUsageToLpuId = lpuIdSetForSmoFlk.stream().collect(Collectors.groupingBy(lpuId -> lpuId, Collectors.mapping(lpuId -> lpuId, Collectors.collectingAndThen(Collectors.toList(), list -> new RamBean(512L, new Date(), -2L)))));
                 if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period) == null) {
                     possibleRamUsageToLpuIdByTypeAndByPeriod.put(period, new HashMap<>());
                 }
@@ -608,25 +660,70 @@ public class ExecuteRecreate {
                 possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(RecreateBillsFeature.SMO_BILL_FLK).putAll(possibleRamUsageToLpuId);
             }
         }
-        for (Entry<Date, Map<String, Map<String, Long>>> entry : possibleRamUsageToLpuIdByTypeAndByPeriodGlobal.entrySet()) {
+        refreshPossibleRamUsage(now, possibleRamUsageToLpuIdByTypeAndByPeriod);
+    }
+
+    private void refreshPossibleRamUsage(final Date now, Map<Date, Map<String, Map<String, RamBean>>> possibleRamUsageToLpuIdByTypeAndByPeriod) {
+        for (Entry<Date, Map<String, Map<String, RamBean>>> entry : possibleRamUsageToLpuIdByTypeAndByPeriodGlobal.entrySet()) {
             Date period = entry.getKey();
-            Map<String, Map<String, Long>> typeToLpuAndPossibleMemoryMap = entry.getValue();
+            Map<String, Map<String, RamBean>> typeToLpuAndPossibleMemoryMap = entry.getValue();
             if (typeToLpuAndPossibleMemoryMap != null && !typeToLpuAndPossibleMemoryMap.isEmpty()) {
-                for (Entry<String, Map<String, Long>> internalEntry : typeToLpuAndPossibleMemoryMap.entrySet()) {
+                for (Entry<String, Map<String, RamBean>> internalEntry : typeToLpuAndPossibleMemoryMap.entrySet()) {
                     String type = internalEntry.getKey();
-                    Map<String, Long> lpuIdToMemoryMap = internalEntry.getValue();
-                    if (!lpuIdToMemoryMap.isEmpty()) {
+                    Map<String, RamBean> lpuIdToMemoryMap = internalEntry.getValue();
+                    Map<String, RamBean> lpuIdToMemoryMapNew = new HashMap<>(lpuIdToMemoryMap.size());
+                    for (Entry<String, RamBean> lpuEntry : lpuIdToMemoryMap.entrySet()) {
+                        String key = lpuEntry.getKey();
+                        RamBean value = lpuEntry.getValue();
+                        if (dateCriteria(value, now)) {
+                            lpuIdToMemoryMapNew.put(key, value);
+//                            log_info("refreshPossibleRamUsage: lpuId: " + key + " period: " + new SimpleDateFormat("yyyy-MM").format(period) + " type: " + type + " was refreshed!");
+                        } else {
+                            log_info("refreshPossibleRamUsage: lpuId: " + key + " period: " + new SimpleDateFormat("yyyy-MM").format(period) + " type: " + type + " was deleted!");
+                        }
+                    }
+                    if (!lpuIdToMemoryMapNew.isEmpty()) {
                         if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period) == null) {
                             possibleRamUsageToLpuIdByTypeAndByPeriod.put(period, new HashMap<>());
                         }
                         if (possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(type) == null) {
-                            possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).put(type, lpuIdToMemoryMap);
+                            possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).put(type, new HashMap<String, RamBean>());
                         }
+                        possibleRamUsageToLpuIdByTypeAndByPeriod.get(period).get(type).putAll(lpuIdToMemoryMapNew);
                     }
                 }
             }
         }
         possibleRamUsageToLpuIdByTypeAndByPeriodGlobal = possibleRamUsageToLpuIdByTypeAndByPeriod;
+    }
+
+    private Set<PmpSync> getOldRamUsageRows(final Date now) {
+        Set<PmpSync> pmpSyncList = new HashSet<>();
+        for (Entry<Date, Map<String, Map<String, RamBean>>> entry : possibleRamUsageToLpuIdByTypeAndByPeriodGlobal.entrySet()) {
+            Date period = entry.getKey();
+            Map<String, Map<String, RamBean>> typeToLpuAndPossibleMemoryMap = entry.getValue();
+            if (typeToLpuAndPossibleMemoryMap != null && !typeToLpuAndPossibleMemoryMap.isEmpty()) {
+                for (Entry<String, Map<String, RamBean>> internalEntry : typeToLpuAndPossibleMemoryMap.entrySet()) {
+                    String type = internalEntry.getKey();
+                    Map<String, RamBean> lpuIdToMemoryMap = internalEntry.getValue();
+                    Map<String, RamBean> lpuIdToMemoryMapNew = new HashMap<>(lpuIdToMemoryMap.size());
+                    for (Entry<String, RamBean> lpuEntry : lpuIdToMemoryMap.entrySet()) {
+                        String key = lpuEntry.getKey();
+                        RamBean value = lpuEntry.getValue();
+                        if (!dateCriteria(value, now)) {
+                            PmpSync pmpSync = new PmpSync(Integer.valueOf(key), period, null);
+                            pmpSync.setFeatureName(type);
+                            pmpSyncList.add(pmpSync);
+                        }
+                    }
+                }
+            }
+        }
+        return pmpSyncList;
+    }
+
+    private boolean dateCriteria(RamBean map, final Date now) {
+        return DateUtils.addMinutes(map.getCreated(), 60).after(now);
     }
 
     private static String intToStr(int k) {
@@ -646,7 +743,9 @@ public class ExecuteRecreate {
     //--------------------------------------------------------------------------
     private void log_info(String message) {
         log.info(message);
-        System.out.println(message);
+        if (isWindowsOS) {
+            System.out.println(message);
+        }
     }
 
     private void log_error(String message, Exception e) {

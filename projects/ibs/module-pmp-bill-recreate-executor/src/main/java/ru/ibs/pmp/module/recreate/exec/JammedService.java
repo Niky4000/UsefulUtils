@@ -39,7 +39,7 @@ import ru.ibs.pmp.module.recreate.exec.bean.TargetSystemBeanWrapper;
  * @author NAnishhenko
  */
 public class JammedService {
-
+    
     @Autowired
     @Qualifier("pmpSessionFactory")
     private SessionFactory sessionFactory;
@@ -50,21 +50,23 @@ public class JammedService {
     private SyncDAO syncDAO;
     @Autowired
     ExecuteUtils executeUtils;
-
+    
     private static final int JAMMED_TIME = 5;
-
+    
     private static final String AUTOMATIC = "AUTOMATIC";
     private static final Logger log = LoggerFactory.getLogger(JammedService.class);
-
+    
     public void putStuckBillsBackToTheQueue() throws TransactionException {
         Session session = sessionFactory.openSession();
-        List<Object[]> ret = session.createSQLQuery("select distinct b.id,re.mo_id,b.status,re.period from pmp_bill b\n"
+        List<Object[]> ret = session.createSQLQuery(""
+                + "select distinct b.id,re.mo_id,b.status,re.period from pmp_bill b\n"
                 + "inner join pmp_requirement re on b.requirement_id=re.id\n"
-                + "where b.status like '%QUE%'\n"
+                + "left join pmp_sync sy on re.mo_id=sy.lpu_id and re.period=sy.period\n"
+                + "where (b.status like '%QUE%' or b.status = 'GENERATION') and sy.lpu_id is null\n"
                 + "order by re.mo_id,b.status,b.id").list();
         session.close();
         List<Object[]> stuckBillList = ret;
-
+        
         if (!stuckBillList.isEmpty()) {
             Map<StuckBean, List<Long>> lpuByPeriodToBillListForRecreate = new HashMap<>();
             Map<StuckBean, List<Long>> lpuByPeriodToBillListForSend = new HashMap<>();
@@ -73,19 +75,23 @@ public class JammedService {
                 String lpuId = (String) stuckBill[1];
                 Bill.BillStatus billStatus = Bill.BillStatus.valueOf((String) stuckBill[2]);
                 Date period = (Date) stuckBill[3];
-                if (billStatus.equals(Bill.BillStatus.RECREATE_QUEUE)) {
-                    StuckBean key = new StuckBean(lpuId, period, RecreateBillsFeature.NAME);
+                if (billStatus.equals(Bill.BillStatus.RECREATE_QUEUE)
+                        || billStatus.equals(Bill.BillStatus.RECREATE_QUEUE_WFLK)
+                        || billStatus.equals(Bill.BillStatus.GENERATION)) {
+                    StuckBean key = new StuckBean(lpuId, period, RecreateBillsFeature.NAME, billStatus);
                     fillMap(lpuByPeriodToBillListForRecreate, key, billId);
                 } else if (billStatus.equals(Bill.BillStatus.SEND_QUEUE)) {
-                    StuckBean key = new StuckBean(lpuId, period, RecreateBillsFeature.SEND);
+                    StuckBean key = new StuckBean(lpuId, period, RecreateBillsFeature.SEND, billStatus);
                     fillMap(lpuByPeriodToBillListForSend, key, billId);
                 }
             }
             handleStuckMap(lpuByPeriodToBillListForRecreate);
             handleStuckMap(lpuByPeriodToBillListForSend);
+        } else {
+            log_info("stuckBillList is empty!");
         }
     }
-
+    
     private static void fillMap(Map<StuckBean, List<Long>> map, StuckBean key, Long billId) {
         if (map.containsKey(key)) {
             map.get(key).add(billId);
@@ -95,31 +101,36 @@ public class JammedService {
             map.put(key, billIdList);
         }
     }
-
-    private static String selectedBillsToString(List<Long> selectedBills) {
+    
+    private static String selectedBillsToString(List<Long> selectedBills, boolean withFlk) {
         if (selectedBills != null && !selectedBills.isEmpty()) {
-            return StringUtils.join(selectedBills, ",");
+            return (withFlk ? "[FLK] " : "[NO-FLK] ") + StringUtils.join(selectedBills, ",");
         }
         return null;
     }
-
+    
     private void handleStuckMap(Map<StuckBean, List<Long>> lpuByPeriodToBillListForRecreate) {
         for (Map.Entry<StuckBean, List<Long>> entry : lpuByPeriodToBillListForRecreate.entrySet()) {
             StuckBean key = entry.getKey();
+            Bill.BillStatus billStatus = key.getBillStatus();
             List<Long> billIds = entry.getValue();
             Date period = key.getPeriod();
             final Calendar calendar = GregorianCalendar.getInstance();
             calendar.setTime(period);
             final RecreateBillsRequest recreateBillsRequest = new RecreateBillsRequest(key.getLpuId(),
                     calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, billIds);
+            if (billStatus.equals(Bill.BillStatus.RECREATE_QUEUE_WFLK)) {
+                recreateBillsRequest.setWithFlk(Boolean.TRUE);
+            } else {
+                recreateBillsRequest.setWithFlk(Boolean.FALSE);
+            }
             String callData = null;
-
             if (key.getType().equals(RecreateBillsFeature.NAME)) {
                 callData = recreateBillsRequest.toCallDataRequest();
             } else if (key.getType().equals(RecreateBillsFeature.SEND)) {
                 callData = recreateBillsRequest.toSendDataRequest();
             }
-            String parameters = selectedBillsToString(billIds);
+            String parameters = selectedBillsToString(billIds, recreateBillsRequest.getWithFlk());
             PmpSync sync = syncDAO.get(Integer.valueOf(key.getLpuId()), period, callData);
             if (sync != null) {
                 if (sync.getInProgress() == null || sync.getInProgress() == Boolean.FALSE) {
@@ -138,12 +149,12 @@ public class JammedService {
             log_info(callData + " created!");
         }
     }
-
+    
     private void log_info(String message) {
         log.info(message);
         System.out.println(message);
     }
-
+    
     public void checkForJammedQueries(List<TargetSystemBeanWrapper> targetSystemWrapperBeanList) throws UnknownHostException {
         List<PmpSync> jammed = syncDAO.getJammed(JAMMED_TIME);
         if (!jammed.isEmpty()) {
@@ -155,7 +166,7 @@ public class JammedService {
             for (TargetSystemBeanWrapper targetSystemBeanWrapper : targetSystemWrapperBeanList) {
                 processListByHost.put(targetSystemBeanWrapper.getHost(), executeUtils.getProcessList(targetSystemBeanWrapper));
             }
-
+            
             Iterator<PmpSync> jammedIterator = jammed.iterator();
             while (jammedIterator.hasNext()) {
                 boolean itIsNotJammedTask = false;
@@ -181,7 +192,7 @@ public class JammedService {
                     }
                 }
             }
-
+            
             Set<JammedBean> jammedBeanSet = new HashSet<>();
             for (PmpSync pmpSync : jammed) {
                 jammedBeanSet.add(new JammedBean(pmpSync.getPmpSyncPK().getLpuId(),
@@ -189,12 +200,10 @@ public class JammedService {
             }
             List<PmpSync> jammedList = new ArrayList<>(jammedBeanSet.size() * 2);
             for (JammedBean jammedBean : jammedBeanSet) {
-                List<PmpSync> syncByLpuAndPeriod
-                        = syncDAO.getSyncByLpuAndPeriod(jammedBean.getLpuId(),
-                                jammedBean.getPeriod());
+                List<PmpSync> syncByLpuAndPeriod = syncDAO.getSyncByLpuAndPeriod(jammedBean.getLpuId(), jammedBean.getPeriod());
                 jammedList.addAll(syncByLpuAndPeriod);
             }
-
+            
             if (!jammedList.isEmpty()) {
                 for (PmpSync pmpSync : jammedList) {
                     if (pmpSync.getPmpSyncPK().getCallData().contains(RecreateBillsRequest.LOCK)) {
@@ -205,9 +214,11 @@ public class JammedService {
                 }
                 syncDAO.returnJammedIntoWork(jammedList);
             }
+        } else {
+            log_info("Jammed list is empty!");
         }
     }
-
+    
     private void deleteOldRowsFromQueue() {
         log_info("deleteOldRowsFromQueue started!");
         Integer[] executeUpdate = null;
@@ -224,7 +235,7 @@ public class JammedService {
         }
         log_info("deleteOldRowsFromQueue finished! " + executeUpdate[0].toString() + " rows deleted! " + executeUpdate[1].toString() + " rows updated!");
     }
-
+    
     private void checkForStuckBills() {
         log_info("checkForStuckBills started!");
         try {
@@ -234,5 +245,5 @@ public class JammedService {
         }
         log_info("checkForStuckBills finished!");
     }
-
+    
 }

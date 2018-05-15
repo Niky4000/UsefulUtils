@@ -75,7 +75,7 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
                 return new OsProcessBean(processName, Integer.valueOf(processIdStr), processCmd);
             }
             return null;
-        }).filter(bean -> bean != null && bean.getProcessCmd() != null && bean.getProcessCmd().contains("java") && bean.getProcessCmd().contains("recreate") && !bean.getProcessCmd().contains("-Dcommon.cas.base"))
+        }).filter(bean -> bean != null && bean.getProcessCmd() != null && bean.getProcessCmd().contains("java") && bean.getProcessCmd().contains("recreate") && !bean.getProcessCmd().contains("recreate-executor") && !bean.getProcessCmd().contains("-Dcommon.cas.base"))
                 .collect(Collectors.toList());
 
         return processList;
@@ -102,7 +102,7 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
                 }
             }
             return null;
-        }).filter(bean -> bean != null && bean.getProcessCmd() != null && bean.getProcessCmd().contains("java") && bean.getProcessCmd().contains("recreate") && !bean.getProcessCmd().contains("-Dcommon.cas.base"))
+        }).filter(bean -> bean != null && bean.getProcessCmd() != null && bean.getProcessCmd().contains("java") && bean.getProcessCmd().contains("recreate") && !bean.getProcessCmd().contains("recreate-executor") && !bean.getProcessCmd().contains("-Dcommon.cas.base"))
                 .collect(Collectors.toList());
 
         return processList;

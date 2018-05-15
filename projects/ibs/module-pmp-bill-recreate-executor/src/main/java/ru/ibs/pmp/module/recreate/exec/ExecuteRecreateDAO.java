@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -88,36 +90,83 @@ public class ExecuteRecreateDAO {
     }
 
     public List<Object[]> getServiceCount(final Date period, Date periodEnd, final Set<String> lpuIdSetForRecreate) throws TransactionException {
-        List<Object[]> objList = tx.execute(status -> {
-            Session session = sessionFactory.openSession();
-            try {
-                String query = "select to_number(dic.lpu_id) as lpu_id,to_number(count(hds.id)+count(ss.id)) as all_\n"
-                        + "from pmp_medical_case mc\n"
-                        + "inner join (select fil_id, code as lpu_id from PMP_NSI_NEW.NSI_MOSCOW_OMS_DEPARTMENT where code in(:lpuId) and VERSION_ID=(select CUR_VER from (select CUR_VER from PMP_NSI_NEW.NSI_MOSCOW_AISOMS_DICTS where CODE = 'sprlpu' and to_date(INTR_DATE, 'yyyymmdd') <= :period order by INTR_DATE desc) where rownum = 1)) dic on dic.fil_id=mc.lpu_id\n"
-                        + "left join pmp_tap_info ti on mc.id=ti.medical_case_id\n"
-                        + "left join pmp_hosp_case hc on hc.medical_case_id=mc.id\n"
-                        + "left join pmp_hosp_dept_stay hds on hds.medical_case_id=mc.id\n"
-                        + "left join pmp_simple_service ss on ss.case_id=mc.id\n"
-                        + "inner join MOSPRLPU mo on mc.lpu_id=mo.fil_id\n"
-                        + "where case_date between :period and :periodEnd and dic.fil_id in(:lpuId)\n"
-                        + "group by dic.lpu_id,mo.moname\n"
-                        + "order by count(hds.id)+count(ss.id) desc";
-                List<Object[]> objListDb = session.createSQLQuery(query)
-                        .setParameter("period", period)
-                        .setParameter("periodEnd", periodEnd)
-                        .setParameterList("lpuId", lpuIdSetForRecreate)
-                        .list();
-                return objListDb;
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw e;
-            } finally {
-                session.close();
-            }
-        });
-        return objList;
+        List<Object[]> ret = new ArrayList<>(lpuIdSetForRecreate.size());
+        ArrayList<String> arrayList = new ArrayList<>(lpuIdSetForRecreate);
+        Collections.sort(arrayList);
+        for (String lpuId : arrayList) {
+            Object[] obj = tx.execute(status -> {
+                Session session = sessionFactory.openSession();
+                try {
+                    String filIdQuery = "select fil_id from PMP_NSI_NEW.NSI_MOSCOW_OMS_DEPARTMENT where code=:lpuId and VERSION_ID=(select CUR_VER from (select CUR_VER from PMP_NSI_NEW.NSI_MOSCOW_AISOMS_DICTS where CODE = 'sprlpu' and to_date(INTR_DATE, 'yyyymmdd') <= :period order by INTR_DATE desc) where rownum = 1)";
+                    List<Object> filIdListDb = session.createSQLQuery(filIdQuery)
+                            .setParameter("period", period)
+                            .setParameter("lpuId", lpuId)
+                            .list();
+                    Set<String> filIdSet = filIdListDb.stream().map(filId -> filId.toString()).collect(Collectors.toSet());
+
+                    String simpleServiceQuery = "select count(*) from pmp_simple_service ss\n"
+                            + "inner join pmp_medical_case mc on mc.id=ss.case_id\n"
+                            + "where mc.case_date between :period and :periodEnd and mc.lpu_id in(:lpuId)";
+
+                    Number simpleServiceCount = (Number) session.createSQLQuery(simpleServiceQuery)
+                            .setParameter("period", period)
+                            .setParameter("periodEnd", periodEnd)
+                            .setParameterList("lpuId", filIdSet)
+                            .uniqueResult();
+
+                    String hospDeptStayQuery = "select count(*) from pmp_hosp_dept_stay hds\n"
+                            + "inner join pmp_medical_case mc on mc.id=hds.medical_case_id\n"
+                            + "where mc.case_date between :period and :periodEnd and mc.lpu_id in(:lpuId)";
+
+                    Number hospDeptStayCount = (Number) session.createSQLQuery(hospDeptStayQuery)
+                            .setParameter("period", period)
+                            .setParameter("periodEnd", periodEnd)
+                            .setParameterList("lpuId", filIdSet)
+                            .uniqueResult();
+
+                    return new Object[]{BigDecimal.valueOf(Long.valueOf(lpuId)), BigDecimal.valueOf(simpleServiceCount.longValue() + hospDeptStayCount.longValue())};
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                } finally {
+                    session.close();
+                }
+            });
+            ret.add(obj);
+        }
+        return ret;
     }
 
+//    public List<Object[]> getServiceCount(final Date period, Date periodEnd, final Set<String> lpuIdSetForRecreate) throws TransactionException {
+//        List<Object[]> objList = tx.execute(status -> {
+//            Session session = sessionFactory.openSession();
+//            try {
+//                String query = "select to_number(dic.lpu_id) as lpu_id,to_number(count(hds.id)+count(ss.id)) as all_\n"
+//                        + "from pmp_medical_case mc\n"
+//                        + "inner join (select fil_id, code as lpu_id from PMP_NSI_NEW.NSI_MOSCOW_OMS_DEPARTMENT where code in(:lpuId) and VERSION_ID=(select CUR_VER from (select CUR_VER from PMP_NSI_NEW.NSI_MOSCOW_AISOMS_DICTS where CODE = 'sprlpu' and to_date(INTR_DATE, 'yyyymmdd') <= :period order by INTR_DATE desc) where rownum = 1)) dic on dic.fil_id=mc.lpu_id\n"
+//                        + "left join pmp_tap_info ti on mc.id=ti.medical_case_id\n"
+//                        + "left join pmp_hosp_case hc on hc.medical_case_id=mc.id\n"
+//                        + "left join pmp_hosp_dept_stay hds on hds.medical_case_id=mc.id\n"
+//                        + "left join pmp_simple_service ss on ss.case_id=mc.id\n"
+//                        + "inner join MOSPRLPU mo on mc.lpu_id=mo.fil_id\n"
+//                        + "where case_date between :period and :periodEnd and dic.fil_id in(:lpuId)\n"
+//                        + "group by dic.lpu_id,mo.moname\n"
+//                        + "order by count(hds.id)+count(ss.id) desc";
+//                List<Object[]> objListDb = session.createSQLQuery(query)
+//                        .setParameter("period", period)
+//                        .setParameter("periodEnd", periodEnd)
+//                        .setParameterList("lpuId", lpuIdSetForRecreate)
+//                        .list();
+//                return objListDb;
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                throw e;
+//            } finally {
+//                session.close();
+//            }
+//        });
+//        return objList;
+//    }
     public void putStuckBillsBackToTheQueue() throws TransactionException {
         Session session = sessionFactory.openSession();
         List<Object[]> ret = session.createSQLQuery("select distinct b.id,re.mo_id,b.status,re.period from pmp_bill b\n"
@@ -136,10 +185,10 @@ public class ExecuteRecreateDAO {
                 Bill.BillStatus billStatus = Bill.BillStatus.valueOf((String) stuckBill[2]);
                 Date period = (Date) stuckBill[3];
                 if (billStatus.equals(Bill.BillStatus.RECREATE_QUEUE)) {
-                    StuckBean key = new StuckBean(lpuId, period, RecreateBillsFeature.NAME);
+                    StuckBean key = new StuckBean(lpuId, period, RecreateBillsFeature.NAME, billStatus);
                     fillMap(lpuByPeriodToBillListForRecreate, key, billId);
                 } else if (billStatus.equals(Bill.BillStatus.SEND_QUEUE)) {
-                    StuckBean key = new StuckBean(lpuId, period, RecreateBillsFeature.SEND);
+                    StuckBean key = new StuckBean(lpuId, period, RecreateBillsFeature.SEND, billStatus);
                     fillMap(lpuByPeriodToBillListForSend, key, billId);
                 }
             }
