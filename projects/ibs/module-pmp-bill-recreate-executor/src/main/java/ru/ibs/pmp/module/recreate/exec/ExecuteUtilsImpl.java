@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -193,7 +194,7 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
     }
 
     @Override
-    public List<String> deleteOldJars(TargetSystemBeanWrapper targetSystemBean, String remoteDirName, Pattern dirnamePattern) {
+    public List<String> deleteOldJars(TargetSystemBeanWrapper targetSystemBean, String remoteDirName, Pattern dirnamePattern, Set<String> workingDirNameSet) {
         List<String> deletedFolder = new ArrayList<>();
         try {
             Optional<TargetSystemBean> targetSystemBeanObj = Optional.ofNullable(targetSystemBean);
@@ -211,7 +212,7 @@ public class ExecuteUtilsImpl implements ExecuteUtils {
                 Matcher matcher = dirnamePattern.matcher(file);
                 if (matcher.find()) {
                     String dirName = matcher.group(1);
-                    if (!targetSystemBean.getRemoteWorkingDirFullPath().contains(dirName)) {
+                    if (!workingDirNameSet.contains(dirName) && !targetSystemBean.getRemoteWorkingDirFullPath().contains(dirName)) {
                         String[] commandsForDelete = null;
                         if (targetSystemBean.getOs().equals(OsEnum.WINDOWS)) {
                             commandsForDelete = new String[]{"rmdir " + targetSystemBean.getWorkingDir() + targetSystemBean.getS() + dirName + " /s /q"};

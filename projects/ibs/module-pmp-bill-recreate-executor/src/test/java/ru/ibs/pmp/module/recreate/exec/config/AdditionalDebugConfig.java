@@ -140,7 +140,7 @@ public class AdditionalDebugConfig {
             }
 
             @Override
-            public List<String> deleteOldJars(TargetSystemBeanWrapper targetSystemBean, String remoteDirName, Pattern dirnamePattern) {
+            public List<String> deleteOldJars(TargetSystemBeanWrapper targetSystemBean, String remoteDirName, Pattern dirnamePattern, Set<String> workingDirNameSet) {
                 return ImmutableList.<String>builder().add("some_dir_that_was_deleted").build();
             }
 

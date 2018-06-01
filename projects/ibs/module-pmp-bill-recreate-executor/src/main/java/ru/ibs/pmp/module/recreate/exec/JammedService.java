@@ -39,7 +39,7 @@ import ru.ibs.pmp.module.recreate.exec.bean.TargetSystemBeanWrapper;
  * @author NAnishhenko
  */
 public class JammedService {
-    
+
     @Autowired
     @Qualifier("pmpSessionFactory")
     private SessionFactory sessionFactory;
@@ -50,12 +50,12 @@ public class JammedService {
     private SyncDAO syncDAO;
     @Autowired
     ExecuteUtils executeUtils;
-    
+
     private static final int JAMMED_TIME = 5;
-    
+
     private static final String AUTOMATIC = "AUTOMATIC";
     private static final Logger log = LoggerFactory.getLogger(JammedService.class);
-    
+
     public void putStuckBillsBackToTheQueue() throws TransactionException {
         Session session = sessionFactory.openSession();
         List<Object[]> ret = session.createSQLQuery(""
@@ -66,7 +66,6 @@ public class JammedService {
                 + "order by re.mo_id,b.status,b.id").list();
         session.close();
         List<Object[]> stuckBillList = ret;
-        
         if (!stuckBillList.isEmpty()) {
             Map<StuckBean, List<Long>> lpuByPeriodToBillListForRecreate = new HashMap<>();
             Map<StuckBean, List<Long>> lpuByPeriodToBillListForSend = new HashMap<>();
@@ -91,7 +90,7 @@ public class JammedService {
             log_info("stuckBillList is empty!");
         }
     }
-    
+
     private static void fillMap(Map<StuckBean, List<Long>> map, StuckBean key, Long billId) {
         if (map.containsKey(key)) {
             map.get(key).add(billId);
@@ -101,14 +100,14 @@ public class JammedService {
             map.put(key, billIdList);
         }
     }
-    
+
     private static String selectedBillsToString(List<Long> selectedBills, boolean withFlk) {
         if (selectedBills != null && !selectedBills.isEmpty()) {
             return (withFlk ? "[FLK] " : "[NO-FLK] ") + StringUtils.join(selectedBills, ",");
         }
         return null;
     }
-    
+
     private void handleStuckMap(Map<StuckBean, List<Long>> lpuByPeriodToBillListForRecreate) {
         for (Map.Entry<StuckBean, List<Long>> entry : lpuByPeriodToBillListForRecreate.entrySet()) {
             StuckBean key = entry.getKey();
@@ -149,12 +148,12 @@ public class JammedService {
             log_info(callData + " created!");
         }
     }
-    
+
     private void log_info(String message) {
         log.info(message);
         System.out.println(message);
     }
-    
+
     public void checkForJammedQueries(List<TargetSystemBeanWrapper> targetSystemWrapperBeanList) throws UnknownHostException {
         List<PmpSync> jammed = syncDAO.getJammed(JAMMED_TIME);
         if (!jammed.isEmpty()) {
@@ -166,7 +165,7 @@ public class JammedService {
             for (TargetSystemBeanWrapper targetSystemBeanWrapper : targetSystemWrapperBeanList) {
                 processListByHost.put(targetSystemBeanWrapper.getHost(), executeUtils.getProcessList(targetSystemBeanWrapper));
             }
-            
+
             Iterator<PmpSync> jammedIterator = jammed.iterator();
             while (jammedIterator.hasNext()) {
                 boolean itIsNotJammedTask = false;
@@ -192,7 +191,7 @@ public class JammedService {
                     }
                 }
             }
-            
+
             Set<JammedBean> jammedBeanSet = new HashSet<>();
             for (PmpSync pmpSync : jammed) {
                 jammedBeanSet.add(new JammedBean(pmpSync.getPmpSyncPK().getLpuId(),
@@ -203,7 +202,7 @@ public class JammedService {
                 List<PmpSync> syncByLpuAndPeriod = syncDAO.getSyncByLpuAndPeriod(jammedBean.getLpuId(), jammedBean.getPeriod());
                 jammedList.addAll(syncByLpuAndPeriod);
             }
-            
+
             if (!jammedList.isEmpty()) {
                 for (PmpSync pmpSync : jammedList) {
                     if (pmpSync.getPmpSyncPK().getCallData().contains(RecreateBillsRequest.LOCK)) {
@@ -218,7 +217,7 @@ public class JammedService {
             log_info("Jammed list is empty!");
         }
     }
-    
+
     private void deleteOldRowsFromQueue() {
         log_info("deleteOldRowsFromQueue started!");
         Integer[] executeUpdate = null;
@@ -235,7 +234,7 @@ public class JammedService {
         }
         log_info("deleteOldRowsFromQueue finished! " + executeUpdate[0].toString() + " rows deleted! " + executeUpdate[1].toString() + " rows updated!");
     }
-    
+
     private void checkForStuckBills() {
         log_info("checkForStuckBills started!");
         try {
@@ -245,5 +244,47 @@ public class JammedService {
         }
         log_info("checkForStuckBills finished!");
     }
-    
+
+    private Session getSession() {
+        return sessionFactory.openSession();
+    }
+
+    public void killDeadlocks() {
+        Session session = getSession();
+        List<Object[]> objList = session.createSQLQuery("SELECT gvh.SID sessid, gvs.serial# serial, gvh.inst_id instance_id\n"
+                + "           FROM gv$lock gvh, gv$lock gvw, gv$session gvs\n"
+                + "           WHERE     (gvh.id1, gvh.id2) IN (SELECT id1, id2\n"
+                + "                                              FROM gv$lock\n"
+                + "                                             WHERE request = 0\n"
+                + "                                            INTERSECT\n"
+                + "                                            SELECT id1, id2\n"
+                + "                                              FROM gv$lock\n"
+                + "                                             WHERE lmode = 0)\n"
+                + "                 AND gvh.id1 = gvw.id1\n"
+                + "                 AND gvh.id2 = gvw.id2\n"
+                + "                 AND gvh.request = 0\n"
+                + "                 AND gvw.lmode = 0\n"
+                + "                 AND gvh.SID = gvs.SID\n"
+                + "                 AND gvh.inst_id = gvs.inst_id").list();
+        if (!objList.isEmpty()) {
+            log_info("stuckBillList size = " + objList.size() + "! Blocks were found!");
+            for (Object[] obj : objList) {
+                String sessid = obj[0].toString();
+                String serial = obj[1].toString();
+                String instance_id = obj[2].toString();
+                String sql = "ALTER SYSTEM DISCONNECT SESSION '" + sessid + "," + serial + ",@" + instance_id + "' immediate";
+                String err = null;
+                try {
+                    session.createSQLQuery(sql).executeUpdate();
+                } catch (Exception e) {
+                    // ignore!
+//                e.printStackTrace();
+                    err = e.getMessage();
+                }
+            }
+        } else {
+            log_info("There are no deadlocks!");
+        }
+    }
+
 }

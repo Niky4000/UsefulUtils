@@ -3,6 +3,7 @@ package ru.ibs.pmp.module.recreate.exec;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import ru.ibs.pmp.module.recreate.exec.bean.OsProcessBean;
 import ru.ibs.pmp.module.recreate.exec.bean.RunProcessResultBean;
@@ -19,7 +20,7 @@ public interface ExecuteUtils {
 
     public Long getFreeMemory(TargetSystemBeanWrapper targetSystemBean);
 
-    public List<String> deleteOldJars(TargetSystemBeanWrapper targetSystemBean, String remoteDirName, Pattern dirnamePattern);
+    public List<String> deleteOldJars(TargetSystemBeanWrapper targetSystemBean, String remoteDirName, Pattern dirnamePattern, Set<String> workingDirNameSet);
 
     public void uploadNewVersion(TargetSystemBeanWrapper targetSystemBean, String remoteDirName, File recreateJar, File pmpConfigPath);
 

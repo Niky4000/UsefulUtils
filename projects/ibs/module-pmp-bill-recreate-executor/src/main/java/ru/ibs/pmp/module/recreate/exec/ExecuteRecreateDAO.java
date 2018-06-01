@@ -137,6 +137,18 @@ public class ExecuteRecreateDAO {
         return ret;
     }
 
+    public void truncateBillWithMedicalCaseLink() {
+        tx.execute(status -> {
+            Session session = sessionFactory.openSession();
+            try {
+                session.createSQLQuery("truncate table bill_with_medical_case_link").executeUpdate();
+            } finally {
+                session.close();
+            }
+            return null;
+        });
+    }
+
 //    public List<Object[]> getServiceCount(final Date period, Date periodEnd, final Set<String> lpuIdSetForRecreate) throws TransactionException {
 //        List<Object[]> objList = tx.execute(status -> {
 //            Session session = sessionFactory.openSession();

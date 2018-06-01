@@ -56,6 +56,19 @@ public class Start {
 
     private static final long SECONDS_IN_DAY = 24L * 60L * 60L;
     private static final long CLEAN_DELAY_TIME = 1L * 30L * 60L;
+    private static final long JAMMED_DELAY_TIME = 1L * 15L * 60L;
+    private static final long DEADLOCK_DELAY_TIME = 60L;
+
+    private void setDeadlockTask(final JammedService jammedService) {
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                jammedService.killDeadlocks();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, DEADLOCK_DELAY_TIME, DEADLOCK_DELAY_TIME, TimeUnit.SECONDS);
+    }
 
     private void setCleanScheduledTask2(final ExecuteRecreate executeRecreate) {
         LocalTime now = LocalTime.now();
@@ -68,8 +81,6 @@ public class Start {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> executeRecreate.cleanExecute(), initalDelay, CLEAN_DELAY_TIME, TimeUnit.SECONDS);
     }
-
-    private static final long JAMMED_DELAY_TIME = 1L * 15L * 60L;
 
     private void setCleanScheduledJammedTask(final ExecuteRecreate executeRecreate, final JammedService jammedService) {
         LocalTime now = LocalTime.now();
@@ -101,6 +112,7 @@ public class Start {
         JammedService jammedService = applicationContext.getBean(ru.ibs.pmp.module.recreate.exec.JammedService.class);
         setCleanScheduledTask2(executeRecreate);
         setCleanScheduledJammedTask(executeRecreate, jammedService);
+        setDeadlockTask(jammedService);
         while (true) {
             executeRecreate.mainExecute();
             Thread.sleep(20 * 1000);

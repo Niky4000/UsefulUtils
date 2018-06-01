@@ -1,0 +1,16 @@
+host=172.29.4.26
+port=22
+user=root
+password=%TGB5tgb
+serverName=/tomcat-8083/
+launchScript=#!/bin/bash\ncd /home/mls/tomcat-8083\nbin/catalina.sh jpda start
+launchScriptPath=/tmp
+zipArchPath=D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all.zip
+targetUnpackDir=D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all
+tomcatModulesDir=/home/mls/tomcat-8083/webapps
+modules=/modules
+pmpClientPath=/PmpClient.war
+sshPmpClientPath=/home/mls/tomcat-8083/webapps/PmpClient.war
+deleteDirPath= rm -rf /home/mls/tomcat-8083/log.fileBaseDir_IS_UNDEFINED,rm -rf /home/mls/tomcat-8083/temp,rm -rf /home/mls/tomcat-8083/work
+deleteFilesPath=rm -rf /home/mls/tomcat-8083/logs/*
+deleteDirsPath=rm -rf /home/mls/tomcat-8083/modules/logs/*

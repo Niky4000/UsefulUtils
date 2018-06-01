@@ -228,12 +228,11 @@ public class ExecuteRecreate {
                     LinkedList<MemoryBean> memoryBeanSetForSendOnAnyServerLinkedList = new LinkedList(memoryBeanSetForSendOnAnyServer);
                     //
                     //
-
+                    //
+                    // Заявки на посылку счетов
                     Iterator<TargetSystemBeanWrapper> targetSystemBeanWrapperDescendingIterator = targetSystemWrapperBeanLinkedList.descendingIterator();
                     while (targetSystemBeanWrapperDescendingIterator.hasNext()) {
                         TargetSystemBeanWrapper targetSystemBeanWrapper = targetSystemBeanWrapperDescendingIterator.next();
-                        setTaskToQueue(memoryBeanSetForPosobrLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
-                        setTaskToQueue(memoryBeanSetForSmoFlkLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
                         setTaskToQueue(memoryBeanSetForSendOnAnyServerLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
                     }
                     //
@@ -244,14 +243,28 @@ public class ExecuteRecreate {
                         setTaskToQueue(memoryBeanSetForRecreateLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
                     }
                     //
+                    // Заявки на ПОСОБР и на СМО ФЛК
+                    Iterator<TargetSystemBeanWrapper> targetSystemBeanWrapperDescendingIterator2 = targetSystemWrapperBeanLinkedList.descendingIterator();
+                    while (targetSystemBeanWrapperDescendingIterator2.hasNext()) {
+                        TargetSystemBeanWrapper targetSystemBeanWrapper = targetSystemBeanWrapperDescendingIterator2.next();
+                        setTaskToQueue(memoryBeanSetForPosobrLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
+                        setTaskToQueue(memoryBeanSetForSmoFlkLinkedList, targetSystemBeanWrapper, memoryBeanSet, lpuAndPeriodSet);
+                    }
+
+                    //
                     //
                     // Отправляем заявки на реальное исполнение!
                     handleClaim(memoryBeanSet);
                     log_info("Finished!");
-                } else {
+                } else { // pmpSyncList.isEmpty()!
                     Date now = new Date();
                     Map<Date, Map<String, Map<String, RamBean>>> possibleRamUsageToLpuIdByTypeAndByPeriod = new HashMap<>();
                     refreshPossibleRamUsage(now, possibleRamUsageToLpuIdByTypeAndByPeriod);
+                    if (allSyncs.isEmpty() && !dateCriteria(lastBillWithMedicalCaseLinkTruncateTime, now)) {
+                        lastBillWithMedicalCaseLinkTruncateTime = new Date();
+                        executeRecreateDAO.truncateBillWithMedicalCaseLink();
+                        log_info("BillWithMedicalCaseLink was truncated!");
+                    }
 //                    Set<PmpSync> oldRamUsageRows = getOldRamUsageRows(now);
 //                    Map<String, List<OsProcessBean>> allProcessesMapByHostIp = getAllProcessesMapByHostIp();
 //                    getServiceAmountForProcessBeans(oldRamUsageRows, allProcessesMapByHostIp);
@@ -266,6 +279,8 @@ public class ExecuteRecreate {
             isItAllowedToExecuteViaTimer.getAndSet(true);
         }
     }
+
+    private Date lastBillWithMedicalCaseLinkTruncateTime = new Date();
 
     private Map<String, List<OsProcessBean>> getAllProcessesMapByHostIp() {
         return targetSystemBeanCollection.stream()
@@ -526,16 +541,27 @@ public class ExecuteRecreate {
     }
 
     private void deleteOldRemotesDirs(List<TargetSystemBean> targetSystemBeanList) {
-        Pattern dirnamePattern = Pattern.compile("^.*?(\\d\\d\\d\\d_\\d\\d_\\d\\d__\\d\\d_\\d\\d_\\d\\d).*$");
+        final Pattern dirnamePattern = Pattern.compile("^.*?(\\d\\d\\d\\d_\\d\\d_\\d\\d__\\d\\d_\\d\\d_\\d\\d).*$");
         for (final TargetSystemBean targetSystemBean : targetSystemBeanList) {
             List<OsProcessBean> processList = executeUtils.getProcessList(new TargetSystemBeanWrapper(targetSystemBean));
             if (processList == null) {
                 continue;
             }
             // Проверяем можно ли удалять старые каталоги так: имеются ли процессы, у которых в командной строке что-то не из нашего текущего рабочего каталога?
-            boolean anyMatch = processList.stream().anyMatch(processBean -> !processBean.getProcessCmd().contains(targetSystemBean.getRemoteDirName()));
-            if (!anyMatch) {
-                List<String> deleteOldJars = executeUtils.deleteOldJars(new TargetSystemBeanWrapper(targetSystemBean), targetSystemBean.getWorkingDir(), dirnamePattern);
+//            boolean anyMatch = processList.stream().anyMatch(processBean -> !processBean.getProcessCmd().contains(targetSystemBean.getRemoteDirName()));
+            Set<String> dirNameSet = processList.stream().map(processBean -> {
+                String processCmd = processBean.getProcessCmd();
+                Matcher matcher = dirnamePattern.matcher(processCmd);
+                if (matcher.find()) {
+                    String dirName = matcher.group(1);
+                    return dirName;
+                } else {
+                    return null;
+                }
+            }).filter(str -> str != null).collect(Collectors.toSet());
+//            if (!anyMatch) {
+            List<String> deleteOldJars = executeUtils.deleteOldJars(new TargetSystemBeanWrapper(targetSystemBean), targetSystemBean.getWorkingDir(), dirnamePattern, dirNameSet);
+            if (!deleteOldJars.isEmpty()) {
                 deleteOldJars.stream().forEach(dir -> {
                     log_info("Dir: " + dir + " was deleted on " + targetSystemBean.getHost() + " server!");
                 });
@@ -546,6 +572,9 @@ public class ExecuteRecreate {
                     log_info(targetSystemBean.getHost() + ": " + process.getProcessCmd());
                 });
             }
+            dirNameSet.stream().forEach(dir -> {
+                log_info("Dir: " + dir + " is in use at the moment on " + targetSystemBean.getHost() + " server!");
+            });
         }
     }
 
@@ -572,7 +601,7 @@ public class ExecuteRecreate {
                     .map(map -> map.get(period))
                     .map(map -> map.get(type))
                     .map(map -> map.get(lpuId))
-                    .map(map -> dateCriteria(map, now));
+                    .map(map -> dateCriteria(map.getCreated(), now));
             return optionalValue.orElse(false);
         };
 
@@ -675,7 +704,7 @@ public class ExecuteRecreate {
                     for (Entry<String, RamBean> lpuEntry : lpuIdToMemoryMap.entrySet()) {
                         String key = lpuEntry.getKey();
                         RamBean value = lpuEntry.getValue();
-                        if (dateCriteria(value, now)) {
+                        if (dateCriteria(value.getCreated(), now)) {
                             lpuIdToMemoryMapNew.put(key, value);
 //                            log_info("refreshPossibleRamUsage: lpuId: " + key + " period: " + new SimpleDateFormat("yyyy-MM").format(period) + " type: " + type + " was refreshed!");
                         } else {
@@ -710,7 +739,7 @@ public class ExecuteRecreate {
                     for (Entry<String, RamBean> lpuEntry : lpuIdToMemoryMap.entrySet()) {
                         String key = lpuEntry.getKey();
                         RamBean value = lpuEntry.getValue();
-                        if (!dateCriteria(value, now)) {
+                        if (!dateCriteria(value.getCreated(), now)) {
                             PmpSync pmpSync = new PmpSync(Integer.valueOf(key), period, null);
                             pmpSync.setFeatureName(type);
                             pmpSyncList.add(pmpSync);
@@ -722,8 +751,8 @@ public class ExecuteRecreate {
         return pmpSyncList;
     }
 
-    private boolean dateCriteria(RamBean map, final Date now) {
-        return DateUtils.addMinutes(map.getCreated(), 60).after(now);
+    private boolean dateCriteria(Date created, final Date now) {
+        return DateUtils.addMinutes(created, 60).after(now);
     }
 
     private static String intToStr(int k) {
