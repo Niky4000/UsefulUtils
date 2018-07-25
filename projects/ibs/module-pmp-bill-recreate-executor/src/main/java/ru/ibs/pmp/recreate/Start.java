@@ -111,8 +111,8 @@ public class Start {
         ExecuteRecreate executeRecreate = applicationContext.getBean(ru.ibs.pmp.module.recreate.exec.ExecuteRecreate.class);
         JammedService jammedService = applicationContext.getBean(ru.ibs.pmp.module.recreate.exec.JammedService.class);
         setCleanScheduledTask2(executeRecreate);
-        setCleanScheduledJammedTask(executeRecreate, jammedService);
-        setDeadlockTask(jammedService);
+//        setCleanScheduledJammedTask(executeRecreate, jammedService);
+//        setDeadlockTask(jammedService);
         while (true) {
             executeRecreate.mainExecute();
             Thread.sleep(20 * 1000);

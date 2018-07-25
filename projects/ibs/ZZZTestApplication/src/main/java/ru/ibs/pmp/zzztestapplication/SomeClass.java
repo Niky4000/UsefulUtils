@@ -32,6 +32,7 @@ import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -92,7 +93,38 @@ public class SomeClass {
 //        testThreads();
 //        handleHttpResponseString("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:getPersonsInfoResponse xmlns:ns2=\"http://erzl.org/services\"><ns2:getPersonsInfoRequest><ns2:client><ns2:orgCode>-1</ns2:orgCode><ns2:bpCode>1</ns2:bpCode><ns2:system>PUMP</ns2:system><ns2:user>mgms</ns2:user><ns2:password>ibs</ns2:password></ns2:client><ns2:ukl>111333</ns2:ukl><ns2:ukl>222777</ns2:ukl><ns2:ukl>25080285</ns2:ukl><ns2:ukl>30976035</ns2:ukl><ns2:date>2017-11-30</ns2:date></ns2:getPersonsInfoRequest><ns2:totalResults>0</ns2:totalResults></ns2:getPersonsInfoResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>");
 //        testPattern();
-        testSemaphore();
+//        testSemaphore();
+        testMapReduce();
+    }
+
+    private static void testMapReduce() {
+        String[] array = {"Mohan", "Sohan", "Mahesh"};
+        String get = Arrays.stream(array).reduce((x, y) -> x + "," + y).get();
+
+        Map<String, Object> filterValues = new HashMap<>();
+        filterValues.put("code", 2);
+        filterValues.put("other_code", 4);
+        filterValues.put("other_code_2", 8);
+        String createFilter = createFilter(filterValues);
+
+//        filterValues.entrySet().stream().reduce("", (x, y, z) -> );
+        String hello = "";
+    }
+
+    private static String createFilter(Map<String, Object> filterValues) {
+        if (filterValues != null && !filterValues.isEmpty()) {
+            String and = " and ";
+            StringBuilder ret = new StringBuilder();
+            for (Map.Entry<String, Object> entry : filterValues.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                ret.append(key + "='" + value.toString() + "'" + and);
+            }
+            String retValue = ret.toString();
+            return retValue.substring(0, retValue.length() - and.length());
+        } else {
+            return null;
+        }
     }
 
     private static void testSemaphore() throws InterruptedException {

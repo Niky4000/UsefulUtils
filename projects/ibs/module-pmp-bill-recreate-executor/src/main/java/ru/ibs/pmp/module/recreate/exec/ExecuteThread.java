@@ -74,7 +74,7 @@ public class ExecuteThread extends Thread {
                 if (targetSystemBean.getOs().equals(OsEnum.LINUX) || targetSystemBean.getOs().equals(OsEnum.AIX)) {
                     executeParams = new String[]{(javaPath != null ? javaPath : "java") + " -XX:GCTimeRatio=19 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -Xmx" + possibleMemoryUsage + "G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + lpuId + periodStr};
                 } else if (targetSystemBean.getOs().equals(OsEnum.WINDOWS)) {
-                    executeParams = new String[]{"cmd.exe /c start /wait java -XX:GCTimeRatio=19 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -Xmx" + possibleMemoryUsage + "G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + lpuId + periodStr};
+                    executeParams = new String[]{"cmd.exe /c start /wait " + (javaPath != null ? javaPath : "java") + " -XX:GCTimeRatio=19 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -Xmx" + possibleMemoryUsage + "G -Dpmp.config.path=" + confPath + " -jar " + jarPath + " " + operationMode + lpuId + periodStr};
                 }
                 log_info("Server: " + targetSystemBean.getHost() + ": " + StringUtils.join(executeParams, ", "));
                 TargetSystemBeanWrapper targetSystemBeanWrapper = new TargetSystemBeanWrapper(targetSystemBean);

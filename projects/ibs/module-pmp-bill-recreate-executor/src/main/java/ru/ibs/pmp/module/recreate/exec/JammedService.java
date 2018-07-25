@@ -116,8 +116,12 @@ public class JammedService {
             Date period = key.getPeriod();
             final Calendar calendar = GregorianCalendar.getInstance();
             calendar.setTime(period);
+            Set<Bill.BillFetchType> billTypeSet = new HashSet<>();
+            billTypeSet.add(Bill.BillFetchType.SMO);
+            billTypeSet.add(Bill.BillFetchType.SMP);
+            billTypeSet.add(Bill.BillFetchType.SPECIAL);
             final RecreateBillsRequest recreateBillsRequest = new RecreateBillsRequest(key.getLpuId(),
-                    calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, billIds);
+                    calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, billIds, billTypeSet);
             if (billStatus.equals(Bill.BillStatus.RECREATE_QUEUE_WFLK)) {
                 recreateBillsRequest.setWithFlk(Boolean.TRUE);
             } else {
