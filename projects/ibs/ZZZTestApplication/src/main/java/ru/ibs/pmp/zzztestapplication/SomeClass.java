@@ -8,11 +8,15 @@ package ru.ibs.pmp.zzztestapplication;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.LocationTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
@@ -81,7 +85,6 @@ public class SomeClass {
 //        testStack();
 //        System.out.println(org.apache.commons.lang.StringUtils.substring("1234567", 2, 4));
 //        System.out.println("1234567".substring(2, 4));
-
 //        representXmlAsSql2(testSAX().replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", ""));
 //        boolean b1 = someCheck("s", "s");
 //        boolean b2 = someCheck(null, null);
@@ -94,8 +97,61 @@ public class SomeClass {
 //        handleHttpResponseString("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:getPersonsInfoResponse xmlns:ns2=\"http://erzl.org/services\"><ns2:getPersonsInfoRequest><ns2:client><ns2:orgCode>-1</ns2:orgCode><ns2:bpCode>1</ns2:bpCode><ns2:system>PUMP</ns2:system><ns2:user>mgms</ns2:user><ns2:password>ibs</ns2:password></ns2:client><ns2:ukl>111333</ns2:ukl><ns2:ukl>222777</ns2:ukl><ns2:ukl>25080285</ns2:ukl><ns2:ukl>30976035</ns2:ukl><ns2:date>2017-11-30</ns2:date></ns2:getPersonsInfoRequest><ns2:totalResults>0</ns2:totalResults></ns2:getPersonsInfoResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>");
 //        testPattern();
 //        testSemaphore();
-        testMapReduce();
+//        testMapReduce();
+
+//        String pidForAix = getPidForAix(args);
+//        String env = System.getenv(args[0]);
+        int pid = CLibrary.INSTANCE.getpid();
+        System.out.println("PID: "+pid + "");
+        Thread.sleep(100 * 1000);
     }
+
+    private interface CLibrary extends Library {
+        CLibrary INSTANCE = (CLibrary) Native.loadLibrary("c", CLibrary.class);
+        int getpid();
+    }
+
+    private static String getPidForAix(String[] args) {
+        try {
+            // ps -ef | grep '2082 2018-08' | awk '{print $2}'
+            // ps -fp $$ |tail -1 | awk '{print $3}'
+//            Process process = new ProcessBuilder(Arrays.asList(args))
+            Process process = new ProcessBuilder(Arrays.asList("ps", "-fp", "$$"))
+                    .redirectErrorStream(true)
+                    .start();
+            while (process.isAlive()) {
+                process.waitFor();
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = "";
+            StringBuilder sb = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+            System.out.println(sb.toString());
+            return sb.toString();
+        } catch (Exception ex2) {
+            return "Unknown PID";
+        }
+    }
+//    private static String getPidForAix() {
+//        try {
+//            // ps -ef | grep '2082 2018-08' | awk '{print $2}'
+//            // ps -fp $$ |tail -1 | awk '{print $3}'
+//            StringBuilder sb = new StringBuilder();
+//            Process process = Runtime.getRuntime().exec("ps -ef | grep recreate");
+//            process.waitFor();
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//            String line = "";
+//            while ((line = reader.readLine()) != null) {
+//                sb.append(line + "\n");
+//            }
+//            System.out.println(sb.toString());
+//            return sb.toString();
+//        } catch (Exception ex2) {
+//            return "Unknown PID";
+//        }
+//    }
 
     private static void testMapReduce() {
         String[] array = {"Mohan", "Sohan", "Mahesh"};
