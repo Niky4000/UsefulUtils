@@ -5,6 +5,7 @@
  */
 package ru.ibs.pmp.zzztestapplication;
 
+import com.google.common.base.Strings;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.LocationTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
@@ -98,16 +99,59 @@ public class SomeClass {
 //        testPattern();
 //        testSemaphore();
 //        testMapReduce();
-
 //        String pidForAix = getPidForAix(args);
 //        String env = System.getenv(args[0]);
-        int pid = CLibrary.INSTANCE.getpid();
-        System.out.println("PID: "+pid + "");
-        Thread.sleep(100 * 1000);
+//        int pid = CLibrary.INSTANCE.getpid();
+//        System.out.println("PID: "+pid + "");
+//        Thread.sleep(100 * 1000);
+//        String tableName = getTableName();
+//        String formatTableName = formatTableName(tableName);
+        testFilePattern();
+
+    }
+
+//    private static final Pattern PART_PATTERN = Pattern.compile("^.+?_" + Strings.repeat("(\\d+?)[_-]$", 5), Pattern.DOTALL);
+    private static final Pattern PART_PATTERN = Pattern.compile("^.+?_(\\d+?)[_-](\\d+?)[_-](\\d+?)[_-](\\d+?)[_-](\\d+?)$", Pattern.DOTALL);
+//    private static final Pattern PART_PATTERN = Pattern.compile("^.+?_(\\d+?)[_-](\\d+?)[_-](\\d+?)[_-](\\d+?)[_-](\\d+?)$", Pattern.DOTALL);
+    
+//    private static final String patternPart = Strings.repeat("(\\\\d+?)[_-]", 5);
+//    private static final Pattern PART_PATTERN = Pattern.compile("^.+?_" + patternPart.substring(0, patternPart.lastIndexOf("[_-]")) + "$", Pattern.DOTALL);
+
+    private static void testFilePattern() {
+        Matcher matcher = PART_PATTERN.matcher("checkServiceErrorAudListForCreate_10002161_2146_2018-09_1");
+        if (matcher.find()) {
+            String billId = matcher.group(1);
+            String lpuId = matcher.group(2);
+            String year = matcher.group(3);
+            String month = matcher.group(4);
+            String part = matcher.group(5);
+            String hello = "";
+        }
+    }
+
+    private static final String NAME_FIELD = "name=";
+
+    private static String getTableName() {
+        String str = "@javax.persistence.Table(name=PMP_SMP_CASE_AUD, schema=, uniqueConstraints=[], indexes=[], catalog=)";
+        int index1 = str.indexOf(NAME_FIELD);
+        int index2 = str.indexOf(",", index1);
+        String substring = str.substring(index1 + NAME_FIELD.length(), index2);
+        return substring;
+    }
+
+    private static String formatTableName(String tableName) {
+        tableName = tableName.toLowerCase();
+        while (tableName.contains("_")) {
+            int index = tableName.indexOf("_");
+            tableName = tableName.substring(0, index) + tableName.substring(index + 1, index + 2).toUpperCase() + tableName.substring(index + 2);
+        }
+        return tableName;
     }
 
     private interface CLibrary extends Library {
+
         CLibrary INSTANCE = (CLibrary) Native.loadLibrary("c", CLibrary.class);
+
         int getpid();
     }
 

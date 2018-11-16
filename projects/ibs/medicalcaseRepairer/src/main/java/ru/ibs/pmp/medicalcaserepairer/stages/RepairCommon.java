@@ -723,17 +723,17 @@ public class RepairCommon implements RecreateCommon {
     }
 
     @Override
-    public BillStatisticsBean createBillStatisticsByLpu(String lpuId, Date period, BillStatistics.BillOperation billOperation, String parameters, String userId, boolean doNotCreateRevisionEntity) throws TransactionException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public BillStatisticsBean createBillStatisticsBySmo(String smoOgrn, Date period, BillStatistics.BillOperation billOperation, String parameters, String userId, boolean doNotCreateRevisionEntity) throws TransactionException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public boolean canProcess(boolean notNeedToSetSyncFlag, String featureName, String callData, String lockData, Integer lpuId, Date period, List<BillStatisticsTime> billStatisticsTimeList) throws TransactionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public BillStatisticsBean createBillStatisticsByLpu(String string, Date date, BillStatistics.BillOperation bo, String string1, String string2, boolean bln) throws TransactionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public BillStatisticsBean createBillStatisticsBySmo(String string, Date date, BillStatistics.BillOperation bo, String string1, String string2, boolean bln) throws TransactionException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
