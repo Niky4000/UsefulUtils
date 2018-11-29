@@ -15,6 +15,9 @@ public class TCPForwardClientR {
         while (true) {
             Socket clientSocket = new Socket(sourceHost, sourcePort);
             Socket mServerSocket = new Socket(destinationHost, destinationPort);
+            // Turn on keep-alive for both the sockets 
+            mServerSocket.setKeepAlive(true);
+            clientSocket.setKeepAlive(true);
             ClientThread clientThread = new ClientThread(clientSocket, mServerSocket);
             clientThread.start();
             clientThread.getSemaphore().acquire();

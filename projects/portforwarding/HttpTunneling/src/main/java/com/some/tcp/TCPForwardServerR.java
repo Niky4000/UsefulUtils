@@ -18,6 +18,8 @@ public class TCPForwardServerR {
                 ServerSocket serverSocket = new ServerSocket(destinationPort);
                 while (true) {
                     Socket clientSocket = serverSocket.accept();
+                    // Turn on keep-alive for both the sockets 
+                    clientSocket.setKeepAlive(true);
                     clientSocketQueue.offer(clientSocket);
                 }
             } catch (Exception e) {
@@ -29,6 +31,8 @@ public class TCPForwardServerR {
                 ServerSocket serverSocket2 = new ServerSocket(sourcePort);
                 while (true) {
                     Socket mServerSocket = serverSocket2.accept();
+                    // Turn on keep-alive for both the sockets 
+                    mServerSocket.setKeepAlive(true);
                     serverSocketQueue.offer(mServerSocket);
                 }
             } catch (Exception e) {

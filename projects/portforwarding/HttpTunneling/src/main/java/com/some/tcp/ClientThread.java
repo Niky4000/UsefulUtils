@@ -37,8 +37,8 @@ class ClientThread extends Thread {
         try {
 
             // Turn on keep-alive for both the sockets 
-            mServerSocket.setKeepAlive(true);
-            mClientSocket.setKeepAlive(true);
+//            mServerSocket.setKeepAlive(true);
+//            mClientSocket.setKeepAlive(true);
 
             // Obtain client & server input & output streams 
             clientIn = mClientSocket.getInputStream();
