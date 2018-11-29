@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.concurrent.Semaphore;
 
 /**
  * ClientThread is responsible for starting forwarding between the client and
@@ -16,6 +17,7 @@ class ClientThread extends Thread {
     private Socket mClientSocket;
     private Socket mServerSocket;
     private boolean mForwardingActive = false;
+    Semaphore semaphore = new Semaphore(0);
 
     public ClientThread(Socket aClientSocket, Socket mServerSocket) {
         mClientSocket = aClientSocket;
@@ -90,6 +92,12 @@ class ClientThread extends Thread {
                     + mServerSocket.getInetAddress().getHostAddress()
                     + ":" + mServerSocket.getPort() + " stopped.");
             mForwardingActive = false;
+            semaphore.release();
         }
     }
+
+    public Semaphore getSemaphore() {
+        return semaphore;
+    }
+
 }
