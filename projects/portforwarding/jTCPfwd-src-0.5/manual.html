@@ -1,0 +1,1001 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<style type="text/css">
+body {
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 10pt;
+}
+
+p {
+	margin-left: 2em;
+	margin-right: 2em;
+}
+
+pre,p.pre {
+	margin-left: 4em;
+	margin-right: 4em;
+	border: 2px solid blue;
+}
+</style>
+<title>jTCPfwd - Java TCP forwarder</title>
+</head>
+<body>
+<h1>jTCPfwd - Java TCP forwarder</h1>
+
+<p><i>&copy; 2006 - 2010 Michael Schierl, <tt>&lt;schierlm
+at users dot sourceforge dot net&gt;</tt></i></p>
+
+<h2>Introduction</h2>
+
+<p>In 2006, jTCPfwd (&ldquo;Jay-Tee-Cee-Pee-Forward&rdquo;) started
+as a simple Java command line tool to forward TCP ports. Lots of other
+features are added, especially for forwarding TCP connections over
+various other means (the simplest being reverse TCP connections, but
+also UDP/HTTP tunnelling or writing files to a network share) or for
+combining/splitting TCP connections to reduce the number of ports
+needed. The first public release was done in 2010.</p>
+
+<p>There is a <i>lite version</i> available, that will only use
+socket types supported by Java, and is therefore a lot smaller. The <i>full
+version</i> uses a lot of custom socket types, therefore has a lot more
+features, but is also larger.</p>
+
+<p>jTCPfwd uses a modular architecture, and other modules can be
+added on the fly just by adding classes/jars to the class path. In fact,
+the only difference between the lite and the full version is the amount
+of modules included in the jar file.</p>
+
+<p>In case you need a lite version containing a different (smaller
+or larger) set of modules, the CustomLiteBuilder can be used to create a
+custom jar containing exactly the moduels you need.</p>
+
+<p>There are different kinds of modules: <i>Listeners</i>, <i>Forwarders</i>
+and <i>Destinations</i>. Some listeners and forwarders may support
+additional module types specific to them, but that is the exception and
+not the rule.</p>
+
+<p>The basic workflow of jTCPfwd is quite simple: At the start,
+pairs of listeners and forwarders are created (one forwarder for each
+listener). Each of the listeners is running all the time trying to
+produce new <i>sockets</i> (for example by listening on a TCP port, but
+it can also be by running a servlet or by polling on a file system).
+Whenever the listener is able to create a socket, the socket is passed
+to the forwarder, which will try to create a matching socket to forward
+to. Usually the passed socket argument is not used, but in some cases
+(like the <tt>DeMux</tt> forwarder), the forwarder may examine the
+socket or even read data from it. If the forwarder was able to create a
+new socket, data is forwarded between those two sockets and whenever one
+socket gets closed, the other one is closed as well. In case the
+forwarder fails to create a new socket for the listener, the listener's
+socket is closed immediately.</p>
+
+<p>There are several places where a module needs an IP/Port
+combination to connect to (or to do something else with it). Most of the
+time, the combination will be static, but in some cases (for example
+when working with proxies, other stateful protocols, or when doing load
+balancing), a (more or less) simple algorithm is used to determine the
+next IP/port combination. That is what <i>Destination</i> modules are
+used for.</p>
+
+<h2>Quickstart</h2>
+
+<p>Run jTCPfwd as</p>
+<pre>java -jar jTCPfwd.jar 1234 www.google.com:80 1235 www.bing.com:80</pre>
+
+<p>This will forward local port 1234 to Google, and local port 1235
+to Bing. For more advanced features, read on.</p>
+
+<h2>Invocation syntax</h2>
+
+<p>Listeners and forwarders are specified by a single parameter on
+the command line. The first (optional) part states the type of the
+listener/forwarder (listener types and forwarder types have different
+names) and ends with an @ symbol. The second part states the parameters
+of the listener/forwarder. For the "Simple" forwarder, the type can be
+omitted, so a "Simple@1234" listener can be written as "1234" and a
+"Simple@www.google.de:80" forwarder can be written as
+"www.google.de:80". The syntax of the parameters can be different for
+each module. However, a lot of modules share the same argument syntax:
+The first character after the @ states a delimiter, and this delimiter
+is used to split the rest of the arguments. In this manual, the
+delimiter is always written as #, but any other character (that does not
+appear in one of the arguments) can be used.</p>
+
+<p>Destinations (inside listener or forwarder parameters) are
+specified in a different way. The default destination format is
+"&lt;host&gt;:&lt;port&gt;" where the last colon is used to delimit host
+and port. Other destinations are prefixed by ":Name:", where Name is the
+name of the destination. The default destination format can also be
+referred by the ":Simple:" name, therefore, all these forwarder rules
+are equal:</p>
+
+<p>"www.google.de:80" / "Simple@www.google.de:80" /
+":Simple:www.google.de:80" / "Simple@:Simple:www.google.de:80"</p>
+
+<p>Another common element that is used in several parameters is a
+number range, also known as number expression. These ranges are used to
+specify numbers for which an action should be taken - for example, the
+round robin forwarder uses them to specify which request should be sent
+to a specific destination, and the coupler uses them to specify which
+listeners should be connected to each other. These number formats are
+similar to print page rules used in word processors or similar to cron
+rules. I think everyone can understand rules like "1-3" or "1,3,4-9,11",
+but there are some special cases that might not be intuitive. "*" means
+"all numbers", "1-20/3" is "1,4,7,10,13,16,19", "1-30o" is "1-30/2", and
+"1-30e" is "2-30/2". Start and/or end of ranges can be omitted.</p>
+
+<p>Some modules require binary arguments, like encryption keys. They
+can be specified via binary expressions. As those kind of data tend to
+be given in several differnent formats, you can give a list of
+transformations (separated by colons), followed by data to be
+transformed. Each transformation is applied on the result of the
+previous transformation. Therefore, <tt>hex:base64:NzQ2NTczNzQ=</tt>
+will result in <tt>test</tt>.</p>
+
+<p>An empty transformation name will stop parsing transformations;
+therefore, to match the literal (UTF-8) bytes <tt>C:\&gt;</tt>, the
+expression <tt>:C:\&gt;</tt> can be used. If no encoding is given,
+everything is encoded as UTF-8. An explicit encoding can be given by
+using the <tt>encode-</tt><i>&lt;encoding&gt;</i><tt>:</tt>
+transformation.</p>
+
+<p>Optionally, a secondary expression can be parsed at the same
+time, for example an initialization vector for an encryption key or a
+mask for matching data.</p>
+
+<p>The following tranformations are supported:</p>
+<dl>
+	<dt><b><tt>hex</tt></b></dt>
+	<dd>decode hexadecimal, like <tt>hex:444a32</tt> -&gt; <tt>DJ2</tt></dd>
+	<dt><b><tt>base64</tt></b></dt>
+	<dd>decode base64, like <tt>base64:SGVsbG8=</tt> -&gt; <tt>Hello</tt></dd>
+	<dt><b><tt>sha1</tt></b></dt>
+	<dd>Encode SHA1, like <tt>sha1:test</tt> -&gt; <tt>hex:a94a8fe5ccb19ba61c4c0873d391e987982fbbd3</tt></dd>
+	<dt><b><tt>md5</tt></b></dt>
+	<dd>Encode MD5, like <tt>md5:test</tt> -&gt; <tt>hex:098f6bcd4621d373cade4e832627b4f6</tt></dd>
+	<dt><b><tt>hash-</tt><i>algorithm</i></b></dt>
+	<dd>Encode any hash algorithm; <tt>hash-MD5</tt> is equivalent to
+	<tt>md5</tt>, <tt>hash-SHA-1</tt> is equivalent to <tt>sha1</tt></dd>
+	<dt><b><tt>split</tt></b></dt>
+	<dd>Split the expression into multiple expressions, delimited by a
+	custom character directly following the colon after <tt>split</tt>,
+	like <tt>split:#Area#hex:35#1</tt> -&gt; <tt>Area51</tt></dd>
+	<dt><b><tt>unescape</tt></b></dt>
+	<dd>Parse Java escapes, like <tt>unescape:\r\n</tt> -&gt; <tt>hex:0d0a</tt>,
+	or <tt>unescape:Some\u20acfor\44</tt> -&gt; <tt>Some€for$</tt></dd>
+	<dt><b><tt>encode-</tt><i>charset</i></b></dt>
+	<dd>Encode in a given charset, like <tt>encode-ISO-8859-15:€</tt>
+	-&gt; <tt>hex:a4</tt>, or <tt>encode-UTF-8:€</tt> -&gt; <tt>hex:E282AC</tt></dd>
+	<dt><b><tt>map</tt></b></dt>
+	<dd>Select a given range of characters (or more than one) out of
+	another expression, like <tt>map1-4+5-9o+9+3+3:987654321</tt> -&gt; <tt>9876531177</tt>.
+	The result of a <i>map</i> expression may be up to 4KB long.</dd>
+	<dt><b><i>secondaryName</i></b></dt>
+	<dd>Similar to map, but store the result as the secondary value.
+	When in <i>random</i> mode, also supports expressions like 4r for 4
+	random characters; when not in <i>random</i> mode, it can use <tt>3-5?</tt>,
+	meaning that characters 3 to 5 are copied to the secondary value, but
+	marked as optional.</dd>
+</dl>
+
+<p>When using the expression for matching bytes instead of creating
+them, and a mask is supported, the special transformation <tt>regex:<i>someRegex</i></tt>
+can be used to give a regex the bytes have to match (using the
+ISO-8859-1 charset.)</p>
+
+<p>In fact, there are two ways to invoke jTCPfwd: Either you can
+give all listener/forwarder pairs on the command line (first parameter
+is the first listener, then its forwarder, then the next listener,
+etc.), or you can put all listeners and forwarders into a config file
+(one listener and its forwarder on each line, lines starting with #
+being ignored) and refer to it on the command line as "@filename".</p>
+
+<p>To test destinations (or to somehow else use their created socket
+addresses from outside jTCPfwd), you can use the <tt>-listdestination</tt>
+parameter, followed by a count and a destination parameter. The given
+detination is "queried" for the given number of times, and the results
+are printed to stdout.</p>
+
+<p>To build a custom Lite version, run</p>
+<p class="pre"><tt>java -cp jTCPfwd.jar
+jtcpfwd.CustomLiteBuilder &lt;listeners&gt; -- &lt;forwarders&gt; [--
+&lt;destinations&gt; [-- &lt;filters&gt; [-- &lt;knockrules&gt;]]]</tt></p>
+<p>to include the given listeners, forwarders, destinations, filters
+and knock rules. Each module can be given by its name; for listeners and
+forwarders a full module argument with @ and parameters can be used as
+well, which will load the listener/forwarder (i. e. ports etc. must be
+free at time of invocation) and include all of its dependencies
+automatically.</p>
+
+<h2>Modules included in both the lite and the full version</h2>
+
+<h3>Destinations</h3>
+
+<h4><tt>[:Simple:]&lt;host&gt;:&lt;port&gt;</tt></h4>
+
+<p>This is the most common destination type. It will just create the
+same destinaiton for each socket to forward, pointing to the given <i>host</i>
+and <i>port</i>. The host may contain colons.</p>
+
+<h4><tt>:RoundRobin:[#]#&lt;numberexpression1&gt;=&lt;destination1&gt;[#&lt;expr2&gt;=&lt;destination2&gt;[#...]]</tt></h4>
+
+<p>This destination type will return different destinations on each
+invocation. A connection counter is increased for each connection
+attempt. Each number expression will be checked whether it matches the
+current connection counter, and the first match will be returned as the
+destination. You can use arbitrary destination types for each of the
+destinations given (even :RoundRobin: ones), but usually you will use
+simple destinations. If no number expression matches, the destination
+will not return any address, which in turn will fail the
+listener/forwarder trying to use that destination.</p>
+
+<h3>Listeners</h3>
+
+<h4><tt>[Simple@][&lt;interface&gt;:]&lt;port&gt;</tt></h4>
+
+<p>This is the most straight forward listener. It will listen on a
+TCP port, either on all interfaces or only on the one that has assigned
+the given address, and return all sockets it can accept there.</p>
+
+<h4><tt>Reverse@&lt;destination&gt;</tt></h4>
+
+<p>This listener ist designed to be used in combination with the <tt>Reverse@</tt>
+forwarder, to provide a simple "TCP gender changer forwarder".</p>
+<p>This listener will try to create a TCP connection to the given
+destination and wait until it receives a <i>42</i> byte on it. If the
+connection is closed or any other byte is received, the connection will
+be discarded and a new one will be opened. If the correct byte is
+received, the socket is returned (as if it was an accepted socket).</p>
+
+<h4><tt>Forwarder@[&lt;count&gt;[,&lt;delay&gt;];]&lt;forwarder&gt;</tt></h4>
+
+<p>This listener is a way to treat forwarders as if they were
+listeners. This is mainly so that "special" kinds of sockets that do not
+have a concept of accepting connection only need a forwarder, not a
+listener as well.</p>
+<p>This listener will try to connect to the given forwarder after
+the given delay (default 0), and repeat this connection attempts until
+the forwarder produces a socket, each time waiting the given delay in
+between. As soon as the socket is produced, it is returned (as if it was
+an accepted socket) and the forwarder is asked again to produce yet
+another socket. If <i>count</i> is not 0 (which is also the default),
+the listener will stop asking the forwarder as soon as <i>count</i>
+sockets have been accepted successfully.</p>
+
+<h4><tt>PeerFilter@#&lt;host&gt;[/&lt;prefix&gt;][#&lt;host&gt;[/&lt;prefix&gt;][#...]]#&lt;listener&gt;</tt></h4>
+
+<p>This listener will accept a socket from its chained listener. The
+socket is then examined if its source address matches any of the given
+filters, and if any one matches the socket will be returned. If no
+filter matches, the socket is closed and the next accepted socket is
+tested.</p>
+
+<p>Each filter may give a host name or IP address and an optional
+prefix. If no CIDR prefix is given, the host must match exactly. If a
+CIDR prefix is given, only the given number of bits must match (like
+CIDR prefixes are usually interpreted). For example, <tt>192.168.4.0/23</tt>
+will match <tt>192.168.4.0</tt> to <tt>192.168.5.255</tt>. If you are
+unfamiliar with CIDR prefixes, you can use any available subnet
+calculator to convert your subnet mask to a CIDR prefix.</p>
+
+<h4><tt>SSL@#[&lt;option&gt;#[&lt;option&gt;#[...]]][&lt;interface&gt;:]&lt;port&gt;</tt></h4>
+
+<p>Creates a socket that listens for SSL connections (using the
+given <a href="#ssloptions">SSL options</a>), but otherwise acts like a
+simple listener.</p>
+
+<h4><tt>Coupler@[#]#[!][+]&lt;numbers&gt;:&lt;listener&gt;[#...]</tt></h4>
+
+<p>This is a pseudo listener, in the sense that it will never return
+a socket as accepted, but handle´ everything internally. Nevertheless,
+you will have to give a forwarder for it, which can be any simple
+forwarder or something like <tt>RoundRobin@#</tt>, as it will not be
+used at all.</p>
+
+<p>In the parameters, you can specify one or more listeners (usually
+more). For each listener, you give a number expression to determine to
+which other listeners data received on that socket will be forwarded
+(listeners are numbered from 1 to <i>n</i> from left to right) and some
+optional flags (as characters at the beginning of the number
+expression). As a special case, data will not be returned to the socket
+itself unless the <tt>+</tt> flag is given; that way you can just use
+the <tt>*</tt> expression to send data to all other sockets.</p>
+
+<p>This listener will ask all the listeners in turn for a socket. As
+soon as a sufficient number of sockets has been returned (one from each
+listener), data will be forwarded according to the number expressions.
+As soon as all sockets are closed, or one of the sockets that has the <tt>!</tt>
+flag given is closed, all sockets will be closed (if not already) and
+the coupler will restart.</p>
+
+<p>If the first delimiter character after the @ is doubled, the
+coupler will start a new thread once all sockets have been created so
+that more couples can be built while the first one is forwarding data.</p>
+
+<p>This is an example for a coupler that acts like forwarding
+traffic from port 11001 to localhost:11002 (but will need more CPU than
+a simple forwarder): <tt>Coupler@##!*:11001#!1:Forwarder@localhost:11002
+RoundRobin@#</tt></p>
+
+<h3>Forwarders</h3>
+
+<h4><tt>[Simple@]&lt;destination&gt;</tt></h4>
+
+<p>This is the most straightforward forwarder. It will forward all
+data via TCP to the given destination.</p>
+
+<h4><tt>Reverse@[&lt;interface&gt;:]&lt;port&gt;</tt></h4>
+<p>This is the counterpart to the <tt>Reverse@</tt> listener. At
+initialization, it will listen on the given TCP port (and optional
+interface), waiting for a connection. Accepted sockets are buffered,
+until the forwarder is asked to forward; then the first connection is
+taken, a <i>42</i> byte is sent over the socket and all data is
+forwarded to that socket.</p>
+
+<h4><tt>ListenOnce@[#&lt;host&gt;[/&lt;prefix&gt;][#&lt;host&gt;[/&lt;prefix&gt;][#...]];][&lt;interface&gt;:]&lt;port&gt;[,&lt;timeout&gt;]</tt></h4>
+
+<p>This forwarder is mostly used for communication with other tools
+(like <tt>socat</tt>). It will listen on the given TCP port (and
+optional interface), wait for one connection, stop listening and forward
+all data to the accepted socket.</p>
+
+<p>It is also optionally possible to specify peer filter rules like
+with the <tt>PeerFilter@</tt> listener. Connections that do not match
+this rule will be closed again immediately, without stopping the
+listening (so that the right peer gets another chance to connect.)</p>
+
+<p>If a timeout (in milliseconds) is given, the listening will be
+aborted after the timeout and no socket will be returned. (In
+combination with a peer filter rule, it is possible for a blocked host
+to prevent the listening from timing out if it sends connection requests
+sufficiently fast, but in practice this is rarely a problem).</p>
+
+<h4><tt>Retry@&lt;count&gt;,&lt;delay&gt;,&lt;forwarder&gt;</tt></h4>
+
+<p>This forwarder will try for <i>count</i> times (or unlimited if <i>count</i>
+is 0) to create a socket using the given forwarder. Between each retry
+there is a delay of <i>delay</i> milliseconds. If the creation is
+successful, data will be forwarder to the created socket. Otherwise,
+this forwarder will fail to create a socket, too.</p>
+
+<h4><tt>Mux@[&lt;auth&gt;:]&lt;idx&gt;=&lt;forwarder&gt;</tt></h4>
+
+<p>This forwarder is usually used in combination with the <tt>DeMux@</tt>
+forwarder. It will try to create a socket using the given forwarder, and
+then send an <i>idx</i> byte over the socket before the data is
+forwarded, which can be used later to distinguish different <tt>Mux@</tt>
+forwarders.</p>
+
+<p>If <i>auth</i> is given (which has to consist of only US-ASCII
+characters), it is sent over the wire before sending the index byte.
+This can be used as a poor man's authentication since the corresponding
+<tt>DeMux@</tt> forwarder will refuse the connection if the bytes are
+not sent.</p>
+
+<h4><tt>DeMux@#[auth=&lt;auth&gt;#]&lt;idx1&gt;=&lt;forwarder1&gt;[#&lt;idx2&gt;=&lt;forwarder2&gt;[#...]]</tt></h4>
+
+<p>This forwarder will read one byte from the socket provided by the
+listener (a feature rarely used), which will be used to look up the
+forwarder to create a socket for this listener socket. Usually the byte
+is produced by several <tt>Mux@</tt> forwarders, to make it possible to
+use one single port for forwarding different kinds of connections.</p>
+
+<p>As a convenience, special characters can be used in the index as
+wildcards. For example, <tt>DeMux@#10=localhost:99#1$%=localhost:1$$%%</tt>
+will redirect 101 different indices: index 10 to port 99, index 100 to
+port 1000, 101 to 10011, 102 to 10022 and so on, 109 to 10099, 110 to
+11100, 111 to 11111, and so on, up to 198 to 19988 and 199 to 19999.</p>
+
+<p>The <i>auth</i> token is expected on the socket before reading
+the index byte. See the <tt>Mux@</tt> forwarder description above for
+details.</p>
+
+<h4><tt>PeerDeMux@#&lt;host1&gt;[/&lt;prefix1&gt;]=&lt;forwarder1&gt;[#&lt;host2&gt;[/&lt;prefix2&gt;]=&lt;forwarder2&gt;[#...]]</tt></h4>
+
+<p>Using the same syntax as the <tt>PeerFilter@</tt> listener, this
+forwarder can be used to forward connections to different forwarders,
+depending of the IP address of the listener socket. The first match is
+taken, if none matches, the connection is refused.</p>
+
+<h4><tt>RoundRobin@#&lt;numberexpression1&gt;=&lt;forwarder1&gt;[#&lt;expr2&gt;=&lt;forwarder2&gt;[#...]]</tt></h4>
+
+<p>This forwarder works similar to the destination of the same name;
+the main difference is that if a forwarder matches but fails to produce
+a socket, the next matching forwarder will be tried (if a round robin
+destination produces an address but the forwarder cannot connect to it,
+the whole forwarder will fail). In addition, if the separator character
+behind the @ is doubled and no forwarder can produce a socket, this
+forwarder will wait for one second and then retry all the expressions.
+(This behaviour can also be achieved by using the <tt>Retry@</tt>
+forwarder around this forwarder.)</p>
+
+<p>In particular, <tt>RoundRobin@#</tt> will always fail to produce
+a socket, and <tt>RoundRobin@##</tt> will take forever to produce a
+socket.</p>
+
+<h4><tt>SSL@#[&lt;option&gt;#[&lt;option&gt;#[...]]]&lt;destination&gt;</tt></h4>
+
+<p>Creates a SSL socket to the given destination (using the given <a
+	href="#ssloptions">SSL options</a>), but otherwise acts like a simple
+forwarder.</p>
+
+<h3 id="ssloptions">SSL options</h3>
+
+<p>SSL options have the form <tt>&lt;key&gt;=&lt;value&gt;</tt>.</p>
+
+<h4><tt>mode=client|server</tt></h4>
+
+<p>Override whether this socket should be in client or server mode.
+By default, listeners are in server mode, and forwarders are in client
+mode.</p>
+
+<h4><tt>clientcert=wanted|needed</tt></h4>
+
+<p>Configure that the client should or must provide a client
+certificate. The server always has to provide a certificate.</p>
+
+<h4><tt>protocols=&lt;includepattern&gt;[!&lt;excludepattern&gt;]</tt></h4>
+
+<p>Configure which SSL protocols may be used. Protocols can be
+matched both by their internal name (like <tt>TLSv3</tt>) and by their
+full name (<tt>Enabled:TLSv3</tt>, as TLSv3 is enabled by default).
+Every protocol that matches the includepattern but does not match the
+excludepattern (if given) will be enabled. The default include pattern
+is <tt>Enabled:.*</tt>.</p>
+
+<p>If no available protocols match, a list of the full names of all
+supported protocols is printed.</p>
+
+<h4><tt>ciphers=&lt;includepattern&gt;[!&lt;excludepattern&gt;]</tt></h4>
+
+<p>Configure which SSL ciphers (cipher suites) may be used. Pattern
+matching works the same way as for protocols.</p>
+
+<h4><tt>key=&lt;storepassword&gt;[:&lt;alias&gt;[:&lt;keypassword&gt;]]</tt></h4>
+<p>Enable a key for being used. The key is found in the keystore
+specified by the next option, or the default keystore, which is
+decrypted using the given store password. If no alias is given, the
+alias is determined by the SSL parameters used (so that you can have
+both a RSA and a DSA key in the keystore). If an alias is given, only
+this alias is used. The keypassword must be either given or the same as
+the store password.</p>
+<h4><tt>keystore=&lt;filename&gt;</tt></h4>
+<p>Specify the filename of the keystore to be used to obtain the
+key. If unset, <tt>$HOME/.keystore</tt> is used. Note that giving a
+filename will not enable using a key, which is done by the previous
+option.</p>
+<h4><tt>truststore=-|&lt;filename&gt;</tt></h4>
+<p>Specify the trust store to use. If a filename is given, that one
+is used as the trust store. If <tt>-</tt> is given, all keys are assumed
+to be trusted. By default, the JRE's <tt>cacerts</tt> store is used as a
+trust store.</p>
+
+<h2>Modules included in the full version only</h2>
+
+<h3>Destinations</h3>
+
+<h4><tt>:AddressStream:&lt;listener&gt;</tt></h4>
+
+<p>Listen at the given listener and wait for the first connection.
+This connection is used to transfer addresses from a different module.
+See the <tt>SOCKS@</tt> listener for details.</p>
+
+<h3>Listeners</h3>
+
+<h4><tt>Combine@&lt;listener&gt;</tt></h4>
+
+<p>This listener produces only one socket ever, which will transport
+an encoded version of all the sockets accepted by the listener. This can
+be used to forward multiple connections over a connection that by design
+only supports one connection, or where connection establishment is
+expensive.</p>
+
+<h4><tt>UDPTunnel@[&lt;interface&gt;:]&lt;port&gt;</tt></h4>
+
+<p>Used to tunnel multiple (TCP) connections via UDP</p>
+
+<h4><tt>UDPTunnelPTP@[&lt;interface&gt;:]&lt;port&gt;</tt></h4>
+
+<p>Used to tunnel a single (TCP) connection via UDP. Less overhead
+than <tt>UDPTunnel@</tt></p>
+
+<h4><tt>UDP@[&lt;dropNumerator&gt;,&lt;dropDenominator&gt;;][&lt;interface&gt;:]&lt;port&gt;</tt></h4>
+
+<p>Listen on a UDP port and tunnel UDP packets via a (TCP)
+connection. A given part of the UDP packets can be dropped to test how
+UDP protocols cope with packet loss.</p>
+
+<h4><tt>SOCKS@#&lt;proxyHost&gt;[:&lt;proxyPort&gt;[:&lt;user&gt;[:&lt;passwd&gt;]]]#&lt;destination&gt;[#&lt;addrFwd&gt;]</tt></h4>
+
+<p>Listen via a SOCKS proxy. <i>Destination</i> is giving the host
+and port of the connection whose peer should connect to that port. When
+the bind was successful, the ephemeral address and port of the
+connection are either sent via the given address stream or printed to
+stdout, if no address stream is given.</p>
+
+<h4><tt>SOCKSProxy@&lt;port&gt;</tt></h4>
+
+<p>Start a SOCKS proxy on the given port. A forwarder has to be
+given, but is ignored.</p>
+
+<h4><tt>Restartable@&lt;listener&gt;</tt></h4>
+
+<p>Accept a connection from a <tt>Restartable@</tt> forwarder;
+connections may disconnect at any time, and will be re-established by
+the forwarder.</p>
+
+<h4><tt>File@&lt;directory&gt;</tt></h4>
+
+<p>Tunnel connections via the filesytem: Monitor the given directory
+and create a new connection when a file appears there.</p>
+
+<h4><tt>Clipboard@</tt></h4>
+
+<p>Tunnel a single connection via the clipboard. Another jTCPfwd
+instance that have access to the same clipboard (possibly via remote
+desktop connections) can create the connection using a <tt>Clipboard@</tt>
+forwarder.</p>
+
+<h4><tt>Screen@</tt></h4>
+
+<p>Tunnel a single connection via a shared screen (for example RDP).
+The listener will open a window that shows bizarre patterns, the
+forwarder will "read" the patterns and answer by typing keys read by the
+listener.</p>
+
+<h4><tt>HTTPTunnel@[&lt;interface&gt;:]&lt;port&gt;[+],&lt;prefix&gt;[#&lt;engine&gt;]</tt></h4>
+
+<p><i>This forwarder requires that you have embedded-jetty.jar
+from the HTTPTunnel listener addon using embedded Jetty Server in your
+classpath.</i></p>
+
+<p>Run an embedded Jetty server on a given interface and port. Add a
+HTTPTunnel servlet to it that listens on the given <i>prefix</i>, using
+the given <i>engine</i>. If a plus sign is given after the port number,
+more prefixes can be added to the same Jetty server. The last one may
+not have a plus sign so that the server is started at the end.</p>
+
+<h4><tt>Internal@&lt;name&gt;</tt></h4>
+
+<p>Simple listener that accepts connections of an <tt>Internal@</tt>
+forwarder. These connections are routed internally within the same
+jTCPfwd instance (without using real TCP ports), and might be useful,
+for example, as intermediary forwarders/listeners for <tt>Mux@</tt>
+forwarders.</p>
+
+<h4><tt>Watchdog@&lt;delay&gt;[;&lt;timeout&gt;[,&lt;initialtimeout&gt;]]</tt></h4>
+
+<p>Produce a watchdog connection every <i>delay</i> milliseconds.
+This connection should eventually terminate at a <tt>Watchdog@</tt>
+forwarder (in a different jTCPfwd process) and is used to send random
+data and a digest of them and to verify the digest of the answer. If the
+timeout parameter is given and no successful handshake could be
+performed within the timeout (or a handshake failed), jTCPfwd is exited
+with error code 42 (which should be used to restart it automatically).
+If no timeout is given, no action is taken (which is useful if only the
+instance with the Watchdog forwarder should be restarted). If an initial
+timeout is given, this timeout is used before the first successful
+watchdog connection; if none is given, the watchdog will not act until
+it has at least performed one successful handshake.</p>
+
+<h4><tt>Knock@#[&lt;interface&gt;:]&lt;port&gt;[,&lt;timeout&gt;]#&lt;rule&gt;</tt>
+/ <tt>Knock@##&lt;varname&gt;#&lt;forwarder&gt;#&lt;rule&gt;</tt></h4>
+
+<p>Wait until a peer knocks (determined via a knock rule), then
+accept one TCP connection from his IP address (or from all addresses if
+the IP address cannot be determined) within the given timeout (if any).</p>
+
+<p>Alternatively to accepting one connection (like a <tt>ListenOnce@</tt>
+forwarder), a custom forwarder can be used to connect back to the peer.
+The given <i>varname</i> in the forwarder is replaced by the IP address,
+or by <tt>0.0.0.0/0</tt> if the IP address is not known.</p>
+
+<p>Knock rules are modules as well; the knock rule will use the same
+separator character for its paramters as the knock listener or forwarder
+used; the first parameter is the rule name.</p>
+
+<h3>Knock rules</h3>
+
+<h4><tt>UDP#&lt;port&gt;[#&lt;bytes&gt;[#&lt;response&gt;]]</tt></h4>
+
+<p>Listen on UDP port <i>port</i> and examine all packets. Packets
+that match <i>bytes</i> (a binary expression with mask or a regex (regex
+does not work for triggering)) will trigger one allowed connection from
+the packet's source address. Optionally send back a <i>response</i> (a
+binary expression without mask).</p>
+
+<h4><tt>TCP#&lt;port&gt;[/&lt;timeout&gt;][#&lt;bytes&gt;[#&lt;response&gt;]]</tt></h4>
+
+<p>Listen on TCP port <i>port</i> and examine the input. If the
+current input starts with <i>bytes</i> ("friend" CR LF by default),
+accept one connection from the connection's source address. Optionally
+send a response and close the connection (when giving a response
+expression that is non-empty but generates an empty byte array, like <tt>:</tt>,
+no response is sent, but the socket is closed).</p>
+
+<h4><tt>UDPDNS#&lt;port&gt;[#&lt;openname&gt;[#&lt;ipname&gt;]]</tt></h4>
+
+<p>Special UDP knock rule to enable using Microsoft's nslookup tool
+(one of the very few Windows standard tools that can send UDP packets)
+for knocking.</p>
+
+<p>To use, open nslookup and enter <tt>set port=<i>port</i></tt>
+followed by <tt><i>openname</i> <i>ip</i></tt>, where <i>openname</i> is
+the openname configured, by default <tt>open</tt>, and <i>ip</i> is the
+ip or host name of the machine this knock rule runs on. The response IP
+is 1.3.3.7 in that case.</p>
+
+<p>When ipname is used instead of openname, the port will not be
+opened, but the DNS response returned is the IP that would have been
+whitelisted if openname had been used.</p>
+
+<p>For the names, only lowercase letters should be used. A name of <tt>-</tt>
+will disable the name (disabling both names is pointless, though.)</p>
+
+<h4><tt>Count#&lt;count&gt;[#&lt;delay&gt;[#&lt;burstcount&gt;]]</tt></h4>
+
+<p>Dummy knock rule to use the Knock listener as a connection count
+or rate limiter. This knock rule will create <i>count</i> allowed
+wildcard records (allowing a connection from any IP) in total, then the
+knock rule will be dead. Every <i>burstcount</i> (default: 1) records, a
+delay of <i>delay</i> (default:0) milliseconds is enforced.</p>
+
+<h3>Forwarders</h3>
+
+<h4><tt>Split@#&lt;forwarder1&gt;[#&lt;forwarder2&gt;[#...]]</tt></h4>
+
+<p>Take a single connection and forward its content to multiple
+forwarders. Only the response of the first forwarder is returned to the
+listener, the others are ignored.</p>
+
+<h4><tt>Combine@&lt;forwarder&gt;</tt></h4>
+
+<p>This forwarder takes one connection and distributes the encoded
+output from the <tt>Combine@</tt> listener over multiple connections of
+the forwarder given.</p>
+
+<h4><tt>UDPTunnel@&lt;destination&gt;</tt></h4>
+
+<p>Used to tunnel multiple (TCP) connections via UDP</p>
+
+<h4><tt>UDPTunnelPTP@&lt;destination&gt;</tt></h4>
+
+<p>Used to tunnel a single (TCP) connection via UDP. Less overhead
+than <tt>UDPTunnel@</tt></p>
+
+<h4><tt>UDP@[&lt;dropNumerator&gt;,&lt;dropDenominator&gt;;]&lt;destination&gt;</tt></h4>
+
+<p>Forward UDP packets that arrive in a (TCP) connection (from the <tt>UDP@</tt>
+listener). A given part of the UDP packets can be dropped prior to
+sending to test how UDP protocols cope with packet loss.</p>
+
+<h4><tt>SOCKS@#&lt;proxyHost&gt;[:&lt;proxyPort&gt;[:&lt;user&gt;[:&lt;password&gt;]]]#&lt;destination&gt;</tt></h4>
+
+<p>Forward a connection over a SOCKS proxy.</p>
+
+<h4><tt>Flaky@&lt;successPercentage&gt;,&lt;minMsec&gt;,&lt;maxMsec&gt;,&lt;forwarder&gt;</tt></h4>
+
+<p>Used for emulating "flaky" internet connections. Only <i>successPercentage</i>
+percent of the connections will reach forwarder, and they will be
+forcefully terminated between <i>minMsec</i> and <i>maxMsec</i> later.
+This can also be used for testing a <tt>Restartable@</tt> forwarder,
+which can cope with these situations.</p>
+
+<h4><tt>Restartable@&lt;forwarder&gt;</tt></h4>
+
+<p>Connect to a <tt>Restartable@</tt> listener. The connection
+between those two may disconnect at any time and this forwarder will
+re-establish the connection without any data loss.</p>
+
+<h4><tt>Blackhole@</tt></h4>
+
+<p>This forwarder accepts all connections and eats all input, never
+returning anything.</p>
+
+<h4><tt>File@&lt;directory&gt;</tt></h4>
+
+<p>Tunnel connections via a shared filesystem. Incoming connections
+will create files in the given directory that can be read by a <tt>File@</tt>
+listener.</p>
+
+<h4><tt>Clipboard@</tt></h4>
+
+<p>Tunnel a single connection via the clipboard. The clipboard can
+be read by a <tt>Clipboard@</tt> forwarder.</p>
+
+<h4><tt>Screen@</tt></h4>
+
+<p>Tunnel a single connection via a shared (RDP) screen. The
+listener will open a window that shows bizarre patterns, the forwarder
+will "read" the patterns and answer by typing keys read by the listener.</p>
+
+<h4><tt>HTTPTunnel@&lt;timeout&gt;;&lt;baseURL&gt;</tt></h4>
+
+<p>Connect to a HTTPTunnel listener. If timeout is zero, data is
+streamed to the HTTP tunnel (which will fail if a proxy insists in
+scanning the whole payload first); alternatively, it will be chunked and
+a new chunk will be sent every <i>timeout</i> milliseconds.</p>
+
+<p>If <i>baseURL</i> contains <tt>#DATA#</tt>, the camouflage engine
+is used. In this case, the baseURL should contain all parameters, and
+the <tt>#DATA#</tt> is replaced by the actual camouflage data. <tt>#POST#</tt>
+is used as separator between the URL and post data, <tt>#C#</tt> is
+replaced by a counter (to avoid aggressive caching by a proxy), <tt>#R15#</tt>
+is a random number 1 to 15, <tt>#D15#</tt> are 15 random digits, and <tt>#H15#</tt>
+are 15 random hex digits. Other counts instead of 15 are possible, too,
+of course.</p>
+
+<p>Otherwise, the normal HTTP tunnel handler is used. <i>baseURL</i>
+should be the base URL to the servlet, without the "?".</p>
+
+<h4><tt>Watchdog@[&lt;timeout&gt;[,&lt;initialtimeout&gt;]]</tt></h4>
+
+<p>Accept watchdog connections. These connection originate at a <tt>Watchdog@</tt>
+listener and are used to send random data and a digest of them and to
+verify the digest of the answer. If the timeout parameter is given and
+no successful connection could be received within the timeout (or a
+handshake failed), jTCPfwd is exited with error code 42 (which should be
+used to restart it automatically). If no timeout is given, no action is
+taken (which is useful if only the instance with the Watchdog listener
+should be restarted). If an initial timeout is given, this timeout is
+used before the first successful watchdog connection; if none is given,
+the watchdog will not act until it has at least performed one successful
+handshake.</p>
+
+<h4><tt>Internal@&lt;name&gt;</tt></h4>
+
+<p>Simple forwarder that forwards connections to an <tt>Internal@</tt>
+listener. These connections are routed internally within the same
+jTCPfwd instance (without using real TCP ports), and might be useful,
+for example, as intermediary forwarders/listeners for <tt>Mux@</tt>
+forwarders.</p>
+
+<h4><tt>Console@[!][log|restart|rules][,log|restart|rules[,...]]</tt></h4>
+
+<p>This forwarder can be used to remotely control a jTCPfwd instance
+via one of its listeners. You can connect to it via telnet and show
+output, restart the instance, or manipulate forwarding rules.</p>
+
+<p>Individual commands have to be enabled to make Console useful. By
+default, only <i>help</i> and <i>exit</i> are available. <tt>log</tt>
+enables the <i>log</i> command, which will show everything written to
+stdout or stderr since its last invocation. <tt>restart</tt> enables the
+<i>restart</i> command, which will exit with an exit code of 10. You
+will have to provide your own wrapper which will restart jtcpfwd in that
+case.</p>
+
+<p>The <tt>rules</tt> option is the most sophisticated one. Usually
+it is used in a config file called "consolerules", because its commands
+will edit that particular file. <i>list</i> shows a list of rules, <i>add</i>
+can add a rule to the end of the file, <i>remove</i> can remove a rule
+from the file by index, and <i>activate</i> can be used to activate a
+rule by index.</p>
+
+<p>To avoid accidental removal of the <tt>Console@</tt> rule itself,
+the options may start with an exclamation mark (!), which will be
+ignored when starting the console but at the same time mark all the
+rules above this rule (including this rule) as read-only. This feature
+is optional, but it can be quite useful.</p>
+
+<p>For example, one could design a <tt>consolerules</tt> file like
+this:</p>
+
+<pre>
+1234 DeMux@#32=Console@!log,restart,rules#1$%=localhost:100$%
+10001 somewhere:80
+10002 somewhere-else:80
+# ...
+10099 last-place:80
+</pre>
+
+<p>This will enable you to multiplex port 1234 (which has to be
+reachable from outside) to multiple local ports which can be
+individually configured using the console. The first rule is read-only.
+As character 32 is a space, it is possible to connect to the console
+without requiring a local multiplexer, just by hitting the spacebar
+after connecting to port 1234. A command file that calls</p>
+
+<pre>
+java -jar jTCPfwd.jar @consolerules
+</pre>
+
+<p>in a loop can be used to make this setup restart automatically
+when needed. Depending on the stability of the "only incoming listener",
+it might be useful to add a <tt>Watchdog@</tt> forwarder as well.</p>
+
+<h4><tt>StdInOut@</tt></h4>
+
+<p>This forwarder will connect the first connection to stdin and
+stdout, so that the console where jTCPfwd is running on can be used as a
+simple telnet client. All following connections will be refused.</p>
+
+<h4><tt>Knock@#&lt;forwarder&gt;#&lt;peer&gt;#&lt;rule&gt;</tt></h4>
+
+<p>Trigger a knock listener and then forward the connection to
+another <i>forwarder</i>. <i>Peer</i> is the IP address of the peer. For
+more detail about knock rules see the <tt>Knock@</tt> listener.</p>
+
+<h4><tt>Filter@#[&lt;outfilter&gt;][#[&lt;infilter&gt;][#[&lt;outfilter&gt;...]]]#&lt;forwarder&gt;</tt></h4>
+
+<p>Definitely the most sophisticated forwarder. This will connect to
+another forwarder, but will stream all incoming and/or outcoming data
+through filters.</p>
+
+<p>Separate filters can be given for both input and output, and if
+more filters in one direction are needed, the filters in the other
+direction can be left empty.</p>
+
+<p>A filter can either forward data to the same direction or forward
+them to the opposite direction (like the <tt>Echo</tt> filter). Filters
+can as well close the connection when they like to or show additional
+information or log data.</p>
+
+<h3>Filters</h3>
+
+<h4><tt>Echo[,orig]</tt></h4>
+
+<p>Echo all data to the other direction as well. When the optional <i>orig</i>
+parameter is given (value is irrelevant), the data is sent to the
+original output stream, bypassing all the filters for the opposite
+direction.</p>
+
+<h4><tt>Encrypt,&lt;algorithm&gt;[/&lt;mode&gt;/&lt;padding&gt;],&lt;keydata&gt;</tt></h4>
+
+<p>Encrypt all data using the given symmetric cipher <i>algorithm</i>,
+in <i>mode</i> with <i>padding</i> (see the <a
+	href="http://download.oracle.com/javase/1.4.2/docs/guide/security/jce/JCERefGuide.html#AppA">Java
+Crypto documentation</a> for a list of supported algorithms, modes and
+paddings), using the given <i>keydata</i> (a binary expression with
+secondary name <tt>iv</tt> for giving an initialization vector)</p>
+
+<p>If no mode and padding is given, <tt>/CFB8/NoPadding</tt> (which
+has a granularity of one byte, and does not increas the size at all) is
+used. If no IV is given in the keydata, but an IV is needed, a random IV
+is generated and sent before sending the actual encrypted data.</p>
+
+<h4><tt>Decrypt,&lt;algorithm&gt;[/&lt;mode&gt;/&lt;padding&gt;],&lt;keydata&gt;</tt></h4>
+
+<p>Decrypt data that has been encrypted by the <tt>Encrypt</tt>
+filter.</p>
+
+<h4><tt>Flush[,[&lt;marker&gt;[&lt;escape&gt;[&lt;close&gt;]]]]</tt></h4>
+
+<p>Crude hack to manually flush data via a telnet connection. The
+parameter consists of three single (different) characters only, if the
+parameter is too short or missing, defaults are used (marker=<tt>#</tt>,
+escape=<tt>-</tt>, close=<tt>.</tt>)</p>
+
+<p>All characters received are written into a buffer. If two marker
+characters are received, the buffer is flushed to the output (excluding
+the two marker characters). A marker character followed by an escape
+character is replaced by a marker character alone in the buffer. A
+marker character followed by a close character will close the socket. A
+marker character followed by any other character is added to the buffer
+as is (i. e. both the marker and the other character are added) reducing
+the need of the escape character for cases where a marker, escape or
+close character should follow the marker character (which occur rarely
+or never if you choose your marker character wisely).</p>
+
+<h4><tt>FlipBit,&lt;numerator&gt;,&lt;denominator&gt;[[[,&lt;min=0&gt;],&lt;max=1&gt;],&lt;burstLength=1&gt;]</tt></h4>
+
+<p>A filter mainly used for testing stuff (like error correction
+protocols). This filter will randomly flip every bit with a probability
+of <i>numerator</i>/<i>denomenator</i>. If some of the optional
+parameters are given, it will ensure that within every <i>burstLength</i>
+consecutive bits (starting at every individual bit) there will be
+between <i>min</i> and <i>max</i> flips.</p>
+
+<h4><tt>AddCRC</tt></h4>
+
+<p>Add a checksum to every burst of bytes written.</p>
+
+<h4><tt>CheckCRC</tt></h4>
+
+<p>Check and strip the checksum created by the <tt>AddCRC</tt>
+filter. If the checksum is invalid, the socket is forcefully closed. A <tt>Restart@</tt>
+listener/forwarder can be used to make the connection continue
+gracefully.</p>
+
+<h4><tt>Delay,&lt;milliseconds&gt;[,&lt;queuelength&gt;]</tt></h4>
+
+<p>Delay every single write by the given amound of milliseconds.
+Further writes are not blocked, unless <i>queuelength</i> is given and
+there are already that many "packets" in the queue.</p>
+
+<p>For example, when queuelength = 2 and delay = 500, and 3 writes
+are performed at t=0, t=200 and t=400, the first write will be forwarded
+at t=500, the second at t=700 and the third at t=900. In addition, the
+third write will block until the first packet is sent (i. e. until
+t=500).</p>
+
+<h4><tt>Throughput,&lt;bytes&gt;,&lt;msec&gt;,&lt;burstbytes&gt;</tt></h4>
+
+<p>Limit throughput to <i>bytes</i> every <i>msec</i>; collect bytes
+up to <i>burstbytes</i> if they are not used. While the througput is
+limited, the write operation blocks.</p>
+
+<p>So if 100 bytes per 100 msec are allowed with a burst size of
+1000 bytes, when after several seconds of idleness 1150 bytes should be
+sent, the first 1000 bytes are sent instantaneously, the next 100 bytes
+after 100 msec, and the rest 50 bytes after another 100 msec. In case
+another write of 100 bytes is following immediately, the first 50 bytes
+are written instantaneous, following by the rest 50 bytes after another
+100 msec.</p>
+
+<h3>HTTPTunnel servlet</h3>
+
+<p>The HTTPTunnel servlet can be deployed to a servlet container
+(like Apache Tomcat) and acts like a listener that can connect to any
+forwarders.</p>
+
+<p>Before deploying, you might want to edit the deployment
+descriptor (<tt>web.xml</tt>) inside to suit your needs.</p>
+
+<p>Basically, you can add as many <tt>jtcpfwd.servlet.HTTPTunnelServlet</tt>
+servlet descriptors to the deployment descriptor, each of them being
+mapped to a path by a servlet-mapping and having two initialization
+parameters: <i>listener</i> and <i>forwarder</i>.</p>
+<p>In the <i>listener</i> parameter you can use the special listener
+name <tt>ThisServlet@</tt> (also nested within other listeners) which
+will represent connections tunneled via this servlet. The example
+web.xml uses this add a peer filter that only allows localhost.</p>
+<p>You do not have to use the <tt>ThisServlet@</tt> listener name at
+all (might be useful if you want to have a jtcpfwd instance running
+inside a servlet container), but in this case it is advisable to make
+the servlet load automatically using the <i>load-on-startup</i> tag.
+This is used in the example web.xml file to forward local port 10001 to
+localhost:20002.</p>
+
+<h3>HTTP tunnel engines supported</h3>
+
+<p>An empty or missing <i>engine</i> parameter will enable the
+default engine, which will use a GET connection for retrieving data and
+a simultaneous POST connection for sending data, trying to use an
+artificial content length in case no timeout is given, so that data can
+be streamed over the same HTTP connection. A special content type of <tt>application/x-tunneled</tt>
+is used to make detecting proxy error pages easier. With a timeout, both
+directions are chunked (using GET and POST as before), using the same
+protocol as the Restartable@ listener and forwarder.</p>
+<p>An <i>engine</i> parameter starting with <tt>Camouflage=</tt>
+will enable the camouflage engine. That one will only use normal
+(url-encoded) POST packets, and only normal <tt>text/html</tt>
+responses. Only one field of the POST request is used (the one given in
+the engine parameter after the equals sign), and the content is encoded
+using an encoding that resembles natural language text (from casing,
+whitespace and punctuation). The response is a HTML page with similarily
+encoded text.</p>
+
+<p>This engine is slower (more timeouts needed since there is only
+one request for both sending and receiving) and has to send more data
+(text) for the same payload. However, the chances of circumventing proxy
+restrictions are better with this engine.</p>
+
+<h3>Testing forwarder setups</h3>
+
+<p>When writing your own forwarders, or testing third-party
+forwarders, it is useful to have a forwarder tester tool that does some
+nasty stuff (like open a connection and disconnect quickly, or
+disconnect one end while the other end is sending). For that purpose,
+jtcpfwd contains two test classes, <tt>jtcpfwd.ForwarderTest</tt> and <tt>jtcpfwd.SingleForwarderTest</tt>.
+The first one will try to spawn a lot of threads each testing one
+connection at the same time (Hit the return key to stop spawning new
+threads and wait for the existing threads to finish).</p>
+
+<p>The second one will only create one forwarder connection ever,
+which will never be closed (Useful to test with forwarders that usually
+require to be wrapped with <tt>Combine@</tt>.). A fourth parameter is
+used to specify whether the socket should be tested unidirectionally
+(and in which direction) or bidirectionally.</p>
+
+<p>A third class, <tt>jtcpfwd.ForwarderTestRunner</tt> (only
+included in the source distribution) can be used to automatically start
+<tt>ForwarderTest</tt> setups, let them run for a few seconds, and shut
+them down again. Two ant targets, <tt>problematictests</tt> and <tt>unproblematictests</tt>,
+run some of the tests automatically, where the former tests might
+interfere with other processes (like clipboard or screen), take several
+tens of minutes to run or crash ocasionally, while the latter ones will
+only need free ports between 52000 and 52999 and run only for a minute.</p>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+	<servlet>
+		<servlet-name>Servlet1</servlet-name>
+		<servlet-class>jtcpfwd.servlet.HTTPTunnelServlet</servlet-class>
+		<init-param>
+			<param-name>listener</param-name>
+			<param-value>PeerFilter@#127.0.0.1/8#ThisServlet@</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forwarder</param-name>
+			<param-value>localhost:11002</param-value>
+		</init-param>
+		<!--  for the Camouflage engine, "message" is the name
+		of the post parameter to be used. -x->
+		<init-param>
+			<param-name>engine</param-name>
+			<param-value>Camouflage=message</param-value>
+		</init-param>
+		-->
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Servlet1</servlet-name>
+		<url-pattern>/tunnel</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>Servlet2</servlet-name>
+		<servlet-class>jtcpfwd.servlet.HTTPTunnelServlet</servlet-class>
+		<init-param>
+			<param-name>listener</param-name>
+			<param-value>10001</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forwarder</param-name>
+			<param-value>localhost:20002</param-value>
+		</init-param>
+		<load-on-startup />
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Servlet2</servlet-name>
+		<url-pattern>/simple</url-pattern>
+	</servlet-mapping>
+</web-app>

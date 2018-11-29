@@ -1,0 +1,280 @@
+<?xml version="1.0"?>
+<project name="jTCPfwd" default="war">
+
+	<path id="fullclasspath">
+		<pathelement path="build/lite" />
+		<pathelement path="build/full" />
+		<pathelement path="build/test" />
+		<pathelement path="lib/socks.jar" />
+		<pathelement path="lib/servlet-api-2.2.jar" />
+	</path>
+
+	<target name="clean">
+		<delete dir="build" />
+		<delete dir="dist" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="build/lite" />
+		<javac srcdir="litesrc" destdir="build/lite" source="1.1" target="1.1" debug="yes">
+		</javac>
+		<mkdir dir="build/full" />
+		<javac srcdir="src" destdir="build/full" source="1.1" target="1.1" debug="yes">
+			<classpath refid="fullclasspath" />
+		</javac>
+		<mkdir dir="build/test" />
+		<javac srcdir="testsrc" destdir="build/test" source="1.1" target="1.1" debug="yes">
+			<classpath refid="fullclasspath" />
+		</javac>
+	</target>
+
+	<target name="compilewar" depends="compile">
+		<mkdir dir="build/war" />
+		<javac srcdir="servletsrc" destdir="build/war" source="1.1" target="1.1" debug="yes">
+			<classpath refid="fullclasspath" />
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="jTCPfwd.jar">
+			<fileset dir="build/lite" />
+			<fileset dir="build/full" />
+			<manifest>
+				<attribute name="Main-Class" value="jtcpfwd.Main" />
+				<attribute name="Class-Path" value="lib/socks.jar lib/servlet-api-2.2.jar" />
+			</manifest>
+		</jar>
+		<jar destfile="jTCPfwd-lite.jar">
+			<fileset dir="build/lite" />
+			<manifest>
+				<attribute name="Main-Class" value="jtcpfwd.Main" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="war" depends="jar,compilewar">
+		<war destfile="jTCPfwd.war" webxml="servletsrc/web.xml">
+			<lib dir="lib">
+				<include name="socks.jar" />
+			</lib>
+			<lib dir=".">
+				<include name="jTCPfwd.jar" />
+			</lib>
+			<classes dir="build/war" />
+		</war>
+	</target>
+
+	<target name="testcustomlite" depends="compile">
+		<copy todir="build/testsource">
+			<fileset dir="src" includes="**/*.java" />
+			<fileset dir="litesrc" includes="**/*.java" />
+		</copy>
+		<java classname="jtcpfwd.CustomLiteBuilderTest">
+			<classpath refid="fullclasspath" />
+		</java>
+		<ant dir="build" antfile="testCustomLite.xml" />
+	</target>
+
+	<target name="extensivetestcustomlite" depends="compile">
+		<copy todir="build/testsource">
+			<fileset dir="src" includes="**/*.java" />
+			<fileset dir="litesrc" includes="**/*.java" />
+		</copy>
+		<java classname="jtcpfwd.CustomLiteBuilderTest">
+			<arg value="-full" />
+			<classpath refid="fullclasspath" />
+		</java>
+		<ant dir="build" antfile="testCustomLite.xml" />
+	</target>
+
+	<target name="unproblematictests" depends="compile">
+		<java classname="jtcpfwd.ForwarderTestRunner" fork="yes" failonerror="true">
+
+			<arg value="--ports=52001,52002,52003,52004,52005,52006,52007,52008,52009,52010,52011,52012,52013,52014,52015,52016,52017,52100,52101,52113,52114,52115,52116,52117,52118,52119,U52204,U52205" />
+			
+			<!-- lite version -->
+			<arg value="52001,127.0.0.1,52002,30" />
+			<arg value="52005,127.0.0.1,52006,30" />
+			<arg value="52007,127.0.0.1,52008,30" />
+			<arg value="52011,127.0.0.1,52012,30" />
+			<arg value="52013,127.0.0.1,52014,30" />
+			<arg value="52016,127.0.0.1,52017,30" />
+			
+			<arg value="127.0.0.1,52003" />
+			<arg value="127.0.0.1,52004" />
+			
+			<!-- full version -->
+			<arg value="52100,127.0.0.1,52101,30" /> 
+			<arg value="52113,127.0.0.1,52114,10" />
+
+			<arg value="--" />
+
+			<!-- lite version -->
+			<arg value="52002" />
+			<arg value="127.0.0.1:52001" />
+
+			<arg value="Simple@52003" />
+			<arg value="RoundRobin@#" />
+
+			<arg value="52004" />
+			<arg value="Simple@:RoundRobin:#1=127.0.0.1:52004" />
+
+			<arg value="Simple@52006" />
+			<arg value="Simple@:RoundRobin:#*/2=127.0.0.1:52005#*=127.0.0.1:52005" />
+
+			<arg value="52008" />
+			<arg value="Reverse@52009" />
+
+			<arg value="Reverse@127.0.0.1:52009" />
+			<arg value="PeerDeMux@#127.0.0.1=Mux@secret:1=127.0.0.1:52015" />
+			
+			<arg value="52015" />
+			<arg value="DeMux@#auth=secret#1=127.0.0.1:52007#2=127.0.0.1:52011" />
+
+			<arg value="PeerFilter@#127.0.0.0/8#52012" />
+			<arg value="Mux@secret:2=127.0.0.1:52015" />
+
+			<arg value="Coupler@##!*:52014#!*:Forwarder@127.0.0.1:52013" />
+			<arg value="RoundRobin@#" />
+
+			<arg value="52017" />
+			<arg value="SSL@#truststore=testsrc/test.keystore#127.0.0.1:52010" />
+			<arg value="SSL@#key=testing#keystore=testsrc/test.keystore#52010"/>
+			<arg value="127.0.0.1:52016" />
+
+			<!-- full version -->
+			<arg value="52101" />
+			<arg value="Filter@#Encrypt,AES,iv16r:map1-16:sha1:test#Decrypt,AES,iv1-16:md5:test#Split@$Internal@Combiner$Internal@Hole"/>
+			
+			<arg value="Internal@Combiner"/>
+			<arg value="Filter@#Throughput,1000000,1000,10000000#Delay,50,100#Decrypt,AES,iv16r:map1-16:sha1:test#Encrypt,AES,iv1-16:md5:test#127.0.0.1:52100" />
+
+			<arg value="Internal@Hole"/>
+			<arg value="Blackhole@" />
+
+			<arg value="Watchdog@500;20000,20000" />
+			<arg value="Watchdog@20000,20000" />
+						
+			<arg value="Combine@52114" />
+			<arg value="Knock@#127.0.0.1:52115#127.0.0.1#TCP#52119" />
+			
+			<arg value="Knock@#52115#TCP#52119" />
+			<arg value="Knock@#127.0.0.1:52116#127.0.0.1#UDP#52204" />
+			
+			<arg value="Knock@#52116#UDP#52204" />
+			<arg value="Knock@#127.0.0.1:52117#127.0.0.1#UDPDNS#52205" />
+			
+			<arg value="Knock@#52117#UDPDNS#52205" />
+			<arg value="Knock@#127.0.0.1:52118#127.0.0.1#Count#1" />
+			
+			<arg value="Knock@#52118#Count#1" />
+			<arg value="Combine@127.0.0.1:52113" />
+			
+			<classpath refid="fullclasspath" />
+		</java>
+	</target>
+
+	<target name="problematictests" depends="compile">
+		<mkdir dir="build/filetest"/>
+		<java classname="jtcpfwd.ForwarderTestRunner" fork="yes" failonerror="true">
+			<arg value="--ports=52102,52103,52104,52105,52106,52107,52108,52109,52110,52300,52301,52302,52303,52304,52305,52017,52018,52019,52111,52112,U52201,U52202,U52203" />
+			
+			<!-- UDP tests -->
+			<arg value="52107,127.0.0.1,52108,10" />
+			<arg value="52109,127.0.0.1,52110,10" />
+			
+			<!-- File/Clipboard/Screen tests -->
+			<arg value="52300,127.0.0.1,52301,30" />
+			<arg value="52302,127.0.0.1,52303,30" />
+			<arg value="52304,127.0.0.1,52305,10" />
+
+			<!-- SOCKS -->
+			<arg value="52102,127.0.0.1,52103,20" />
+
+			<!-- unstable tests -->
+			<arg value="52017,127.0.0.1,52019,10" />
+			<arg value="52111,127.0.0.1,52112,10" />
+						
+			<arg value="--" />
+
+			<!-- UDP tests -->
+			<arg value="52108"/>
+			<arg value="UDPTunnel@127.0.0.1:52201" />
+            <arg value="" />
+			<arg value="UDP@52201" />
+			<arg value="UDP@127.0.0.1:52202" />
+            <arg value="" />
+			<arg value="UDPTunnel@52202" />
+			<arg value="127.0.0.1:52107" />
+            <arg value="" />
+			<arg value="Combine@52110" />
+			<arg value="UDPTunnelPTP@127.0.01:52203" />
+            <arg value="" />
+			<arg value="UDPTunnelPTP@52203" />
+			<arg value="Combine@127.0.0.1:52109" />
+			
+			<!-- File/Clipboard/Screen tests -->
+			<arg value="52301" />
+			<arg value="File@build/filetest" />
+
+			<arg value="File@build/filetest" />
+			<arg value="127.0.0.1:52300" />
+			
+			<arg value="Combine@52303" />
+			<arg value="Clipboard@" />
+			
+			<arg value="Clipboard@" />
+			<arg value="Combine@127.0.0.1:52302" />
+			
+			<arg value="Combine@52305" />
+			<arg value="Screen@" />
+			
+			<arg value="Screen@" />
+			<arg value="Combine@127.0.0.1:52304" />
+			
+			<!-- SOCKS -->
+			<arg value="SOCKSProxy@52105" />
+			<arg value="RoundRobin@#" />
+
+			<arg value="52103" />
+			<arg value="SOCKS@#127.0.0.1:52105#127.0.0.1:52104" />
+
+			<arg value="52104" />
+			<arg value="Retry@0,500,:AddressStream:52106" />
+
+			<arg value="SOCKS@#127.0.0.1:52105#127.0.0.1:52102#127.0.0.1:52106" />
+			<arg value="127.0.0.1:52102" />
+
+			<!-- unstable tests -->
+			<arg value="52019"/>
+			<arg value="Retry@0,500,127.0.0.1:52018" />
+			
+			<arg value="Forwarder@ListenOnce@52018,2000" />
+			<arg value="127.0.0.1:52017" />
+			
+			<arg value="52112" />
+			<arg value="Restartable@Flaky@80,0,2000,Filter@#CheckCRC#CheckCRC#FlipBit,1,1000,0,1,32#FlipBit,1,1000,0,1,32#AddCRC#AddCRC#Internal@FRC" />
+
+			<arg value="Restartable@Internal@FRC" />
+			<arg value="127.0.0.1:52111" />
+			
+			<classpath refid="fullclasspath" />
+		</java>
+	</target>
+
+	<target name="tests" depends="problematictests,testcustomlite,extensivetestcustomlite,unproblematictests" />
+
+	<target name="dist" depends="war,testcustomlite,unproblematictests,fastdist" />
+
+	<target name="fastdist" depends="war">
+		<copy todir="dist/src">
+			<fileset dir="." includes="build.xml,*.txt,manual.html,*src/**,lib/**" />
+		</copy>
+		<copy todir="dist/bin">
+			<fileset dir="." includes="jTCPfwd.jar,*.txt,manual.html,lib/**" />
+		</copy>
+		<copy todir="dist/lite">
+			<fileset dir="." includes="jTCPfwd-lite.jar,*.txt,manual.html" />
+		</copy>
+	</target>
+</project>
