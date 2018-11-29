@@ -16,8 +16,10 @@ public class TCPForwardServerR {
         Thread clientListernerThread = new Thread(() -> {
             try {
                 ServerSocket serverSocket = new ServerSocket(destinationPort);
-                Socket clientSocket = serverSocket.accept();
-                clientSocketQueue.offer(clientSocket);
+                while (true) {
+                    Socket clientSocket = serverSocket.accept();
+                    clientSocketQueue.offer(clientSocket);
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -25,8 +27,10 @@ public class TCPForwardServerR {
         Thread serverListernerThread = new Thread(() -> {
             try {
                 ServerSocket serverSocket2 = new ServerSocket(sourcePort);
-                Socket mServerSocket = serverSocket2.accept();
-                serverSocketQueue.offer(mServerSocket);
+                while (true) {
+                    Socket mServerSocket = serverSocket2.accept();
+                    serverSocketQueue.offer(mServerSocket);
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
