@@ -23,9 +23,9 @@ public class TCPForwardServerOriginal {
 //    public static final int DESTINATION_PORT = 25;
 //    public static final String DESTINATION_HOST = "192.168.192.215";
 //    public static final int DESTINATION_PORT = 22;
-    public static void main(String[] args) throws IOException {
-        new TCPForwardServerOriginal().init(22888, "192.168.192.215", 22);
-    }
+//    public static void main(String[] args) throws IOException {
+//        new TCPForwardServerOriginal().init(22888, "192.168.192.215", 22);
+//    }
 
     public void init(int sourcePort, String destinationHost, int destinationPort) throws IOException {
         ServerSocket serverSocket = new ServerSocket(sourcePort);
