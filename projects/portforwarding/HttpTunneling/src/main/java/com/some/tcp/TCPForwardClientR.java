@@ -21,7 +21,6 @@ public class TCPForwardClientR {
             ClientThread clientThread = new ClientThread(clientSocket, mServerSocket);
             clientThread.start();
             clientThread.getSemaphore().acquire();
-            String hello = "";
         }
     }
 }

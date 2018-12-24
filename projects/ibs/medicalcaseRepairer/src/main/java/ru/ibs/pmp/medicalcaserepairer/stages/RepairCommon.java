@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,7 @@ import ru.ibs.pmp.api.model.Requirement;
 import ru.ibs.pmp.api.model.RevisionEntity;
 import ru.ibs.pmp.api.model.interfaces.AudEntityWithId;
 import ru.ibs.pmp.api.model.msk.export.MailGwLogEntry;
+import ru.ibs.pmp.api.model.nsi.PmpUklFiocut;
 import ru.ibs.pmp.api.nsi.interfaces.FindNsiEntries;
 import ru.ibs.pmp.api.nsi.interfaces.FindNsiEntry;
 import ru.ibs.pmp.api.nsi.model.NsiEntry;
@@ -148,11 +150,6 @@ public class RepairCommon implements RecreateCommon {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public RevisionEntity createRevInfoOnly(String userId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     public BillStatisticsBean createBillStatistics(final Requirement requirement, String lpuId, Date period, BillStatistics.BillOperation billOperation, String parameters, String userId, boolean doNotCreateRevisionEntity) throws TransactionException {
         BillStatisticsBean billStatisticsBean = getTx().execute(new TransactionCallback<BillStatisticsBean>() {
             @Override
@@ -178,37 +175,7 @@ public class RepairCommon implements RecreateCommon {
     }
 
     @Override
-    public SelectedBillsBean getSelectedBillIds(String type, String lpuId, Date period, Integer year, Integer month, Requirement requirement) throws NumberFormatException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Future<NsiEntryList> getDocumentsTypeRawData(Date period, List<BillStatisticsTime> billStatisticsTimeList) throws TransactionException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Future<NsiEntryList> getTerritoryCodesRawData(Date period, List<BillStatisticsTime> billStatisticsTimeList) throws TransactionException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Future<List<String[]>> getDomainByOrgIdsRaw(Date period, List<BillStatisticsTime> billStatisticsTimeList) throws TransactionException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String toStr(Object obj) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public PsevdoNsiService createPsevdoNsiService(Map<String, TerritoryBean> allTerritoryCodes, Map<String, SmoBean> smosByOgrnCode, Map<String, SmoBean> smosByQq, Map<String, SmoBean> smosById, Map<String, NsiEntry> domainByOrgIdsByObjectId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<SmoDepartmentBean> getSmoDepartmentBeanList(Date period, StopwatchBean stopwatch, List<BillStatisticsTime> billStatisticsTimeList) throws TransactionException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -268,11 +235,6 @@ public class RepairCommon implements RecreateCommon {
     }
 
     @Override
-    public CheckBean checkExecutePosibility(String requestlpuId, Date period, Date periodEnd, StopwatchBean stopwatch, List<BillStatisticsTime> billStatisticsTimeList, boolean notNeedToSetSyncFlag, String featureName, boolean useStage1Cache, ExecutePdfRecreateReport executePdfRecreateReport) throws ThisProcessIsAlreadyExistsException, LpuNotFoundException, PropertiesIsNotResolvedException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public String getCallData(String moId, Date period) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -324,11 +286,6 @@ public class RepairCommon implements RecreateCommon {
 
     @Override
     public Long calculateInvoiceSum(Collection<Invoice> invoiceList) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Collection<? extends AbstractBaseEntity> createList(Collection<? extends AbstractBaseEntity> objList, TransactionTemplate tx, SessionFactory sessionFactory) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -734,6 +691,81 @@ public class RepairCommon implements RecreateCommon {
 
     @Override
     public BillStatisticsBean createBillStatisticsBySmo(String string, Date date, BillStatistics.BillOperation bo, String string1, String string2, boolean bln) throws TransactionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<Bill> getBills(Set<Long> selectedBillIds) throws TransactionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public RevisionEntity createRevInfoOnly(String userId, Requirement requirement) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public BillStatisticsBean getBillStatisticsBeanById(Long billStatisticsId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SelectedBillsBean getSelectedBillIds(String type, String lpuId, Date period, Integer year, Integer month, Requirement requirement, Bill.BillFetchType billFetchType) throws NumberFormatException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Map<String, List<SmoDepartmentBean>> getOmsDepartmentsByCode(List<SmoDepartmentBean> smoDepartmentBeanList) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void handleSmoDepartmentBeanByFilId(String lpuId, List<SmoDepartmentBean> smoDepartmentList) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Map<String, Short> getAllDocumentsTypeByCode(NsiEntryList nsiEntryList) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void handleDeadlock() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public CheckBean checkExecutePosibility(String requestlpuId, Date period, Date periodEnd, StopwatchBean stopwatch, List<BillStatisticsTime> billStatisticsTimeList, boolean notNeedToSetSyncFlag, String featureName, boolean useStage1Cache, ExecutePdfRecreateReport executePdfRecreateReport, Requirement requirement, String operationMode, Bill.BillFetchType billFetchType) throws ThisProcessIsAlreadyExistsException, LpuNotFoundException, PropertiesIsNotResolvedException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void checkExecutionMode(Requirement requirement, String operationMode, SelectedBillsBean selectedBillsBean, String featureName, String requestlpuId, Date period, Bill.BillFetchType billFetchType) throws RuntimeException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void createList(Collection<? extends AbstractBaseEntity> objList, TransactionTemplate tx, SessionFactory sessionFactory) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void createAnyList(Collection<? extends Object> objList, TransactionTemplate tx, SessionFactory sessionFactory) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void createListOneByOne(Collection<? extends AbstractBaseEntity> objList, TransactionTemplate tx, SessionFactory sessionFactory) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void update(AbstractBaseEntity obj, TransactionTemplate tx, SessionFactory sessionFactory, Map<String, Method> setters, Map<String, Method> getters) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Future<Set<PmpUklFiocut>> getPersonExclusions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

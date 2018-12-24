@@ -46,11 +46,12 @@ import org.eclipse.jgit.util.FS;
  */
 public class StartFormat {
 
-    private static final String REPOSITORY_PATH = "D:\\GIT\\pmp";
+    public static final String REPOSITORY_PATH = "D:\\GIT\\pmp";
     private static final String AUTHOR_TO_CHECK = "NikitaAnischenko";
     private static final String FORMATTING_COMMIT_MESSAGE = "# Formatting...";
-    private static final Set<String> IGNORE_PATH_SET = ImmutableSet.<String>builder()
-            .add("pmp/module-pmp-api")
+    public static final Set<String> IGNORE_PATH_SET = ImmutableSet.<String>builder()
+//            .add("ru/ibs/pmp/api/model/dbf/moparcel")
+//            .add("ru/ibs/pmp/api/model/dbf/parcel")
             .add("pmp/module-pmp-bill-recreate")
             .add("pmp/module-pmp-bill-recreate-executor")
             .build();
@@ -59,8 +60,10 @@ public class StartFormat {
 
     public static void main(String[] args) throws Exception {
 //        getSessionX();
-        File repositoryDir = new File(REPOSITORY_PATH);
-        getLastLogs2(repositoryDir);
+        EclipseFormatterClass eclipseFormatterClass = new EclipseFormatterClass();
+        eclipseFormatterClass.format();
+//        File repositoryDir = new File(REPOSITORY_PATH);
+//        getLastLogs2(repositoryDir);
     }
 
     public static void getLastLogs2(File repositoryDir) throws IOException, GitAPIException, Exception {

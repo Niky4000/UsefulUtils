@@ -82,11 +82,9 @@ public class DbInit {
                 requirementDb = new Requirement();
                 requirementDb.setLpuId(initLpuId);
                 requirementDb.setPeriod(initDate);
-                requirementDb.setActive(false);
                 requirementDb.setStatusChangeDate(new Date());
                 requirementDb.setStatus(Requirement.RequirementStatus.DRAFT);
                 requirementDb.setCreationDate(new Date());
-                requirementDb.setVersion(0);
                 Long requirementId = (Long) session.save(requirementDb);
                 requirementDb.setId(requirementId);
             }
