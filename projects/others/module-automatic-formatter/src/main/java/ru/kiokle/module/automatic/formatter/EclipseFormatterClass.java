@@ -53,79 +53,83 @@ public class EclipseFormatterClass {
     }
 
     private void format(List<File> fileList) throws Exception {
-        String[] args_ = new String[]{"-verbose", "-config", CONFIG_PATH};
-        String[] args = new String[args_.length + fileList.size()];
-        for (int i = 0; i < args_.length; i++) {
-            args[i] = args_[i];
-        }
-        for (int i = 0; i < fileList.size(); i++) {
-            args[i + args_.length] = fileList.get(i).getAbsolutePath();
-        }
-        final Map<String, String[]> argsMap = new HashMap<>();
-        argsMap.put(IApplicationContext.APPLICATION_ARGS, args);
-
-        IApplicationContext context = new IApplicationContext() {
-            @Override
-            public Map getArguments() {
-                return argsMap;
+        if (!fileList.isEmpty()) {
+            String[] args_ = new String[]{"-verbose", "-config", CONFIG_PATH};
+            String[] args = new String[args_.length + fileList.size()];
+            for (int i = 0; i < args_.length; i++) {
+                args[i] = args_[i];
             }
-
-            @Override
-            public void applicationRunning() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            for (int i = 0; i < fileList.size(); i++) {
+                args[i + args_.length] = fileList.get(i).getAbsolutePath();
             }
+            final Map<String, String[]> argsMap = new HashMap<>();
+            argsMap.put(IApplicationContext.APPLICATION_ARGS, args);
 
-            @Override
-            public String getBrandingApplication() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+            IApplicationContext context = new IApplicationContext() {
+                @Override
+                public Map getArguments() {
+                    return argsMap;
+                }
 
-            @Override
-            public String getBrandingName() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+                @Override
+                public void applicationRunning() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
 
-            @Override
-            public String getBrandingDescription() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+                @Override
+                public String getBrandingApplication() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
 
-            @Override
-            public String getBrandingId() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+                @Override
+                public String getBrandingName() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
 
-            @Override
-            public String getBrandingProperty(String string) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+                @Override
+                public String getBrandingDescription() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
 
-            @Override
-            public Bundle getBrandingBundle() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+                @Override
+                public String getBrandingId() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
 
-            @Override
-            public void setResult(Object o, IApplication ia) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
-        CodeFormatterApplication2 codeFormatterApplication2 = new CodeFormatterApplication2();
-        codeFormatterApplication2.start(context);
-        for (File file : fileList) {
-            byte[] readAllBytes = Files.readAllBytes(file.toPath());
-            byte[] letterI = new byte[]{(byte) 0xD0, 0x3F};
-            byte[] letterI2 = new byte[]{(byte) 0xD0, (byte) 0x98};
-            boolean needToUpdateFile = false;
-            for (int i = 1; i < readAllBytes.length; i++) {
-                if (readAllBytes[i - 1] == letterI[0] && readAllBytes[i] == letterI[1]) {
-                    readAllBytes[i] = letterI2[1];
-                    needToUpdateFile = true;
+                @Override
+                public String getBrandingProperty(String string) {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public Bundle getBrandingBundle() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public void setResult(Object o, IApplication ia) {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+            };
+            CodeFormatterApplication2 codeFormatterApplication2 = new CodeFormatterApplication2();
+            codeFormatterApplication2.start(context);
+            for (File file : fileList) {
+                byte[] readAllBytes = Files.readAllBytes(file.toPath());
+                byte[] letterI = new byte[]{(byte) 0xD0, 0x3F};
+                byte[] letterI2 = new byte[]{(byte) 0xD0, (byte) 0x98};
+                boolean needToUpdateFile = false;
+                for (int i = 1; i < readAllBytes.length; i++) {
+                    if (readAllBytes[i - 1] == letterI[0] && readAllBytes[i] == letterI[1]) {
+                        readAllBytes[i] = letterI2[1];
+                        needToUpdateFile = true;
+                    }
+                }
+                if (needToUpdateFile) {
+                    Files.write(file.toPath(), readAllBytes, StandardOpenOption.TRUNCATE_EXISTING);
                 }
             }
-            if (needToUpdateFile) {
-                Files.write(file.toPath(), readAllBytes, StandardOpenOption.TRUNCATE_EXISTING);
-            }
+        } else {
+            System.out.println("fileList is Empty!");
         }
     }
 
