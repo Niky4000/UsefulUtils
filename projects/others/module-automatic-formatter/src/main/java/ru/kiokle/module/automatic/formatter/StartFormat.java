@@ -52,8 +52,8 @@ public class StartFormat {
     public static final Set<String> IGNORE_PATH_SET = ImmutableSet.<String>builder()
 //            .add("ru/ibs/pmp/api/model/dbf/moparcel")
 //            .add("ru/ibs/pmp/api/model/dbf/parcel")
-            .add("pmp/module-pmp-bill-recreate")
-            .add("pmp/module-pmp-bill-recreate-executor")
+//            .add("pmp/module-pmp-bill-recreate")
+//            .add("pmp/module-pmp-bill-recreate-executor")
             .build();
 
     static SshSessionFactory sshSessionFactory = createSshSessionFactory();

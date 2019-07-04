@@ -1,4 +1,4 @@
-host=172.29.4.26
+host=10.2.72.26
 user=root
 password=%TGB5tgb
 zipArchPath=D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all.zip

@@ -495,11 +495,6 @@ public class RepairCommon implements RecreateCommon {
     }
 
     @Override
-    public PsevdoFindNsiEntries getFindNsiEntriesPatients() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void setPersonDAOImplWS(PersonDAO personDAOImplWS) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -566,11 +561,6 @@ public class RepairCommon implements RecreateCommon {
 
     @Override
     public void setFindNsiEntries(FindNsiEntries findNsiEntries) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setFindNsiEntriesPatients(PsevdoFindNsiEntries findNsiEntriesPatients) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -766,6 +756,16 @@ public class RepairCommon implements RecreateCommon {
 
     @Override
     public Future<Set<PmpUklFiocut>> getPersonExclusions() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ru.ibs.pmp.zlib.module.pmp.bill.recreate.dao.psevdo.nsi.PsevdoFindNsiEntries getFindNsiEntriesPatients() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setFindNsiEntriesPatients(PsevdoFindNsiEntries findNsiEntriesPatients) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -47,7 +47,32 @@
             <artifactId>guava</artifactId>
             <version>26.0-jre</version>
         </dependency>
+        <!--        <dependency>       
+            <groupId>fr.delthas</groupId>
+            <artifactId>javaskype</artifactId>
+            <version>1.0.23</version>
+        </dependency>-->
+        <!--        <dependency>
+            <groupId>in.kyle</groupId>
+            <artifactId>EzSkypeEzLife</artifactId>
+            <version>1.3.0</version>
+        </dependency>-->
+        <dependency>
+            <groupId>com.github.taksan</groupId>
+            <artifactId>skype-java-api</artifactId>
+            <version>1.7</version>
+        </dependency>
     </dependencies>
+    <!--    <repositories>
+        <repository>
+            <id>EzSkype-mvn-repo</id>
+            <url>https://raw.github.com/AkHo1ic/EzSkype/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>-->
     <build>
         <finalName>${project.artifactId}</finalName>
         <resources>

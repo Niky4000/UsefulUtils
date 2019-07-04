@@ -89,7 +89,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>module-pmp-api</artifactId>
+            <artifactId>module-pmp-bill-recreate-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--        <dependency>
@@ -248,7 +248,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>ru.ibs.pmp.medicalcaserepairer.Start</mainClass>
+                            <mainClass>ru.ibs.pmp.medicalcaserepairer.StartRepairing</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -137,8 +137,8 @@ public class ParcelInvoiceRepairer {
         }
         return updatedRows;
     }
-    String updateParcelsQuery = "update pmp_parcel_s set invoice_id=:invoiceId where id=:id";
-    String updateParcelsxxQuery = "update pmp_parcel_sxx set invoice_id=:invoiceId where id=:id";
+    String updateParcelsQuery = "update pmp_parcel_s set invoice_id=:invoiceid where id=:id and period = :period and lpu_id = :lpu_id";
+    String updateParcelsxxQuery = "update pmp_parcel_sxx set invoice_id=:invoiceId where id=:id and period = :period and lpu_id = :lpu_id";
 
     String diagnosisQuery = "with main_q as(\n"
             + "select \n"
@@ -164,15 +164,15 @@ public class ParcelInvoiceRepairer {
 
     String parcelsQuery = "select ps.id as parcel_s_id,inva.id as invoice_id,ps.invoice_id as parcel_invoice_id,ps.recid,inva.recid as inva_recid\n"
             + "from pmp_parcel p\n"
-            + "inner join pmp_parcel_s ps on ps.parcel_id=p.id\n"
-            + "inner join pmp_invoice_aud inva on inva.recid=ps.recid and inva.rev=p.version_number\n"
+            + "inner join pmp_parcel_s ps on ps.parcel_id=p.id and ps.period=p.period and ps.lpu_id=p.lpu_id\n"
+            + "inner join pmp_invoice_aud inva on inva.recid=ps.recid and inva.bill_id=p.bill_id and inva.rev=p.version_number and inva.period=ps.period and inva.mo_id=ps.lpu_id\n"
             + "where p.version_number=:rev and ps.invoice_id is null\n"
             + "order by inva.id";
 
     String parcelsxxQuery = "select ps.id as parcel_s_id,inva.id as invoice_id,ps.invoice_id as parcel_invoice_id,ps.recid,inva.recid as inva_recid\n"
             + "from pmp_parcel p\n"
             + "inner join pmp_parcel_sxx ps on ps.parcel_id=p.id\n"
-            + "inner join pmp_invoice_aud inva on inva.recid=ps.recid and inva.rev=p.version_number\n"
+            + "inner join pmp_invoice_aud inva on inva.recid=ps.recid and inva.bill_id=p.bill_id and inva.rev=p.version_number and inva.period=ps.period and inva.mo_id=ps.lpu_id\n"
             + "where p.version_number=:rev and ps.invoice_id is null\n"
             + "order by inva.id";
 }

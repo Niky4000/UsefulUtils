@@ -36,7 +36,7 @@ public class EclipseFormatterClass {
         changedFiles.addAll(added);
         changedFiles.addAll(modified);
         changedFiles.addAll(uncommitted);
-        List<File> filteredChangedList = changedFiles.stream().filter(str -> str.endsWith(".java")).filter(str -> IGNORE_PATH_SET.stream().noneMatch(path -> str.contains(path))).map(fileStr -> new File(repositoryDir.getAbsolutePath() + "/" + fileStr)).collect(Collectors.toList());
+        List<File> filteredChangedList = changedFiles.stream().filter(str -> str.endsWith(".java")).filter(str -> IGNORE_PATH_SET.stream().noneMatch(path -> str.contains(path))).map(fileStr -> new File(repositoryDir.getAbsolutePath() + "/" + fileStr)).filter(file -> file.exists()).collect(Collectors.toList());
         for (File fileStr : filteredChangedList) {
             System.out.println(fileStr.getAbsolutePath());
         }
@@ -47,7 +47,7 @@ public class EclipseFormatterClass {
         format(filteredChangedList);
         // For debug!
 //        format(Arrays.asList(new File("D:\\GIT\\pmp\\pmp\\module-pmp-api\\src\\main\\java\\ru\\ibs\\pmp\\api\\model\\Bill.java"),
-//                 new File("D:\\GIT\\pmp\\pmp\\module-pmp-api\\src\\main\\java\\ru\\ibs\\pmp\\api\\model\\dbf\\moparcel\\InvoiceRecordWithoutOnkology.java")
+//                 new File("D:\\GIT\\pmp\\pmp\\module-pmp-api\\src\\main\\java\\ru\\ibs\\pmp\\api\\model\\dbf\\moparcel\\InvoiceRecordWithoutOncology.java")
 //        ));
         // For debug!
     }

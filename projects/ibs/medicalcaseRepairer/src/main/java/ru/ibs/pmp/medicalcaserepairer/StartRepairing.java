@@ -28,8 +28,8 @@ public class StartRepairing {
     public static void main(String args[]) throws Exception {
 //        handleMedicalCases(args);
 //        handleParcels(args);
-//        handleParcelsInvoices(args);
-        handlePmpFlkChecks();
+        handleParcelsInvoices(args);
+//        handlePmpFlkChecks();
     }
 
     private static void handlePmpFlkChecks() throws Exception {

@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
@@ -37,6 +39,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -52,6 +55,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -61,6 +65,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.ibs.pmp.zzztestapplication.threads.TreadTest;
+import ru.ibs.pmp.zzztestapplication.threads.TreadTest2;
 
 /**
  *
@@ -93,6 +98,7 @@ public class SomeClass {
 //        debugPdfParsing();
 //        base64Decode();
 //        testThreads();
+        TreadTest2.testService();
 //        handleHttpResponseString("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:getPersonsInfoResponse xmlns:ns2=\"http://erzl.org/services\"><ns2:getPersonsInfoRequest><ns2:client><ns2:orgCode>-1</ns2:orgCode><ns2:bpCode>1</ns2:bpCode><ns2:system>PUMP</ns2:system><ns2:user>mgms</ns2:user><ns2:password>ibs</ns2:password></ns2:client><ns2:ukl>111333</ns2:ukl><ns2:ukl>222777</ns2:ukl><ns2:ukl>25080285</ns2:ukl><ns2:ukl>30976035</ns2:ukl><ns2:date>2017-11-30</ns2:date></ns2:getPersonsInfoRequest><ns2:totalResults>0</ns2:totalResults></ns2:getPersonsInfoResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>");
 //        testPattern();
 //        testSemaphore();
@@ -106,7 +112,162 @@ public class SomeClass {
 //        String formatTableName = formatTableName(tableName);
 //        testFilePattern();
 //        cut("hg12vjehvjkdabkjbnok12jnkoenoi1j777778888899999944444444444444444440000000000000", 30);
-        createQuery();
+//        createQuery();
+//        new SomeClass().testInvoiceModelHandling();
+//        new PdfTest().createSomePdf2();
+//        new PdfTest().createSomePdf();
+//        SkypeTest.testSkype();
+//        new SkypeTest2().testSkype();
+//        SkypeTest3.testSkype();
+//        new SomeTestClass().testA();
+//        SomeTestClass2.test();
+//        bigDecimalTest();
+    }
+
+    private static void bigDecimalTest() {
+        BigDecimal bd1 = new BigDecimal("5.001");
+        System.out.println(bd1);
+        BigDecimal bd2 = bd1.setScale(0, RoundingMode.CEILING);
+        System.out.println(bd2);
+    }
+
+    private void testInvoiceModelHandling() throws Exception {
+        List<InvoiceModel> invoiceModelList = Arrays.asList(
+                new InvoiceModel(new Invoice(new MedicalCase(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-12-15 00:00:00"))), new PatientModel("6249810886000173", "Ястребова", "Марина", "Александровна")),
+                new InvoiceModel(new Invoice(new MedicalCase(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-12-18 00:00:00"))), new PatientModel("6249810886000173", "Тараканова", "Марина", "Александровна")),
+                new InvoiceModel(new Invoice(new MedicalCase(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-12-18 00:00:00"))), new PatientModel("6249810886000173", "Орлова", "Марина", "Александровна")),
+                new InvoiceModel(new Invoice(new MedicalCase(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-12-15 00:00:00"))), new PatientModel("444", "Морковкина", "Марина", "Александровна")),
+                new InvoiceModel(new Invoice(new MedicalCase(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-12-18 00:00:00"))), new PatientModel("444", "Тыковкина", "Марина", "Александровна")),
+                new InvoiceModel(new Invoice(new MedicalCase(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-12-15 00:00:00"))), new PatientModel("222", "Кабачкова", "Марина", "Александровна")),
+                new InvoiceModel(new Invoice(new MedicalCase(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-12-18 00:00:00"))), new PatientModel("222", "Ржанова", "Марина", "Александровна")),
+                new InvoiceModel(new Invoice(new MedicalCase(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-12-10 00:00:00"))), new PatientModel("7777", "Поросёнок", "Марина", "Александровна")),
+                new InvoiceModel(new Invoice(new MedicalCase(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-12-12 00:00:00"))), new PatientModel("8888", "Козлёнок", "Марина", "Александровна"))
+        );
+        handleInvoiceModelListToFindLastPatientsModels(invoiceModelList);
+        checkData(invoiceModelList);
+    }
+
+    private String getPatientKey(InvoiceModel invoiceModel) {
+        return invoiceModel.getPatientModel().getInsuranceNumber() + " - " + invoiceModel.getPatientModel().getLastName() + " - " + invoiceModel.getPatientModel().getFirstName() + " - " + invoiceModel.getPatientModel().getMiddleName();
+    }
+
+    private String getSimplePatientKey(InvoiceModel invoiceModel) {
+        return invoiceModel.getPatientModel().getInsuranceNumber();
+    }
+
+    private void handleInvoiceModelListToFindLastPatientsModels(List<InvoiceModel> resultModelList) {
+        Map<String, Map<String, InvoiceModel>> mapOfMaps = resultModelList.stream().collect(Collectors.groupingBy(this::getSimplePatientKey, Collectors.groupingBy(this::getPatientKey, Collectors.collectingAndThen(Collectors.toList(), ff -> ff.get(0)))));
+        mapOfMaps.entrySet().stream().forEach(rootEntry -> {
+            if (rootEntry.getValue().size() > 1) {
+                List<InvoiceModel> list = new ArrayList(rootEntry.getValue().values());
+                Collections.sort(list, (InvoiceModel obj1, InvoiceModel obj2) -> {
+                    int compareTo = obj1.getInvoice().getMedicalCase().getCaseDate().compareTo(obj2.getInvoice().getMedicalCase().getCaseDate());
+                    if (compareTo == 0) {
+                        return getPatientKey(obj1).compareTo(getPatientKey(obj2));
+                    } else {
+                        return -compareTo;
+                    }
+                });
+                InvoiceModel mainInvoiceModel = list.get(0);
+                for (int i = 1; i < list.size(); i++) {
+                    list.get(i).setPatientModel(mainInvoiceModel.getPatientModel());
+                }
+            }
+        });
+    }
+
+    private void checkData(List<InvoiceModel> resultModelList) {
+        resultModelList.stream().forEach(invoiceModel -> {
+            try {
+                System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(invoiceModel.getInvoice().getMedicalCase().getCaseDate()) + "    " + new String(getPatientKey(invoiceModel).getBytes("utf-8")));
+            } catch (UnsupportedEncodingException ex) {
+                Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+    }
+
+    class InvoiceModel {
+
+        private final Invoice invoice;
+        private PatientModel patientModel;
+
+        public InvoiceModel(Invoice invoice, PatientModel patientModel) {
+            this.invoice = invoice;
+            this.patientModel = patientModel;
+        }
+
+        public Invoice getInvoice() {
+            return invoice;
+        }
+
+        public PatientModel getPatientModel() {
+            return patientModel;
+        }
+
+        public void setPatientModel(PatientModel patientModel) {
+            this.patientModel = patientModel;
+        }
+
+    }
+
+    class Invoice {
+
+        private final MedicalCase medicalCase;
+
+        public Invoice(MedicalCase medicalCase) {
+            this.medicalCase = medicalCase;
+        }
+
+        public MedicalCase getMedicalCase() {
+            return medicalCase;
+        }
+
+    }
+
+    class MedicalCase {
+
+        private final Date caseDate;
+
+        public MedicalCase(Date caseDate) {
+            this.caseDate = caseDate;
+        }
+
+        public Date getCaseDate() {
+            return caseDate;
+        }
+
+    }
+
+    class PatientModel {
+
+        private final String insuranceNumber;
+        private final String lastName;
+        private final String firstName;
+        private final String middleName;
+
+        public PatientModel(String insuranceNumber, String lastName, String firstName, String middleName) {
+            this.insuranceNumber = insuranceNumber;
+            this.lastName = lastName;
+            this.firstName = firstName;
+            this.middleName = middleName;
+        }
+
+        public String getInsuranceNumber() {
+            return insuranceNumber;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public String getMiddleName() {
+            return middleName;
+        }
+
     }
 
     private static String cut(String str, int maxLength) {
@@ -1505,19 +1666,19 @@ public class SomeClass {
     }
 
     private static List<String> handleNameArray(String[] nameArray, Short sex, int startIndex) throws UnsupportedEncodingException, IOException {
-        Set<String> handeledNamesSet = new HashSet<>();
+        Set<String> handledNamesSet = new HashSet<>();
         for (String name : nameArray) {
             String[] handledNameArray = handleName(name);
             if (handledNameArray != null) {
                 for (String handledName : handledNameArray) {
-                    handeledNamesSet.add(handledName);
+                    handledNamesSet.add(handledName);
                 }
             }
         }
         int i = startIndex;
-        handeledNamesSet = new TreeSet<>(handeledNamesSet);
+        handledNamesSet = new TreeSet<>(handledNamesSet);
         List<String> sqlList = new LinkedList<>();
-        for (String name : handeledNamesSet) {
+        for (String name : handledNamesSet) {
             i++;
             sqlList.add("insert into pmp_patient_names (id,name,sex) values(" + i + ",'" + name + "'," + sex.toString() + ");");
         }
