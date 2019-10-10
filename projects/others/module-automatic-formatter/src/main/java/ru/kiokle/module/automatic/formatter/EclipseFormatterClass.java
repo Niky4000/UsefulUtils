@@ -21,11 +21,11 @@ import static ru.kiokle.module.automatic.formatter.StartFormat.IGNORE_PATH_SET;
  */
 public class EclipseFormatterClass {
 
-    private static final String CONFIG_PATH = "D:\\GIT\\pmp\\tools\\ide_settings\\eclipse-formatter.xml";
+    private static final String CONFIG_PATH = "\\tools\\ide_settings\\eclipse-formatter.xml";
 //    private static final String CONFIG_PATH = "D:\\tmp\\eclipse-formatter.xml";
 
     public void format() throws Exception {
-        File repositoryDir = new File(StartFormat.REPOSITORY_PATH);
+        File repositoryDir = new File(StartFormat.getREPOSITORY_PATH());
         Git git = Git.open(new File(repositoryDir.getAbsolutePath() + "/.git"));
         Set<String> changed = git.status().call().getChanged();
         Set<String> added = git.status().call().getAdded();
@@ -54,7 +54,7 @@ public class EclipseFormatterClass {
 
     private void format(List<File> fileList) throws Exception {
         if (!fileList.isEmpty()) {
-            String[] args_ = new String[]{"-verbose", "-config", CONFIG_PATH};
+            String[] args_ = new String[]{"-verbose", "-config", StartFormat.getREPOSITORY_PATH()+CONFIG_PATH};
             String[] args = new String[args_.length + fileList.size()];
             for (int i = 0; i < args_.length; i++) {
                 args[i] = args_[i];

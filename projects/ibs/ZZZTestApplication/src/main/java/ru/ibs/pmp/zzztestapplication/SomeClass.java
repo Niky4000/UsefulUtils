@@ -35,6 +35,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,10 +51,14 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -64,8 +72,9 @@ import org.mozilla.universalchardet.UniversalDetector;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import ru.ibs.pmp.zzztestapplication.threads.ConnectionMonitorDaemon;
 import ru.ibs.pmp.zzztestapplication.threads.TreadTest;
-import ru.ibs.pmp.zzztestapplication.threads.TreadTest2;
+import ru.ibs.pmp.zzztestapplication.threads.bean.MonitorBean;
 
 /**
  *
@@ -98,7 +107,7 @@ public class SomeClass {
 //        debugPdfParsing();
 //        base64Decode();
 //        testThreads();
-        TreadTest2.testService();
+//        TreadTest2.testService();
 //        handleHttpResponseString("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><ns2:getPersonsInfoResponse xmlns:ns2=\"http://erzl.org/services\"><ns2:getPersonsInfoRequest><ns2:client><ns2:orgCode>-1</ns2:orgCode><ns2:bpCode>1</ns2:bpCode><ns2:system>PUMP</ns2:system><ns2:user>mgms</ns2:user><ns2:password>ibs</ns2:password></ns2:client><ns2:ukl>111333</ns2:ukl><ns2:ukl>222777</ns2:ukl><ns2:ukl>25080285</ns2:ukl><ns2:ukl>30976035</ns2:ukl><ns2:date>2017-11-30</ns2:date></ns2:getPersonsInfoRequest><ns2:totalResults>0</ns2:totalResults></ns2:getPersonsInfoResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>");
 //        testPattern();
 //        testSemaphore();
@@ -122,6 +131,189 @@ public class SomeClass {
 //        new SomeTestClass().testA();
 //        SomeTestClass2.test();
 //        bigDecimalTest();
+//        bigDecimalTest2("1.274");
+//        bigDecimalTest2("1.275");
+//        testCursors();
+//        System.out.println(LongestWord("d aads qwertyuio asd asd oiuytrewq ff"));
+//        System.out.println(LongestWord("d aads qwertyuio asd asd oiuytrewq ff"));
+//        System.out.println(Palindrome("eye g  eye "));
+//        System.out.println(StringScramble("he3llko", "hello"));
+//        System.out.println(CoinDeterminer(250));
+//        System.out.println(GasStation(new String[]{"4", "1:1", "2:2", "1:2", "0:1"}));
+        System.out.println(GasStation(new String[] {"5","0:1","2:1","3:2","4:6","4:3"}));
+    }
+
+    public static String GasStation(String[] strArr) {
+        String IMPOSSIBLE = "impossible";
+        List<Integer> possibleStartPoints = new ArrayList<>();
+        for (int i = 1; i < strArr.length; i++) {
+            if (getGas(strArr[i]) >= getGasConsumption(strArr[i]))
+                possibleStartPoints.add(i);
+        }
+        if (possibleStartPoints.isEmpty())
+            return IMPOSSIBLE;
+        else {
+            for (int startPoint : possibleStartPoints) {
+                boolean success = true;
+                int totalGas = 0;
+                for (int i = 0; i < strArr.length - 1; i++) {
+                    int index = startPoint + i > strArr.length - 1 ? i : startPoint + i;
+                    int gas = getGas(strArr[index]);
+                    int gasConsumption = getGasConsumption(strArr[index]);
+                    totalGas += gas - gasConsumption;
+                    if (totalGas < 0) {
+                        success = false;
+                        break;
+                    }
+                }
+                if (success)
+                    return startPoint + "";
+            }
+            return IMPOSSIBLE;
+        }
+    }
+
+    private static int getGas(String string) {
+        return Integer.valueOf(string.split(":")[0]);
+    }
+
+    private static int getGasConsumption(String string) {
+        return Integer.valueOf(string.split(":")[1]);
+    }
+//    1, 5, 7, 9, and 11
+
+    public static int CoinDeterminer(int num) {
+        if (num < 1)
+            return 0;
+        List<Integer> coins = Arrays.asList(11, 9, 7, 5, 1);
+        int res = num;
+        int index = 0;
+        int iterations = 0;
+        do {
+            if (res - coins.get(index) < 0) {
+                index++;
+                continue;
+            } else {
+                res -= coins.get(index);
+                index = 0;
+            }
+            iterations++;
+        } while (res > 0);
+        return iterations;
+
+    }
+
+    public static String StringScramble(String str1, String str2) {
+        final String TRUE = "true";
+        final String FALSE = "false";
+        if (str1 == null || str2 == null || str1.length() == 0 || str2.length() == 0)
+            return FALSE;
+        String[] split = str1.split("");
+        String[] split2 = str2.split("");
+        Map<String, Integer> map1 = Arrays.asList(split).stream().collect(Collectors.groupingBy(str -> str, Collectors.collectingAndThen(Collectors.toList(), ff -> ff.size())));
+        Map<String, Integer> map2 = Arrays.asList(split2).stream().collect(Collectors.groupingBy(str -> str, Collectors.collectingAndThen(Collectors.toList(), ff -> ff.size())));
+        if (!map1.keySet().containsAll(map2.keySet()))
+            return FALSE;
+        return map2.entrySet().stream().allMatch(entry -> {
+            return map1.get(entry.getKey()) >= entry.getValue();
+        }) ? TRUE : FALSE;
+    }
+
+    public static String Palindrome(String str) {
+        if (str == null)
+            return "false";
+        String modifiedString = str.replaceAll(" ", "").toLowerCase();
+        if (new StringBuilder(modifiedString).reverse().toString().equals(modifiedString))
+            return "true";
+        else
+            return "false";
+    }
+
+    public static String LongestWord(String sen) {
+
+        // code goes here
+        /* Note: In Java the return type of a function and the
+        parameter types being passed are defined, so this return
+        call must match the return type of the function.
+        You are free to modify the return type. */
+        Optional<String> max = Arrays.asList(sen.split(" ")).stream().max((str1, str2) -> Integer.valueOf(str1.length()).compareTo(str2.length()));
+
+        return max.get();
+
+    }
+
+    public static final String connectionString = "jdbc:oracle:thin:@10.2.72.25:1521:ERZ";
+    public static final String user = "pmp_prod";
+    public static final String password = "manager";
+
+    private static void testCursors() throws Exception {
+        BlockingQueue queue = new LinkedBlockingQueue<MonitorBean>(1);
+        ConnectionMonitorDaemon monitorDaemon = new ConnectionMonitorDaemon(queue);
+        monitorDaemon.start();
+        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "before sleep"));
+        Thread.sleep(2000);
+        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "after sleep"));
+        System.out.println("testCursors started!");
+        final AtomicInteger i = new AtomicInteger(0);
+        try {
+            queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "before connection opened"));
+            Connection connection = DriverManager.getConnection(connectionString, user, password);
+            Statement statement = null;
+            ResultSet rs = null;
+            try {
+                queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "before createStatement"));
+                statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+                queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "after createStatement"));
+                rs = statement.executeQuery("select * from pmp_medical_case order by id");
+                queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "after executeQuery"));
+                while (rs.next()) {
+                    Long id = rs.getLong("ID");
+                    System.out.println("id = " + id.toString() + "!");
+                    queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "during rs.next()"));
+                    Thread.sleep(20);
+                    if (i.incrementAndGet() > 100)
+                        break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (rs != null)
+                    rs.close();
+                try {
+                    if (statement != null) {
+                        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "before statement closed"));
+                        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "before statement closed"));
+                        statement.close();
+                        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "after statement closed"));
+                        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "after statement closed"));
+                    }
+                    if (connection != null) {
+                        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "before connection closed"));
+                        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "before connection closed"));
+                        System.out.println("connection closed!");
+                        connection.close();
+                        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "after connection closed"));
+                        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "after connection closed"));
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        for (int j = 0; j < 20; j++) {
+            queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "after all"));
+        }
+        queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.CLOSE, ""));
+        monitorDaemon.join();
+        System.out.println("testCursors finished!");
+    }
+
+    private static void bigDecimalTest2(String value) {
+        BigDecimal bd1 = new BigDecimal(value);
+        BigDecimal bd2 = bd1.setScale(2, RoundingMode.HALF_UP);
+        System.out.println(bd1.toString() + " --> " + bd2.toString());
     }
 
     private static void bigDecimalTest() {
@@ -162,11 +354,10 @@ public class SomeClass {
                 List<InvoiceModel> list = new ArrayList(rootEntry.getValue().values());
                 Collections.sort(list, (InvoiceModel obj1, InvoiceModel obj2) -> {
                     int compareTo = obj1.getInvoice().getMedicalCase().getCaseDate().compareTo(obj2.getInvoice().getMedicalCase().getCaseDate());
-                    if (compareTo == 0) {
+                    if (compareTo == 0)
                         return getPatientKey(obj1).compareTo(getPatientKey(obj2));
-                    } else {
+                    else
                         return -compareTo;
-                    }
                 });
                 InvoiceModel mainInvoiceModel = list.get(0);
                 for (int i = 1; i < list.size(); i++) {
@@ -271,9 +462,8 @@ public class SomeClass {
     }
 
     private static String cut(String str, int maxLength) {
-        if (str != null && str.length() > maxLength) {
+        if (str != null && str.length() > maxLength)
             str = str.substring(str.length() - maxLength, str.length());
-        }
         return str;
     }
 
@@ -390,9 +580,8 @@ public class SomeClass {
             }
             String retValue = ret.toString();
             return retValue.substring(0, retValue.length() - and.length());
-        } else {
+        } else
             return null;
-        }
     }
 
     private static void testSemaphore() throws InterruptedException {
@@ -440,9 +629,8 @@ public class SomeClass {
         detector.dataEnd();
         String encoding = detector.getDetectedCharset();
         detector.reset();
-        if (encoding == null) {
+        if (encoding == null)
             return readAllBytes;
-        }
         Charset utf8charset = StandardCharsets.UTF_8;
         Charset originalCharset = Charset.forName(encoding);
         String reencoded2 = new String(readAllBytes, originalCharset);
@@ -488,9 +676,8 @@ public class SomeClass {
         String decode = new String(javax.xml.bind.DatatypeConverter.parseBase64Binary(s));
         System.out.println(decode);
         File saveFile = new File("D:\\tmp\\urldecode.txt");
-        if (saveFile.exists()) {
+        if (saveFile.exists())
             saveFile.delete();
-        }
         Files.write(saveFile.toPath(), decode.getBytes(), StandardOpenOption.CREATE_NEW);
     }
 
@@ -544,9 +731,8 @@ public class SomeClass {
 //        byteArrayOutputStream.write(readAllBytes, 0, readAllBytes.length);
 //        OutputStreamWriter writer = new OutputStreamWriter(byteArrayOutputStream, "cp1251");
 //        new ByteArrayInputStream(outputData);
-        if (file2.exists()) {
+        if (file2.exists())
             file2.delete();
-        }
         Files.write(path2, reencoded2.getBytes(utf8charset), StandardOpenOption.CREATE_NEW);
 //        Files.write(path2, outputData, StandardOpenOption.CREATE_NEW);
     }
@@ -573,10 +759,9 @@ public class SomeClass {
                             fl.release();
                             raf.close();
                             file.delete();
-                        } else {
+                        } else
 //                Files.write(file.toPath(), "the text".getBytes(), StandardOpenOption.APPEND);
                             System.out.println("Failed to acquire lock!");
-                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -593,7 +778,7 @@ public class SomeClass {
             final FileLock fl = fc.tryLock();
             if (fl == null) {
                 // Failed to acquire lock
-            } else {
+            } else
                 try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         final WritableByteChannel outChannel = Channels.newChannel(baos)) {
                     for (final ByteBuffer buffer = ByteBuffer.allocate(1024); fc.read(buffer) != -1;) {
@@ -605,7 +790,6 @@ public class SomeClass {
                 } finally {
                     fl.release();
                 }
-            }
         }
     }
 
@@ -1669,11 +1853,10 @@ public class SomeClass {
         Set<String> handledNamesSet = new HashSet<>();
         for (String name : nameArray) {
             String[] handledNameArray = handleName(name);
-            if (handledNameArray != null) {
+            if (handledNameArray != null)
                 for (String handledName : handledNameArray) {
                     handledNamesSet.add(handledName);
                 }
-            }
         }
         int i = startIndex;
         handledNamesSet = new TreeSet<>(handledNamesSet);
@@ -1691,18 +1874,16 @@ public class SomeClass {
             sqlToFile.append(sql).append("\r\n");
         }
         File file = new File("D:\\tmp\\sql.txt");
-        if (!file.exists()) {
+        if (!file.exists())
             file.createNewFile();
-        }
         Files.write(file.toPath(), sqlToFile.toString().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     private static String[] handleName(String unformattedName) {
         String trim = unformattedName.trim();
         if (trim != null && trim.length() > 1) {
-            if (trim.contains("женское имя") || trim.contains("значения")) {
+            if (trim.contains("женское имя") || trim.contains("значения"))
                 return null;
-            }
             if (trim.contains(" и ")) {
                 String[] split = trim.split(" и ");
                 return new String[]{split[0].trim(), split[1].trim()};
@@ -1711,9 +1892,9 @@ public class SomeClass {
             if (matcher.find()) {
                 String group1 = matcher.group(1).trim();
                 String group2 = matcher.group(2).trim().replace("(", "").replace(")", "");
-                if (!group2.toLowerCase().equals("имя")) {
+                if (!group2.toLowerCase().equals("имя"))
                     return new String[]{group1, group2};
-                } else {
+                else {
                     if (group2.contains(" и ")) {
                         String[] split = group2.split(" и ");
                         return new String[]{group1, split[0].trim(), split[1].trim()};
@@ -1725,15 +1906,13 @@ public class SomeClass {
                     String[] split = trim.split(" ");
                     List<String> splittedNames = new ArrayList<>(split.length);
                     for (String str : split) {
-                        if (str != null && str.trim().length() > 1) {
+                        if (str != null && str.trim().length() > 1)
                             splittedNames.add(str);
-                        }
                     }
-                    if (!splittedNames.isEmpty()) {
+                    if (!splittedNames.isEmpty())
                         return splittedNames.toArray(new String[1]);
-                    } else {
+                    else
                         return null;
-                    }
                 }
                 return new String[]{trim.replace("(", "").replace(")", "")};
             }
@@ -1786,9 +1965,8 @@ public class SomeClass {
         }
 
         public String representAsSql() {
-            if (fields.size() != values.size()) {
+            if (fields.size() != values.size())
                 throw new RuntimeException("fields.size()!=values.size()");
-            }
             Map<String, Object> objMap = new HashMap<>(fields.size());
             for (int i = 0; i < fields.size(); i++) {
                 objMap.put(fields.get(i), values.get(i));
@@ -1808,45 +1986,41 @@ public class SomeClass {
             StringBuilder sb = new StringBuilder("insert into " + tableName + " (");
             for (int i = 0; i < objMap.size(); i++) {
                 sb.append(columns.get(i));
-                if (i < objMap.size() - 1) {
+                if (i < objMap.size() - 1)
                     sb.append(",");
-                }
             }
             sb.append(") values(");
             for (int i = 0; i < objMap.size(); i++) {
                 sb.append(getValueAsString(values.get(i)));
-                if (i < objMap.size() - 1) {
+                if (i < objMap.size() - 1)
                     sb.append(",");
-                }
             }
             sb.append(");");
             return sb.toString();
         }
 
         protected String getValueAsString(Object value) {
-            if (value != null && value instanceof Date) {
+            if (value != null && value instanceof Date)
                 return getDateAsString((Date) value);
-            } else if (value != null && value instanceof GregorianCalendar) {
+            else if (value != null && value instanceof GregorianCalendar)
                 return getDateAsString(((GregorianCalendar) value).getTime());
-            } else if (value != null && value instanceof Number) {
+            else if (value != null && value instanceof Number)
                 return "" + value + "";
-            } else if (value != null && value instanceof Boolean) {
+            else if (value != null && value instanceof Boolean)
                 return "" + (Boolean.valueOf(value.toString()) ? "1" : "0") + "";
-            } else if (value != null) {
+            else if (value != null)
                 return "'" + value + "'";
-            } else {
+            else
                 return "null";
-            }
         }
         private static final boolean ORACLE = false;
 
         private String getDateAsString(Date date) {
             // to_timestamp('07.03.17 18:07:02,439000000','DD.MM.RR HH24:MI:SSXFF')
-            if (ORACLE) {
+            if (ORACLE)
                 return "to_date('" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date) + "','yyyy-MM-dd HH24:mi:ss')";
-            } else {
+            else
                 return "to_timestamp('" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date) + "','yyyy-MM-dd HH24:mi:ss')";
-            }
         }
     }
 
@@ -1905,25 +2079,22 @@ public class SomeClass {
             public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                 counter.inc();
                 System.out.println("Start Element :" + qName);
-                if (counter.getCounter() == 2) {
+                if (counter.getCounter() == 2)
                     counter.addTableStructure(qName);
-                }
-                if (counter.getCounter() == 3) {
+                if (counter.getCounter() == 3)
                     counter.addField(qName);
-                }
             }
 
             @Override
             public void characters(char[] ch, int start, int length) throws SAXException {
                 String value = new String(ch, start, length);
-                if (value != null && value.startsWith("%") && value.substring(value.length() - 3, value.length() - 2).equals("%")) {
+                if (value != null && value.startsWith("%") && value.substring(value.length() - 3, value.length() - 2).equals("%"))
                     try {
                         value = URLDecoder.decode(value, "UTF-8");
                     } catch (UnsupportedEncodingException ex) {
                         Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
                         throw new RuntimeException(ex);
                     }
-                }
                 System.out.println("Value : " + value);
                 counter.addValue(value);
             }
@@ -1963,9 +2134,8 @@ public class SomeClass {
         }
 //      else {
 //            depth--;
-        if (xml.replace("\n", "").replace("\r", "").length() > 0) {
+        if (xml.replace("\n", "").replace("\r", "").length() > 0)
             handler.characters(xml.toCharArray(), 0, xml.length());
-        }
         return xml;
 //        }
     }
@@ -2651,9 +2821,8 @@ public class SomeClass {
                 + "5133207\n"
                 + "7329";
         File file = new File("D:\\tmp\\SQL.txt");
-        if (file.exists()) {
+        if (file.exists())
             file.delete();
-        }
         file.createNewFile();
         Matcher matcher = Pattern.compile("^(.+?)$", Pattern.MULTILINE).matcher(qq);
         while (matcher.find()) {

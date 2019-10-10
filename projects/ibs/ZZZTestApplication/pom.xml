@@ -62,6 +62,11 @@
             <artifactId>skype-java-api</artifactId>
             <version>1.7</version>
         </dependency>
+        <dependency>
+            <groupId>oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>11.2.0.3</version>
+        </dependency>
     </dependencies>
     <!--    <repositories>
         <repository>
@@ -73,6 +78,12 @@
             </snapshots>
         </repository>
     </repositories>-->
+    <repositories>        
+        <repository>
+            <id>mvnrepository</id>
+            <url>http://www.datanucleus.org/downloads/maven2/</url>
+        </repository>
+    </repositories>
     <build>
         <finalName>${project.artifactId}</finalName>
         <resources>

@@ -1,0 +1,1 @@
+java -jar "D:\GIT\UsefulUtils\projects\ibs\TomcatRestart\target\TomcatRestart.jar" -rl -i -conf D:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties_remote.txt -modules D:\GIT\pmp\pmp\module-pmp\target\module-pmp.war

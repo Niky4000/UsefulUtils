@@ -77,6 +77,10 @@ public class TomcatRestart {
         if (argsList.contains("-i")) {
             tomcatRestart.setForceCopy(true);
         }
+        List<String> particularModules = null;
+        if (argsList.contains("-modules")) {
+            particularModules = getParticularModules(argsList);
+        }
 
         String host = tomcatRestart.getHost();
         String user = tomcatRestart.getUser();
@@ -104,12 +108,39 @@ public class TomcatRestart {
         }
         if (!argsList.contains("-clean")) {
             tomcatRestart.getPmpClientFromServer(tomcatModulesDir, pmpClientPath, sshPmpClientPath, host, user, password);
-            tomcatRestart.copyModulesFromArch(tomcatModulesDir, targetUnpackDir, modules, zipArchPath);
+            if (particularModules == null) {
+                tomcatRestart.copyModulesFromArch(tomcatModulesDir, targetUnpackDir, modules, zipArchPath);
+            } else {
+                particularModules.forEach(module -> {
+                    try {
+                        tomcatRestart.copyOneFile(tomcatModulesDir, new File(module));
+                    } catch (Exception e) {
+                        throw new RuntimeException("Copying one file " + module + " in modules mode caused Fatal Error!", e);
+                    }
+                });
+            }
             tomcatRestart.postActions();
         }
         System.out.println("TomcatRestart finished!");
         Thread.sleep(TIME_TO_WAIT);
         System.exit(0);
+    }
+
+    private static List<String> getParticularModules(List<String> argsList) {
+        int indexOf = argsList.indexOf("-modules");
+        List<String> particularModules = new ArrayList<>();
+        for (int i = indexOf + 1; i < argsList.size(); i++) {
+            if (argsList.get(i).startsWith("-")) {
+                break;
+            }
+            if (new File(argsList.get(i)).exists()) {
+                particularModules.add(argsList.get(i));
+            }
+        }
+        if (particularModules.isEmpty()) {
+            throw new RuntimeException("There is no particular modules! This is Fatal Error!");
+        }
+        return particularModules;
     }
 
     private static String getConfigFileName(List<String> argsList, String defaultConfig) {

@@ -46,92 +46,87 @@ import org.eclipse.jgit.util.FS;
  */
 public class StartFormat {
 
-    public static final String REPOSITORY_PATH = "D:\\GIT\\pmp";
+    private static String REPOSITORY_PATH = "D:\\GIT\\pmp";
+    private static String PRIVATE_KEY_PATH = "D:\\GitKeys3\\";
     private static final String AUTHOR_TO_CHECK = "NikitaAnischenko";
     private static final String FORMATTING_COMMIT_MESSAGE = "# Formatting...";
     public static final Set<String> IGNORE_PATH_SET = ImmutableSet.<String>builder()
-//            .add("ru/ibs/pmp/api/model/dbf/moparcel")
-//            .add("ru/ibs/pmp/api/model/dbf/parcel")
-//            .add("pmp/module-pmp-bill-recreate")
-//            .add("pmp/module-pmp-bill-recreate-executor")
+            //            .add("ru/ibs/pmp/api/model/dbf/moparcel")
+            //            .add("ru/ibs/pmp/api/model/dbf/parcel")
+            //            .add("pmp/module-pmp-bill-recreate")
+            //            .add("pmp/module-pmp-bill-recreate-executor")
             .build();
 
     static SshSessionFactory sshSessionFactory = createSshSessionFactory();
 
     public static void main(String[] args) throws Exception {
 //        getSessionX();
+        if (args.length == 2) {
+            REPOSITORY_PATH = args[0];
+            PRIVATE_KEY_PATH = args[1];
+        }
         EclipseFormatterClass eclipseFormatterClass = new EclipseFormatterClass();
         eclipseFormatterClass.format();
 //        File repositoryDir = new File(REPOSITORY_PATH);
 //        getLastLogs2(repositoryDir);
     }
 
-    public static void getLastLogs2(File repositoryDir) throws IOException, GitAPIException, Exception {
-        System.out.println("-------------------------------");
-        System.out.println("-------------------------------");
-        System.out.println("-------------------------------");
-        System.out.println("-------------------------------");
-        Git git = Git.open(new File(repositoryDir.getAbsolutePath() + "/.git"));
-//        git.push().setRemote("NAnishhenko@ibs.ru:pagekeeper@http://172.29.4.20:8084/mgfoms/pmp.git").call();
-        String fullBranch = git.getRepository().getFullBranch();
-        Ref currentBrunch = git.getRepository().exactRef(fullBranch);
-        git.getRepository().getFS().setUserHome(new File("D:\\Users\\NAnishhenko\\.ssh"));
-//        push(repositoryDir, currentBrunch);
-        Iterable<RevCommit> logs = git.log().setRevFilter(RevFilter.NO_MERGES).setMaxCount(40).call();
-        Set<String> check = new HashSet<>();
-        for (RevCommit commit : logs) {
-            System.out.println("LogCommit: " + commit + " Author: " + commit.getAuthorIdent().getName() + " Message: " + commit.getFullMessage());
-            if (commit.getFullMessage().equals(FORMATTING_COMMIT_MESSAGE)) {
-                break;
-            }
-            if (!commit.getAuthorIdent().getName().equals(AUTHOR_TO_CHECK)) {
-                continue;
-            }
-            check.addAll(check(git, commit));
-
-            System.out.println("-------------------------------");
-            System.out.println("-------------------------------");
-            System.out.println("-------------------------------");
-            System.out.println("-------------------------------");
-
-        }
-
-        List<String> filteredCheckList = check.stream().filter(str -> IGNORE_PATH_SET.stream().noneMatch(path -> str.startsWith(path))).collect(Collectors.toList());
-        if (!filteredCheckList.isEmpty()) {
-            for (String checkedFile : filteredCheckList) {
-                File file = new File(repositoryDir.getAbsolutePath() + "/" + checkedFile);
-                String formattedFile = commitFormat(file.getAbsolutePath());
-                Files.write(file.toPath(), formattedFile.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
-            }
-            Set<String> changedFiles = git.status().call().getChanged();
-            if (!changedFiles.isEmpty()) {
-                commit(repositoryDir, changedFiles, FORMATTING_COMMIT_MESSAGE);
-                push(repositoryDir, currentBrunch);
-            }
-        }
-
-        git.close();
-    }
-
-    private static Session getSessionX() throws JSchException {
-//        String host = uri.getHost();
-//                    int port = uri.getPort();
-        JSch jsch = new JSch();
-        String user = "pmp";
-        String host = "172.29.4.20";
-        int port = 22;
-        String privateKey = ".ssh/id_rsa";
-        jsch.addIdentity("D:\\GitKeys3\\id_dsa", "pagekeeper");
-        System.out.println("identity added ");
-        Session session = jsch.getSession(user, host, port);
-        System.out.println("session created.");
-        java.util.Properties config = new java.util.Properties();
-        config.put("StrictHostKeyChecking", "no");
-        session.setConfig(config);
-        session.connect();
-        return session;
-    }
-
+//    public static void getLastLogs2(File repositoryDir) throws IOException, GitAPIException, Exception {
+//        System.out.println("-------------------------------");
+//        System.out.println("-------------------------------");
+//        System.out.println("-------------------------------");
+//        System.out.println("-------------------------------");
+//        Git git = Git.open(new File(repositoryDir.getAbsolutePath() + "/.git"));
+//        String fullBranch = git.getRepository().getFullBranch();
+//        Ref currentBrunch = git.getRepository().exactRef(fullBranch);
+//        git.getRepository().getFS().setUserHome(new File("D:\\Users\\NAnishhenko\\.ssh"));
+//        Iterable<RevCommit> logs = git.log().setRevFilter(RevFilter.NO_MERGES).setMaxCount(40).call();
+//        Set<String> check = new HashSet<>();
+//        for (RevCommit commit : logs) {
+//            System.out.println("LogCommit: " + commit + " Author: " + commit.getAuthorIdent().getName() + " Message: " + commit.getFullMessage());
+//            if (commit.getFullMessage().equals(FORMATTING_COMMIT_MESSAGE)) {
+//                break;
+//            }
+//            if (!commit.getAuthorIdent().getName().equals(AUTHOR_TO_CHECK)) {
+//                continue;
+//            }
+//            check.addAll(check(git, commit));
+//            System.out.println("-------------------------------");
+//            System.out.println("-------------------------------");
+//            System.out.println("-------------------------------");
+//            System.out.println("-------------------------------");
+//        }
+//        List<String> filteredCheckList = check.stream().filter(str -> IGNORE_PATH_SET.stream().noneMatch(path -> str.startsWith(path))).collect(Collectors.toList());
+//        if (!filteredCheckList.isEmpty()) {
+//            for (String checkedFile : filteredCheckList) {
+//                File file = new File(repositoryDir.getAbsolutePath() + "/" + checkedFile);
+//                String formattedFile = commitFormat(file.getAbsolutePath());
+//                Files.write(file.toPath(), formattedFile.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+//            }
+//            Set<String> changedFiles = git.status().call().getChanged();
+//            if (!changedFiles.isEmpty()) {
+//                commit(repositoryDir, changedFiles, FORMATTING_COMMIT_MESSAGE);
+//                push(repositoryDir, currentBrunch);
+//            }
+//        }
+//        git.close();
+//    }
+//    private static Session getSessionX() throws JSchException {
+//        JSch jsch = new JSch();
+//        String user = "pmp";
+//        String host = "172.29.4.20";
+//        int port = 22;
+//        String privateKey = ".ssh/id_rsa";
+//        jsch.addIdentity("D:\\GitKeys3\\id_dsa", "pagekeeper");
+//        System.out.println("identity added ");
+//        Session session = jsch.getSession(user, host, port);
+//        System.out.println("session created.");
+//        java.util.Properties config = new java.util.Properties();
+//        config.put("StrictHostKeyChecking", "no");
+//        session.setConfig(config);
+//        session.connect();
+//        return session;
+//    }
     public static List<String> check(Git r, RevCommit commitToCheck) throws IOException, GitAPIException, JGitInternalException {
         List<String> changedFiles = new ArrayList<>();
         try (RevWalk rw = new RevWalk(r.getRepository())) {
@@ -198,8 +193,6 @@ public class StartFormat {
     }
 
     private static String commitFormat(String fileName) throws FormatterException, Exception, IOException {
-//        String fileName = "D:\\GIT\\UsefulUtils\\projects\\others\\module-automatic-formatter\\src\\main\\java\\ru\\kiokle\\module\\automatic\\formatter\\debug\\ClassForTest.java";
-//        String fileName = "D:\\GIT\\pmp\\pmp\\module-pmp-bill-recreate-executor\\src\\main\\java\\ru\\ibs\\pmp\\module\\recreate\\exec\\ServiceExecuteDbKeeperAspect.java";
         JavaFormatterOptions options = JavaFormatterOptions.builder().style(JavaFormatterOptions.Style.AOSP).build();
         String formatSource = new Formatter(options).formatSource(new String(Files.readAllBytes(new File(fileName).toPath())));
         return formatSource;
@@ -217,7 +210,7 @@ public class StartFormat {
             @Override
             protected JSch createDefaultJSch(FS fs) throws JSchException {
                 JSch defaultJSch = super.createDefaultJSch(fs);
-                defaultJSch.addIdentity("D:\\GitKeys3\\putty_private.ppk", "pagekeeper");
+                defaultJSch.addIdentity(PRIVATE_KEY_PATH + "putty_private.ppk", "pagekeeper");
                 return defaultJSch;
             }
 
@@ -236,7 +229,7 @@ public class StartFormat {
                     int port = 22;
                     String privateKey = ".ssh/id_rsa";
 
-                    jsch.addIdentity("D:\\GitKeys3\\id_dsa", "pagekeeper");
+                    jsch.addIdentity(PRIVATE_KEY_PATH + "id_dsa", "pagekeeper");
                     System.out.println("identity added ");
 
                     Session session = jsch.getSession(user, host, port);
@@ -260,4 +253,13 @@ public class StartFormat {
         };
         return sshSessionFactory;
     }
+
+    public static String getREPOSITORY_PATH() {
+        return REPOSITORY_PATH;
+    }
+
+    public static String getPRIVATE_KEY_PATH() {
+        return PRIVATE_KEY_PATH;
+    }
+
 }
