@@ -1,0 +1,16 @@
+host=192.168.192.111
+port=22
+user=root
+password=QWEzxc123
+serverName=/tomcat-integ/
+launchScript=#!/bin/bash\ncd /home/pump/tomcat-integ\nbin/catalina.sh jpda start
+launchScriptPath=/tmp
+zipArchPath=D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all.zip
+targetUnpackDir=D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all
+tomcatModulesDir=/home/pump/tomcat-integ/webapps
+modules=/modules
+pmpClientPath=/PmpClient.war
+sshPmpClientPath=/home/pump/tomcat-integ/webapps/PmpClient.war
+deleteDirPath= rm -rf /home/pump/tomcat-integ/log.fileBaseDir_IS_UNDEFINED,rm -rf /home/pump/tomcat-integ/temp,rm -rf /home/pump/tomcat-integ/work
+deleteFilesPath=rm -rf /home/pump/tomcat-integ/logs/*
+deleteDirsPath=rm -rf /home/pump/tomcat-integ/modules/logs/*

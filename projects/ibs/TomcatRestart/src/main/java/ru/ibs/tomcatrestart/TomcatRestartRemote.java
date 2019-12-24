@@ -1,17 +1,18 @@
 package ru.ibs.tomcatrestart;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -63,6 +64,54 @@ public class TomcatRestartRemote extends TomcatRestart {
         }
     }
 
+    Map<String, Date> moduleNameToDateMap = new HashMap<>();
+
+    public void getFileModificationDate() throws Exception {
+        Pattern pattern = Pattern.compile("^.+?\\s.+?\\s.+?\\s.+?\\s.+?\\s(.+?)\\s(.+?)\\s(.+?)\\s(.+?)$", Pattern.DOTALL);
+        if (targetSystemIsLinux) {
+            String output = Scp.createSshClient(getHost(), getUser(), getPassword(), port, new String[]{"ls -l " + tomcatModulesDir});
+            String[] arr = output.split("\n");
+            for (String str : arr) {
+                String string = str.replaceAll("\\s+?([^\\s])", " $1");
+                if (string.startsWith("d")) {
+                    continue;
+                }
+                Matcher matcher = pattern.matcher(string);
+                if (matcher.find()) {
+                    String month = matcher.group(1);
+                    String day = matcher.group(2);
+                    String time = matcher.group(3);
+                    String moduleName = matcher.group(4);
+                    Date date;
+                    if (time.contains(":")) {
+                        String year = new SimpleDateFormat("yyyy").format(new Date());
+                        String seconds = new SimpleDateFormat("ss").format(new Date());
+                        date = new SimpleDateFormat("yyyy MMM dd HH:mm:ss", new Locale("en", "EN")).parse(year + " " + month + " " + day + " " + time + ":" + seconds);
+                    } else {
+                        String dayTime = new SimpleDateFormat("HH:mm:ss").format(new Date());
+                        date = new SimpleDateFormat("yyyy MMM dd HH:mm:ss", new Locale("en", "EN")).parse(time + " " + month + " " + day + " " + dayTime);
+                    }
+                    moduleNameToDateMap.put(moduleName, date);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void setFileModificationDate(File file) {
+        Date date = getFileDate(file);
+        if (date != null) {
+            file.setLastModified(date.getTime());
+            System.out.println(file.getName() + " modification date was changed to " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date));
+        }
+    }
+
+    @Override
+    protected Date getFileDate(File file) {
+        Date date = moduleNameToDateMap.get(file.getName());
+        return date;
+    }
+
     @Override
     protected void postActions() {
         if (isTargetSystemIsLinux()) {
@@ -109,7 +158,7 @@ public class TomcatRestartRemote extends TomcatRestart {
     @Override
     protected void getPmpClientFromServer(String tomcatModulesDir, String pmpClientPath, String sshPmpClientPath, String host, String user, String password) {
     }
-    
+
     @Override
     protected void recreateTargetDir(String targetDir) throws Exception {
         Scp.createSshClient(getHost(), getUser(), getPassword(), port, new String[]{"rm -rf " + targetDir});
@@ -117,7 +166,9 @@ public class TomcatRestartRemote extends TomcatRestart {
     }
 
     @Override
-    protected void copyOneFile(String tomcatModulesDir, File file) throws IOException {
+    protected void copyOneFile(String tomcatModulesDir, File file) throws Exception {
+        checkArchiveFiles(file, getFileDate(file));
+        setFileModificationDate(file);
         Scp.scpTo(getHost(), port, getUser(), getPassword(), tomcatModulesDir + getS() + file.getName(), file.getAbsolutePath());
         System.out.println(file.getAbsolutePath() + " --> copied to --> " + tomcatModulesDir + getS() + file.getName());
     }

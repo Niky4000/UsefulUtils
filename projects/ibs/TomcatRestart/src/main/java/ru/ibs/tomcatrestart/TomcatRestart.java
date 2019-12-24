@@ -1,16 +1,38 @@
 package ru.ibs.tomcatrestart;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.revwalk.RevCommit;
+import ru.ibs.tomcatrestart.bean.CommitBean;
 
 /**
  *
@@ -21,7 +43,7 @@ public class TomcatRestart {
     private static final String CONFIG_FILE_NAME = "properties.txt";
     private static final String CONFIG_REMOTE_FILE_NAME = "properties_remote.txt";
     private String s = File.separator;
-    private boolean targetSystemIsLinux = false;
+    protected boolean targetSystemIsLinux = false;
 
     private static final int TIME_TO_WAIT = 10000;
 
@@ -59,7 +81,8 @@ public class TomcatRestart {
     }
 
     public static void main(String[] args) throws Exception {
-
+//        String output = Scp.createSshClient("192.168.192.111", "hello", "world", 9084, new String[]{"ls -l"});
+//        Scp.scpTo("192.168.192.111", 9084, "hello", "world", "/tmp/zxxx.txt", "D:\\tmp\\zxxx.txt");
         List<String> argsList = new ArrayList<>(args.length);
         Collections.addAll(argsList, args);
 
@@ -68,6 +91,7 @@ public class TomcatRestart {
             tomcatRestart = new TomcatRestartRemote(getConfigFileName(argsList, CONFIG_REMOTE_FILE_NAME));
             tomcatRestart.setS("/");
             tomcatRestart.setTargetSystemIsLinux(true);
+            ((TomcatRestartRemote) tomcatRestart).getFileModificationDate();
         } else if (argsList.contains("-r")) {
             tomcatRestart = new TomcatRestartRemote(getConfigFileName(argsList, CONFIG_REMOTE_FILE_NAME));
         } else {
@@ -95,17 +119,6 @@ public class TomcatRestart {
         String[] deleteFilesPath = tomcatRestart.getDeleteFilesPath();
         String[] deleteDirsPath = tomcatRestart.getDeleteDirsPath();
 
-        tomcatRestart.initActions();
-
-        for (String path : deleteDirPath) {
-            tomcatRestart.deleteDir(path);
-        }
-        for (String path : deleteFilesPath) {
-            tomcatRestart.deleteFiles(path);
-        }
-        for (String path : deleteDirsPath) {
-            tomcatRestart.deleteDirs(path);
-        }
         if (!argsList.contains("-clean")) {
             tomcatRestart.getPmpClientFromServer(tomcatModulesDir, pmpClientPath, sshPmpClientPath, host, user, password);
             if (particularModules == null) {
@@ -118,6 +131,16 @@ public class TomcatRestart {
                         throw new RuntimeException("Copying one file " + module + " in modules mode caused Fatal Error!", e);
                     }
                 });
+            }
+            tomcatRestart.initActions();
+            for (String path : deleteDirPath) {
+                tomcatRestart.deleteDir(path);
+            }
+            for (String path : deleteFilesPath) {
+                tomcatRestart.deleteFiles(path);
+            }
+            for (String path : deleteDirsPath) {
+                tomcatRestart.deleteDirs(path);
             }
             tomcatRestart.postActions();
         }
@@ -169,6 +192,13 @@ public class TomcatRestart {
     protected void postActions() {
     }
 
+    protected void setFileModificationDate(File file) {
+    }
+
+    protected Date getFileDate(File file) {
+        return null;
+    }
+
     protected void copyModulesFromArch(String tomcatModulesDir, String targetUnpackDir, String modules, String zipArchPath) throws Exception {
         String targetModulesDir = targetUnpackDir + modules;
         File targetDir = new File(targetUnpackDir);
@@ -180,6 +210,184 @@ public class TomcatRestart {
         } else {
             System.out.println("Modules already had been updated!");
         }
+    }
+
+    private Map<String, CommitBean> parseJSONcommits(byte[] string) throws Exception {
+//        File file = new File("D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all\\modules\\module-pmp\\WEB-INF\\classes\\changelog.json");
+//        byte[] bytes = new String(Files.readAllBytes(file.toPath()), "cp1251").getBytes("utf-8");
+        byte[] bytes = new String(string, "cp1251").getBytes("utf-8");
+//        if (file.exists()) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            List<CommitBean> readValue = objectMapper.readValue(bytes, new TypeReference<List<CommitBean>>() {
+            });
+            if (readValue != null) {
+                return readValue.stream().collect(Collectors.toMap(CommitBean::getId, obj -> obj));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        }
+        return null;
+    }
+
+    static byte[] jsonBytes;
+
+    private void getGitLogs(byte[] stringBytes) throws Exception {
+        if (jsonBytes == null) {
+            Map<String, CommitBean> parseJSONcommits = parseJSONcommits(stringBytes);
+//    Git git = Git.open(new File(repositoryDir.getAbsolutePath() + "/.git"));
+            CommitBean earliest = parseJSONcommits.values().stream().min((obj1, obj2) -> obj1.getDateAsDate().compareTo(obj2.getDateAsDate())).get();
+            CommitBean latest = parseJSONcommits.values().stream().max((obj1, obj2) -> obj1.getDateAsDate().compareTo(obj2.getDateAsDate())).get();
+//        parseJSONcommits.values().stream().collect(Collectors.toMap(obj->obj.getCommitterName(), obj->obj.getAuthorName()));
+            System.out.println(earliest.getId() + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(earliest.getDateAsDate()));
+            File repositoryDir = new File("D:\\GIT\\pmp");
+            Git git = Git.open(new File(repositoryDir.getAbsolutePath() + "/.git"));
+//        Iterable<RevCommit> iterable = git.log().call();
+            Iterable<RevCommit> iterable = git.log().add(git.getRepository().resolve("heads/develop")).call();
+            Iterator<RevCommit> iterator = iterable.iterator();
+            List<CommitBean> commitBeanList = new ArrayList<>();
+            while (iterator.hasNext()) {
+                CommitBean commitBean = new CommitBean();
+                RevCommit commit = iterator.next();
+                PersonIdent authorIdent = commit.getAuthorIdent();
+                Date authorDate = authorIdent.getWhen();
+                TimeZone authorTimeZone = authorIdent.getTimeZone();
+                if (authorDate.before(earliest.getDateAsDate())) {
+                    break;
+                }
+                String id = commit.getId().toString();
+                Date date = new Date(commit.getCommitTime() * 1000);
+                String name = commit.getCommitterIdent().getName();
+                String emailAddress = commit.getCommitterIdent().getEmailAddress();
+                String fullMessage = commit.getFullMessage();
+//            System.out.println(id + " " + " authorDate: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(authorDate) + " name: " + name + " emailAddress: " + emailAddress + " fullMessage: " + fullMessage);
+                commitBean.setId(id);
+                commitBean.setAuthorName(name);
+                commitBean.setAuthorEmail(emailAddress);
+                commitBean.setCommitterEmail(emailAddress);
+                commitBean.setCommitterName(name);
+                commitBean.setDate(authorDate);
+                commitBean.setMessage(fullMessage);
+                commitBeanList.add(commitBean);
+            }
+            Map<String, CommitBean> commitBeanMap = commitBeanList.stream().collect(Collectors.toMap(CommitBean::getId, obj -> obj));
+            parseJSONcommits.entrySet().removeIf(entry -> commitBeanMap.containsKey(entry.getKey()));
+            List<CommitBean> list = commitBeanMap.values().stream().filter(obj -> !obj.getMessage().startsWith("Merge branch")).filter(obj -> latest.getDateAsDate().before(obj.getDateAsDate())).collect(Collectors.toList());
+            Collection<CommitBean> values = parseJSONcommits.values();
+            list.addAll(values);
+            List<CommitBean> resultList = list.stream().sorted().collect(Collectors.toList());
+//        List<CommitBean> resultList = parseJSONcommits.values().stream().sorted().collect(Collectors.toList());
+            ObjectMapper objectMapper = new ObjectMapper();
+//            File outputfile = new File("D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all\\modules\\module-pmp\\WEB-INF\\classes\\changelogOut.json");
+            ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+            objectMapper.writeValue(byteOutputStream, resultList);
+            String string = new String(byteOutputStream.toByteArray());
+
+            String replaceAll = string.replaceAll(",", ", ").replace("{", "{ ").replace("},", " }\r\n  ,").replaceFirst("\\[", "[\r\n    ");
+            replaceAll = replaceAll.substring(0, replaceAll.lastIndexOf("}]")) + " }\r\n]";
+            replaceAll = replaceAll.replace("}]", " } ]");
+            jsonBytes = replaceAll.getBytes();
+//            if (outputfile.exists()) {
+//                outputfile.delete();
+//            }
+//            Files.write(outputfile.toPath(), jsonBytes, StandardOpenOption.CREATE_NEW);
+            System.out.println();
+        }
+    }
+
+    private void changeFileChangeDate(File file, Date date) {
+        if (date != null) {
+            file.setLastModified(date.getTime());
+        }
+    }
+
+    protected void checkArchiveFiles(File file, Date archiveDate) throws Exception {
+        File file2 = new File(file.getParentFile().getAbsolutePath() + File.separator + file.getName().substring(0, file.getName().indexOf(".")) + "2" + file.getName().substring(file.getName().indexOf(".")));
+        if (file.getName().endsWith(".war")) {
+            ZipFile zipFile = new ZipFile(file);
+            final ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file2));
+            for (Enumeration e = zipFile.entries(); e.hasMoreElements();) {
+                ZipEntry entryIn = (ZipEntry) e.nextElement();
+                InputStream is = zipFile.getInputStream(entryIn);
+                int available = is.available();
+                byte[] buf = new byte[available];
+                int len;
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                while ((len = is.read(buf)) > 0) {
+                    byteArrayOutputStream.write(buf, 0, len);
+                }
+                byte[] toByteArray = byteArrayOutputStream.toByteArray();
+                if (!entryIn.getName().endsWith(".class") && !entryIn.getName().endsWith("/") && !entryIn.getName().endsWith(".wsdl") && !entryIn.getName().endsWith(".jar")) {
+//                    System.out.println(entryIn.getName());
+                    String s = new String(toByteArray);
+//                    System.out.println();
+//                    System.out.println();
+//                    System.out.println();
+//                    System.out.println();
+                    s = falsifyString(entryIn.getName(), toByteArray, s, archiveDate);
+//                    if (!entryIn.getName().endsWith("changelog.json")) {
+//                        System.out.println(s);
+//                    }
+//                    System.out.println();
+//                    System.out.println();
+//                    System.out.println();
+//                    System.out.println();
+                    ZipEntry zipEntry = new ZipEntry(entryIn.getName());
+                    if (archiveDate != null) {
+                        zipEntry.setTime(archiveDate.getTime());
+                    }
+                    zos.putNextEntry(zipEntry);
+                    zos.write(s.getBytes(), 0, s.getBytes().length);
+                } else {
+                    if (archiveDate != null) {
+                        entryIn.setTime(archiveDate.getTime());
+                    }
+                    zos.putNextEntry(entryIn);
+                    zos.write(toByteArray, 0, toByteArray.length);
+                }
+                zos.closeEntry();
+            }
+            zos.close();
+            zipFile.close();
+            file.delete();
+            file2.renameTo(file);
+            changeFileChangeDate(file, archiveDate);
+        }
+    }
+    static Pattern builtBy = Pattern.compile("(Built-By: )(.+?)([\\s\n$])");
+    static Pattern buildJdk = Pattern.compile("(Build-Jdk: )(.+?)([\\s\n$])");
+    static Pattern maven = Pattern.compile("(#Generated by Maven).*?\n(.+?)\n", Pattern.DOTALL);
+    static Pattern buildTimestamp = Pattern.compile("(build.timestamp=)(.+?\\s.+?)([\\s\n$])");
+    static Pattern buildTime = Pattern.compile("(Build-Time: )(.+?\\s.+?)([\\s\n$])");
+    static Pattern json = Pattern.compile("^[.+]$", Pattern.DOTALL);
+
+    private String falsifyString(String fileName, byte[] toByteArray, String string, Date archiveDate) throws Exception {
+        //        string = string.replaceAll("Built-By: IBS_ERZL", "Built-By: IBS");
+//        string = string.replaceAll("Build-Jdk: 1.8.0_102", "Build-Jdk: 1.8.0");
+//        string = string.replaceAll("(#Generated by Maven.+\\n).+?\\n", "$1");
+        string = applyChange(string, builtBy, "IBS");
+        string = applyChange(string, buildJdk, "1.8.0");
+        string = applyChange(string, maven, "\n#" + new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy", new Locale("en", "EN")).format(archiveDate), "\n");
+        string = applyChange(string, buildTimestamp, new SimpleDateFormat("dd-MM-yyyy HH:mm").format(archiveDate));
+        string = applyChange(string, buildTime, new SimpleDateFormat("dd-MM-yyyy HH:mm").format(archiveDate));
+        if (json.matcher(string).matches() || fileName.endsWith("changelog.json")) {
+            getGitLogs(toByteArray);
+            string = new String(jsonBytes, "utf-8");
+        }
+        return string;
+    }
+
+    private String applyChange(String string, Pattern pattern, String valueToChange, String valueToSet) {
+        Matcher matcher = pattern.matcher(string);
+        if (matcher.find()) {
+            string = matcher.replaceAll("$1" + valueToChange + valueToSet);
+        }
+        return string;
+    }
+
+    private String applyChange(String string, Pattern pattern, String valueToChange) {
+        return applyChange(string, pattern, valueToChange, "$3");
     }
 
     protected void copyFiles(String targetModulesDir, String tomcatModulesDir) throws Exception {
@@ -203,7 +411,9 @@ public class TomcatRestart {
         dir.mkdirs();
     }
 
-    protected void copyOneFile(String tomcatModulesDir, File file) throws IOException {
+    protected void copyOneFile(String tomcatModulesDir, File file) throws Exception {
+        checkArchiveFiles(file, getFileDate(file));
+        setFileModificationDate(file);
         File targetFile = new File(tomcatModulesDir + s + file.getName());
         Files.copy(file.toPath(), targetFile.toPath(), REPLACE_EXISTING);
         System.out.println(file.getAbsolutePath() + " --> copied to --> " + targetFile.getAbsolutePath());

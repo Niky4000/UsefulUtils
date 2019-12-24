@@ -5,6 +5,9 @@
  */
 package ru.ibs.pmp.zzztestapplication;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Stopwatch;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.LocationTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
@@ -15,10 +18,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.InetAddress;
@@ -43,16 +49,23 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.LongSummaryStatistics;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -64,14 +77,24 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import ru.ibs.pmp.zzztestapplication.bean.CommitBean;
+import ru.ibs.pmp.zzztestapplication.bean.SomeBean1;
+import ru.ibs.pmp.zzztestapplication.bean.SomeBean2;
 import ru.ibs.pmp.zzztestapplication.threads.ConnectionMonitorDaemon;
 import ru.ibs.pmp.zzztestapplication.threads.TreadTest;
 import ru.ibs.pmp.zzztestapplication.threads.bean.MonitorBean;
@@ -140,7 +163,344 @@ public class SomeClass {
 //        System.out.println(StringScramble("he3llko", "hello"));
 //        System.out.println(CoinDeterminer(250));
 //        System.out.println(GasStation(new String[]{"4", "1:1", "2:2", "1:2", "0:1"}));
-        System.out.println(GasStation(new String[] {"5","0:1","2:1","3:2","4:6","4:3"}));
+//        System.out.println(GasStation(new String[] {"5","0:1","2:1","3:2","4:6","4:3"}));
+//        testJoinString("XXX, YYY, KKK, DDD");
+//        testJoinString("XXX, YYY");
+//        testJoinString("XXX");
+//        testConversion();
+//        appendFile("Hello!");
+//        appendFile("\nWorld!");
+//        checkPattern();
+//        checkStrings();
+//        checkDate();
+//        checkArchiveFiles("D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all\\modules\\module-lpu-registry-pmp.war", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-12-01 12:54:32"));
+        checkArchiveFiles("D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all\\modules\\module-pmp.war", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-12-01 12:54:32"));
+//        Set<String> set = new HashSet<>();
+//        IntStream.rangeClosed('A', 'Z').forEach(c -> set.add(Character.toString((char) c)));
+//        System.out.println(set);
+        logEntity("1234567890", 4);
+    }
+
+    private static void logEntity(Object entity, int operationDescriptionFieldLength) {
+        String entityStringRepresentation = entity.toString();
+        int index = 0;
+        while (index < entityStringRepresentation.length()) {
+            String entityStringRepresentationPart = entityStringRepresentation.substring(index, Math.min(entityStringRepresentation.length(), index + operationDescriptionFieldLength));
+            index += operationDescriptionFieldLength;
+            System.out.println(entityStringRepresentationPart);
+        }
+    }
+
+    private static Map<String, CommitBean> parseJSONcommits(byte[] string) throws Exception {
+//        File file = new File("D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all\\modules\\module-pmp\\WEB-INF\\classes\\changelog.json");
+//        byte[] bytes = new String(Files.readAllBytes(file.toPath()), "cp1251").getBytes("utf-8");
+        byte[] bytes = new String(string, "cp1251").getBytes("utf-8");
+//        if (file.exists()) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            List<CommitBean> readValue = objectMapper.readValue(bytes, new TypeReference<List<CommitBean>>() {
+            });
+            if (readValue != null) {
+                return readValue.stream().collect(Collectors.toMap(CommitBean::getId, obj -> obj));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        }
+        return null;
+    }
+
+    static byte[] jsonBytes;
+
+    private static void getGitLogs(byte[] stringBytes) throws Exception {
+        if (jsonBytes == null) {
+            Map<String, CommitBean> parseJSONcommits = parseJSONcommits(stringBytes);
+//    Git git = Git.open(new File(repositoryDir.getAbsolutePath() + "/.git"));
+            CommitBean earliest = parseJSONcommits.values().stream().min((obj1, obj2) -> obj1.getDateAsDate().compareTo(obj2.getDateAsDate())).get();
+            CommitBean latest = parseJSONcommits.values().stream().max((obj1, obj2) -> obj1.getDateAsDate().compareTo(obj2.getDateAsDate())).get();
+//        parseJSONcommits.values().stream().collect(Collectors.toMap(obj->obj.getCommitterName(), obj->obj.getAuthorName()));
+            System.out.println(earliest.getId() + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(earliest.getDateAsDate()));
+            File repositoryDir = new File("D:\\GIT\\pmp");
+            Git git = Git.open(new File(repositoryDir.getAbsolutePath() + "/.git"));
+//        Iterable<RevCommit> iterable = git.log().call();
+            Iterable<RevCommit> iterable = git.log().add(git.getRepository().resolve("heads/develop")).call();
+            Iterator<RevCommit> iterator = iterable.iterator();
+            List<CommitBean> commitBeanList = new ArrayList<>();
+            while (iterator.hasNext()) {
+                CommitBean commitBean = new CommitBean();
+                RevCommit commit = iterator.next();
+                PersonIdent authorIdent = commit.getAuthorIdent();
+                Date authorDate = authorIdent.getWhen();
+                TimeZone authorTimeZone = authorIdent.getTimeZone();
+                if (authorDate.before(earliest.getDateAsDate())) {
+                    break;
+                }
+                String id = commit.getId().toString();
+                Date date = new Date(commit.getCommitTime() * 1000);
+                String name = commit.getCommitterIdent().getName();
+                String emailAddress = commit.getCommitterIdent().getEmailAddress();
+                String fullMessage = commit.getFullMessage();
+//            System.out.println(id + " " + " authorDate: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(authorDate) + " name: " + name + " emailAddress: " + emailAddress + " fullMessage: " + fullMessage);
+                commitBean.setId(id);
+                commitBean.setAuthorName(name);
+                commitBean.setAuthorEmail(emailAddress);
+                commitBean.setCommitterEmail(emailAddress);
+                commitBean.setCommitterName(name);
+                commitBean.setDate(authorDate);
+                commitBean.setMessage(fullMessage);
+                commitBeanList.add(commitBean);
+            }
+            Map<String, CommitBean> commitBeanMap = commitBeanList.stream().collect(Collectors.toMap(CommitBean::getId, obj -> obj));
+            parseJSONcommits.entrySet().removeIf(entry -> commitBeanMap.containsKey(entry.getKey()));
+            List<CommitBean> list = commitBeanMap.values().stream().filter(obj -> !obj.getMessage().startsWith("Merge branch")).filter(obj -> latest.getDateAsDate().before(obj.getDateAsDate())).collect(Collectors.toList());
+            Collection<CommitBean> values = parseJSONcommits.values();
+            list.addAll(values);
+            List<CommitBean> resultList = list.stream().sorted().collect(Collectors.toList());
+//        List<CommitBean> resultList = parseJSONcommits.values().stream().sorted().collect(Collectors.toList());
+            ObjectMapper objectMapper = new ObjectMapper();
+//            File outputfile = new File("D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all\\modules\\module-pmp\\WEB-INF\\classes\\changelogOut.json");
+            ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+            objectMapper.writeValue(byteOutputStream, resultList);
+            String string = new String(byteOutputStream.toByteArray());
+
+            String replaceAll = string.replaceAll(",", ", ").replace("{", "{ ").replace("},", " }\r\n  ,").replaceFirst("\\[", "[\r\n    ");
+            replaceAll = replaceAll.substring(0, replaceAll.lastIndexOf("}]")) + " }\r\n]";
+            replaceAll = replaceAll.replace("}]", " } ]");
+            jsonBytes = replaceAll.getBytes();
+//            if (outputfile.exists()) {
+//                outputfile.delete();
+//            }
+//            Files.write(outputfile.toPath(), jsonBytes, StandardOpenOption.CREATE_NEW);
+            System.out.println();
+        }
+    }
+
+    private static void checkArchiveFiles(String fileName, Date archiveDate) throws Exception {
+        File file = new File(fileName);
+        File file2 = new File(file.getParentFile().getAbsolutePath() + File.separator + file.getName().substring(0, file.getName().indexOf(".")) + "2" + file.getName().substring(file.getName().indexOf(".")));
+        if (file.getName().endsWith(".war")) {
+            ZipFile zipFile = new ZipFile(file);
+            final ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file2));
+            for (Enumeration e = zipFile.entries(); e.hasMoreElements();) {
+                ZipEntry entryIn = (ZipEntry) e.nextElement();
+                InputStream is = zipFile.getInputStream(entryIn);
+                int available = is.available();
+                byte[] buf = new byte[available];
+                int len;
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                while ((len = is.read(buf)) > 0) {
+                    byteArrayOutputStream.write(buf, 0, len);
+                }
+                byte[] toByteArray = byteArrayOutputStream.toByteArray();
+                if (!entryIn.getName().endsWith(".class") && !entryIn.getName().endsWith("/") && !entryIn.getName().endsWith(".wsdl") && !entryIn.getName().endsWith(".jar")) {
+                    System.out.println(entryIn.getName());
+                    String s = new String(toByteArray);
+
+                    System.out.println();
+                    System.out.println();
+                    System.out.println();
+                    System.out.println();
+                    s = falsifyString(entryIn.getName(), toByteArray, s, archiveDate);
+                    if (!entryIn.getName().endsWith("changelog.json")) {
+                        System.out.println(s);
+                    }
+                    System.out.println();
+                    System.out.println();
+                    System.out.println();
+                    System.out.println();
+                    zos.putNextEntry(new ZipEntry(entryIn.getName()));
+                    zos.write(s.getBytes(), 0, s.getBytes().length);
+                } else {
+                    zos.putNextEntry(entryIn);
+                    zos.write(toByteArray, 0, toByteArray.length);
+                }
+
+//                if (!entryIn.getName().endsWith(".class")) {
+//                    zos.putNextEntry(entryIn);
+//                    InputStream is = zipFile.getInputStream(entryIn);
+//                    byte[] buf = new byte[1024];
+//                    int len;
+//                    while ((len = is.read(buf)) > 0) {
+//                        zos.write(buf, 0, len);
+//                    }
+//                } else {
+//                    zos.putNextEntry(new ZipEntry("abc.txt"));
+//
+//                    InputStream is = zipFile.getInputStream(entryIn);
+//                    byte[] buf = new byte[1024];
+//                    int len;
+//                    while ((len = (is.read(buf))) > 0) {
+//                        String s = new String(buf);
+//                        if (s.contains("key1=value1")) {
+//                            buf = s.replaceAll("key1=value1", "key1=val2").getBytes();
+//                        }
+//                        zos.write(buf, 0, (len < buf.length) ? len : buf.length);
+//                    }
+//                }
+                zos.closeEntry();
+            }
+            zos.close();
+        }
+    }
+
+    static Pattern builtBy = Pattern.compile("(Built-By: )(.+?)[\\s\n$]");
+    static Pattern buildJdk = Pattern.compile("(Build-Jdk: )(.+?)[\\s\n$]");
+    static Pattern maven = Pattern.compile("(#Generated by Maven).*?\n(.+?)\n", Pattern.DOTALL);
+    static Pattern buildTimestamp = Pattern.compile("(build.timestamp=)(.+?\\s.+?)[\\s\n$]");
+    static Pattern json = Pattern.compile("^[.+]$", Pattern.DOTALL);
+
+    private static String falsifyString(String fileName, byte[] toByteArray, String string, Date archiveDate) throws Exception {
+        //        string = string.replaceAll("Built-By: IBS_ERZL", "Built-By: IBS");
+//        string = string.replaceAll("Build-Jdk: 1.8.0_102", "Build-Jdk: 1.8.0");
+//        string = string.replaceAll("(#Generated by Maven.+\\n).+?\\n", "$1");
+        string = applyChange(string, builtBy, "IBS");
+        string = applyChange(string, buildJdk, "1.8.0");
+        string = applyChange(string, maven, "\n#" + new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy", new Locale("en", "EN")).format(archiveDate) + "\n");
+        string = applyChange(string, buildTimestamp, new SimpleDateFormat("dd-MM-yyyy HH:mm").format(archiveDate));
+        if (json.matcher(string).matches() || fileName.endsWith("changelog.json")) {
+            getGitLogs(toByteArray);
+            string = new String(jsonBytes, "utf-8");
+        }
+        return string;
+    }
+
+    private static String applyChange(String string, Pattern pattern, String valueToChange) {
+        Matcher matcher = pattern.matcher(string);
+        if (matcher.find()) {
+            string = matcher.replaceAll("$1" + valueToChange);
+        }
+        return string;
+    }
+
+    private static void checkDate() throws ParseException {
+//        Date date = new SimpleDateFormat("yyyy MMM dd",new Locale("en", "EN")).parse("2019 Jul 01");
+//        Date date = new SimpleDateFormat("yyyy mm dd").parse("2019 12 01");
+//        System.out.println(date.toString());
+//        Pattern pattern = Pattern.compile("^.+?\\s.+?\\s.+?\\s.+?\\s.+?\\s.+?\\s(.+?)\\s(.+?)\\s(.+?)\\s(.+?)$", Pattern.DOTALL);
+        Pattern pattern = Pattern.compile("^.+?\\s.+?\\s.+?\\s.+?\\s.+?\\s(.+?)\\s(.+?)\\s(.+?)\\s(.+?)$", Pattern.DOTALL);
+        String kk = "-rw-r--r-- 1 root root  67725237 Dec 11 16:15 admin-panel.war";
+        String yy = kk.replaceAll("\\s+?([^\\s])", " $1");
+        Matcher matcher = pattern.matcher(yy);
+        if (matcher.find()) {
+            String month = matcher.group(1);
+            String day = matcher.group(2);
+            String time = matcher.group(3);
+            String moduleName = matcher.group(4);
+            String gg = "";
+        }
+    }
+
+    private static void checkStrings() {
+        String str1 = StringUtils.join(new ArrayList<String>(), ", ");
+        String str2 = StringUtils.join(Arrays.asList("1", "2", "3"), ", ");
+        System.out.println("str1 = " + str1);
+        System.out.println("str2 = " + str2);
+    }
+
+    private static void checkPattern() {
+        Pattern checkPattern = Pattern.compile("^.+[а-яА-Я].+$");
+        String checkString = "dcv42-4323??!!АЯва";
+        String checkString2 = "!#1234''???><><%%%";
+        boolean matches = checkPattern.matcher(checkString).matches();
+        boolean matches2 = checkPattern.matcher(checkString2).matches();
+        System.out.println((matches ? "matches - true" : "matches - false") + (matches2 ? " matches2 - true" : " matches2 - false"));
+    }
+
+    private static void appendFile(String join) throws IOException {
+        File file = new File("D:\\tmp\\zzzz\\trace.log");
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        Files.write(file.toPath(), join.getBytes(), StandardOpenOption.APPEND);
+    }
+
+    private static void testConversion() {
+        final long size = 100000L;
+        final int loopSize = 20;
+        List<Long> elapsed1List = new ArrayList<>(loopSize);
+        List<Long> elapsed2List = new ArrayList<>(loopSize);
+        List<Long> elapsed3List = new ArrayList<>(loopSize);
+//        List<Long> differenceList = new ArrayList<>(loopSize);
+        for (int j = 0; j < loopSize; j++) {
+            List<SomeBean1> list1 = new ArrayList<>((int) size);
+            for (long i = 0L; i < size; i++) {
+                SomeBean1 someBean1 = new SomeBean1();
+                someBean1.setId(i);
+                someBean1.setData(i + " Some Data!");
+                someBean1.setCreated(new Date());
+                list1.add(someBean1);
+            }
+            Stopwatch stopwatch1 = Stopwatch.createStarted();
+            List<SomeBean2> list21 = list1.stream().map(obj -> convert(obj)).collect(Collectors.toList());
+            long elapsed1 = stopwatch1.elapsed(TimeUnit.MICROSECONDS);
+            Stopwatch stopwatch2 = Stopwatch.createStarted();
+            List<SomeBean2> list22 = list1.stream().map(obj -> convert2(obj)).collect(Collectors.toList());
+            long elapsed2 = stopwatch2.elapsed(TimeUnit.MICROSECONDS);
+            Stopwatch stopwatch3 = Stopwatch.createStarted();
+            List<SomeBean2> list23 = list1.stream().map(obj -> convert3(obj)).collect(Collectors.toList());
+            long elapsed3 = stopwatch3.elapsed(TimeUnit.MICROSECONDS);
+//            long difference = elapsed1 - elapsed2;
+            elapsed1List.add(elapsed1);
+            elapsed2List.add(elapsed2);
+            elapsed3List.add(elapsed3);
+//            differenceList.add(difference);
+            System.out.println("j = " + j + "!");
+        }
+        LongSummaryStatistics elapsed1SummaryStatistics = elapsed1List.stream().mapToLong(x -> x).summaryStatistics();
+        LongSummaryStatistics elapsed2SummaryStatistics = elapsed2List.stream().mapToLong(x -> x).summaryStatistics();
+        LongSummaryStatistics elapsed3SummaryStatistics = elapsed3List.stream().mapToLong(x -> x).summaryStatistics();
+//        LongSummaryStatistics differenceSummaryStatistics = differenceList.stream().mapToLong(x -> x).summaryStatistics();
+        System.out.println("elapsed1 = " + elapsed1SummaryStatistics.getAverage() + " elapsed2 = " + elapsed2SummaryStatistics.getAverage() + " elapsed3 = " + elapsed3SummaryStatistics.getAverage() + "!");
+    }
+
+    static Map<String, Field> wsAuthInfoFieldNameMap = Arrays.stream(SomeBean2.class.getDeclaredFields()).collect(Collectors.toMap(field -> field.getName(), field -> field));
+    static Map<String, Field> authInfoFieldNameMap = Arrays.stream(SomeBean1.class.getDeclaredFields()).collect(Collectors.toMap(field -> field.getName(), field -> field));
+
+    private static SomeBean2 convert(SomeBean1 obj1) {
+        try {
+            SomeBean2 obj2 = new SomeBean2();
+            for (Entry<String, Field> entry : wsAuthInfoFieldNameMap.entrySet()) {
+                Field field = entry.getValue();
+                Field authInfoField = authInfoFieldNameMap.get(entry.getKey());
+                field.setAccessible(true);
+                authInfoField.setAccessible(true);
+                field.set(obj2, authInfoField.get(obj1));
+            }
+            return obj2;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static SomeBean2 convert2(SomeBean1 obj1) {
+        SomeBean2 obj2 = new SomeBean2();
+        obj2.setId(obj1.getId());
+        obj2.setData(obj1.getData());
+        obj2.setCreated(obj1.getCreated());
+        return obj2;
+    }
+
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    private static SomeBean2 convert3(SomeBean1 obj1) {
+        SomeBean2 obj2 = new SomeBean2();
+        String str = obj1.toString();
+        Map<String, String> propertyMap = Arrays.stream(str.substring(str.indexOf("{") + 1, str.indexOf("}")).split(",")).map(arr -> arr.split("=")).collect(Collectors.toMap(arr -> ((String) arr[0]).trim(), arr -> (String) arr[1]));
+        obj2.setId(Long.valueOf(propertyMap.get("id")));
+        obj2.setData(propertyMap.get("data"));
+        try {
+            obj2.setCreated(simpleDateFormat.parse(propertyMap.get("created")));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return obj2;
+    }
+
+    private static void testJoinString(String join) {
+        if (join.contains(",")) {
+            join = join.substring(0, join.lastIndexOf(",")) + " and" + join.substring(join.lastIndexOf(",") + 1);
+        }
+        System.out.println(join);
     }
 
     public static String GasStation(String[] strArr) {
@@ -469,7 +829,7 @@ public class SomeClass {
 
 //    private static final Pattern PART_PATTERN = Pattern.compile("^.+?_" + Strings.repeat("(\\d+?)[_-]$", 5), Pattern.DOTALL);
 //    private static final Pattern PART_PATTERN = Pattern.compile("^.+?_(\\d+?)[_-](\\d+?)[_-](\\d+?)[_-](\\d+?)[_-](\\d+?)$", Pattern.DOTALL);
-    private static Pattern PART_PATTERN = Pattern.compile("^.+?(-.+?)\\s(\\d+?)\\s(\\d\\d\\d\\d-\\d\\d).*$");
+    private static Pattern PART_PATTERN = Pattern.compile("^.+?(-.+?)[^\\w^\\d](\\d+?)[^\\w^\\d](\\d\\d\\d\\d-\\d\\d).*$");
 //    private static final Pattern PART_PATTERN = Pattern.compile("^.+?_(\\d+?)[_-](\\d+?)[_-](\\d+?)[_-](\\d+?)[_-](\\d+?)$", Pattern.DOTALL);
 
 //    private static final String patternPart = Strings.repeat("(\\\\d+?)[_-]", 5);
@@ -602,8 +962,8 @@ public class SomeClass {
     }
 
     private static void testPattern() {
-        Pattern win32ProcessPattern = Pattern.compile("^(.+?)\\s(.+?)\\s(\\d+?)$", Pattern.DOTALL);
-        Pattern win32ProcessPatternWithoutCmd = Pattern.compile("^(.+?)\\s(\\d+?)$", Pattern.DOTALL);
+        Pattern win32ProcessPattern = Pattern.compile("^(.+?)[^\\w^\\d](.+?)[^\\w^\\d](\\d+?)$", Pattern.DOTALL);
+        Pattern win32ProcessPatternWithoutCmd = Pattern.compile("^(.+?)[^\\w^\\d](\\d+?)$", Pattern.DOTALL);
         String str = "java.exe java -Xmx40G -Dpmp.config.path=C:\\recreateFor111\\2018_02_22__14_18_15\\conf\\runtime.properties -jar C:\\recreateFor111\\2018_02_22__14_18_15\\module-pmp-bill-recreate.jar -m 1932 2017-12 9640";
         Matcher winMatcher = win32ProcessPattern.matcher(str);
         if (winMatcher.find()) {
@@ -707,9 +1067,9 @@ public class SomeClass {
     }
 
     private static void encodingTrials() throws IOException {
-//        Path path = new File("D:\\GIT\\pmp\\pmp\\module-pmp-bill-recreate\\src\\test\\resources\\soapResponses\\tmp_8193710398\\Insured_25100582.xml").toPath();
-        Path path = new File("D:\\GIT\\pmp\\pmp\\module-pmp-bill-recreate\\src\\test\\resources\\soapResponses\\tmp_8193710398\\SQL.txt").toPath();
-        File file2 = new File("D:\\GIT\\pmp\\pmp\\module-pmp-bill-recreate\\src\\test\\resources\\soapResponses\\tmp_8193710398\\Insured_2.xml");
+//        Path path = new File("D:\\GIT\\pmp\\pmp\\module-pmp-bill-recreate[^\\w^\\d]rc\\test\\resources[^\\w^\\d]oapResponses\\tmp_8193710398\\Insured_25100582.xml").toPath();
+        Path path = new File("D:\\GIT\\pmp\\pmp\\module-pmp-bill-recreate[^\\w^\\d]rc\\test\\resources[^\\w^\\d]oapResponses\\tmp_8193710398\\SQL.txt").toPath();
+        File file2 = new File("D:\\GIT\\pmp\\pmp\\module-pmp-bill-recreate[^\\w^\\d]rc\\test\\resources[^\\w^\\d]oapResponses\\tmp_8193710398\\Insured_2.xml");
         Path path2 = file2.toPath();
         byte[] readAllBytes = Files.readAllBytes(path);
         String originalString = new String(readAllBytes);
@@ -742,7 +1102,7 @@ public class SomeClass {
             @Override
             public void run() {
                 try {
-                    File file = new File("D:\\tmp\\someTestFile.txt");
+                    File file = new File("D:\\tmp[^\\w^\\d]omeTestFile.txt");
                     try (final RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
                         final FileChannel fc = raf.getChannel();
                         final FileLock fl = fc.lock();
@@ -772,7 +1132,7 @@ public class SomeClass {
     }
 
     private static void testFileLocks_() throws Exception {
-        File file = new File("D:\\tmp\\someTestFile.txt");
+        File file = new File("D:\\tmp[^\\w^\\d]omeTestFile.txt");
         try (final RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
             final FileChannel fc = raf.getChannel();
             final FileLock fl = fc.tryLock();
@@ -1873,7 +2233,7 @@ public class SomeClass {
         for (String sql : sqlList) {
             sqlToFile.append(sql).append("\r\n");
         }
-        File file = new File("D:\\tmp\\sql.txt");
+        File file = new File("D:\\tmp[^\\w^\\d]ql.txt");
         if (!file.exists())
             file.createNewFile();
         Files.write(file.toPath(), sqlToFile.toString().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
@@ -1943,7 +2303,7 @@ public class SomeClass {
     }
 
     private static String testSAX() throws IOException {
-        return new String(Files.readAllBytes(new File("D:\\GIT\\pmp\\pmp\\module-pmp-bill-recreate\\src\\test\\resources\\recreate\\services_for_2397.sql").toPath()), "utf-8");
+        return new String(Files.readAllBytes(new File("D:\\GIT\\pmp\\pmp\\module-pmp-bill-recreate[^\\w^\\d]rc\\test\\resources\\recreate[^\\w^\\d]ervices_for_2397.sql").toPath()), "utf-8");
     }
 
     static class TableStructure {
