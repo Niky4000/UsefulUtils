@@ -13,7 +13,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -36,7 +35,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 import org.erzl.services.ErzlPump;
 import org.erzl.services.Policies;
@@ -183,6 +181,7 @@ import ru.ibs.pmp.service.impl.HospCaseServiceImpl;
 import ru.ibs.pmp.service.impl.SaveMedicalCaseServiceImpl;
 import ru.ibs.pmp.zlib.service.export.msk.parcel.util.ServiceHelper;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
+import ru.ibs.testpumputils.utils.XmlUtils;
 import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
@@ -198,11 +197,11 @@ public class PmpWsImplTest {
         });
 //        CreateUpdateAmbCaseRequestBean190601 createUpdateAmbCaseRequest = (CreateUpdateAmbCaseRequestBean190601) parseJSONcommits(createUpdateAmbCaseRequestStr.getBytes(), new TypeReference<CreateUpdateAmbCaseRequestBean190601>() {
 //        });
-        String authInfoStr = jaxbObjectToXML(authInfo, "wsAuthInfo");
-        String createUpdateAmbCaseRequestStr = jaxbObjectToXML(createUpdateAmbCaseRequest, "createUpdateAmbCaseRequest");
+        String authInfoStr = XmlUtils.jaxbObjectToXML(authInfo, "wsAuthInfo");
+        String createUpdateAmbCaseRequestStr = XmlUtils.jaxbObjectToXML(createUpdateAmbCaseRequest, "createUpdateAmbCaseRequest");
         PmpWsImpl pmpWsImpl = init();
         Result createUpdateAmbCaseResponse = pmpWsImpl.createUpdateAmbCase(authInfo, createUpdateAmbCaseRequest);
-        String createUpdateAmbCaseResponseStr = jaxbObjectToXML(createUpdateAmbCaseResponse, "createUpdateAmbCaseResponse");
+        String createUpdateAmbCaseResponseStr = XmlUtils.jaxbObjectToXML(createUpdateAmbCaseResponse, "createUpdateAmbCaseResponse");
         System.out.println(createUpdateAmbCaseResponseStr);
         sessionFactory.cleanSessions();
         sessionFactory.close();
@@ -237,7 +236,7 @@ public class PmpWsImplTest {
             urlStr = p.getProperty("runtime.erzl2.ws.url");
             sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
             authSessionFactoryProxy = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(buildAuthSessionFactory(), new SQLInterceptor(sql -> sql.replaceAll("PMP_PROD", "PMP_AUTH"))));
-            nsiSessionFactoryProxy = buildNsiSessionFactory();
+            nsiSessionFactoryProxy = TestPumpUtilsMain.buildNsiSessionFactory();
             final Session currentSession = authSessionFactoryProxy.getCurrentSession();
 //            SQLInterceptor interceptor = new SQLInterceptor();
 //            FieldUtil.setField(session, interceptor, "interceptor");
@@ -686,19 +685,6 @@ public class PmpWsImplTest {
         return sessionFactory;
     }
 
-    private static SessionFactory buildNsiSessionFactory() throws FileNotFoundException, IOException {
-        Properties p = new Properties();
-        p.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
-        Configuration configuration = new Configuration();
-        configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.nsi.db.url"));
-        configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.nsi.db.username"));
-        configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.nsi.db.password"));
-        EntityScanner.scanPackages("ru.ibs.pmp.auth.model").addTo(configuration);
-        configuration.configure();
-        SessionFactory sessionFactory = configuration.buildSessionFactory();
-        return sessionFactory;
-    }
-
     @Value("${runtime.erzl.ws.url}")
     private static String erzlUrlStr;
     @Value("${runtime.erzl2.ws.url}")
@@ -863,21 +849,6 @@ public class PmpWsImplTest {
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
         jaxbMarshaller.marshal(obj, byteArrayOutputStream);
         return byteArrayOutputStream.toString();
-    }
-
-    private static String jaxbObjectToXML(Object obj, String tag) {
-        try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass());
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            JAXBElement jaxbElement = new JAXBElement(new QName("", tag), obj.getClass(), obj);
-            jaxbMarshaller.marshal(jaxbElement, byteArrayOutputStream);
-            return byteArrayOutputStream.toString();
-        } catch (JAXBException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     private static <T> T unmarshall(byte[] bytes, Class<T> objClass) throws JAXBException {

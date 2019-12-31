@@ -34,6 +34,19 @@ public class TestPumpUtilsMain {
         return sessionFactory;
     }
 
+    public static SessionFactory buildNsiSessionFactory() throws FileNotFoundException, IOException {
+        Properties p = new Properties();
+        p.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
+        Configuration configuration = new Configuration();
+        configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.nsi.db.url"));
+        configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.nsi.db.username"));
+        configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.nsi.db.password"));
+        EntityScanner.scanPackages("ru.ibs.pmp.auth.model", "ru.ibs.pmp.api.nsi.model").addTo(configuration);
+        configuration.configure();
+        SessionFactory sessionFactory = configuration.buildSessionFactory();
+        return sessionFactory;
+    }
+
     public static void main(String args[]) throws Exception {
         System.out.println("Hello!!!");
 //        SessionFactoryInterface sessionFactoryProxy = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(buildSessionFactory(), new SqlRewriteInterceptorExt()));
@@ -42,7 +55,8 @@ public class TestPumpUtilsMain {
 //        testBillStatisticsDAOImpl(sessionFactoryProxy);
 //            Utils10733.start(sessionFactoryProxy);
 //            PmpWsImplTest.test(sessionFactoryProxy);
-            PmpWsImplTest.test();
+//            PmpWsImplTest.test();
+            AccountingPeriodServiceImplTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
