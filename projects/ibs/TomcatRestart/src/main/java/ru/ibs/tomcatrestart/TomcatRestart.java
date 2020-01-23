@@ -126,7 +126,7 @@ public class TomcatRestart {
             } else {
                 particularModules.forEach(module -> {
                     try {
-                        tomcatRestart.copyOneFile(tomcatModulesDir, new File(module));
+                        tomcatRestart.copyOneFile(tomcatModulesDir, new File(module), true);
                     } catch (Exception e) {
                         throw new RuntimeException("Copying one file " + module + " in modules mode caused Fatal Error!", e);
                     }
@@ -203,10 +203,10 @@ public class TomcatRestart {
         String targetModulesDir = targetUnpackDir + modules;
         File targetDir = new File(targetUnpackDir);
         if (!targetDir.exists()) {
-            UnZip.unZipIt(zipArchPath, targetDir.getAbsolutePath());
-            copyFiles(targetModulesDir, tomcatModulesDir);
+            UnZip.unZipIt(zipArchPath, targetDir.getAbsolutePath(), this::checkArchiveFiles);
+            copyFiles(targetModulesDir, tomcatModulesDir, false);
         } else if (targetDir.exists() && isForceCopy()) {
-            copyFiles(targetModulesDir, tomcatModulesDir);
+            copyFiles(targetModulesDir, tomcatModulesDir, false);
         } else {
             System.out.println("Modules already had been updated!");
         }
@@ -302,6 +302,14 @@ public class TomcatRestart {
         }
     }
 
+    protected void checkArchiveFiles(File file) {
+        try {
+            checkArchiveFiles(file, getFileDate(file));
+        } catch (Exception e) {
+            throw new RuntimeException("checkArchiveFiles Exception!", e);
+        }
+    }
+
     protected void checkArchiveFiles(File file, Date archiveDate) throws Exception {
         File file2 = new File(file.getParentFile().getAbsolutePath() + File.separator + file.getName().substring(0, file.getName().indexOf(".")) + "2" + file.getName().substring(file.getName().indexOf(".")));
         if (file.getName().endsWith(".war")) {
@@ -390,14 +398,14 @@ public class TomcatRestart {
         return applyChange(string, pattern, valueToChange, "$3");
     }
 
-    protected void copyFiles(String targetModulesDir, String tomcatModulesDir) throws Exception {
+    protected void copyFiles(String targetModulesDir, String tomcatModulesDir, boolean falsify) throws Exception {
         for (File file : new File(targetModulesDir).listFiles()) {
             if (!file.isDirectory()) {
-                copyOneFile(tomcatModulesDir, file);
+                copyOneFile(tomcatModulesDir, file, falsify);
             } else {
                 String targetDir = tomcatModulesDir + s + file.getName();
                 recreateTargetDir(targetDir);
-                copyFiles(file.getAbsolutePath(), targetDir);
+                copyFiles(file.getAbsolutePath(), targetDir, falsify);
             }
         }
         System.out.println("Modules updated!");
@@ -411,8 +419,10 @@ public class TomcatRestart {
         dir.mkdirs();
     }
 
-    protected void copyOneFile(String tomcatModulesDir, File file) throws Exception {
-        checkArchiveFiles(file, getFileDate(file));
+    protected void copyOneFile(String tomcatModulesDir, File file, boolean falsify) throws Exception {
+        if (falsify) {
+            checkArchiveFiles(file);
+        }
         setFileModificationDate(file);
         File targetFile = new File(tomcatModulesDir + s + file.getName());
         Files.copy(file.toPath(), targetFile.toPath(), REPLACE_EXISTING);

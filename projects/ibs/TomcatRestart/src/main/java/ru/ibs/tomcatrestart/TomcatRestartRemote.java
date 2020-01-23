@@ -166,8 +166,10 @@ public class TomcatRestartRemote extends TomcatRestart {
     }
 
     @Override
-    protected void copyOneFile(String tomcatModulesDir, File file) throws Exception {
-        checkArchiveFiles(file, getFileDate(file));
+    protected void copyOneFile(String tomcatModulesDir, File file, boolean falsify) throws Exception {
+        if (falsify) {
+            checkArchiveFiles(file);
+        }
         setFileModificationDate(file);
         Scp.scpTo(getHost(), port, getUser(), getPassword(), tomcatModulesDir + getS() + file.getName(), file.getAbsolutePath());
         System.out.println(file.getAbsolutePath() + " --> copied to --> " + tomcatModulesDir + getS() + file.getName());

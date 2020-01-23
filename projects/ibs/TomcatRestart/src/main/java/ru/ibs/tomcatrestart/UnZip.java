@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -25,7 +26,7 @@ public class UnZip {
      * @param zipFile input zip file
      * @param outputFolder
      */
-    public static void unZipIt(String zipFile, String outputFolder) {
+    public static void unZipIt(String zipFile, String outputFolder, Consumer<File> falsify) {
         byte[] buffer = new byte[1024];
         try {
             //create output directory is not exists
@@ -51,6 +52,7 @@ public class UnZip {
                         fos.write(buffer, 0, len);
                     }
                     fos.close();
+                    falsify.accept(newFile);
                 } else {
                     newFile.mkdirs();
                 }
