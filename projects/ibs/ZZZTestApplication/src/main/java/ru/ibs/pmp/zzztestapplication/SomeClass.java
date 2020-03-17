@@ -77,7 +77,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -92,6 +91,7 @@ import org.mozilla.universalchardet.UniversalDetector;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import ru.ibs.pmp.zzztestapplication.bean.BillStatisticsShortBean;
 import ru.ibs.pmp.zzztestapplication.bean.CommitBean;
 import ru.ibs.pmp.zzztestapplication.bean.SomeBean1;
 import ru.ibs.pmp.zzztestapplication.bean.SomeBean2;
@@ -174,11 +174,65 @@ public class SomeClass {
 //        checkStrings();
 //        checkDate();
 //        checkArchiveFiles("D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all\\modules\\module-lpu-registry-pmp.war", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-12-01 12:54:32"));
-        checkArchiveFiles("D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all\\modules\\module-pmp.war", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-12-01 12:54:32"));
+//        checkArchiveFiles("D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all\\modules\\module-pmp.war", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-12-01 12:54:32"));
 //        Set<String> set = new HashSet<>();
 //        IntStream.rangeClosed('A', 'Z').forEach(c -> set.add(Character.toString((char) c)));
 //        System.out.println(set);
-        logEntity("1234567890", 4);
+//        logEntity("1234567890", 4);
+//        testBillStatisticsShortBean();
+//        testDigitPattern();
+//        Semaphore semaphore = new Semaphore(0);
+//        semaphore.acquire();
+//        testPatternForMemory();
+//        OrganizationsThatDidNotSendBills.getReport();
+        testDateSort();
+    }
+
+    private static void testDateSort() throws ParseException {
+        List<Date> dates = Arrays.asList(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-02-01 10:00:00"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-02-02 10:00:00"), null, null);
+        Set<Date> set = dates.stream().collect(Collectors.toSet());
+        Collections.sort(dates, (obj1, obj2) -> {
+            if (obj1 == null && obj2 != null) {
+                return -1;
+            } else if (obj1 != null && obj2 == null) {
+                return 1;
+            } else if (obj1 == null && obj2 == null) {
+                return 0;
+            } else {
+                return -obj1.compareTo(obj2);
+            }
+        });
+        System.out.println(dates);
+    }
+
+    private static void testPatternForMemory() {
+        String str = "memory     98304.00    36521.68    61782.32    12534.26    39297.56   61747.70     Ded";
+        String digit = "[\\d\\.]+?\\s+?";
+        Matcher matcher = Pattern.compile("^memory\\s+?" + digit + digit + "(" + digit + ")" + ".+$").matcher(str);
+        if (matcher.find()) {
+            String digitStr = matcher.group(1);
+            Long freeMemory = digitStr.contains(".") ? Long.valueOf(digitStr.substring(0, digitStr.indexOf("."))) : Long.valueOf(digitStr);
+//            return freeMemory; // Megabytes
+            System.out.println(freeMemory);
+        }
+    }
+
+    private static void testDigitPattern() {
+        boolean matches = Pattern.compile("^\\d+$").matcher("123-4567890").matches();
+        if (matches) {
+            System.out.println("Matches!");
+        } else {
+            System.out.println("Not matches!");
+        }
+    }
+
+    private static void testBillStatisticsShortBean() {
+        List<Object[]> billStatisticsList = Arrays.asList(new Object[]{1L, new Date(), "1,2", "Hello!"}, new Object[]{1L, new Date(), "1,3", "Hello2!"}, new Object[]{2L, new Date(), "1,3", "Hello3!"});
+        Collection<BillStatisticsShortBean> list = billStatisticsList.stream().collect(Collectors.toMap(objArr -> (Long) objArr[0], BillStatisticsShortBean::new, (obj1, obj2) -> {
+            obj1.getOperationDescriptionList().addAll(obj2.getOperationDescriptionList());
+            return obj1;
+        })).values();
+        System.out.println();
     }
 
     private static void logEntity(Object entity, int operationDescriptionFieldLength) {
