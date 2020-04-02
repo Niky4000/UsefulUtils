@@ -2,7 +2,6 @@ package ru.ibs.testpumputils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fluent.hibernate.cfg.scanner.EntityScanner;
 import static com.google.common.net.HttpHeaders.USER_AGENT;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -10,8 +9,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
@@ -41,7 +38,6 @@ import org.erzl.services.Policies;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.context.ApplicationContext;
@@ -164,7 +160,6 @@ import ru.ibs.pmp.nsi.service.NsiValidationDataServiceImpl;
 import ru.ibs.pmp.persons.interfaces.ERZLPersonDAO;
 import ru.ibs.pmp.persons.ws.ERZLGuideDAOImpl;
 import ru.ibs.pmp.persons.ws.ERZLPersonDAOImplWS;
-import ru.ibs.pmp.pmp.ws.Result;
 import ru.ibs.pmp.practitioners.dao.PractitionerDao;
 import ru.ibs.pmp.practitioners.dao.PractitionerDaoImpl;
 import ru.ibs.pmp.service.AccountingPeriodService;
@@ -181,6 +176,8 @@ import ru.ibs.pmp.service.impl.HospCaseServiceImpl;
 import ru.ibs.pmp.service.impl.SaveMedicalCaseServiceImpl;
 import ru.ibs.pmp.zlib.service.export.msk.parcel.util.ServiceHelper;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
+import static ru.ibs.testpumputils.utils.ObjectUtils.buildAuthSessionFactory;
+import static ru.ibs.testpumputils.utils.ObjectUtils.getEntityManagerFactory;
 import ru.ibs.testpumputils.utils.XmlUtils;
 import sun.net.www.protocol.http.HttpURLConnection;
 
@@ -200,9 +197,9 @@ public class PmpWsImplTest {
         String authInfoStr = XmlUtils.jaxbObjectToXML(authInfo, "wsAuthInfo");
         String createUpdateAmbCaseRequestStr = XmlUtils.jaxbObjectToXML(createUpdateAmbCaseRequest, "createUpdateAmbCaseRequest");
         PmpWsImpl pmpWsImpl = init();
-        Result createUpdateAmbCaseResponse = pmpWsImpl.createUpdateAmbCase(authInfo, createUpdateAmbCaseRequest);
-        String createUpdateAmbCaseResponseStr = XmlUtils.jaxbObjectToXML(createUpdateAmbCaseResponse, "createUpdateAmbCaseResponse");
-        System.out.println(createUpdateAmbCaseResponseStr);
+//        Result createUpdateAmbCaseResponse = pmpWsImpl.createUpdateAmbCase(authInfo, createUpdateAmbCaseRequest);
+//        String createUpdateAmbCaseResponseStr = XmlUtils.jaxbObjectToXML(createUpdateAmbCaseResponse, "createUpdateAmbCaseResponse");
+//        System.out.println(createUpdateAmbCaseResponseStr);
         sessionFactory.cleanSessions();
         sessionFactory.close();
         authSessionFactoryProxy.cleanSessions();
@@ -646,43 +643,6 @@ public class PmpWsImplTest {
         constructor.setAccessible(true);
         T obj = constructor.newInstance(null);
         return obj;
-    }
-
-    private static LocalContainerEntityManagerFactoryBean getEntityManagerFactory() throws FileNotFoundException, IOException {
-//        new org.apache.commons.dbcp2.BasicDataSource
-
-        Properties p = new Properties();
-        p.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
-
-        Map<String, String> properties = new HashMap<>();
-        properties.put("javax.persistence.jdbc.driver", p.getProperty("db.driver"));
-        properties.put("javax.persistence.jdbc.url", p.getProperty("runtime.pmp.db.url"));
-        properties.put("javax.persistence.jdbc.user", p.getProperty("runtime.pmp.db.username")); //if needed
-        properties.put("javax.persistence.jdbc.password", p.getProperty("runtime.pmp.db.password"));
-
-        LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-//        emf.setPersistenceProviderClass(org.eclipse.persistence.jpa.PersistenceProvider.class); //If your using eclipse or change it to whatever you're using
-        emf.setJpaVendorAdapter(new org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter());
-        emf.setPackagesToScan("ru.ibs.pmp.lpu.model.mo", "ru.ibs.pmp.auth.model", "ru.ibs.pmp.lpu.model.audit.mo", "ru.ibs.pmp.api.practitioners.model.practitioner", "ru.ibs.pmp.api.practitioners.model.audit.practitioner"); //The packages to search for Entities, line required to avoid looking into the persistence.xml
-//        emf.setPersistenceUnitName(SysConstants.SysConfigPU);
-        emf.setPersistenceUnitName("SysConfigPU");
-        emf.setJpaPropertyMap(properties);
-//        emf.setLoadTimeWeaver(new ReflectiveLoadTimeWeaver()); //required unless you know what your doing
-        emf.afterPropertiesSet();
-        return emf;
-    }
-
-    private static SessionFactory buildAuthSessionFactory() throws FileNotFoundException, IOException {
-        Properties p = new Properties();
-        p.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
-        Configuration configuration = new Configuration();
-        configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.smo.db.url"));
-        configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.pmp.auth.schema.name"));
-        configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.pmp.auth.schema.name"));
-        EntityScanner.scanPackages("ru.ibs.pmp.auth.model").addTo(configuration);
-        configuration.configure();
-        SessionFactory sessionFactory = configuration.buildSessionFactory();
-        return sessionFactory;
     }
 
     @Value("${runtime.erzl.ws.url}")

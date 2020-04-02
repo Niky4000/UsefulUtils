@@ -56,7 +56,9 @@ public class TestPumpUtilsMain {
 //            Utils10733.start(sessionFactoryProxy);
 //            PmpWsImplTest.test(sessionFactoryProxy);
 //            PmpWsImplTest.test();
-            AccountingPeriodServiceImplTest.test();
+//            AccountingPeriodServiceImplTest.test();
+//            BillStatisticsDAOHibernateTest.test();
+            RequirementControllerTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

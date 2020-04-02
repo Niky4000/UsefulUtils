@@ -20,7 +20,7 @@ public class XmlUtils {
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             JAXBElement jaxbElement = new JAXBElement(new QName("", tag), obj.getClass(), obj);
             jaxbMarshaller.marshal(jaxbElement, byteArrayOutputStream);
-            return byteArrayOutputStream.toString();
+            return byteArrayOutputStream.toString().replace("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", "");
         } catch (JAXBException e) {
             e.printStackTrace();
             return null;

@@ -1,0 +1,8 @@
+<aspectj>
+    <aspects>
+        <aspect name="ru.ibs.aspectjtest.aspectj.AccountAspect"/>
+        <weaver options="-verbose -showWeaveInfo">
+            <include within="ru.ibs.aspectjtest.aspectj.*"/>
+        </weaver>
+    </aspects>
+</aspectj>

@@ -17,11 +17,13 @@ import ru.ibs.pmp.api.nsi.interfaces.FindNsiEntries;
 import ru.ibs.pmp.api.service.payer.PayersService;
 import ru.ibs.pmp.api.service.smo.SmoService;
 import ru.ibs.pmp.common.ex.ExceptionFactory;
+import ru.ibs.pmp.dao.AccountingPeriodDao;
 import ru.ibs.pmp.dao.AudDAO;
 import ru.ibs.pmp.dao.RequirementDAO;
 import ru.ibs.pmp.dao.RevinfoDAO;
 import ru.ibs.pmp.dao.SmoDao;
 import ru.ibs.pmp.dao.hibernate.AbstractGenericDAO;
+import ru.ibs.pmp.dao.hibernate.AccountingPeriodDaoHibernate;
 import ru.ibs.pmp.dao.hibernate.BillDAOHibernate;
 import ru.ibs.pmp.dao.hibernate.CommonAudDAOHibernate;
 import ru.ibs.pmp.dao.hibernate.RequirementDAOHibernate;
@@ -84,6 +86,9 @@ public class AccountingPeriodServiceImplTest {
         RequirementDAO requirementDAO = new RequirementDAOHibernate();
         FieldUtil.setField(requirementService, ModulePmpAbstractGenericService.class, requirementDAO, "dao");
         FieldUtil.setField(requirementBuilder, requirementDAO, "requirementDAO");
+        
+        AccountingPeriodDao accountingPeriodDao=new AccountingPeriodDaoHibernate();
+        
 
         PayersService payersService = new PayerServiceImpl();
         RevinfoDAO revinfoDAO = new RevinfoDAOHibernate();
@@ -163,7 +168,7 @@ public class AccountingPeriodServiceImplTest {
         try {
             AccountingPeriodResponseDTO accountingPeriods = accountingPeriodServiceImpl.getAccountingPeriods(accountingPeriodDTO);
             String accountingPeriodsStr = XmlUtils.jaxbObjectToXML(accountingPeriods, "accountingPeriods");
-            System.out.println(accountingPeriodsStr.toString());
+            System.out.println(accountingPeriodsStr);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
