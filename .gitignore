@@ -53,3 +53,4 @@
 /projects/tutorials-master/tutorials-master/muleesb/.mule/queue-tx-log/*.log
 /projects/tutorials-master/tutorials-master/muleesb/.mule/queue-xa-tx-log/*.log
 /projects/tutorials-master/tutorials-master/spring-cloud-data-flow/data-flow-shell/*.log
+/different/TestProjects/Pump/ZZGenerateSendRequests/target/

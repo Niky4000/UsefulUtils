@@ -1,10 +1,12 @@
 package ru.ibs.testpumputils.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
 /**
@@ -25,5 +27,13 @@ public class XmlUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static <T> T unmarshall(byte[] bytes, Class<T> objClass) throws JAXBException {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+        JAXBContext jaxbContext = JAXBContext.newInstance(objClass);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+        T obj = (T) jaxbUnmarshaller.unmarshal(byteArrayInputStream);
+        return obj;
     }
 }
