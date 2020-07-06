@@ -78,6 +78,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -194,7 +196,9 @@ public class SomeClass {
 //        testPatternForMemory();
 //        OrganizationsThatDidNotSendBills.getReport();
 //        testDateSort();
+//        System.out.println(getMonthsDifference(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-05-05 22:14:44"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-08-08 20:20:20")));
 //        staticTest();
+        testAtomicReference();
 //        getCertificateDateEnd(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-15 00:00:00"));
 //        getCertificateDateEnd(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-03-15 00:00:00"));
         System.out.println(getMonthsDifference(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-28 00:00:00"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-08-15 00:00:00")));
@@ -202,6 +206,24 @@ public class SomeClass {
 //        new TransparentWatermark().create();
 //        new TransparentWatermark2().create();
 //        new TransparentWatermark3().create();
+    }
+
+    private static void testAtomicReference() throws ParseException {
+        Date date1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-05-05 22:14:44");
+        Date date2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-08-08 20:20:20");
+        final AtomicReference<Long> result = new AtomicReference<>();
+        Supplier<Long> getMonthsDifferenceSupplier = () -> result.updateAndGet((obj) -> obj != null ? obj : getMonthsDifference(date1, date2));
+        System.out.println(getMonthsDifferenceSupplier.get());
+        System.out.println(getMonthsDifferenceSupplier.get());
+        System.out.println(getMonthsDifferenceSupplier.get());
+    }
+
+    private static final long getMonthsDifference(Date date1, Date date2) {
+        Date truncate1 = DateUtils.truncate(date1, Calendar.MONTH);
+        Date truncate2 = DateUtils.truncate(date2, Calendar.MONTH);
+        LocalDate localDate1 = truncate1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDate2 = truncate2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return ChronoUnit.MONTHS.between(localDate1, localDate2);
     }
 
     private static final long getMonthsDifference(Date date1, Date date2) {
@@ -622,12 +644,13 @@ public class SomeClass {
         String IMPOSSIBLE = "impossible";
         List<Integer> possibleStartPoints = new ArrayList<>();
         for (int i = 1; i < strArr.length; i++) {
-            if (getGas(strArr[i]) >= getGasConsumption(strArr[i]))
+            if (getGas(strArr[i]) >= getGasConsumption(strArr[i])) {
                 possibleStartPoints.add(i);
+            }
         }
-        if (possibleStartPoints.isEmpty())
+        if (possibleStartPoints.isEmpty()) {
             return IMPOSSIBLE;
-        else {
+        } else {
             for (int startPoint : possibleStartPoints) {
                 boolean success = true;
                 int totalGas = 0;
@@ -641,8 +664,9 @@ public class SomeClass {
                         break;
                     }
                 }
-                if (success)
+                if (success) {
                     return startPoint + "";
+                }
             }
             return IMPOSSIBLE;
         }
@@ -658,8 +682,9 @@ public class SomeClass {
 //    1, 5, 7, 9, and 11
 
     public static int CoinDeterminer(int num) {
-        if (num < 1)
+        if (num < 1) {
             return 0;
+        }
         List<Integer> coins = Arrays.asList(11, 9, 7, 5, 1);
         int res = num;
         int index = 0;
@@ -681,27 +706,31 @@ public class SomeClass {
     public static String StringScramble(String str1, String str2) {
         final String TRUE = "true";
         final String FALSE = "false";
-        if (str1 == null || str2 == null || str1.length() == 0 || str2.length() == 0)
+        if (str1 == null || str2 == null || str1.length() == 0 || str2.length() == 0) {
             return FALSE;
+        }
         String[] split = str1.split("");
         String[] split2 = str2.split("");
         Map<String, Integer> map1 = Arrays.asList(split).stream().collect(Collectors.groupingBy(str -> str, Collectors.collectingAndThen(Collectors.toList(), ff -> ff.size())));
         Map<String, Integer> map2 = Arrays.asList(split2).stream().collect(Collectors.groupingBy(str -> str, Collectors.collectingAndThen(Collectors.toList(), ff -> ff.size())));
-        if (!map1.keySet().containsAll(map2.keySet()))
+        if (!map1.keySet().containsAll(map2.keySet())) {
             return FALSE;
+        }
         return map2.entrySet().stream().allMatch(entry -> {
             return map1.get(entry.getKey()) >= entry.getValue();
         }) ? TRUE : FALSE;
     }
 
     public static String Palindrome(String str) {
-        if (str == null)
+        if (str == null) {
             return "false";
+        }
         String modifiedString = str.replaceAll(" ", "").toLowerCase();
-        if (new StringBuilder(modifiedString).reverse().toString().equals(modifiedString))
+        if (new StringBuilder(modifiedString).reverse().toString().equals(modifiedString)) {
             return "true";
-        else
+        } else {
             return "false";
+        }
     }
 
     public static String LongestWord(String sen) {
@@ -746,14 +775,16 @@ public class SomeClass {
                     System.out.println("id = " + id.toString() + "!");
                     queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "during rs.next()"));
                     Thread.sleep(20);
-                    if (i.incrementAndGet() > 100)
+                    if (i.incrementAndGet() > 100) {
                         break;
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                if (rs != null)
+                if (rs != null) {
                     rs.close();
+                }
                 try {
                     if (statement != null) {
                         queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.COUNT, "before statement closed"));
@@ -829,10 +860,11 @@ public class SomeClass {
                 List<InvoiceModel> list = new ArrayList(rootEntry.getValue().values());
                 Collections.sort(list, (InvoiceModel obj1, InvoiceModel obj2) -> {
                     int compareTo = obj1.getInvoice().getMedicalCase().getCaseDate().compareTo(obj2.getInvoice().getMedicalCase().getCaseDate());
-                    if (compareTo == 0)
+                    if (compareTo == 0) {
                         return getPatientKey(obj1).compareTo(getPatientKey(obj2));
-                    else
+                    } else {
                         return -compareTo;
+                    }
                 });
                 InvoiceModel mainInvoiceModel = list.get(0);
                 for (int i = 1; i < list.size(); i++) {
@@ -937,8 +969,9 @@ public class SomeClass {
     }
 
     private static String cut(String str, int maxLength) {
-        if (str != null && str.length() > maxLength)
+        if (str != null && str.length() > maxLength) {
             str = str.substring(str.length() - maxLength, str.length());
+        }
         return str;
     }
 
@@ -1055,8 +1088,9 @@ public class SomeClass {
             }
             String retValue = ret.toString();
             return retValue.substring(0, retValue.length() - and.length());
-        } else
+        } else {
             return null;
+        }
     }
 
     private static void testSemaphore() throws InterruptedException {
@@ -1104,8 +1138,9 @@ public class SomeClass {
         detector.dataEnd();
         String encoding = detector.getDetectedCharset();
         detector.reset();
-        if (encoding == null)
+        if (encoding == null) {
             return readAllBytes;
+        }
         Charset utf8charset = StandardCharsets.UTF_8;
         Charset originalCharset = Charset.forName(encoding);
         String reencoded2 = new String(readAllBytes, originalCharset);
@@ -1151,8 +1186,9 @@ public class SomeClass {
         String decode = new String(javax.xml.bind.DatatypeConverter.parseBase64Binary(s));
         System.out.println(decode);
         File saveFile = new File("D:\\tmp\\urldecode.txt");
-        if (saveFile.exists())
+        if (saveFile.exists()) {
             saveFile.delete();
+        }
         Files.write(saveFile.toPath(), decode.getBytes(), StandardOpenOption.CREATE_NEW);
     }
 
@@ -1206,8 +1242,9 @@ public class SomeClass {
 //        byteArrayOutputStream.write(readAllBytes, 0, readAllBytes.length);
 //        OutputStreamWriter writer = new OutputStreamWriter(byteArrayOutputStream, "cp1251");
 //        new ByteArrayInputStream(outputData);
-        if (file2.exists())
+        if (file2.exists()) {
             file2.delete();
+        }
         Files.write(path2, reencoded2.getBytes(utf8charset), StandardOpenOption.CREATE_NEW);
 //        Files.write(path2, outputData, StandardOpenOption.CREATE_NEW);
     }
@@ -1234,9 +1271,10 @@ public class SomeClass {
                             fl.release();
                             raf.close();
                             file.delete();
-                        } else
-//                Files.write(file.toPath(), "the text".getBytes(), StandardOpenOption.APPEND);
+                        } else //                Files.write(file.toPath(), "the text".getBytes(), StandardOpenOption.APPEND);
+                        {
                             System.out.println("Failed to acquire lock!");
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -2328,10 +2366,11 @@ public class SomeClass {
         Set<String> handledNamesSet = new HashSet<>();
         for (String name : nameArray) {
             String[] handledNameArray = handleName(name);
-            if (handledNameArray != null)
+            if (handledNameArray != null) {
                 for (String handledName : handledNameArray) {
                     handledNamesSet.add(handledName);
                 }
+            }
         }
         int i = startIndex;
         handledNamesSet = new TreeSet<>(handledNamesSet);
@@ -2349,16 +2388,18 @@ public class SomeClass {
             sqlToFile.append(sql).append("\r\n");
         }
         File file = new File("D:\\tmp[^\\w^\\d]ql.txt");
-        if (!file.exists())
+        if (!file.exists()) {
             file.createNewFile();
+        }
         Files.write(file.toPath(), sqlToFile.toString().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     private static String[] handleName(String unformattedName) {
         String trim = unformattedName.trim();
         if (trim != null && trim.length() > 1) {
-            if (trim.contains("женское имя") || trim.contains("значения"))
+            if (trim.contains("женское имя") || trim.contains("значения")) {
                 return null;
+            }
             if (trim.contains(" и ")) {
                 String[] split = trim.split(" и ");
                 return new String[]{split[0].trim(), split[1].trim()};
@@ -2367,9 +2408,9 @@ public class SomeClass {
             if (matcher.find()) {
                 String group1 = matcher.group(1).trim();
                 String group2 = matcher.group(2).trim().replace("(", "").replace(")", "");
-                if (!group2.toLowerCase().equals("имя"))
+                if (!group2.toLowerCase().equals("имя")) {
                     return new String[]{group1, group2};
-                else {
+                } else {
                     if (group2.contains(" и ")) {
                         String[] split = group2.split(" и ");
                         return new String[]{group1, split[0].trim(), split[1].trim()};
@@ -2381,13 +2422,15 @@ public class SomeClass {
                     String[] split = trim.split(" ");
                     List<String> splittedNames = new ArrayList<>(split.length);
                     for (String str : split) {
-                        if (str != null && str.trim().length() > 1)
+                        if (str != null && str.trim().length() > 1) {
                             splittedNames.add(str);
+                        }
                     }
-                    if (!splittedNames.isEmpty())
+                    if (!splittedNames.isEmpty()) {
                         return splittedNames.toArray(new String[1]);
-                    else
+                    } else {
                         return null;
+                    }
                 }
                 return new String[]{trim.replace("(", "").replace(")", "")};
             }
@@ -2440,8 +2483,9 @@ public class SomeClass {
         }
 
         public String representAsSql() {
-            if (fields.size() != values.size())
+            if (fields.size() != values.size()) {
                 throw new RuntimeException("fields.size()!=values.size()");
+            }
             Map<String, Object> objMap = new HashMap<>(fields.size());
             for (int i = 0; i < fields.size(); i++) {
                 objMap.put(fields.get(i), values.get(i));
@@ -2461,41 +2505,45 @@ public class SomeClass {
             StringBuilder sb = new StringBuilder("insert into " + tableName + " (");
             for (int i = 0; i < objMap.size(); i++) {
                 sb.append(columns.get(i));
-                if (i < objMap.size() - 1)
+                if (i < objMap.size() - 1) {
                     sb.append(",");
+                }
             }
             sb.append(") values(");
             for (int i = 0; i < objMap.size(); i++) {
                 sb.append(getValueAsString(values.get(i)));
-                if (i < objMap.size() - 1)
+                if (i < objMap.size() - 1) {
                     sb.append(",");
+                }
             }
             sb.append(");");
             return sb.toString();
         }
 
         protected String getValueAsString(Object value) {
-            if (value != null && value instanceof Date)
+            if (value != null && value instanceof Date) {
                 return getDateAsString((Date) value);
-            else if (value != null && value instanceof GregorianCalendar)
+            } else if (value != null && value instanceof GregorianCalendar) {
                 return getDateAsString(((GregorianCalendar) value).getTime());
-            else if (value != null && value instanceof Number)
+            } else if (value != null && value instanceof Number) {
                 return "" + value + "";
-            else if (value != null && value instanceof Boolean)
+            } else if (value != null && value instanceof Boolean) {
                 return "" + (Boolean.valueOf(value.toString()) ? "1" : "0") + "";
-            else if (value != null)
+            } else if (value != null) {
                 return "'" + value + "'";
-            else
+            } else {
                 return "null";
+            }
         }
         private static final boolean ORACLE = false;
 
         private String getDateAsString(Date date) {
             // to_timestamp('07.03.17 18:07:02,439000000','DD.MM.RR HH24:MI:SSXFF')
-            if (ORACLE)
+            if (ORACLE) {
                 return "to_date('" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date) + "','yyyy-MM-dd HH24:mi:ss')";
-            else
+            } else {
                 return "to_timestamp('" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date) + "','yyyy-MM-dd HH24:mi:ss')";
+            }
         }
     }
 
@@ -2554,10 +2602,12 @@ public class SomeClass {
             public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                 counter.inc();
                 System.out.println("Start Element :" + qName);
-                if (counter.getCounter() == 2)
+                if (counter.getCounter() == 2) {
                     counter.addTableStructure(qName);
-                if (counter.getCounter() == 3)
+                }
+                if (counter.getCounter() == 3) {
                     counter.addField(qName);
+                }
             }
 
             @Override
@@ -2609,8 +2659,9 @@ public class SomeClass {
         }
 //      else {
 //            depth--;
-        if (xml.replace("\n", "").replace("\r", "").length() > 0)
+        if (xml.replace("\n", "").replace("\r", "").length() > 0) {
             handler.characters(xml.toCharArray(), 0, xml.length());
+        }
         return xml;
 //        }
     }
@@ -3296,8 +3347,9 @@ public class SomeClass {
                 + "5133207\n"
                 + "7329";
         File file = new File("D:\\tmp\\SQL.txt");
-        if (file.exists())
+        if (file.exists()) {
             file.delete();
+        }
         file.createNewFile();
         Matcher matcher = Pattern.compile("^(.+?)$", Pattern.MULTILINE).matcher(qq);
         while (matcher.find()) {
