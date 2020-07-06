@@ -5,13 +5,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Proxy;
 import java.util.Properties;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
-import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
-import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
 
 /**
  * @author NAnishhenko
@@ -58,7 +54,18 @@ public class TestPumpUtilsMain {
 //            PmpWsImplTest.test();
 //            AccountingPeriodServiceImplTest.test();
 //            BillStatisticsDAOHibernateTest.test();
-            RequirementControllerTest.test();
+//            RequirementControllerTest.test();
+//            String pocket = "(.+?)\\s";
+//            String pocket2 = "(.+)$";
+//            Pattern parsePattern = Pattern.compile("ErrorCode=" + pocket + "MedicalCase.id=" + pocket + "patient.id=" + pocket + "patient.type=" + pocket + "Service.id=" + pocket + "price=" + pocket + "detail=" + pocket2, Pattern.DOTALL);
+//
+//            String row = "ErrorCode=CREATE.B4 MedicalCase.id=229274434 patient.id=5281196412 patient.type=0 Service.id=236000 price=2059820 detail=Поле фактического койко дня превышает 1000 дней!";
+//            if (parsePattern.matcher(row).matches()) {
+//                System.out.println();
+//            }
+//            ListBillsServiceImplTest.test();
+//            PdfWatermarkTest.test2();
+            MoDepartmentSaveTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

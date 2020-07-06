@@ -333,7 +333,9 @@ public class TomcatRestart {
 //                    System.out.println();
 //                    System.out.println();
 //                    System.out.println();
-                    s = falsifyString(entryIn.getName(), toByteArray, s, archiveDate);
+                    if (archiveDate != null) {
+                        s = falsifyString(entryIn.getName(), toByteArray, s, archiveDate);
+                    }
 //                    if (!entryIn.getName().endsWith("changelog.json")) {
 //                        System.out.println(s);
 //                    }

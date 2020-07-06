@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.xml.bind.JAXBContext;
@@ -107,16 +109,19 @@ import ru.ibs.testpumputils.utils.FieldUtil;
 import org.springframework.cache.CacheManager;
 import ru.ibs.pmp.api.interfaces.SaveMedicalCasePojo;
 import ru.ibs.pmp.api.model.MedicalCase;
+import ru.ibs.pmp.api.model.Requirement;
 import ru.ibs.pmp.api.model.SimpleService;
+import ru.ibs.pmp.api.model.msk.gateway.BillInfo;
 import ru.ibs.pmp.api.patients.interfaces.GetPatientFromCrossTablePojo;
 import ru.ibs.pmp.api.practitioners.features.impl.GetMOPractByBasicInfoFeatureImpl;
 import ru.ibs.pmp.api.practitioners.features.impl.GetPractitionersByJobIdsImpl;
 import ru.ibs.pmp.api.practitioners.interfaces.FindPractitioner;
 import ru.ibs.pmp.api.practitioners.interfaces.GetMOPractByBasicInfoFeauture;
 import ru.ibs.pmp.api.practitioners.interfaces.GetPractitionersByJobIds;
+import ru.ibs.pmp.common.dao.payer.PayerDAO;
 import ru.ibs.pmp.common.ex.ExceptionFactory;
 import ru.ibs.pmp.common.ex.PmpFeatureGroupException;
-import ru.ibs.pmp.dao.AccountingPeriodDao;
+//import ru.ibs.pmp.dao.AccountingPeriodDao;
 import ru.ibs.pmp.dao.AudDAO;
 import ru.ibs.pmp.dao.CostDAO;
 import ru.ibs.pmp.dao.HospDeptStayDAO;
@@ -127,11 +132,12 @@ import ru.ibs.pmp.dao.HospServiceDAO;
 import ru.ibs.pmp.dao.MedCaseOnkConsDAO;
 import ru.ibs.pmp.dao.MedCaseOnkDiagDAO;
 import ru.ibs.pmp.dao.MedCaseOnkProtDAO;
+import ru.ibs.pmp.dao.PayerDAOImpl;
 import ru.ibs.pmp.dao.RequirementDAO;
 import ru.ibs.pmp.dao.RevinfoDAO;
 import ru.ibs.pmp.dao.ServiceMedicamentDAO;
 import ru.ibs.pmp.dao.ServiceMedicamentDAOHibernate;
-import ru.ibs.pmp.dao.hibernate.AccountingPeriodDaoHibernate;
+//import ru.ibs.pmp.dao.hibernate.AccountingPeriodDaoHibernate;
 import ru.ibs.pmp.dao.hibernate.CommonAudDAOHibernate;
 import ru.ibs.pmp.dao.hibernate.CostDAOHibernate;
 import ru.ibs.pmp.dao.hibernate.HospDeptStayDAOHibernate;
@@ -162,7 +168,7 @@ import ru.ibs.pmp.persons.ws.ERZLGuideDAOImpl;
 import ru.ibs.pmp.persons.ws.ERZLPersonDAOImplWS;
 import ru.ibs.pmp.practitioners.dao.PractitionerDao;
 import ru.ibs.pmp.practitioners.dao.PractitionerDaoImpl;
-import ru.ibs.pmp.service.AccountingPeriodService;
+//import ru.ibs.pmp.service.AccountingPeriodService;
 import ru.ibs.pmp.service.HospCaseService;
 import ru.ibs.pmp.service.SaveMedicalCaseService;
 import ru.ibs.pmp.service.flk.FLKChecks;
@@ -171,7 +177,7 @@ import ru.ibs.pmp.service.flk.check.FLKCheck;
 import ru.ibs.pmp.service.flk.state.FLKStateTracker;
 import ru.ibs.pmp.service.flk.state.FLKStateTrackerImpl;
 import ru.ibs.pmp.service.gateway.CreateUpdateServiceImpl;
-import ru.ibs.pmp.service.impl.AccountingPeriodServiceImpl;
+//import ru.ibs.pmp.service.impl.AccountingPeriodServiceImpl;
 import ru.ibs.pmp.service.impl.HospCaseServiceImpl;
 import ru.ibs.pmp.service.impl.SaveMedicalCaseServiceImpl;
 import ru.ibs.pmp.zlib.service.export.msk.parcel.util.ServiceHelper;
@@ -185,6 +191,8 @@ import sun.net.www.protocol.http.HttpURLConnection;
  * @author NAnishhenko
  */
 public class PmpWsImplTest {
+
+    private static BillDAOHibernate billDAOHibernate;
 
     public static void test() throws Exception {
 
@@ -200,12 +208,29 @@ public class PmpWsImplTest {
 //        Result createUpdateAmbCaseResponse = pmpWsImpl.createUpdateAmbCase(authInfo, createUpdateAmbCaseRequest);
 //        String createUpdateAmbCaseResponseStr = XmlUtils.jaxbObjectToXML(createUpdateAmbCaseResponse, "createUpdateAmbCaseResponse");
 //        System.out.println(createUpdateAmbCaseResponseStr);
+//pmpWsImpl.listBills170801(authInfo, listBills170801Request);
+
+        testBill();
+
         sessionFactory.cleanSessions();
         sessionFactory.close();
         authSessionFactoryProxy.cleanSessions();
         authSessionFactoryProxy.close();
 //        nsiSessionFactoryProxy.cleanSessions();
         nsiSessionFactoryProxy.close();
+    }
+
+    private static void testBill() {
+        Session session = sessionFactory.openSession();
+        Requirement requirement = (Requirement) session.get(Requirement.class, 100023483L);
+//        for (Bill bill : requirement.getBills()) {
+//            BillInfo billInfo = billDAOHibernate.getBillInfo(bill, 0L);
+//        }
+        List<BillInfo> billInfoList = requirement.getBills().stream().map(bill -> billDAOHibernate.getBillInfo(bill, 0L)).collect(Collectors.toList());
+//        String billInfoListStr = billInfoList.stream().map(billInfo -> billInfo.getBillId() + " " + (billInfo.getSentAISOMSDate() != null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(billInfo.getSentAISOMSDate()) : "null") + "\r\n").sorted().reduce((str1, str2) -> str1 + str2).get();
+        String billInfoListStr = billInfoList.stream().map(billInfo -> "select "+billInfo.getBillId() + " as bill_id, '" + (billInfo.getSentAISOMSDate() != null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(billInfo.getSentAISOMSDate()) : "null") + "' as send_date from dual\r\nunion all\r\n").sorted().reduce((str1, str2) -> str1 + str2).get();
+        System.out.println(billInfoListStr);
+        session.close();
     }
 
     private static Object parseJSONcommits(byte[] string, TypeReference ref) throws Exception {
@@ -340,19 +365,19 @@ public class PmpWsImplTest {
             CostDAO costDAO = new CostDAOHibernate();
             FieldUtil.setField(costDAO, AbstractGenericDAO.class, sessionFactory, "sessionFactory");
             FieldUtil.setField(medicalCaseDAOHibernate, MedicalCaseDAOHibernate.class, costDAO, "costDAO");
-            AccountingPeriodDaoHibernate accountingPeriodDaoHibernate = new AccountingPeriodDaoHibernate();
+//            AccountingPeriodDaoHibernate accountingPeriodDaoHibernate = new AccountingPeriodDaoHibernate();
             RequirementDAO requirementDAO = new RequirementDAOHibernate();
             FieldUtil.setField(requirementDAO, AbstractGenericDAO.class, sessionFactory, "sessionFactory");
-            FieldUtil.setField(accountingPeriodDaoHibernate, requirementDAO, "requirementDAO");
-            FieldUtil.setField(accountingPeriodDaoHibernate, AbstractGenericDAO.class, sessionFactory, "sessionFactory");
-            AccountingPeriodService accountingPeriodService = new AccountingPeriodServiceImpl() {
-                @Override
-                protected AccountingPeriodDao getDAO() {
-                    return accountingPeriodDaoHibernate;
-                }
-            };
-            FieldUtil.setField(medicalCaseDAOHibernate, MedicalCaseDAOHibernate.class, accountingPeriodService, "accountingPeriodService");
-            BillDAOHibernate billDAOHibernate = new BillDAOHibernate();
+//            FieldUtil.setField(accountingPeriodDaoHibernate, requirementDAO, "requirementDAO");
+//            FieldUtil.setField(accountingPeriodDaoHibernate, AbstractGenericDAO.class, sessionFactory, "sessionFactory");
+//            AccountingPeriodService accountingPeriodService = new AccountingPeriodServiceImpl() {
+//                @Override
+//                protected AccountingPeriodDao getDAO() {
+//                    return accountingPeriodDaoHibernate;
+//                }
+//            };
+//            FieldUtil.setField(medicalCaseDAOHibernate, MedicalCaseDAOHibernate.class, accountingPeriodService, "accountingPeriodService");
+            billDAOHibernate = new BillDAOHibernate();
             FieldUtil.setField(billDAOHibernate, AbstractGenericDAO.class, sessionFactory, "sessionFactory");
             BillService billService = new BillServiceImpl() {
                 @Override
@@ -360,6 +385,7 @@ public class PmpWsImplTest {
                     return billDAOHibernate;
                 }
             };
+
             FieldUtil.setField(medicalCaseDAOHibernate, MedicalCaseDAOHibernate.class, billService, "billService");
             RequirementService requirementService = new RequirementServiceImpl();
             RequirementDAOHibernate requirementDAOHibernate = new RequirementDAOHibernate();
@@ -419,10 +445,13 @@ public class PmpWsImplTest {
 //            FieldUtil.setField(pmpWsImpl, moDaoImpl, "moDao");
             MedicalCaseValidator medicalCaseValidator = new MedicalCaseValidator();
             FindNsiEntry findNsiEntryFeature = new FindNsiEntryFeature();
+            PayerDAO payerDAO = new PayerDAOImpl();
+            FieldUtil.setField(payerDAO, findNsiEntryFeature, "findNsiEntry");
+            FieldUtil.setField(billDAOHibernate, payerDAO, "payerDAO");
             FieldUtil.setField(medicalCaseValidator, findNsiEntryFeature, "findNsiEntryFeature");
             GetMOPractByBasicInfoFeauture getMOPractByBasicInfoFeature = new GetMOPractByBasicInfoFeatureImpl();
             FieldUtil.setField(getMOPractByBasicInfoFeature, findNsiEntryFeature, "findNsiEntry");
-            FieldUtil.setField(medicalCaseValidator, getMOPractByBasicInfoFeature, "getMOPractByBasicInfoFeature");
+//            FieldUtil.setField(medicalCaseValidator, getMOPractByBasicInfoFeature, "getMOPractByBasicInfoFeature");
             PractitionerDao practitionerDao = new PractitionerDaoImpl();
             FieldUtil.setField(getMOPractByBasicInfoFeature, practitionerDao, "practitionerDao");
             FieldUtil.setField(practitionerDao, entityManager, "entityManager");
@@ -519,7 +548,7 @@ public class PmpWsImplTest {
             FieldUtil.setField(saveMedicalCaseService, medicalCaseService, "medicalCaseService");
 
             FieldUtil.setField(saveMedicalCaseService, getPatientPojo, "getPatientPojo");
-            FieldUtil.setField(saveMedicalCaseService, billService, "billService");
+//            FieldUtil.setField(saveMedicalCaseService, billService, "billService");
             FieldUtil.setField(saveMedicalCaseService, simpleServiceDAOHibernate, "simpleServiceDAOHibernate");
 
             HospDeptStayDAO hospDeptStayDAOHibernate = new HospDeptStayDAOHibernate();
@@ -605,7 +634,7 @@ public class PmpWsImplTest {
             FieldUtil.setField(hospCaseService, getPractitionersByJobIds, "getPractitionersByJobIds");
             GetLpuFeature getLpuFeature = new GetLpuFeatureImpl();
             FieldUtil.setField(getLpuFeature, lpuRegistry, "lpuRegistry");
-            FieldUtil.setField(saveMedicalCaseService, getLpuFeature, "getLpuFeature");
+//            FieldUtil.setField(saveMedicalCaseService, getLpuFeature, "getLpuFeature");
             ExceptionFactory exceptionFactory = new ExceptionFactory();
             FieldUtil.setField(saveMedicalCaseService, exceptionFactory, "exceptionFactory");
             FieldUtil.setField(saveMedicalCasePojo, exceptionFactory, "exceptionFactory");

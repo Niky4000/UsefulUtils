@@ -12,7 +12,8 @@ import java.io.OutputStream;
 
 class ForwardThread extends Thread {
 
-    private static final int BUFFER_SIZE = 8192;
+//    private static final int BUFFER_SIZE = 8192;
+    private static final int BUFFER_SIZE = 1024 * 1024;
 
     InputStream mInputStream;
     OutputStream mOutputStream;
