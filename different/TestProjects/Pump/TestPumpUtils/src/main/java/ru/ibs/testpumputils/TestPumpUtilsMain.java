@@ -66,6 +66,7 @@ public class TestPumpUtilsMain {
 //            ListBillsServiceImplTest.test();
 //            PdfWatermarkTest.test2();
 //            MoDepartmentSaveTest.test();
+            CheckPmpDir11Test.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
