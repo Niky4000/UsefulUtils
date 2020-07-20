@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -20,6 +22,7 @@ class ClientThread extends Thread {
     Semaphore semaphore = new Semaphore(0);
 
     public ClientThread(Socket aClientSocket, Socket mServerSocket) {
+        this.setName("ClientThread");
         mClientSocket = aClientSocket;
         this.mServerSocket = mServerSocket;
     }
@@ -39,7 +42,6 @@ class ClientThread extends Thread {
             // Turn on keep-alive for both the sockets 
 //            mServerSocket.setKeepAlive(true);
 //            mClientSocket.setKeepAlive(true);
-
             // Obtain client & server input & output streams 
             clientIn = mClientSocket.getInputStream();
             clientOut = mClientSocket.getOutputStream();
@@ -56,9 +58,10 @@ class ClientThread extends Thread {
 
         // Start forwarding data between server and client 
         mForwardingActive = true;
-        ForwardThread clientForward = new ForwardThread(this, clientIn, serverOut);
+        String dateStr = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss").format(new Date());
+        ForwardThread clientForward = new ForwardThread(this, clientIn, serverOut, "ForwardThread1_" + dateStr);
         clientForward.start();
-        ForwardThread serverForward = new ForwardThread(this, serverIn, clientOut);
+        ForwardThread serverForward = new ForwardThread(this, serverIn, clientOut, "ForwardThread2_" + dateStr);
         serverForward.start();
 
         System.out.println("TCP Forwarding "

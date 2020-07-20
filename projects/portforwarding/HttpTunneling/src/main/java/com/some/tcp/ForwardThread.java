@@ -23,10 +23,11 @@ class ForwardThread extends Thread {
      * Creates a new traffic redirection thread specifying its parent, input
      * stream and output stream.
      */
-    public ForwardThread(ClientThread aParent, InputStream aInputStream, OutputStream aOutputStream) {
+    public ForwardThread(ClientThread aParent, InputStream aInputStream, OutputStream aOutputStream, String threadName) {
         mParent = aParent;
         mInputStream = aInputStream;
         mOutputStream = aOutputStream;
+        this.setName(threadName);
     }
 
     /**
