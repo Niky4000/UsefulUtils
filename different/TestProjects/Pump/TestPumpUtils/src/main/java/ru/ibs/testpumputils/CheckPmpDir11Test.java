@@ -60,12 +60,16 @@ public class CheckPmpDir11Test {
                 }
             });
             FieldUtil.setField(nsiServiceImpl, appContext, "appContext");
-            
-            ErrorMarker em=new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+
+            ErrorMarker em = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
             MedicalCase medicalCase = new MedicalCase();
-            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-06-01 00:00:00"));
-            medicalCase.setDirectionLpuId(1795L);
-            medicalCase.setDirectionLpuRfId("771795");
+            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-01 00:00:00"));
+//            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2012-12-31 00:00:00"));
+//            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-13 00:00:00"));
+//            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-12 00:00:00"));
+            medicalCase.setPeriod(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-07-01 00:00:00"));
+            medicalCase.setDirectionLpuId(9999L);
+            medicalCase.setDirectionLpuRfId("010036");
             checkPmpDir11.execute(medicalCase, em);
         } finally {
             sessionFactory.cleanSessions();
