@@ -1,80 +1,94 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package ru.ibs.testpumputils;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.concurrent.ConcurrentHashMap;
-import org.hibernate.SessionFactory;
-import org.springframework.context.ApplicationContext;
-import ru.ibs.pmp.api.model.MedicalCase;
-import ru.ibs.pmp.api.nsi.interfaces.FindNsiEntries;
-import ru.ibs.pmp.nsi.features.impl.FindNsiEntriesFeature;
-import ru.ibs.pmp.nsi.service.NsiService;
-import ru.ibs.pmp.service.check.msk.CheckPmpDir11;
-import ru.ibs.pmp.service.flk.ErrorMarker;
-import ru.ibs.pmp.service.flk.ErrorMarkerImpl;
-import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
-import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
-import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
-import ru.ibs.testpumputils.utils.FieldUtil;
-
-/**
- *
- * @author Me
- */
-public class CheckPmpDir11Test {
-
-    static SessionFactoryInterface sessionFactory;
-    static SessionFactory nsiSessionFactoryProxy;
-
-    public static void test() throws Exception {
-        sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
-        nsiSessionFactoryProxy = TestPumpUtilsMain.buildNsiSessionFactory();
-        try {
-            CheckPmpDir11 checkPmpDir11 = new CheckPmpDir11();
-            FindNsiEntries findNsiEntries = new FindNsiEntriesFeature();
-            ru.ibs.pmp.nsi.service.NsiServiceImpl nsiServiceImpl = new ru.ibs.pmp.nsi.service.NsiServiceImpl();
-            FieldUtil.setField(findNsiEntries, nsiServiceImpl, "nsiService");
-            FieldUtil.setField(checkPmpDir11, findNsiEntries, "findNsiEntries");
-            FieldUtil.setField(nsiServiceImpl, nsiSessionFactoryProxy, "sessionFactory");
-            ApplicationContext appContext = (ApplicationContext) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{ApplicationContext.class}, new InvocationHandler() {
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                    if (method.getName().equals("getBean")) {
-                        Class cl = (Class) args[0];
-                        if (cl.equals(NsiService.class)) {
-                            return nsiServiceImpl;
-                        } else {
-                            return null;
-                        }
-                    } else {
-                        return null;
-                    }
-                }
-            });
-            FieldUtil.setField(nsiServiceImpl, appContext, "appContext");
-
-            ErrorMarker em = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            MedicalCase medicalCase = new MedicalCase();
-            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-01 00:00:00"));
-//            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2012-12-31 00:00:00"));
-//            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-13 00:00:00"));
-//            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-12 00:00:00"));
-            medicalCase.setPeriod(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-07-01 00:00:00"));
-            medicalCase.setDirectionLpuId(9999L);
-            medicalCase.setDirectionLpuRfId("010036");
-            checkPmpDir11.execute(medicalCase, em);
-        } finally {
-            sessionFactory.cleanSessions();
-            sessionFactory.close();
-            nsiSessionFactoryProxy.close();
-        }
-    }
-}
+///*
+// * To change this license header, choose License Headers in Project Properties.
+// * To change this template file, choose Tools | Templates
+// * and open the template in the editor.
+// */
+//package ru.ibs.testpumputils;
+//
+//import java.lang.reflect.InvocationHandler;
+//import java.lang.reflect.Method;
+//import java.lang.reflect.Proxy;
+//import java.text.ParseException;
+//import java.text.SimpleDateFormat;
+//import java.util.HashSet;
+//import java.util.concurrent.ConcurrentHashMap;
+//import org.hibernate.Session;
+//import org.hibernate.SessionFactory;
+//import org.springframework.context.ApplicationContext;
+//import ru.ibs.pmp.api.model.MedicalCase;
+//import ru.ibs.pmp.api.nsi.interfaces.FindNsiEntries;
+//import ru.ibs.pmp.nsi.features.impl.FindNsiEntriesFeature;
+//import ru.ibs.pmp.nsi.service.NsiService;
+//import ru.ibs.pmp.service.check.msk.CheckPmpDir11;
+//import ru.ibs.pmp.service.flk.ErrorMarker;
+//import ru.ibs.pmp.service.flk.ErrorMarkerImpl;
+//import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
+//import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
+//import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
+//import ru.ibs.testpumputils.utils.FieldUtil;
+//
+///**
+// *
+// * @author Me
+// */
+//public class CheckPmpDir11Test {
+//
+//    static SessionFactoryInterface sessionFactory;
+//    static SessionFactory nsiSessionFactoryProxy;
+//
+//    public static void test() throws Exception {
+//        sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
+//        nsiSessionFactoryProxy = TestPumpUtilsMain.buildNsiSessionFactory();
+//        try {
+//            CheckPmpDir11 checkPmpDir11 = new CheckPmpDir11();
+//            FindNsiEntries findNsiEntries = new FindNsiEntriesFeature();
+//            ru.ibs.pmp.nsi.service.NsiServiceImpl nsiServiceImpl = new ru.ibs.pmp.nsi.service.NsiServiceImpl();
+//            FieldUtil.setField(findNsiEntries, nsiServiceImpl, "nsiService");
+//            FieldUtil.setField(checkPmpDir11, findNsiEntries, "findNsiEntries");
+//            FieldUtil.setField(nsiServiceImpl, nsiSessionFactoryProxy, "sessionFactory");
+//            ApplicationContext appContext = (ApplicationContext) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{ApplicationContext.class}, new InvocationHandler() {
+//                @Override
+//                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+//                    if (method.getName().equals("getBean")) {
+//                        Class cl = (Class) args[0];
+//                        if (cl.equals(NsiService.class)) {
+//                            return nsiServiceImpl;
+//                        } else {
+//                            return null;
+//                        }
+//                    } else {
+//                        return null;
+//                    }
+//                }
+//            });
+//            FieldUtil.setField(nsiServiceImpl, appContext, "appContext");
+//
+//            ErrorMarker em = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+//
+//            MedicalCase medicalCase = getMedicalCaseFromDb(sessionFactory.openSession());
+//
+//            checkPmpDir11.execute(medicalCase, em);
+//        } finally {
+//            sessionFactory.cleanSessions();
+//            sessionFactory.close();
+//            nsiSessionFactoryProxy.close();
+//        }
+//    }
+//
+//    private static MedicalCase getMedicalCaseFromDb(Session session) {
+//        MedicalCase medicalCase = (MedicalCase) session.get(MedicalCase.class, 409699400L);
+//        return medicalCase;
+//    }
+//
+//    private static MedicalCase getMedicalCaseTest() throws ParseException {
+//        MedicalCase medicalCase = new MedicalCase();
+//        medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-01 00:00:00"));
+//        //            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2012-12-31 00:00:00"));
+////            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-13 00:00:00"));
+////            medicalCase.setDirectionDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-12 00:00:00"));
+//        medicalCase.setPeriod(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-07-01 00:00:00"));
+//        medicalCase.setDirectionLpuId(9999L);
+//        medicalCase.setDirectionLpuRfId("010036");
+//        return medicalCase;
+//    }
+//}
