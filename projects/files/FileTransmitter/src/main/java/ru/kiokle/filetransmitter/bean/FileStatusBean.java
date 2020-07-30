@@ -13,12 +13,22 @@ import java.io.Serializable;
  */
 public class FileStatusBean implements Serializable {
 
+    private final Long length;
     private final String md5;
     private final String fileRelativePath;
+    private final String absolutePath;
+    private final boolean ready;
 
-    public FileStatusBean(String md5, String fileRelativePath) {
+    public FileStatusBean(Long length, String md5, String fileRelativePath, String absolutePath, boolean ready) {
+        this.length = length;
         this.md5 = md5;
         this.fileRelativePath = fileRelativePath;
+        this.absolutePath = absolutePath;
+        this.ready = ready;
+    }
+
+    public Long getLength() {
+        return length;
     }
 
     public String getMd5() {
@@ -27,5 +37,13 @@ public class FileStatusBean implements Serializable {
 
     public String getFileRelativePath() {
         return fileRelativePath;
+    }
+
+    public String getAbsolutePath() {
+        return absolutePath;
+    }
+
+    public boolean isReady() {
+        return ready;
     }
 }

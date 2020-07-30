@@ -109,7 +109,7 @@ public class H2Handler {
                 Long fileSize = resultSet.getLong("file_size");
                 results.add(fileSize);
             }
-            return results.size() == 1 ? new FileSizeBean(true, results.get(0)) : new FileSizeBean(false, 0L);
+            return results.size() >= 1 ? new FileSizeBean(true, results.get(0)) : new FileSizeBean(false, 0L);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
