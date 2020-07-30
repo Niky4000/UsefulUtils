@@ -105,6 +105,7 @@ If you can see this report, it means that the BIRT Engine is installed correctly
             </row>
         </grid>
         <text id="27">
+            <property name="fontFamily">"Arial"</property>
             <property name="contentType">auto</property>
             <text-property name="content"><![CDATA[Привет!!!]]></text-property>
         </text>
