@@ -32,6 +32,7 @@ public class FileTransmitter extends Thread {
     private H2Handler h2 = new H2Handler();
     private static final MyLogger LOG = new MyLogger();
     private LinkedBlockingQueue<FileDataBean> dataQueue = new LinkedBlockingQueue<>(1);
+    private final CommonLogic commonLogic = new CommonLogic();
     public static final int BUFFER_SIZE = 1024 * 1024;
     private static final int TIME_TO_WAIT_IN_CASE_OF_ERROR = 10 * 1000;
 
@@ -56,7 +57,8 @@ public class FileTransmitter extends Thread {
     public void run() {
         sendFile(server, port);
         readDir(new File(fileToTransmit));
-
+        finish();
+        LOG.log("FileTransmitter finished!");
     }
 
     private void sendFile(String server, int port) {
@@ -66,6 +68,7 @@ public class FileTransmitter extends Thread {
                 try {
                     fileDataBean = dataQueue.take();
                     Socket socket = new Socket(server, port);
+                    socket.setSoTimeout(0);
                     socket.setKeepAlive(true);
                     try (InputStream inputStream = new BufferedInputStream(socket.getInputStream(), BUFFER_SIZE);
                             OutputStream outputStream = socket.getOutputStream();) {
@@ -78,7 +81,7 @@ public class FileTransmitter extends Thread {
                             inputStream.read(buffer);
                             FileStatusBean fileStatusBean = (FileStatusBean) CommonLogic.deSerializeObject(buffer, LOG);
                         }
-                        System.out.println("data with length = " + serializeObject.length + " was written to socket!");
+                        LOG.log("data with length = " + serializeObject.length + " was written to socket!", MyLogger.LogLevel.DEBUG);
                     }
                     socket.close();
                 } catch (IOException ex) {
@@ -125,6 +128,9 @@ public class FileTransmitter extends Thread {
         } else {
             LOG.log("File " + baseDir.getAbsolutePath() + " does not exist!");
         }
+    }
+
+    private void finish() {
         try {
             dataQueue.put(new FileDataBean(new byte[]{}, null, 0, 0, 0));
             dataQueue.put(new FileDataBean(null, null, 0, 0, 0));
@@ -138,20 +144,27 @@ public class FileTransmitter extends Thread {
         if (!exists.isCheck()) {
             boolean check = false;
             do {
-                String md5Sum = CommonLogic.getMd5Sum(file);
+                String md5Sum = commonLogic.getMd5Sum(file);
+                long length = file.length();
                 try {
                     readFile(file, md5Sum);
                 } catch (Exception e) {
                     LOG.log("readFile Exception!", e);
                     waitSomeTime();
                 }
-                FileStatusBean fileStatusBean = check(file, md5Sum);
+                FileStatusBean fileStatusBean = check(file, length, md5Sum);
                 check = fileStatusBean != null ? fileStatusBean.getMd5().equals(md5Sum) : false;
                 h2.save(file.getAbsolutePath(), md5Sum, file.length(), check);
                 if (!check) {
                     LOG.log("Check failed for " + file.getAbsolutePath() + "!");
                     if (fileStatusBean != null) {
                         LOG.log("fileStatusBean md5Sum=" + fileStatusBean.getMd5() + " but original md5Sum=" + md5Sum + "!");
+                        LOG.log("fileStatusBean length=" + fileStatusBean.getLength().toString() + " but original md5Sum=" + length + "!");
+                        LOG.log("Absolute path " + fileStatusBean.getAbsolutePath() + "!");
+                        LOG.log("Original file " + file.getAbsolutePath() + "!");
+                        String md5Sum1 = commonLogic.getMd5Sum(file);
+                        String md5Sum2 = commonLogic.getMd5Sum(new File(fileStatusBean.getAbsolutePath()));
+                        boolean equals = md5Sum1.equals(md5Sum2);
                     }
                 }
             } while (!check);
@@ -161,36 +174,39 @@ public class FileTransmitter extends Thread {
         }
     }
 
-    private FileStatusBean check(File file, String md5Sum) {
-        FileStatusBean fileStatusBean = null;
-        boolean status = false;
-        Socket socket = null;
-        try {
-            socket = new Socket(server, port);
-            socket.setKeepAlive(true);
-            try (OutputStream stream = socket.getOutputStream();
-                    InputStream inputStream = socket.getInputStream();) {
-                byte[] serializeObject = CommonLogic.serializeObject(new FileStatusBean(md5Sum, getRelativePath(file)), LOG);
-                System.out.println("data with length = " + serializeObject.length + " was written to socket for check!");
-                stream.write(serializeObject, 0, serializeObject.length);
-                stream.flush();
-                socket.shutdownOutput();
-                byte[] buffer = new byte[BUFFER_SIZE];
-                inputStream.read(buffer);
-                fileStatusBean = (FileStatusBean) CommonLogic.deSerializeObject(buffer, LOG);
-                status = fileStatusBean.getMd5().equals(md5Sum);
-            }
-            if (!status) {
-                waitSomeTime();
-            }
-        } catch (IOException ex) {
-            LOG.log("Cannot open socket!", ex);
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException ex) {
-                    LOG.log("socket close exception!", ex);
+    private FileStatusBean check(File file, long length, String md5Sum) {
+        FileStatusBean fileStatusBean = new FileStatusBean(null, null, null, null, false);
+        while (!fileStatusBean.isReady()) {
+            boolean status = false;
+            Socket socket = null;
+            try {
+                socket = new Socket(server, port);
+                socket.setSoTimeout(0);
+                socket.setKeepAlive(true);
+                try (OutputStream stream = socket.getOutputStream();
+                        InputStream inputStream = socket.getInputStream();) {
+                    byte[] serializeObject = CommonLogic.serializeObject(new FileStatusBean(length, md5Sum, getRelativePath(file), file.getAbsolutePath(), true), LOG);
+                    LOG.log("data with length = " + serializeObject.length + " was written to socket for check!", MyLogger.LogLevel.DEBUG);
+                    stream.write(serializeObject, 0, serializeObject.length);
+                    stream.flush();
+                    socket.shutdownOutput();
+                    byte[] buffer = new byte[BUFFER_SIZE];
+                    inputStream.read(buffer);
+                    fileStatusBean = (FileStatusBean) CommonLogic.deSerializeObject(buffer, LOG);
+                    status = fileStatusBean.getMd5().equals(md5Sum);
+                }
+                if (!status) {
+                    waitSomeTime();
+                }
+            } catch (IOException ex) {
+                LOG.log("Cannot open socket!", ex);
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException ex) {
+                        LOG.log("socket close exception!", ex);
+                    }
                 }
             }
         }
@@ -241,7 +257,7 @@ public class FileTransmitter extends Thread {
     private void logFileDataBean(FileDataBean fileDataBean) {
         LOG.log("fileDataBean" + "fileData transmitted: " + CommonLogic.printData(fileDataBean.getData()) + " PackageNumber: " + fileDataBean.getPackageNumber()
                 + " FileRelativePath: " + fileDataBean.getFileRelativePath() + " data length: " + fileDataBean.getData().length
-                + " FileLength: " + fileDataBean.getFileLength() + " PackagesCount: " + fileDataBean.getPackagesCount() + "!");
+                + " FileLength: " + fileDataBean.getFileLength() + " PackagesCount: " + fileDataBean.getPackagesCount() + "!", MyLogger.LogLevel.DEBUG);
     }
 
     private String getRelativePath(File file) {

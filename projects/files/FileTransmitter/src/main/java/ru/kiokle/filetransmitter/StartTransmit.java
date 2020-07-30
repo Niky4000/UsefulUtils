@@ -5,6 +5,8 @@
  */
 package ru.kiokle.filetransmitter;
 
+import java.io.File;
+
 /**
  *
  * @author Me
@@ -22,7 +24,11 @@ public class StartTransmit {
                 fileReader.start();
 //                FileTransmitter fileTransmitter = new FileTransmitter("D:\\zzH2Database\\sender", "D:\\Media\\", "D:\\Media\\2014.07.31\\FreeStudio-6.3.6.716.exe", "localhost", 8888);
                 FileTransmitter fileTransmitter = new FileTransmitter("D:\\zzH2Database\\sender", "D:\\Media\\", "D:\\Media\\2014.07.31", "localhost", 8888);
+//                FileTransmitter fileTransmitter = new FileTransmitter("D:\\zzH2Database\\sender", "D:\\Media\\", "D:\\Media\\2014.07.31\\FreeStudio", "localhost", 8888);
                 fileTransmitter.start();
+//                String md5Sum = CommonLogic.getMd5Sum(new File("D:\\Media\\2014.07.31\\Games\\Dark Souls II\\DARK SOULS™Ⅱ- DIGITAL EXTRAS\\DARK SOULS™Ⅱ- Original Soundtrack - MP3\\01 Departure.mp3"));
+//                String md5Sum2 = CommonLogic.getMd5Sum(new File("D:\\zzzzzzz\\2014.07.31\\Games\\Dark Souls II\\DARK SOULS™Ⅱ- DIGITAL EXTRAS\\DARK SOULS™Ⅱ- Original Soundtrack - MP3\\01 Departure.mp3"));
+//                boolean equals = md5Sum.equals(md5Sum2);
             }
         }
     }

@@ -136,6 +136,11 @@
             <artifactId>spring-expression</artifactId>
             <version>4.0.6.RELEASE</version>
         </dependency>-->
+        <dependency>
+            <groupId>ru.ibs.lib</groupId>
+            <artifactId>common-lib</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
     <repositories>        
         <repository>

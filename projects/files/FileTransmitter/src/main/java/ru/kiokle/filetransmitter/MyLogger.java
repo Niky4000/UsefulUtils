@@ -11,8 +11,20 @@ package ru.kiokle.filetransmitter;
  */
 public class MyLogger {
 
+    private static LogLevel logLevel = LogLevel.DEBUG;
+
+    public enum LogLevel {
+        INFO, DEBUG
+    }
+
     public void log(String message) {
         System.out.println(message);
+    }
+
+    public void log(String message, LogLevel logLevel) {
+        if (this.logLevel.equals(logLevel) || logLevel.equals(LogLevel.INFO)) {
+            System.out.println(message);
+        }
     }
 
     public void log(String message, Exception ex) {
