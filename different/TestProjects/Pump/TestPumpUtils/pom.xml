@@ -60,7 +60,7 @@
             <classifier>classes</classifier>
             <scope>compile</scope>
         </dependency>
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>ru.ibs.pmp</groupId>
             <artifactId>module-lpu-registry-pmp</artifactId>
             <version>1.1807.1</version>
@@ -86,7 +86,7 @@
             <artifactId>spring-context</artifactId>
             <version>4.0.6.RELEASE</version>
         </dependency>
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
             <version>4.0.6.RELEASE</version>
@@ -137,10 +137,33 @@
             <version>4.0.6.RELEASE</version>
         </dependency>-->
         <dependency>
-            <groupId>ru.ibs.lib</groupId>
-            <artifactId>common-lib</artifactId>
-            <version>1.0</version>
+            <groupId>ru.ibs.pmp</groupId>
+            <artifactId>pmp-common-min</artifactId>
+            <version>1.6.1-SNAPSHOT</version>
         </dependency>
+<!--        <dependency>
+            <groupId>net.sf.barcode4j</groupId>
+            <artifactId>barcode4j</artifactId>
+            <version>2.1</version>
+        </dependency>-->
+
+<!--        <dependency>
+            <groupId>org.eclipse.birt.runtime</groupId>
+            <artifactId>org.eclipse.birt.runtime</artifactId>
+            <version>4.3.1</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.birt.runtime.3_7_1</groupId>
+                    <artifactId>javax.wsdl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.birt.report</groupId>
+            <artifactId>org.eclipse.birt.report.engine.emitter.xml</artifactId>
+            <version>1.0.0.201802150756</version>
+        </dependency>-->
     </dependencies>
     <repositories>        
         <repository>

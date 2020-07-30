@@ -66,7 +66,12 @@ public class TestPumpUtilsMain {
 //            ListBillsServiceImplTest.test();
 //            PdfWatermarkTest.test2();
 //            MoDepartmentSaveTest.test();
-            CheckPmpDir11Test.test();
+//            CheckPmpDir11Test.test();
+            CheckInvoiceNUTest.test();
+//            CheckH65Test.test();
+//            DbTest.test();
+//            Barcode128Test.test();
+//            new PdfBirtTest().executeReport();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
