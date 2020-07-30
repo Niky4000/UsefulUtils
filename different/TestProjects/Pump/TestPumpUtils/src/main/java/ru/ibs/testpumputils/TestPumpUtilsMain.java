@@ -68,6 +68,10 @@ public class TestPumpUtilsMain {
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
             CheckInvoiceNUTest.test();
+//            CheckH65Test.test();
+//            DbTest.test();
+//            Barcode128Test.test();
+//            new PdfBirtTest().executeReport();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
