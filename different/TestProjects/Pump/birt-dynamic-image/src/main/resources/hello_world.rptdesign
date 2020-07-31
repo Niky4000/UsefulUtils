@@ -109,5 +109,10 @@ If you can see this report, it means that the BIRT Engine is installed correctly
             <property name="contentType">auto</property>
             <text-property name="content"><![CDATA[Привет!!!]]></text-property>
         </text>
+        <text id="28">
+            <property name="fontFamily">"Monotype Corsiva"</property>
+            <property name="contentType">auto</property>
+            <text-property name="content"><![CDATA[Привет второй раз!!!]]></text-property>
+        </text>
     </body>
 </report>

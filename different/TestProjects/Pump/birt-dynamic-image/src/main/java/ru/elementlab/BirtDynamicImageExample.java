@@ -23,6 +23,8 @@ public class BirtDynamicImageExample {
         Platform.startup();
         FontFactory.register("fonts/arial.ttf"); // fonts/fireflysung.ttf in fireflysung.jar
         Font font = FontFactory.getFont("fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        FontFactory.register("fonts/MTCORSVA.TTF"); // fonts/fireflysung.ttf in fireflysung.jar
+        Font font2 = FontFactory.getFont("fonts/MTCORSVA.TTF", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         IReportEngineFactory factory = (IReportEngineFactory) Platform.createFactoryObject(IReportEngineFactory.EXTENSION_REPORT_ENGINE_FACTORY);
         IReportEngine birtEngine = factory.createReportEngine(new EngineConfig());
         IReportRunnable design = birtEngine.openReportDesign(getClass().getClassLoader().getResourceAsStream("hello_world.rptdesign"));
