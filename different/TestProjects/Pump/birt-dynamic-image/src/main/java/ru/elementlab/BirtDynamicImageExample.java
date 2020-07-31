@@ -3,6 +3,7 @@ package ru.elementlab;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.pdf.BaseFont;
+import java.net.URL;
 import java.util.function.Function;
 import org.eclipse.birt.core.framework.Platform;
 import org.eclipse.birt.report.engine.api.EngineConfig;
@@ -20,7 +21,10 @@ public class BirtDynamicImageExample {
 
     public void createReport() throws Exception {
         Class.forName("oracle.jdbc.OracleDriver");
-        Platform.startup();
+        EngineConfig engineConfig = new EngineConfig();
+        URL fontsConfigurationURL = new URL("file:///fonts/MTCORSVA.TTF");
+        engineConfig.setFontConfig(fontsConfigurationURL);
+        Platform.startup(engineConfig);
         FontFactory.register("fonts/arial.ttf"); // fonts/fireflysung.ttf in fireflysung.jar
         Font font = FontFactory.getFont("fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         FontFactory.register("fonts/MTCORSVA.TTF"); // fonts/fireflysung.ttf in fireflysung.jar
