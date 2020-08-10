@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Properties;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import ru.ibs.pmp.service.check.msk.CheckNL;
 
 /**
  * @author NAnishhenko
@@ -67,7 +68,8 @@ public class TestPumpUtilsMain {
 //            PdfWatermarkTest.test2();
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
-            CheckInvoiceNUTest.test();
+//            CheckInvoiceNUTest.test();
+            CheckNLTest.test();
 //            CheckH65Test.test();
 //            DbTest.test();
 //            Barcode128Test.test();
