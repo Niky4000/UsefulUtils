@@ -52,7 +52,7 @@ public class TestPumpUtilsMain {
 //        testBillStatisticsDAOImpl(sessionFactoryProxy);
 //            Utils10733.start(sessionFactoryProxy);
 //            PmpWsImplTest.test(sessionFactoryProxy);
-//            PmpWsImplTest.test();
+            PmpWsImplTest.test();
 //            AccountingPeriodServiceImplTest.test();
 //            BillStatisticsDAOHibernateTest.test();
 //            RequirementControllerTest.test();
@@ -69,7 +69,7 @@ public class TestPumpUtilsMain {
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
 //            CheckInvoiceNUTest.test();
-            CheckNLTest.test();
+//            CheckNLTest.test();
 //            CheckH65Test.test();
 //            DbTest.test();
 //            Barcode128Test.test();
