@@ -32,6 +32,10 @@ public class BirtDynamicImageExample {
         Font font = FontFactory.getFont("fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         FontFactory.register("fonts/MTCORSVA.TTF");
         Font font2 = FontFactory.getFont("fonts/MTCORSVA.TTF", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        FontFactory.register("fonts/SansSerifFLF.otf");
+        Font font3 = FontFactory.getFont("fonts/SansSerifFLF.otf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+//        FontFactory.register("fonts/sserifer.fon");
+//        Font font4 = FontFactory.getFont("fonts/sserifer.fon", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         IReportEngineFactory factory = (IReportEngineFactory) Platform.createFactoryObject(IReportEngineFactory.EXTENSION_REPORT_ENGINE_FACTORY);
         IReportEngine birtEngine = factory.createReportEngine(new EngineConfig());
         IReportRunnable design = birtEngine.openReportDesign(getClass().getClassLoader().getResourceAsStream("hello_world.rptdesign"));
