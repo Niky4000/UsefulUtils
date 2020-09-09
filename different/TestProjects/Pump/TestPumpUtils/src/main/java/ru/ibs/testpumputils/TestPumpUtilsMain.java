@@ -64,10 +64,10 @@ public class TestPumpUtilsMain {
 //                System.out.println();
 //            }
 //            ListBillsServiceImplTest.test();
-//            PdfWatermarkTest.test2();
+            PdfWatermarkTest.test();
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
-            CheckInvoiceNUTest.test();
+//            CheckInvoiceNUTest.test();
 //            CheckH65Test.test();
 //            DbTest.test();
 //            Barcode128Test.test();

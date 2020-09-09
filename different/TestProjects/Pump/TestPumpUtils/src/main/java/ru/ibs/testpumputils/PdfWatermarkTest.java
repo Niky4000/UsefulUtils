@@ -1,71 +1,61 @@
-//package ru.ibs.testpumputils;
-//
-//import java.io.File;
-//import java.math.BigDecimal;
-//import java.nio.file.Files;
-//import java.nio.file.StandardOpenOption;
-//import java.util.Arrays;
-//import java.util.Date;
-//import java.util.LinkedList;
-//import java.util.stream.Collectors;
-//import java.util.stream.IntStream;
-//import ru.ibs.pmp.api.model.Invoice;
-//import ru.ibs.pmp.api.service.export.msk.pdf.PdfReportServiceAbstract;
-//import ru.ibs.pmp.service.utils.pdf.PdfHelper;
-//import ru.ibs.pmp.smo.dto.pdf.MgfomsReportData;
-//import ru.ibs.pmp.smo.dto.pdf.NilVmpCategoryData;
-//import ru.ibs.pmp.smo.dto.pdf.NilVmpReportData;
-//import ru.ibs.pmp.smo.dto.pdf.SmoReportData;
-//import ru.ibs.pmp.smo.report.dto.SmoCathegoryData;
-//import ru.ibs.pmp.smo.report.model.MgfomsCathegoryData;
-//import ru.ibs.pmp.smo.report.model.MgfomsHeadData;
-//import ru.ibs.pmp.smo.services.pdf.MgfomsProtocol;
-//import ru.ibs.pmp.smo.services.pdf.NilVmpProtocol;
-//import ru.ibs.pmp.smo.services.pdf.SmoProtocolGenerator;
-//import ru.ibs.testpumputils.utils.FieldUtil;
-//
-///**
-// * @author NAnishhenko
-// */
-//public class PdfWatermarkTest {
-//
-//    public static void test() throws Exception {
-//        PdfHelper pdfHelper = new PdfHelper();
-//        MgfomsProtocol mgfomsProtocol = new MgfomsProtocol();
-//        FieldUtil.setField(mgfomsProtocol, PdfReportServiceAbstract.class, pdfHelper, "pdf");
-//        MgfomsReportData mgfomsReportData = new MgfomsReportData();
-//        mgfomsReportData.setCathegoryData(createCathegoryData());
-//        MgfomsHeadData mgfomsHeadData = new MgfomsHeadData();
-//        mgfomsHeadData.setMoName("Какое-то МО");
-//        mgfomsHeadData.setPeriodTXT("2020-02-02");
-//        mgfomsReportData.setMgfomsHeadData(mgfomsHeadData);
-//        byte[] createReport = mgfomsProtocol.createReport(mgfomsReportData);
-//        File reportFile = new File("D:\\tmp\\parcels\\report.pdf");
-//        if (reportFile.exists()) {
-//            reportFile.delete();
-//        }
-//        Files.write(reportFile.toPath(), createReport, StandardOpenOption.CREATE_NEW);
-//    }
-//
-//    private static MgfomsCathegoryData createCathegoryData() {
-//        MgfomsCathegoryData cathegoryData = new MgfomsCathegoryData();
-//        cathegoryData.setAcceptedAll(BigDecimal.TEN);
-//        cathegoryData.setAcceptedApp(BigDecimal.TEN);
-//        cathegoryData.setAcceptedStationaryAll(BigDecimal.TEN);
-//        cathegoryData.setAcceptedStationaryReplacement(BigDecimal.TEN);
-//        cathegoryData.setAcceptedStationaryVmp(BigDecimal.TEN);
-//        cathegoryData.setBillCount(BigDecimal.TEN);
-//        cathegoryData.setMoId(1876L);
-//        cathegoryData.setParcel_Id(777L);
-//        cathegoryData.setPatientBillCount(BigDecimal.TEN);
-//        cathegoryData.setPatientCount(BigDecimal.TEN);
-//        cathegoryData.setPeriod(new Date());
-//        cathegoryData.setSumAll(BigDecimal.TEN);
-//        cathegoryData.setSumLsInput(BigDecimal.TEN);
-//        cathegoryData.setSumLsSend(BigDecimal.TEN);
-//        return cathegoryData;
-//    }
-//
+package ru.ibs.testpumputils;
+
+import java.io.File;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.Date;
+import ru.ibs.pmp.api.service.export.msk.pdf.PdfReportServiceAbstract;
+import ru.ibs.pmp.service.utils.pdf.PdfHelper;
+import ru.ibs.pmp.smo.dto.pdf.MgfomsReportData;
+import ru.ibs.pmp.smo.report.model.MgfomsCathegoryData;
+import ru.ibs.pmp.smo.report.model.MgfomsHeadData;
+import ru.ibs.pmp.smo.services.pdf.MgfomsProtocol;
+import ru.ibs.testpumputils.utils.FieldUtil;
+
+/**
+ * @author NAnishhenko
+ */
+public class PdfWatermarkTest {
+
+    public static void test() throws Exception {
+        PdfHelper pdfHelper = new PdfHelper();
+        MgfomsProtocol mgfomsProtocol = new MgfomsProtocol();
+        FieldUtil.setField(mgfomsProtocol, PdfReportServiceAbstract.class, pdfHelper, "pdf");
+        MgfomsReportData mgfomsReportData = new MgfomsReportData();
+        mgfomsReportData.setCathegoryData(createCathegoryData());
+        MgfomsHeadData mgfomsHeadData = new MgfomsHeadData();
+        mgfomsHeadData.setMoName("Какое-то МО");
+        mgfomsHeadData.setPeriodTXT("2020-02-02");
+        mgfomsReportData.setMgfomsHeadData(mgfomsHeadData);
+        byte[] createReport = mgfomsProtocol.createReport(mgfomsReportData, true);
+//        File reportFile = new File("C:\\tmp\\parcels\\report.pdf");
+        File reportFile = new File("report.pdf");
+        if (reportFile.exists()) {
+            reportFile.delete();
+        }
+        Files.write(reportFile.toPath(), createReport, StandardOpenOption.CREATE_NEW);
+    }
+
+    private static MgfomsCathegoryData createCathegoryData() {
+        MgfomsCathegoryData cathegoryData = new MgfomsCathegoryData();
+        cathegoryData.setAcceptedAll(BigDecimal.TEN);
+        cathegoryData.setAcceptedApp(BigDecimal.TEN);
+        cathegoryData.setAcceptedStationaryAll(BigDecimal.TEN);
+        cathegoryData.setAcceptedStationaryReplacement(BigDecimal.TEN);
+        cathegoryData.setAcceptedStationaryVmp(BigDecimal.TEN);
+        cathegoryData.setBillCount(BigDecimal.TEN);
+        cathegoryData.setMoId(1876L);
+        cathegoryData.setParcel_Id(777L);
+        cathegoryData.setPatientBillCount(BigDecimal.TEN);
+        cathegoryData.setPatientCount(BigDecimal.TEN);
+        cathegoryData.setPeriod(new Date());
+        cathegoryData.setSumAll(BigDecimal.TEN);
+        cathegoryData.setSumLsInput(BigDecimal.TEN);
+        cathegoryData.setSumLsSend(BigDecimal.TEN);
+        return cathegoryData;
+    }
+
 //    public static void test2() throws Exception {
 //        PdfHelper pdfHelper = new PdfHelper();
 //        NilVmpProtocol nilVmpProtocol = new NilVmpProtocol();
@@ -129,4 +119,4 @@
 //        cathegoryData.setSumAll(100L);
 //        return cathegoryData;
 //    }
-//}
+}
