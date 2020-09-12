@@ -108,6 +108,7 @@ import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
 import ru.ibs.testpumputils.utils.FieldUtil;
 import org.springframework.cache.CacheManager;
 import ru.ibs.pmp.api.interfaces.SaveMedicalCasePojo;
+import ru.ibs.pmp.api.model.Bill;
 import ru.ibs.pmp.api.model.MedicalCase;
 import ru.ibs.pmp.api.model.Requirement;
 import ru.ibs.pmp.api.model.SimpleService;
@@ -180,6 +181,8 @@ import ru.ibs.pmp.service.gateway.CreateUpdateServiceImpl;
 //import ru.ibs.pmp.service.impl.AccountingPeriodServiceImpl;
 import ru.ibs.pmp.service.impl.HospCaseServiceImpl;
 import ru.ibs.pmp.service.impl.SaveMedicalCaseServiceImpl;
+import ru.ibs.pmp.smo.dto.BillStatus2Dto;
+import ru.ibs.pmp.smo.dto.BillStatusDto;
 import ru.ibs.pmp.zlib.service.export.msk.parcel.util.ServiceHelper;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import static ru.ibs.testpumputils.utils.ObjectUtils.buildAuthSessionFactory;
@@ -210,7 +213,8 @@ public class PmpWsImplTest {
 //        System.out.println(createUpdateAmbCaseResponseStr);
 //pmpWsImpl.listBills170801(authInfo, listBills170801Request);
 
-        testBill();
+        testBillDAOHibernate();
+//        testBill();
 
         sessionFactory.cleanSessions();
         sessionFactory.close();
@@ -218,6 +222,12 @@ public class PmpWsImplTest {
         authSessionFactoryProxy.close();
 //        nsiSessionFactoryProxy.cleanSessions();
         nsiSessionFactoryProxy.close();
+    }
+
+    private static void testBillDAOHibernate() {
+        List<BillStatusDto> billStatusesForSmo = billDAOHibernate.getBillStatusesForSmo("2020-08", "22", "1868", Bill.BillStatus.SENT, Bill.BillFetchType.SMO);
+//        List<BillStatus2Dto> billStatuses2ForSmo = billDAOHibernate.getBillStatuses2ForSmo("2020-08", "22", "1868", "SENT", Bill.BillFetchType.SMO);
+        System.out.println(billStatusesForSmo.size());
     }
 
     private static void testBill() {
@@ -228,7 +238,7 @@ public class PmpWsImplTest {
 //        }
         List<BillInfo> billInfoList = requirement.getBills().stream().map(bill -> billDAOHibernate.getBillInfo(bill, 0L)).collect(Collectors.toList());
 //        String billInfoListStr = billInfoList.stream().map(billInfo -> billInfo.getBillId() + " " + (billInfo.getSentAISOMSDate() != null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(billInfo.getSentAISOMSDate()) : "null") + "\r\n").sorted().reduce((str1, str2) -> str1 + str2).get();
-        String billInfoListStr = billInfoList.stream().map(billInfo -> "select "+billInfo.getBillId() + " as bill_id, '" + (billInfo.getSentAISOMSDate() != null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(billInfo.getSentAISOMSDate()) : "null") + "' as send_date from dual\r\nunion all\r\n").sorted().reduce((str1, str2) -> str1 + str2).get();
+        String billInfoListStr = billInfoList.stream().map(billInfo -> "select " + billInfo.getBillId() + " as bill_id, '" + (billInfo.getSentAISOMSDate() != null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(billInfo.getSentAISOMSDate()) : "null") + "' as send_date from dual\r\nunion all\r\n").sorted().reduce((str1, str2) -> str1 + str2).get();
         System.out.println(billInfoListStr);
         session.close();
     }

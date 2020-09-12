@@ -21,13 +21,16 @@ public class BirtDynamicImageExample {
 
     public void createReport() throws Exception {
         Class.forName("oracle.jdbc.OracleDriver");
-        EngineConfig engineConfig = new EngineConfig();
-        URL fontsConfigurationURL = new URL("file:///fonts/MTCORSVA.TTF");
-        engineConfig.setFontConfig(fontsConfigurationURL);
-        Platform.startup(engineConfig);
-        FontFactory.register("fonts/arial.ttf"); // fonts/fireflysung.ttf in fireflysung.jar
+//        System.setProperty("birt.font.dirs", "fonts");
+//        EngineConfig engineConfig = new EngineConfig();
+//        URL fontsConfigurationURL = new URL("file:///fontsConfig.xml");
+//URL fontsConfigurationURL = new URL("file:///fonts/");
+//        engineConfig.setFontConfig(fontsConfigurationURL);
+//        Platform.startup(engineConfig);
+        Platform.startup();
+        FontFactory.register("fonts/arial.ttf");
         Font font = FontFactory.getFont("fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-        FontFactory.register("fonts/MTCORSVA.TTF"); // fonts/fireflysung.ttf in fireflysung.jar
+        FontFactory.register("fonts/MTCORSVA.TTF");
         Font font2 = FontFactory.getFont("fonts/MTCORSVA.TTF", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         FontFactory.register("fonts/SansSerifFLF.otf");
         Font font3 = FontFactory.getFont("fonts/SansSerifFLF.otf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);

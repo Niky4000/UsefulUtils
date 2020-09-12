@@ -52,13 +52,10 @@
 	both available, the different mappings are merged, for the same entries in the both, those in
 	"font-aliases" will override those in "font-mapping".
 -->
-<!--	<font-aliases>
-		<mapping name="serif" font-family="Times-Roman" />
-		<mapping name="sans-serif" font-family="Helvetica" />
-		<mapping name="monospace" font-family="Courier" />
-		<mapping name="cursive" font-family="Times-Roman" />
-		<mapping name="fantasy" font-family="Times-Roman" />
-	</font-aliases>
+	<font-aliases>
+		<mapping name="arial" font-family="Arial" />
+		<mapping name="monotype-corsiva" font-family="Monotype Corsiva" />
+	</font-aliases><!--
 	<search-sequences>
 		<sequence locale="zh">
 			<catalog name="Western" />
@@ -122,7 +119,7 @@
 	this issue, please add the font path to this section.
 -->
 	<font-paths>
-		<path path="/fonts" />
+		<path path="/src/main/resources/fonts" />
 	</font-paths>
 <!--
 	For <font-encodings> section,
