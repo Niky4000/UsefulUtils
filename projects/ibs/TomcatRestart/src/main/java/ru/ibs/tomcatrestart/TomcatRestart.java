@@ -59,6 +59,7 @@ public class TomcatRestart {
     final String[] deleteDirPath;
     final String[] deleteFilesPath;
     final String[] deleteDirsPath;
+    final String gitPath;
     final Properties properties;
 
     boolean forceCopy = false;
@@ -78,6 +79,7 @@ public class TomcatRestart {
         deleteDirPath = splitString(properties.getProperty("deleteDirPath"));
         deleteFilesPath = splitString(properties.getProperty("deleteFilesPath"));
         deleteDirsPath = splitString(properties.getProperty("deleteDirsPath"));
+        gitPath = properties.getProperty("gitPath");
     }
 
     public static void main(String[] args) throws Exception {
@@ -241,7 +243,7 @@ public class TomcatRestart {
             CommitBean latest = parseJSONcommits.values().stream().max((obj1, obj2) -> obj1.getDateAsDate().compareTo(obj2.getDateAsDate())).get();
 //        parseJSONcommits.values().stream().collect(Collectors.toMap(obj->obj.getCommitterName(), obj->obj.getAuthorName()));
             System.out.println(earliest.getId() + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(earliest.getDateAsDate()));
-            File repositoryDir = new File("D:\\GIT\\pmp");
+            File repositoryDir = new File(gitPath);
             Git git = Git.open(new File(repositoryDir.getAbsolutePath() + "/.git"));
 //        Iterable<RevCommit> iterable = git.log().call();
             Iterable<RevCommit> iterable = git.log().add(git.getRepository().resolve("heads/develop")).call();
@@ -334,7 +336,12 @@ public class TomcatRestart {
 //                    System.out.println();
 //                    System.out.println();
                     if (archiveDate != null) {
-                        s = falsifyString(entryIn.getName(), toByteArray, s, archiveDate);
+                        try {
+                            s = falsifyString(entryIn.getName(), toByteArray, s, archiveDate);
+                        } catch (Exception ee) {
+                            ee.printStackTrace();
+                            throw new RuntimeException("falsifyString exception!", ee);
+                        }
                     }
 //                    if (!entryIn.getName().endsWith("changelog.json")) {
 //                        System.out.println(s);

@@ -2,6 +2,7 @@ host=10.2.72.26
 port=22
 user=root
 password=%TGB5tgb
+gitPath=D:\\GIT\\pmp
 serverName=/tomcat-8082/
 launchScript=#!/bin/bash\ncd /home/mls/tomcat-8082\nbin/catalina.sh start
 launchScriptPath=/tmp

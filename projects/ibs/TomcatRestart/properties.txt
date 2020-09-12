@@ -1,6 +1,7 @@
 host=10.2.72.26
 user=root
 password=%TGB5tgb
+gitPath=D:\\GIT\\pmp
 zipArchPath=D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all.zip
 targetUnpackDir=D:\\GIT\\pmp\\pmp\\build\\target\\pmp-dist-all
 tomcatModulesDir=D:\\GIT\\pmp\\tools\\appserver\\tomcat\\webapps

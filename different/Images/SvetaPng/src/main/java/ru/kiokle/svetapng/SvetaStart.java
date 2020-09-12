@@ -31,9 +31,13 @@ import javax.imageio.ImageIO;
  */
 public class SvetaStart {
 
-    private static String TEMPLATE_IMAGE = "C:/Users/Me/Downloads/Sveta Images/Светик - template.png";
-    private static String OUTPUT_IMAGE = "D:/tmpZZZ/image.png";
-    private static String CONFIGS = "D:/tmpZZZ/config.txt";
+    private static String TEMPLATE_IMAGE;
+    private static String OUTPUT_IMAGE;
+    private static String CONFIGS;
+    private static int PAGE_COLUMNS = 8;
+    private static int PAGE_ROWS = 15;
+//    private static final String FONT_NAME = "Times New Roman";
+    private static final String FONT_NAME = "Liberation Serif";
 
     // Usage example: java -Xmx8G -jar D:\GIT\UsefulUtils\different\Images\SvetaPng\target\SvetaPng.jar -t "C:/Users/Me/Downloads/Sveta Images 2/Sveta - template.png" -o D:/tmpZZZ/image.png -conf D:/tmpZZZ/config.txt -columns 8 -rows 15
     public static void main(String[] args) throws Exception {
@@ -42,26 +46,42 @@ public class SvetaStart {
         List<String> argsList = Arrays.asList(args);
         TEMPLATE_IMAGE = argsList.get(argsList.indexOf("-t") + 1);
         OUTPUT_IMAGE = argsList.get(argsList.indexOf("-o") + 1);
-
         PAGE_COLUMNS = Integer.valueOf(argsList.get(argsList.indexOf("-columns") + 1));
         PAGE_ROWS = Integer.valueOf(argsList.get(argsList.indexOf("-rows") + 1));
         if (argsList.contains("-confLine")) {
             CONFIGS = argsList.get(argsList.indexOf("-confLine") + 1);
             List<ImageLabel> imageLabelCollection = parseConfigs();
             for (int i = 0; i < imageLabelCollection.size(); i++) {
-                Collection<BufferedImage> images = generateImages(Arrays.asList(imageLabelCollection.get(i)));
-                createBigImage(images, process2("", 250, 0), i);
+                Collection<BufferedImage> images = generateImages(Arrays.asList(imageLabelCollection.get(i)), TEMPLATE_IMAGE, FONT_NAME);
+                createBigImage(images, process2("", 250, 0, TEMPLATE_IMAGE, FONT_NAME), i, new File(TEMPLATE_IMAGE), OUTPUT_IMAGE, PAGE_COLUMNS, PAGE_ROWS);
             }
         } else {
             CONFIGS = argsList.get(argsList.indexOf("-conf") + 1);
-            Collection<BufferedImage> images = generateImages(parseConfigs());
-            createBigImage(images, process2("", 250, 0), null);
+            Collection<BufferedImage> images = generateImages(parseConfigs(), TEMPLATE_IMAGE, FONT_NAME);
+            createBigImage(images, process2("", 250, 0, TEMPLATE_IMAGE, FONT_NAME), null, new File(TEMPLATE_IMAGE), OUTPUT_IMAGE, PAGE_COLUMNS, PAGE_ROWS);
         }
         Date dateEnd = new Date();
         Long seconds = (dateEnd.getTime() - dateStart.getTime()) / 1000L;
         System.out.println("Memory Usage: " + maxMemory + " program was processing for " + seconds + "!");
-
     }
+
+    public static void createImage(File imageTemplate, boolean confLine, List<ImageLabel> imageLabelCollection, String fontName, File outputImage, int pageColumns, int pageRows) throws Exception {
+        Date dateStart = new Date();
+        System.out.println("Hello World!");
+        if (confLine) {
+            for (int i = 0; i < imageLabelCollection.size(); i++) {
+                Collection<BufferedImage> images = generateImages(Arrays.asList(imageLabelCollection.get(i)), imageTemplate.getAbsolutePath(), fontName);
+                createBigImage(images, process2("", 250, 0, imageTemplate.getAbsolutePath(), fontName), i, imageTemplate, outputImage.getAbsolutePath(), pageColumns, pageRows);
+            }
+        } else {
+            Collection<BufferedImage> images = generateImages(imageLabelCollection, imageTemplate.getAbsolutePath(), fontName);
+            createBigImage(images, process2("", 250, 0, imageTemplate.getAbsolutePath(), fontName), null, imageTemplate, outputImage.getAbsolutePath(), pageColumns, pageRows);
+        }
+        Date dateEnd = new Date();
+        Long seconds = (dateEnd.getTime() - dateStart.getTime()) / 1000L;
+        System.out.println("Memory Usage: " + maxMemory + " program was processing for " + seconds + "!");
+    }
+
     private static final String ss = "\\s\\s\\s\\s";
     private static final String p = "(.+?)";
     private static final Pattern pattern = Pattern.compile("^" + p + ss + p + ss + p + ss + p + "$", Pattern.DOTALL);
@@ -93,34 +113,31 @@ public class SvetaStart {
         }).filter(obj -> obj != null).collect(Collectors.toList());
     }
 
-    private static Collection<BufferedImage> generateImages(Collection<ImageLabel> imageLabels) {
-        return imageLabels.stream().flatMap(imageLabel -> IntStream.range(0, imageLabel.getCount()).boxed().map(i -> process2(imageLabel.getText(), imageLabel.getTextSize(), imageLabel.getValign()))).collect(Collectors.toList());
+    private static Collection<BufferedImage> generateImages(Collection<ImageLabel> imageLabels, String imageTemplate, String fontName) {
+        return imageLabels.stream().flatMap(imageLabel -> IntStream.range(0, imageLabel.getCount()).boxed().map(i -> process2(imageLabel.getText(), imageLabel.getTextSize(), imageLabel.getValign(), imageTemplate, fontName))).collect(Collectors.toList());
     }
 
-    private static int PAGE_COLUMNS = 8;
-    private static int PAGE_ROWS = 15;
-
-    private static void createBigImage(Collection<BufferedImage> images, BufferedImage emptyImage, Integer fileCounter) throws IOException {
-        BufferedImage templateImage = ImageIO.read(new File(TEMPLATE_IMAGE));
+    private static void createBigImage(Collection<BufferedImage> images, BufferedImage emptyImage, Integer fileCounter, File imageTemplate, String outputImageStringPath, int pageColumns, int pageRows) throws IOException {
+        BufferedImage templateImage = ImageIO.read(imageTemplate);
         int templateWidth = templateImage.getWidth();
         int templateHeight = templateImage.getHeight();
         File outputImageFile;
         if (fileCounter != null) {
-            outputImageFile = new File(OUTPUT_IMAGE.substring(0, OUTPUT_IMAGE.lastIndexOf(".")) + fileCounter.toString() + OUTPUT_IMAGE.substring(OUTPUT_IMAGE.lastIndexOf(".")));
+            outputImageFile = new File(outputImageStringPath.substring(0, outputImageStringPath.lastIndexOf(".")) + fileCounter.toString() + outputImageStringPath.substring(outputImageStringPath.lastIndexOf(".")));
         } else {
-            outputImageFile = new File(OUTPUT_IMAGE);
+            outputImageFile = new File(outputImageStringPath);
         }
         if (outputImageFile.exists()) {
             outputImageFile.delete();
         }
-        BufferedImage result = new BufferedImage(templateImage.getWidth() * PAGE_COLUMNS, templateImage.getHeight() * PAGE_ROWS, BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = new BufferedImage(templateImage.getWidth() * pageColumns, templateImage.getHeight() * pageRows, BufferedImage.TYPE_INT_RGB);
         Graphics resultGraphics = result.getGraphics();
         Iterator<BufferedImage> imagesIterator = images.iterator();
         int counter = 0;
         int width = 0;
         int height = 0;
-        for (int i = 0; i < PAGE_ROWS; i++) {
-            for (int j = 0; j < PAGE_COLUMNS; j++) {
+        for (int i = 0; i < pageRows; i++) {
+            for (int j = 0; j < pageColumns; j++) {
                 BufferedImage image = imagesIterator.hasNext() ? imagesIterator.next() : emptyImage;
                 resultGraphics.drawImage(image, width, height, null);
                 width += templateWidth;
@@ -137,12 +154,12 @@ public class SvetaStart {
         getMemoryUsage();
     }
 
-    private static BufferedImage process2(String text, int textSize, int valign) {
+    private static BufferedImage process2(String text, int textSize, int valign, String imageTemplate, String fontName) {
         try {
-            BufferedImage bufferedImage = ImageIO.read(new File(TEMPLATE_IMAGE));
+            BufferedImage bufferedImage = ImageIO.read(new File(imageTemplate));
             Graphics graphics = bufferedImage.getGraphics();
             graphics.setColor(Color.BLACK);
-            graphics.setFont(new Font("Times New Roman", Font.BOLD, textSize));
+            graphics.setFont(new Font(fontName, Font.BOLD, textSize));
             if (text != null && text.length() > 0) {
                 int height = getStringHeight(graphics, text);
                 drawString(graphics, text, (bufferedImage.getWidth() / 2), (bufferedImage.getHeight() / 2) - (height / 2) + valign);
@@ -211,6 +228,5 @@ public class SvetaStart {
         public String toString() {
             return "ImageLabel{" + "text=" + text.replace("\n", " ") + ", textSize=" + textSize + ", valign=" + valign + ", count=" + count + '}';
         }
-
     }
 }
