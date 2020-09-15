@@ -10,6 +10,13 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+    <dependencies>
+        <dependency>
+            <artifactId>oshi-core</artifactId>
+            <groupId>com.github.oshi</groupId>
+            <version>3.11.0</version>
+        </dependency>
+    </dependencies>
     <build>		
         <finalName>${project.artifactId}</finalName>
         <plugins>

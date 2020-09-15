@@ -10,6 +10,7 @@ import java.nio.file.FileSystems;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.function.Function;
@@ -26,6 +27,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -61,11 +64,15 @@ public class ImageCreateController implements Initializable {
 
     private static final String APPLICATION_CONFIGS = "applicationConfigs.txt";
 
-    String s = FileSystems.getDefault().getSeparator();
+    public static String s = FileSystems.getDefault().getSeparator();
     private static boolean isWindowsOS = isWindows();
 
     private static File saveFolder = getPathToSaveFolder();
     private static final String pathToSelf = saveFolder.getParent();
+
+    public static File getSaveFolder() {
+        return saveFolder;
+    }
 
     public static File getRelativeFilePath(File dir, String file) {
         return new File(dir.getAbsolutePath() + File.separator + file);
@@ -96,10 +103,18 @@ public class ImageCreateController implements Initializable {
         handleDigitTextField(rowsCount, () -> configs.getProperty("rowsCount"));
         handleFontName(() -> configs.getProperty("fontName"));
         checkCheckBoxes();
-        createConfigTable();
+        createConfigTable(configs);
     }
 
-    private void createConfigTable() {
+    private void createConfigTable(Properties configs) {
+        String property = configs.getProperty("tableContent");
+        List<ImageLabelTableBean> imageLabelTableBeanList;
+        if (property != null) {
+            imageLabelTableBeanList = Arrays.asList(property.split(SPLITTER)).stream().map(obj -> ImageLabelTableBean.fromString(obj)).collect(Collectors.toList());
+        } else {
+            imageLabelTableBeanList = Arrays.asList(DEFAULT_ELEMENT.get());
+        }
+
         configTable.getColumns().clear();
 
         Callback<TableColumn, TableCell> cellFactory = new Callback<TableColumn, TableCell>() {
@@ -108,8 +123,6 @@ public class ImageCreateController implements Initializable {
                 return new EditingCell();
             }
         };
-
-        List<ImageLabelTableBean> imageLabelTableBeanList = Arrays.asList(new ImageLabelTableBean("---", "---", "---", "---"));
 
         //        TableColumn textColumn = new TableColumn("text");
 //        textColumn.setCellValueFactory(new PropertyValueFactory<>("text"));
@@ -145,6 +158,7 @@ public class ImageCreateController implements Initializable {
         configTable.setItems(data);
         setTableEditable(configTable);
     }
+    private static final Supplier<ImageLabelTableBean> DEFAULT_ELEMENT = () -> new ImageLabelTableBean("Hello", "400", "0", "1");
 
     private TableColumn<ImageLabelTableBean, String> createEditableColumn(String header, Function<ImageLabelTableBean, SimpleStringProperty> text) {
         final TableColumn<ImageLabelTableBean, String> textColumn = new TableColumn<ImageLabelTableBean, String>(header);
@@ -294,21 +308,46 @@ public class ImageCreateController implements Initializable {
     }
 
     @FXML
+    public void addTableRowAction(ActionEvent event) {
+        configTable.getItems().add(DEFAULT_ELEMENT.get());
+    }
+
+    @FXML
+    public void deleteTableRowAction(ActionEvent event) {
+        int size = configTable.getItems().size();
+        if (size > 1) {
+            configTable.getItems().remove(size - 1);
+        }
+    }
+
+    @FXML
     public void createImageAction(ActionEvent event) {
         List<SvetaStart.ImageLabel> imageLabelList = configTable.getItems().stream().map(obj -> new SvetaStart.ImageLabel(obj.getText(), Integer.valueOf(obj.getTextSize()), Integer.valueOf(obj.getValign()), Integer.valueOf(obj.getCount()))).collect(Collectors.toList());
         File outputImagesPath = handlePathFromTextField(pathToOutImages);
         File templateImagePath = handlePathFromTextField(pathToImageTemplate);
-        Integer columnsCountValue = handleDigitTextField(columnsCount, () -> null);
-        Integer rowsCountValue = handleDigitTextField(rowsCount, () -> null);
+        Integer columnsCountValue = handleDigitTextField(columnsCount, null);
+        Integer rowsCountValue = handleDigitTextField(rowsCount, null);
         String conf = oneFileCheckBox.isSelected() ? "-conf" : "-confLine";
         try {
 //            String[] args = new String[]{"-t", outputImagesPath.getAbsolutePath(), "-o", templateImagePath.getAbsolutePath(), conf, saveFolder.getAbsolutePath() + s + "config.txt", "-columns", columnsCountValue.toString(), "-rows", rowsCountValue.toString()};
 //            SvetaStart.main(args);
             SvetaStart.createImage(templateImagePath, oneFileCheckBox.isSelected(), imageLabelList, fontName.getText(), outputImagesPath, columnsCountValue, rowsCountValue);
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Создание картинок успешно завершено!");
+            alert.setHeaderText("Создание картинок успешно завершено!");
+            alert.setContentText("Картинки лежат в каталоге:\n" + outputImagesPath.getAbsolutePath() + "!");
+            alert.setResizable(true);
+            alert.showAndWait();
         } catch (Exception ex) {
             Logger.getLogger(ImageCreateController.class.getName()).log(Level.SEVERE, null, ex);
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Произошла ошибка во время создания картинок!");
+            alert.setHeaderText("Произошла ошибка во время создания картинок!");
+            alert.setContentText("Произошла ошибка во время создания картинок!");
+            alert.showAndWait();
         }
         System.out.println("Hello from button!");
+
     }
 
     @FXML
@@ -355,8 +394,13 @@ public class ImageCreateController implements Initializable {
         properties.setProperty("fontName", fontName.getText());
         properties.setProperty("columnsCount", columnsCount.getText());
         properties.setProperty("rowsCount", rowsCount.getText());
+        Optional<String> tableContent = configTable.getItems().stream().map(obj -> obj.toString()).reduce((obj1, obj2) -> obj1 + SPLITTER + obj2);
+        if (tableContent.isPresent()) {
+            properties.setProperty("tableContent", tableContent.get());
+        }
         properties.store(new FileOutputStream(new File(saveFolder + s + APPLICATION_CONFIGS)), "configs");
     }
+    private static final String SPLITTER = "&";
 
     public void shutdown() {
         try {

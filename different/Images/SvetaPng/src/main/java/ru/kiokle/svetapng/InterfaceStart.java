@@ -6,6 +6,10 @@
 package ru.kiokle.svetapng;
 
 import java.io.IOException;
+import java.security.KeyPair;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -23,12 +27,33 @@ public class InterfaceStart extends Application {
     TabPane root;
 
     public static void main(String[] args) throws Exception {
-        launch(args);
+        List<String> argList = Arrays.asList(args).stream().collect(Collectors.toList());
+        if (argList.contains("-keys")) {
+            Keys.generateKeyPair();
+        } else if (argList.contains("-load")) {
+//            KeyPair keyPair = Keys.loadKeys();
+////            byte[] sign = Keys.sign("Hello!".getBytes(), keyPair.getPrivate());
+////            boolean verify = Keys.verify("Hello!".getBytes(), sign, keyPair.getPublic());
+//            String sign = Keys.sign("Hello", keyPair.getPrivate());
+//            boolean verify = Keys.verify("Hello", sign, keyPair.getPublic());
+//            KeyPair keyPair = Keys.generateKeyPair2();
+            String cpuId = CpuClass.getCPUId();
+            KeyPair keyPair = Keys.loadKeys4();
+            String signature = Keys.sign("foobar", keyPair.getPrivate());
+            //Let's check the signature
+            boolean verify = Keys.verify("foobar", signature, keyPair.getPublic());
+            if (verify) {
+                System.out.print("Verified! " + cpuId + "!");
+            } else {
+                System.out.print("Not verified! " + cpuId + "!");
+            }
+        } else {
+            launch(args);
+        }
     }
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-
         FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("form.fxml"));
         root = (TabPane) loader.load();
         ImageCreateController imageCreateController = loader.getController();

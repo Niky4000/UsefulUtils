@@ -72,4 +72,27 @@ public class ImageLabelTableBean {
     public void setCount(String count) {
         this.count.set(count);
     }
+
+    public static ImageLabelTableBean fromString(String str) {
+        int[] textIndexes = getIndexes(str, "text");
+        int[] textSizeIndexes = getIndexes(str, "textSize");
+        int[] valignIndexes = getIndexes(str, "valign");
+        int[] countIndexes = getIndexes(str, "count");
+        return new ImageLabelTableBean(str.substring(textIndexes[0], textIndexes[1]),
+                str.substring(textSizeIndexes[0], textSizeIndexes[1]),
+                str.substring(valignIndexes[0], valignIndexes[1]),
+                str.substring(countIndexes[0], str.length() - 1));
+    }
+
+    private static int[] getIndexes(String str, String text) {
+        int index1 = str.indexOf(text + "=");
+        int index2 = str.indexOf(",", index1);
+        return new int[]{index1 + text.length() + 1, index2};
+    }
+
+    @Override
+    public String toString() {
+        return "{" + "text=" + text.get() + ", textSize=" + textSize.get() + ", valign=" + valign.get() + ", count=" + count.get() + '}';
+    }
+
 }
