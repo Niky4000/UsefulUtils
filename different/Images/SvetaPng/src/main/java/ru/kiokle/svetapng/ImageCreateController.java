@@ -39,6 +39,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
+import ru.kiokle.marykaylib.CommonUtil;
+import static ru.kiokle.marykaylib.CommonUtil.getPathToSaveFolder;
+import static ru.kiokle.marykaylib.CommonUtil.s;
 
 /**
  * @author NAnishhenko
@@ -64,34 +67,13 @@ public class ImageCreateController implements Initializable {
 
     private static final String APPLICATION_CONFIGS = "applicationConfigs.txt";
 
-    public static String s = FileSystems.getDefault().getSeparator();
-    private static boolean isWindowsOS = isWindows();
+    private static File saveFolder = getPathToSaveFolder(ImageCreateController.class);
 
-    private static File saveFolder = getPathToSaveFolder();
+    private static boolean isWindowsOS = isWindows();
     private static final String pathToSelf = saveFolder.getParent();
 
-    public static File getSaveFolder() {
-        return saveFolder;
-    }
-
-    public static File getRelativeFilePath(File dir, String file) {
-        return new File(dir.getAbsolutePath() + File.separator + file);
-    }
-
-    public static File getPathToSaveFolder() {
-        try {
-            File file = new File(ImageCreateController.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            if (file.getAbsolutePath().contains("classes")) { // Launched from debugger!
-                file = Arrays.stream(file.getParentFile().listFiles()).filter(localFile -> localFile.getName().contains("MaryKayImage.jar")).findFirst().get();
-            }
-            File parentFile = file.getParentFile();
-            if (parentFile.getAbsolutePath().contains("target")) {
-                parentFile = parentFile.getParentFile();
-            }
-            return new File(parentFile.getAbsolutePath() + File.separator + "save");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static String getPathToSelf() {
+        return pathToSelf;
     }
 
     @Override
