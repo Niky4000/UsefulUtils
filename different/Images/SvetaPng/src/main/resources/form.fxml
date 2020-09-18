@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<TabPane fx:id="mainForm" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="714.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kiokle.svetapng.ImageCreateController">
+    <tabs>
+        <Tab text="Создание изображений">
+            <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="380.0" prefWidth="200.0">
+                    <children>
+                        <GridPane layoutX="25.0" layoutY="22.0" prefHeight="647.0" prefWidth="967.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="426.0" minWidth="10.0" prefWidth="262.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="305.0" minWidth="10.0" prefWidth="305.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="400.0" minWidth="10.0" prefWidth="400.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints maxHeight="82.0" minHeight="0.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="230.0" minHeight="0.0" prefHeight="34.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="302.0" minHeight="10.0" prefHeight="29.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="355.0" minHeight="0.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="355.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="413.0" minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="463.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="441.0" minHeight="10.0" prefHeight="434.0" vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+                                <Label text="Путь к сохраняемым изображениям" GridPane.rowIndex="1" GridPane.columnSpan="2" />
+                                <TextField fx:id="pathToOutImages" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="2" />
+                                <TextField fx:id="pathToImageTemplate" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="2" />
+                                <TextField fx:id="columnsCount" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.columnSpan="2" />
+                                <TextField fx:id="rowsCount" GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="2" />
+                                <Label text="Путь к фоновому изображению" GridPane.rowIndex="2" GridPane.columnSpan="2" />
+                                <Label text="Количество столбцов" GridPane.rowIndex="5" GridPane.columnSpan="2" />
+                                <Label text="Количество строк" GridPane.rowIndex="6" GridPane.columnSpan="2" />
+                                <CheckBox fx:id="oneFileCheckBox" mnemonicParsing="false" onAction="#oneFileCheckBoxAction" text="Один файл" GridPane.rowIndex="3" GridPane.columnSpan="2" />
+                                <CheckBox fx:id="manyFilesCheckBox" mnemonicParsing="false" onAction="#manyFilesCheckBoxAction" text="Несколько файлов" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="2" />
+                                <Button mnemonicParsing="false" onAction="#createImageAction" text="Создать!" />
+                                <TableView fx:id="configTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="7">
+                                    <columns>
+                                        <TableColumn prefWidth="75.0" text="C1" />
+                                        <TableColumn prefWidth="75.0" text="C2" />
+                                    </columns>
+                                </TableView>
+                                <Label text="Шрифт" GridPane.rowIndex="4" />
+                                <TextField fx:id="fontName" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.columnSpan="2" />
+                                <Button mnemonicParsing="false" onAction="#addTableRowAction" text="Добавить элемент!" GridPane.columnIndex="1" />
+                                <Button mnemonicParsing="false" onAction="#deleteTableRowAction" text="Убрать элемент!" GridPane.columnIndex="2" />
+                            </children>
+                        </GridPane>
+                    </children>
+                </AnchorPane>
+            </content>
+        </Tab>
+    </tabs>
+</TabPane>

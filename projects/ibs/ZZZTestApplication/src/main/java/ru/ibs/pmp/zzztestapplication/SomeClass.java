@@ -198,14 +198,21 @@ public class SomeClass {
 //        testDateSort();
 //        System.out.println(getMonthsDifference(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-05-05 22:14:44"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-08-08 20:20:20")));
 //        staticTest();
-        testAtomicReference();
+//        testAtomicReference();
 //        getCertificateDateEnd(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-15 00:00:00"));
 //        getCertificateDateEnd(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-03-15 00:00:00"));
-        System.out.println(getMonthsDifference(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-28 00:00:00"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-08-15 00:00:00")));
+//        System.out.println(getMonthsDifference(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-28 00:00:00"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-08-15 00:00:00")));
 //        System.out.println("1234567890".substring(3, 6));
 //        new TransparentWatermark().create();
 //        new TransparentWatermark2().create();
 //        new TransparentWatermark3().create();
+        testDateTrunc();
+    }
+
+    private static void testDateTrunc() {
+        org.joda.time.LocalDateTime dateTime = org.joda.time.LocalDateTime.now();
+        org.joda.time.LocalDateTime withSecondOfMinute = dateTime.withSecondOfMinute(0).withMillisOfSecond(0);
+        System.out.println(withSecondOfMinute.toString());
     }
 
     private static void testAtomicReference() throws ParseException {
@@ -216,14 +223,6 @@ public class SomeClass {
         System.out.println(getMonthsDifferenceSupplier.get());
         System.out.println(getMonthsDifferenceSupplier.get());
         System.out.println(getMonthsDifferenceSupplier.get());
-    }
-
-    private static final long getMonthsDifference(Date date1, Date date2) {
-        Date truncate1 = DateUtils.truncate(date1, Calendar.MONTH);
-        Date truncate2 = DateUtils.truncate(date2, Calendar.MONTH);
-        LocalDate localDate1 = truncate1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate localDate2 = truncate2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        return ChronoUnit.MONTHS.between(localDate1, localDate2);
     }
 
     private static final long getMonthsDifference(Date date1, Date date2) {

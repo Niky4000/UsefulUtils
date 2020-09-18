@@ -14,8 +14,8 @@ import java.util.Arrays;
  * @author me
  */
 public class CommonUtil {
-        public static String s = FileSystems.getDefault().getSeparator();
 
+    public static String s = FileSystems.getDefault().getSeparator();
 
     public static File getRelativeFilePath(File dir, String file) {
         return new File(dir.getAbsolutePath() + File.separator + file);
@@ -25,7 +25,7 @@ public class CommonUtil {
         try {
             File file = new File(class_.getProtectionDomain().getCodeSource().getLocation().toURI());
             if (file.getAbsolutePath().contains("classes")) { // Launched from debugger!
-                file = Arrays.stream(file.getParentFile().listFiles()).filter(localFile -> localFile.getName().contains("MaryKayImage.jar")).findFirst().get();
+                file = Arrays.stream(file.getParentFile().listFiles()).filter(localFile -> localFile.getName().contains("MaryKay") && localFile.getName().contains(".jar")).findFirst().get();
             }
             File parentFile = file.getParentFile();
             if (parentFile.getAbsolutePath().contains("target")) {

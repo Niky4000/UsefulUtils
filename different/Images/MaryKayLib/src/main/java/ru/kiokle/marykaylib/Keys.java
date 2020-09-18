@@ -105,15 +105,19 @@ public class Keys {
     }
 
     public PublicKey loadPublicKey(Class class_) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-//        byte[] publicKeyBytes = Files.readAllBytes(new File(publicKeyPath).toPath());
-        byte[] buffer = new byte[4096];
-        int read = IOUtils.read(class_.getClassLoader().getResourceAsStream(PUBLIC_KEY), buffer);
-        byte[] publicKeyBytes = new byte[read];
-        System.arraycopy(buffer, 0, publicKeyBytes, 0, read);
+        byte[] publicKeyBytes = getKeyBytes(class_, PUBLIC_KEY);
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
         EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
         PublicKey publicKey2 = keyFactory.generatePublic(publicKeySpec);
         return publicKey2;
+    }
+
+    private byte[] getKeyBytes(Class class_, String keyName) throws IOException {
+        byte[] buffer = new byte[4096];
+        int read = IOUtils.read(class_.getClassLoader().getResourceAsStream(keyName), buffer);
+        byte[] publicKeyBytes = new byte[read];
+        System.arraycopy(buffer, 0, publicKeyBytes, 0, read);
+        return publicKeyBytes;
     }
 
     public String loadSignature() {
@@ -140,12 +144,22 @@ public class Keys {
     public KeyPair loadKeys4() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] privateKeyBytes = Files.readAllBytes(new File(privateKeyPath).toPath());
         byte[] publicKeyBytes = Files.readAllBytes(new File(publicKeyPath).toPath());
+        return loadKeyPair(privateKeyBytes, publicKeyBytes);
+    }
+
+    private KeyPair loadKeyPair(byte[] privateKeyBytes, byte[] publicKeyBytes) throws NoSuchAlgorithmException, InvalidKeySpecException {
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
         EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
         PrivateKey privateKey2 = keyFactory.generatePrivate(privateKeySpec);
         EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
         PublicKey publicKey2 = keyFactory.generatePublic(publicKeySpec);
         return new KeyPair(publicKey2, privateKey2);
+    }
+
+    public KeyPair loadKeysFromResources(Class class_) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        byte[] publicKeyBytes = getKeyBytes(class_, PUBLIC_KEY);
+        byte[] privateKeyBytes = getKeyBytes(class_, PRIVATE_KEY);
+        return loadKeyPair(privateKeyBytes, publicKeyBytes);
     }
 
     public KeyPair loadKeys() throws URISyntaxException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
