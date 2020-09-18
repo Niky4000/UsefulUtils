@@ -7,6 +7,7 @@ package ru.kiokle.svetapng;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import ru.kiokle.marykaylib.Keys;
 import ru.kiokle.marykaylib.MailHandlerImpl;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -38,6 +40,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import ru.kiokle.marykaylib.CommonUtil;
+import static ru.kiokle.marykaylib.CommonUtil.decodeValue;
+import static ru.kiokle.marykaylib.CommonUtil.encodeValue;
+import static ru.kiokle.marykaylib.CommonUtil.getConfigs;
 import static ru.kiokle.marykaylib.CommonUtil.getPathToSaveFolder;
 import static ru.kiokle.marykaylib.MailHandlerImpl.QUEUE_SIZE;
 import ru.kiokle.marykaylib.MailHandlerWebImpl;
@@ -58,12 +64,13 @@ public class InterfaceStart extends Application {
     protected static final int TIME_TO_WAIT = 20000;
     Stage primaryStage;
     TabPane root;
+    private static File saveFolder = getPathToSaveFolder(InterfaceStart.class);
 
     public static void main(String[] args) throws Exception {
 //        MailHandlerWebImpl.sendPost("http://kiokle.ru/index2.php?name=Babuvin&oiooi=DFGGG");
         List<String> argList = Arrays.asList(args).stream().collect(Collectors.toList());
         if (argList.contains("-keys")) {
-            new Keys(getPathToSaveFolder(InterfaceStart.class)).generateKeyPair();
+            new Keys(saveFolder).generateKeyPair();
         } else if (argList.contains("-load")) {
 //            KeyPair keyPair = Keys.loadKeys();
 ////            byte[] sign = Keys.sign("Hello!".getBytes(), keyPair.getPrivate());
@@ -71,19 +78,23 @@ public class InterfaceStart extends Application {
 //            String sign = Keys.sign("Hello", keyPair.getPrivate());
 //            boolean verify = Keys.verify("Hello", sign, keyPair.getPublic());
 //            KeyPair keyPair = Keys.generateKeyPair2();
-            Keys keys = new Keys(getPathToSaveFolder(InterfaceStart.class));
+            Keys keys = new Keys(saveFolder);
             String cpuId = CpuClass.getCPUId();
+            String userName = argList.get(argList.indexOf("-load") + 1);
+            String sign = cpuId + "_" + userName;
             KeyPair keyPair = keys.loadKeys4();
-            String signature = keys.sign("foobar", keyPair.getPrivate());
+            String signature = keys.sign(sign, keyPair.getPrivate());
             keys.saveSignature(signature);
             String loadedSignature = keys.loadSignature();
             //Let's check the signature
-            boolean verify = keys.verify("foobar", loadedSignature, keyPair.getPublic());
+            boolean verify = keys.verify(sign, loadedSignature, keyPair.getPublic());
             if (verify) {
                 System.out.print("Verified! " + cpuId + "!");
+                CommonUtil.putConfigs(saveFolder, userName, sign);
             } else {
                 System.out.print("Not verified! " + cpuId + "!");
             }
+            System.exit(0);
         } else {
             launch(args);
         }
@@ -91,14 +102,14 @@ public class InterfaceStart extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, Exception {
-        Keys keys = new Keys(getPathToSaveFolder(InterfaceStart.class));
+        Keys keys = new Keys(saveFolder);
         String loadedSignature = keys.loadSignature();
         if (loadedSignature != null) {
             //Let's check the signature
             PublicKey publicKey = keys.loadPublicKey(InterfaceStart.class);
             String cpuId = CpuClass.getCPUId();
-            boolean verify = keys.verify(cpuId, loadedSignature, publicKey);
-            if (verify) {
+            String userName = Optional.ofNullable(getConfigs(saveFolder)).map(p -> (String) p.get("userName")).orElse(null);
+            if (userName != null && keys.verify(cpuId + "_" + userName, loadedSignature, publicKey)) {
                 startApplication(primaryStage);
             } else {
                 sendMail();
@@ -108,22 +119,26 @@ public class InterfaceStart extends Application {
         }
     }
 
-    public void startApplication(Stage primaryStage1) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("form.fxml"));
-        root = (TabPane) loader.load();
-        ImageCreateController imageCreateController = loader.getController();
-        primaryStage1.setOnHidden(e -> imageCreateController.shutdown());
-        Scene scene = new Scene(root, root.getPrefWidth(), root.getPrefHeight());
-        primaryStage1.setTitle("Программа создания наклеек для тестеров Mary Kay");
-        primaryStage1.setScene(scene);
-        root.prefHeightProperty().bind(scene.heightProperty());
-        root.prefWidthProperty().bind(scene.widthProperty());
+    public void startApplication(Stage primaryStage1) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("form.fxml"));
+            root = (TabPane) loader.load();
+            ImageCreateController imageCreateController = loader.getController();
+            primaryStage1.setOnHidden(e -> imageCreateController.shutdown());
+            Scene scene = new Scene(root, root.getPrefWidth(), root.getPrefHeight());
+            primaryStage1.setTitle("Программа создания наклеек для тестеров Mary Kay");
+            primaryStage1.setScene(scene);
+            root.prefHeightProperty().bind(scene.heightProperty());
+            root.prefWidthProperty().bind(scene.widthProperty());
 //		if (rootDimensionsBean != null) {
 //			primaryStage.setX(rootDimensionsBean.getX());
 //			primaryStage.setY(rootDimensionsBean.getY());
 //		}
-        primaryStage1.show();
-        this.primaryStage = primaryStage1;
+            primaryStage1.show();
+            this.primaryStage = primaryStage1;
+        } catch (IOException io) {
+            throw new RuntimeException(io);
+        }
     }
 
     private void sendMail() {
@@ -144,7 +159,8 @@ public class InterfaceStart extends Application {
         String passwordForSending = (String) properties2.get("mail.send.password");
         String toMail = (String) properties2.get("mail.box.for.sending");
 
-        TextInputDialog dialog = new TextInputDialog("сюда необходимо ввести регистрационные данные");
+//        TextInputDialog dialog = new TextInputDialog("Сюда необходимо ввести регистрационные данные");
+        TextInputDialog dialog = new TextInputDialog("Hello");
         dialog.setTitle("Регистрационные данные. Необходимо подключение к Internet!");
         dialog.setHeaderText("В данное поле необходимо ввести регистрационные данные");
         dialog.setContentText("Поле:");
@@ -158,7 +174,7 @@ public class InterfaceStart extends Application {
             String userName = result.get();
             String stringToSign = cpuId + "_" + userName;
             ArrayBlockingQueue<MailBean> queue = new ArrayBlockingQueue<>(QUEUE_SIZE);
-            MailReaderThread mailReaderThread = new MailReaderThread(user, password, imapServer, mailBean -> mailBean != null && mailBean.getSubject() != null && mailBean.getSubject().contains(stringToSign), queue);
+            MailReaderThread mailReaderThread = new MailReaderThread(user, password, imapServer, cpuId, false, mailBean -> mailBean != null && mailBean.getSubject() != null && mailBean.getSubject().contains(stringToSign), queue);
             boolean exception = false;
             try {
                 mailReaderThread.readMail();
@@ -167,69 +183,70 @@ public class InterfaceStart extends Application {
                 exception = true;
             }
             displayQueue.add("Начата активация программы.");
-            analizeResponse(queue, queue_ -> queue_.size() == 1, exception);
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            Properties propertiesForSending = new Properties();
-            propertiesForSending.setProperty(USER_NAME, userName);
-            propertiesForSending.setProperty(CPU_ID, cpuId);
-            try {
-                propertiesForSending.store(byteArrayOutputStream, "propertiesForSending");
-                String sign = new String(byteArrayOutputStream.toByteArray());
-                MailBean mailBean = new MailBean(null, Arrays.asList(mailForSending), stringToSign, sign);
-                ArrayBlockingQueue<MailBean> queueForSendBack = new ArrayBlockingQueue<>(QUEUE_SIZE);
-                MailSenderThread mailSenderThread = new MailSenderThread(userForSending, passwordForSending, properties, fromMail, toMail, queueForSendBack);
-                mailSenderThread.sendMail(mailBean);
-                displayQueue.add("Послан запрос на активацию программы.");
-                mailReaderThread.start();
-                displayQueue.add("Ожидание ответа сервера активации.");
-                analizeResponse(queue, queue_ -> true, exception);
-            } catch (IOException ex) {
-                Logger.getLogger(InterfaceStart.class.getName()).log(Level.SEVERE, null, ex);
+            if (queue.size() == 1) {
+                analizeResponse(queue, exception);
+            } else {
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                Properties propertiesForSending = new Properties();
+                propertiesForSending.setProperty(USER_NAME, userName);
+                propertiesForSending.setProperty(CPU_ID, cpuId);
+                try {
+                    propertiesForSending.store(byteArrayOutputStream, "propertiesForSending");
+                    String sign = encodeValue(new String(byteArrayOutputStream.toByteArray()));
+                    MailBean mailBean = new MailBean(null, Arrays.asList(mailForSending), cpuId, true, stringToSign, sign);
+                    ArrayBlockingQueue<MailBean> queueForSendBack = new ArrayBlockingQueue<>(QUEUE_SIZE);
+                    MailSenderThread mailSenderThread = new MailSenderThread(userForSending, passwordForSending, properties, fromMail, toMail, queueForSendBack);
+                    mailSenderThread.sendMail(mailBean);
+                    displayQueue.add("Послан запрос на активацию программы.");
+                    mailReaderThread.start();
+                    displayQueue.add("Ожидание ответа сервера активации.");
+                    analizeResponse(queue, exception);
+                } catch (IOException ex) {
+                    Logger.getLogger(InterfaceStart.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         } else {
             activationErrorDialog();
         }
-//        mailHandler.sendMail2(properties, mail, user, password, sendMail);
         System.out.println("Hello!");
+        System.exit(0);
     }
 
-    private void analizeResponse(ArrayBlockingQueue<MailBean> queue, Predicate<ArrayBlockingQueue<MailBean>> condition, boolean exception) {
-        if (condition.test(queue)) {
-            try {
-                MailBean mailBean = queue.take();
-                if (mailBean.isNull()) {
-                    exception = true;
-                } else {
-                    Properties data = new Properties();
-                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(mailBean.getText().getBytes());
-                    try {
-                        data.load(byteArrayInputStream);
-                        String accepted = (String) data.get(ACCEPTED);
-                        if (accepted != null && accepted.equals("true")) {
-                            startApplication(primaryStage);
-                        } else {
-                            String reason = (String) data.get(REASON) != null ? (String) data.get(REASON) : "По неизвестной технической причине!";
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Произвести активацию не удалось!");
-                            alert.setHeaderText("Произвести активацию не удалось!");
-                            alert.setContentText(reason);
-                            alert.setResizable(true);
-                            alert.showAndWait();
-                        }
-                    } catch (IOException ex) {
-                        Logger.getLogger(InterfaceStart.class.getName()).log(Level.SEVERE, null, ex);
-                        exception = true;
-                    }
-                }
-            } catch (InterruptedException ex) {
-                Logger.getLogger(InterfaceStart.class.getName()).log(Level.SEVERE, null, ex);
+    private void analizeResponse(ArrayBlockingQueue<MailBean> queue, boolean exception) {
+        try {
+            MailBean mailBean = queue.take();
+            if (mailBean.isNull()) {
                 exception = true;
+            } else {
+                String decodeValue = decodeValue(mailBean.getText());
+                Map<String, String> data = Arrays.stream(decodeValue.split("\n")).map(str -> {
+                    String parameterName = str.substring(0, str.indexOf(equalsDelimiter));
+                    String parameterValue = str.substring(str.indexOf(equalsDelimiter) + equalsDelimiter.length());
+                    return new String[]{parameterName, parameterValue};
+                }).collect(Collectors.toMap(objArr -> objArr[0], objArr -> objArr[1]));
+                String accepted = (String) data.get(ACCEPTED);
+                if (accepted != null && accepted.equals("true")) {
+                    startApplication(primaryStage);
+                } else {
+                    String reason = (String) data.get(REASON) != null ? (String) data.get(REASON) : "По неизвестной технической причине!";
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Произвести активацию не удалось!");
+                    alert.setHeaderText("Произвести активацию не удалось!");
+                    alert.setContentText(reason);
+                    alert.setResizable(true);
+                    alert.showAndWait();
+                }
+
             }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(InterfaceStart.class.getName()).log(Level.SEVERE, null, ex);
+            exception = true;
         }
         if (exception) {
             activationErrorDialog();
         }
     }
+    private static final String equalsDelimiter = "=";
 
     private void activationErrorDialog() {
         Alert alert = new Alert(Alert.AlertType.ERROR);

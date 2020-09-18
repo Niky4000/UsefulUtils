@@ -50,7 +50,7 @@ public class StartMaryKayActivationServer {
         ArrayBlockingQueue<MailBean> queue = new ArrayBlockingQueue<>(QUEUE_SIZE);
         ArrayBlockingQueue<MailBean> queueForSendBack = new ArrayBlockingQueue<>(QUEUE_SIZE);
         SignThread signThread = new SignThread(queue, queueForSendBack);
-        MailReaderThread mailReaderThread = new MailReaderThread(user, password, imapServer, mailBean -> true, queue);
+        MailReaderThread mailReaderThread = new MailReaderThread(user, password, imapServer, null, null, mailBean -> true, queue);
         MailSenderThread mailSenderThread = new MailSenderThread(userForSending, passwordForSending, properties, fromMail, toMail, queueForSendBack);
         mailReaderThread.start();
         signThread.start();

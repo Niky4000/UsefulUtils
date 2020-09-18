@@ -25,12 +25,16 @@ public class MailBean {
 
     private final Date receiveDate;
     private final List<String> from;
+    private final String cpuId;
+    private final Boolean request;
     private final String subject;
     private final String text;
 
-    public MailBean(Date receiveDate, List<String> from, String subject, String text) {
+    public MailBean(Date receiveDate, List<String> from, String cpuId, Boolean request, String subject, String text) {
         this.receiveDate = receiveDate;
         this.from = from;
+        this.cpuId = cpuId;
+        this.request = request;
         this.subject = subject;
         this.text = text;
     }
@@ -41,6 +45,14 @@ public class MailBean {
 
     public List<String> getFrom() {
         return from;
+    }
+
+    public String getCpuId() {
+        return cpuId;
+    }
+
+    public boolean isRequest() {
+        return request;
     }
 
     public String getSubject() {
@@ -57,8 +69,10 @@ public class MailBean {
 
     @Override
     public String toString() {
-        return "{" + "receiveDate=" + receiveDate + ", from=" + from + ", subject=" + subject + ", text=" + text + '}';
+        return "{" + "receiveDate=" + receiveDate + ", from=" + from + ", cpuId=" + cpuId + ", request=" + request + ", subject=" + subject + ", text=" + text + '}';
     }
+
+
 
     public Map<String, Object> toMap() {
         Map<String, Object> params = new LinkedHashMap<>();
@@ -80,10 +94,14 @@ public class MailBean {
     public static MailBean fromString(String str) {
         int[] receiveDateIndexes = getIndexes(str, "receiveDate");
         int[] fromIndexes = getIndexes(str, "from");
+        int[] cpuIdIndexes = getIndexes(str, "cpuId");
+        int[] requestIndexes = getIndexes(str, "request");
         int[] subjectIndexes = getIndexes(str, "subject");
         int[] textIndexes = getIndexes(str, "text");
         return new MailBean(null,
                 null,
+                str.substring(cpuIdIndexes[0], cpuIdIndexes[1]),
+                Boolean.valueOf(str.substring(requestIndexes[0], requestIndexes[1])),
                 str.substring(subjectIndexes[0], subjectIndexes[1]),
                 str.substring(textIndexes[0], str.length() - 1));
     }

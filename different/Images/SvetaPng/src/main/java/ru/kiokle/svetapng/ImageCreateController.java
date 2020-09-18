@@ -34,6 +34,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
+import static ru.kiokle.marykaylib.CommonUtil.APPLICATION_CONFIGS;
+import static ru.kiokle.marykaylib.CommonUtil.getConfigs;
 import static ru.kiokle.marykaylib.CommonUtil.getPathToSaveFolder;
 import static ru.kiokle.marykaylib.CommonUtil.s;
 
@@ -59,8 +61,6 @@ public class ImageCreateController implements Initializable {
     @FXML
     TableView<ImageLabelTableBean> configTable;
 
-    private static final String APPLICATION_CONFIGS = "applicationConfigs.txt";
-
     private static File saveFolder = getPathToSaveFolder(ImageCreateController.class);
 
     private static boolean isWindowsOS = isWindows();
@@ -72,7 +72,7 @@ public class ImageCreateController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        Properties configs = getConfigs();
+        Properties configs = getConfigs(saveFolder);
         handlePathTextField(pathToOutImages, "Images" + s + "image.png", () -> configs.getProperty("pathToOutImages"));
         handlePathTextField(pathToImageTemplate, "ImagesTemplates" + s + "MaryKeyTemplate.png", () -> configs.getProperty("pathToImageTemplate"));
         handleDigitTextField(columnsCount, () -> configs.getProperty("columnsCount"));
@@ -350,19 +350,8 @@ public class ImageCreateController implements Initializable {
         return System.getProperty("os.name").toLowerCase().indexOf("win") != -1;
     }
 
-    private Properties getConfigs() {
-        try {
-            Properties properties = new Properties();
-            properties.load(new FileInputStream(new File(saveFolder + s + APPLICATION_CONFIGS)));
-            return properties;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Properties();
-        }
-    }
-
     private void grapConfigs() throws FileNotFoundException, IOException {
-        Properties properties = new Properties();
+        Properties properties = getConfigs(saveFolder);
         properties.setProperty("oneFileCheckBox", oneFileCheckBox.isSelected() ? "1" : "0");
         properties.setProperty("manyFilesCheckBox", manyFilesCheckBox.isSelected() ? "1" : "0");
         properties.setProperty("pathToOutImages", pathToOutImages.getText());

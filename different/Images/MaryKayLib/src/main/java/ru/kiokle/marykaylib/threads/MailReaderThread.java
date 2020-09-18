@@ -25,16 +25,20 @@ public class MailReaderThread extends Thread {
     private final String user;
     private final String password;
     private final String imapServer;
+    private final String cpuId;
+    private final Boolean request;
     private final MailHandler mailHandler;
     private final ArrayBlockingQueue<MailBean> queue;
     private final Predicate<MailBean> deleteCondition;
     private final AtomicBoolean interrupted = new AtomicBoolean(false);
     private static final int TIME_TO_WAIT = 20 * 1000;
 
-    public MailReaderThread(String user, String password, String imapServer, Predicate<MailBean> deleteCondition, ArrayBlockingQueue<MailBean> queue) {
+    public MailReaderThread(String user, String password, String imapServer, String cpuId, Boolean request, Predicate<MailBean> deleteCondition, ArrayBlockingQueue<MailBean> queue) {
         this.user = user;
         this.password = password;
         this.imapServer = imapServer;
+        this.cpuId = cpuId;
+        this.request = request;
         this.queue = queue;
         this.deleteCondition = deleteCondition;
         mailHandler = MailHandlerFactory.createInstance();
@@ -44,8 +48,8 @@ public class MailReaderThread extends Thread {
     public void run() {
         while (true) {
             try {
-                Thread.sleep(TIME_TO_WAIT);
                 readMail();
+                Thread.sleep(TIME_TO_WAIT);
             } catch (InterruptedException ie) {
                 if (interrupted.get()) {
                     break;
@@ -54,13 +58,13 @@ public class MailReaderThread extends Thread {
                 }
             } catch (Exception ex) {
                 Logger.getLogger(MailReaderThread.class.getName()).log(Level.SEVERE, null, ex);
-                queue.offer(new MailBean(null, null, null, null));
+                queue.offer(new MailBean(null, null, null, null, null, null));
             }
         }
     }
 
     public void readMail() throws IOException, MessagingException {
-        mailHandler.readYandexMailbox(user, password, imapServer, deleteCondition, queue);
+        mailHandler.readYandexMailbox(user, password, imapServer, cpuId, request, deleteCondition, queue);
     }
 
     public void interruptThisThread() {

@@ -25,6 +25,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static ru.kiokle.marykaylib.CommonUtil.decodeValue;
+import static ru.kiokle.marykaylib.CommonUtil.encodeValue;
 import static ru.kiokle.marykaylib.CommonUtil.getPathToSaveFolder;
 import static ru.kiokle.marykaylib.CommonUtil.s;
 import ru.kiokle.marykaylib.Keys;
@@ -94,7 +96,7 @@ public class SignThread extends Thread {
             try {
                 MailBean mailBean = queue.take();
                 Properties data = new Properties();
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(mailBean.getText().getBytes());
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(decodeValue(mailBean.getText()).getBytes());
                 data.load(byteArrayInputStream);
                 final String userName = (String) data.get(USER_NAME);
                 final String cpuId = (String) data.get(CPU_ID);
@@ -116,15 +118,15 @@ public class SignThread extends Thread {
                     Long rowId = (Long) select.get(0)[0];
                     String cpuIdFromTable = (String) select.get(0)[1];
                     if (cpuIdFromTable != null && !cpuIdFromTable.equals(cpuId)) {
-                        mailBeanForSend = new MailBean(null, null, mailBean.getSubject(), ACCEPTED + "=false\n" + REASON + "=Данная программа уже зарегистрирована на другом компьютере");
+                        mailBeanForSend = new MailBean(null, null, cpuIdFromTable, false, mailBean.getSubject(), encodeValue(ACCEPTED + "=false\n" + REASON + "=Данная программа уже зарегистрирована на другом компьютере"));
                     } else {
                         String stringToSign = userName + "_" + cpuId;
                         String sign = keys.sign(stringToSign, keyPair.getPrivate());
                         update(rowId, cpuId);
-                        mailBeanForSend = new MailBean(null, null, mailBean.getSubject(), ACCEPTED + "=true\"" + SIGN + "=" + sign);
+                        mailBeanForSend = new MailBean(null, null, cpuIdFromTable, false, mailBean.getSubject(), encodeValue(ACCEPTED + "=true\n" + SIGN + "=" + sign));
                     }
                 } else {
-                    mailBeanForSend = new MailBean(null, null, mailBean.getSubject(), ACCEPTED + "=false\n" + REASON + "=Неверные регистрационные данные");
+                    mailBeanForSend = new MailBean(null, null, cpuId, false, mailBean.getSubject(), encodeValue(ACCEPTED + "=false\n" + REASON + "=Неверные регистрационные данные"));
                 }
                 queueForSendBack.offer(mailBeanForSend);
             } catch (InterruptedException ie) {

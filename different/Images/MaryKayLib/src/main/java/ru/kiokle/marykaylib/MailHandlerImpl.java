@@ -97,7 +97,7 @@ public class MailHandlerImpl implements MailHandler {
     }
 
     @Override
-    public void readYandexMailbox(String login, String password, String imapServer, Predicate<MailBean> deleteCondition, ArrayBlockingQueue<MailBean> queue) throws MessagingException, IOException {
+    public void readYandexMailbox(String login, String password, String imapServer, String cpuId, Boolean requests, Predicate<MailBean> deleteCondition, ArrayBlockingQueue<MailBean> queue) throws MessagingException, IOException {
         Properties props = new Properties();
 //        props.setProperty("mail.store.protocol", "imaps");
 //        props.setProperty("mail.imaps.ssl.trust", "imap.yandex.ru");
@@ -148,7 +148,7 @@ public class MailHandlerImpl implements MailHandler {
         String text = getText(message).trim();
         System.out.println("SUBJECT:" + message.getSubject());
         System.out.println("TEXT:" + getText(message).trim());
-        return new MailBean(message.getReceivedDate(), from, message.getSubject(), text);
+        return new MailBean(message.getReceivedDate(), from, null, null, message.getSubject(), text);
     }
 
     private void markMessageAsSeen(Message message, Folder folder) throws MessagingException {

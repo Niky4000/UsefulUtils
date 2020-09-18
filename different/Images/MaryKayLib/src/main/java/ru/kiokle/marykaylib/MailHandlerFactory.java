@@ -12,6 +12,6 @@ package ru.kiokle.marykaylib;
 public class MailHandlerFactory {
 
     public static MailHandler createInstance() {
-        return new MailHandlerImpl();
+        return new MailHandlerWebImpl();
     }
 }

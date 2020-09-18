@@ -6,17 +6,22 @@
 package ru.kiokle.marykaylib;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.mail.MessagingException;
 import ru.kiokle.marykaylib.bean.MailBean;
 import sun.net.www.protocol.http.HttpURLConnection;
@@ -34,9 +39,79 @@ public class MailHandlerWebImpl implements MailHandler {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    private static final String delimiter = "=> ";
+
+    private List<String> getFileList() {
+        Map<String, Object> params = new HashMap<>();
+        params.put(GET_FILE_LIST, TRUE_PARAM);
+        String sendPost = sendPost(url, params);
+        List<String> fileList = Arrays.stream(sendPost.replace("Array(", "").replace(")", "").split("    ")).filter(str -> str.contains(delimiter)).map(str -> str.substring(str.indexOf(delimiter) + delimiter.length())).filter(fileName -> !fileName.equals(".") && !fileName.equals("..")).collect(Collectors.toList());
+        return fileList;
+    }
+
+    Pattern pattern = Pattern.compile("^cpuId=(.+?)&text=(.+?)&subject=(.+)$", Pattern.DOTALL);
+
     @Override
-    public void readYandexMailbox(String login, String password, String imapServer, Predicate<MailBean> deleteCondition, ArrayBlockingQueue<MailBean> queue) throws MessagingException, IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void readYandexMailbox(String login, String password, String imapServer, String cpuId, Boolean request, Predicate<MailBean> deleteCondition, ArrayBlockingQueue<MailBean> queue) throws MessagingException, IOException {
+        if (cpuId == null) {
+            List<String> fileList = getFileList();
+            fileList.stream().forEach(cpuId_ -> readOneFile(cpuId_, request, deleteCondition, queue));
+        } else {
+            readOneFile(cpuId, request, deleteCondition, queue);
+        }
+    }
+
+    private void readOneFile(String cpuId, Boolean request, Predicate<MailBean> deleteCondition, ArrayBlockingQueue<MailBean> queue) {
+        Map<String, Object> params = new HashMap<>();
+        String type = null;
+        if (request != null) {
+            params.put(CPU_ID, cpuId);
+            type = request ? GET_REQUEST : GET_RESPONSE;
+        } else if (cpuId.endsWith(REQUEST)) {
+            params.put(CPU_ID, cpuId.replace(REQUEST, ""));
+            type = GET_REQUEST;
+        } else if (cpuId.endsWith(RESPONSE)) {
+            params.put(CPU_ID, cpuId.replace(RESPONSE, ""));
+            type = GET_RESPONSE;
+        }
+        params.put(type, TRUE_PARAM);
+        String sendPost = sendPost(url, params);
+        if (sendPost != null && sendPost.length() > 0 && !sendPost.contains(NO_DATA)) {
+            Matcher matcher = pattern.matcher(sendPost);
+            if (matcher.find()) {
+                String cpuIdFromPost = matcher.group(1);
+                String textFromPost = matcher.group(2);
+                String subjectFromPost = matcher.group(3);
+                MailBean mailBean = new MailBean(null, null, cpuIdFromPost, request, subjectFromPost, textFromPost);
+                if (deleteCondition.test(mailBean)) {
+                    deleteMail(params, type);
+                }
+                queue.offer(mailBean);
+            }
+        }
+    }
+    private static final String TRUE_PARAM = "true";
+    private static final String CPU_ID = "cpuId";
+    private static final String NO_DATA = "No Data!";
+    private static final String REQUEST = "_request";
+    private static final String RESPONSE = "_response";
+
+    private static final String GET_FILE_LIST = "getFileList";
+    private static final String PUT_RESPONSE = "putResponse";
+    private static final String GET_RESPONSE = "getResponse";
+    private static final String DELETE_RESPONSE = "deleteResponse";
+    private static final String PUT_REQUEST = "putRequest";
+    private static final String GET_REQUEST = "getRequest";
+    private static final String DELETE_REQUEST = "deleteRequest";
+
+    private void deleteMail(Map<String, Object> params, String queryType) {
+        params.remove(queryType);
+        if (queryType.equals(GET_REQUEST)) {
+            params.put(DELETE_REQUEST, TRUE_PARAM);
+        } else if (queryType.equals(GET_RESPONSE)) {
+            params.put(DELETE_RESPONSE, TRUE_PARAM);
+        }
+        String sendPost = sendPost(url, params);
     }
 
     @Override
@@ -46,7 +121,10 @@ public class MailHandlerWebImpl implements MailHandler {
 
     @Override
     public void sendMail2(Properties properties, String mail, String user, String password, String sendMail, MailBean mailBean) {
-        sendPost(url, mailBean.toMap());
+        Map<String, Object> params = mailBean.toMap();
+        params.put(CPU_ID, mailBean.getCpuId());
+        params.put(mailBean.isRequest() ? PUT_REQUEST : PUT_RESPONSE, TRUE_PARAM);
+        String sendPost = sendPost(url, params);
     }
 
     private static final int HTTP_READ_TIMEOUT = 60 * 1000;

@@ -22,10 +22,10 @@ public interface MailHandler {
 
     void readEmail(Properties properties, String mail, String user, String password);
 
-    void readYandexMailbox(String login, String password, String imapServer, Predicate<MailBean> deleteCondition, ArrayBlockingQueue<MailBean> queue) throws MessagingException, IOException;
+    void readYandexMailbox(String login, String password, String imapServer, String cpuId, Boolean request, Predicate<MailBean> deleteCondition, ArrayBlockingQueue<MailBean> queue) throws MessagingException, IOException;
 
     void sendMail(Properties properties, String mail, String user, String password, String sendMail);
 
     void sendMail2(Properties properties, String mail, String user, String password, String sendMail, MailBean mailBean);
-    
+
 }

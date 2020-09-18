@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.Channels;
@@ -206,7 +207,49 @@ public class SomeClass {
 //        new TransparentWatermark().create();
 //        new TransparentWatermark2().create();
 //        new TransparentWatermark3().create();
-        testDateTrunc();
+//        testDateTrunc();
+//        parseResponseFromPhpServer();
+        encodeDecodeTest();
+    }
+
+    private static void encodeDecodeTest() {
+        String encodeValue = encodeValue("Привет!!!");
+        String decodeValue = decodeValue(encodeValue);
+        System.out.println(decodeValue);
+    }
+
+    public static String encodeValue(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static String decodeValue(String value) {
+        try {
+            return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    static Pattern fileListPattern = Pattern.compile("[(\\d+?)]\\s=>\\s(.+?)", Pattern.MULTILINE);
+
+    private static void parseResponseFromPhpServer() {
+        String response = "Array(    [0] => .    [1] => ..    [2] => A7C1FBFF002006A7_request)";
+        getFileList(response);
+    }
+
+    private static final String delimiter = "=> ";
+
+    private static List<String> getFileList(String sendPost) {
+//        Map<String, Object> params = new HashMap<>();
+//        params.put(GET_FILE_LIST, TRUE_PARAM);
+//        String sendPost = sendPost(url, params);
+
+        List<String> fileList = Arrays.stream(sendPost.replace("Array(", "").replace(")", "").split("    ")).filter(str -> str.contains(delimiter)).map(str -> str.substring(str.indexOf(delimiter) + delimiter.length())).filter(fileName -> !fileName.equals(".") && !fileName.equals("..")).collect(Collectors.toList());
+        return fileList;
     }
 
     private static void testDateTrunc() {
