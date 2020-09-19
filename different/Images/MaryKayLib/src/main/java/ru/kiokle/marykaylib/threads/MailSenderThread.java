@@ -30,6 +30,7 @@ public class MailSenderThread extends Thread {
     private final AtomicBoolean interrupted = new AtomicBoolean(false);
 
     public MailSenderThread(String user, String password, Properties properties, String mail, String sendMail, ArrayBlockingQueue<MailBean> queue) {
+        super("MailSenderThread");
         this.user = user;
         this.password = password;
         this.properties = properties;

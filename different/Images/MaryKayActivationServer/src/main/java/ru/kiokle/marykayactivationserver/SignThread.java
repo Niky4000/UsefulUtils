@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static ru.kiokle.marykayactivationserver.Database.table;
 import static ru.kiokle.marykaylib.CommonUtil.decodeValue;
 import static ru.kiokle.marykaylib.CommonUtil.encodeValue;
 import static ru.kiokle.marykaylib.CommonUtil.getPathToSaveFolder;
@@ -43,51 +44,20 @@ import static ru.kiokle.marykaylib.bean.MailBean.USER_NAME;
  */
 public class SignThread extends Thread {
 
-    private final static String schema = "mk";
-    private Long id = 0L;
-    private final String h2DbLocation;
-    private Connection conn;
     private final ArrayBlockingQueue<MailBean> queue;
     private final ArrayBlockingQueue<MailBean> queueForSendBack;
     private final AtomicBoolean interrupted = new AtomicBoolean(false);
     private final Keys keys;
     private final KeyPair keyPair;
+    private final Database database;
 
-    public SignThread(ArrayBlockingQueue<MailBean> queue, ArrayBlockingQueue<MailBean> queueForSendBack) throws Exception {
-        File pathToSaveFolder = getPathToSaveFolder(SignThread.class);
-        keys = new Keys(pathToSaveFolder);
-        keyPair = keys.loadKeysFromResources(SignThread.class);
-        File dirFile = new File(pathToSaveFolder.getParentFile().getAbsolutePath() + s + "db");
+    public SignThread(File pathToSaveFolder, Database database, ArrayBlockingQueue<MailBean> queue, ArrayBlockingQueue<MailBean> queueForSendBack) throws Exception {
+        super("SignThread");
         this.queue = queue;
         this.queueForSendBack = queueForSendBack;
-        h2DbLocation = dirFile.getAbsolutePath().replace("\\", "/") + "mary_kay_users";
-        System.setProperty("h2.db.location", h2DbLocation);
-        boolean dbExisted = new File(h2DbLocation + ".mv.db").exists();
-        try {
-            conn = DriverManager.getConnection("jdbc:h2:file:" + h2DbLocation + ";DB_CLOSE_DELAY=-1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=1;INIT=CREATE SCHEMA IF NOT EXISTS " + schema + "\\;SET SCHEMA " + schema + "", "sa", "");
-        } catch (Exception ex) {
-            Logger.getLogger(SignThread.class.getName()).log(Level.SEVERE, null, ex);
-            closeConnection();
-            throw new RuntimeException(ex);
-        }
-        try {
-            if (dbExisted) {
-                try (PreparedStatement prepareStatement = conn.prepareStatement("select max(u.id) as max_ from " + schema + ".users u")) {
-                    ResultSet executeQuery = prepareStatement.executeQuery();
-                    if (executeQuery.next()) {
-                        id = executeQuery.getLong("max_");
-                        id++;
-                    }
-                    executeQuery.close();
-                }
-            } else {
-                createTable("CREATE TABLE " + schema + ".users(id bigint primary key, user_name varchar2(128), cpu_id varchar2(128), created date)");
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(SignThread.class.getName()).log(Level.SEVERE, null, ex);
-            closeConnection();
-            throw new RuntimeException(ex);
-        }
+        keys = new Keys(pathToSaveFolder);
+        keyPair = keys.loadKeysFromResources(SignThread.class);
+        this.database = database;
     }
 
     @Override
@@ -100,7 +70,10 @@ public class SignThread extends Thread {
                 data.load(byteArrayInputStream);
                 final String userName = (String) data.get(USER_NAME);
                 final String cpuId = (String) data.get(CPU_ID);
-                List<Object[]> select = select("select id,cpu_id from users where user_name = ?", resultSet -> {
+                if (cpuId == null) {
+                    continue;
+                }
+                List<Object[]> select = database.select("select id,cpu_id from " + table + " where user_name = ?", resultSet -> {
                     try {
                         return new Object[]{resultSet.getLong(1), resultSet.getString(2)};
                     } catch (SQLException ex) {
@@ -120,9 +93,9 @@ public class SignThread extends Thread {
                     if (cpuIdFromTable != null && !cpuIdFromTable.equals(cpuId)) {
                         mailBeanForSend = new MailBean(null, null, cpuIdFromTable, false, mailBean.getSubject(), encodeValue(ACCEPTED + "=false\n" + REASON + "=Данная программа уже зарегистрирована на другом компьютере"));
                     } else {
-                        String stringToSign = userName + "_" + cpuId;
+                        String stringToSign = cpuId + "_" + userName;
                         String sign = keys.sign(stringToSign, keyPair.getPrivate());
-                        update(rowId, cpuId);
+                        database.update(rowId, cpuId);
                         mailBeanForSend = new MailBean(null, null, cpuIdFromTable, false, mailBean.getSubject(), encodeValue(ACCEPTED + "=true\n" + SIGN + "=" + sign));
                     }
                 } else {
@@ -137,63 +110,6 @@ public class SignThread extends Thread {
                 }
             } catch (Exception ex) {
                 Logger.getLogger(SignThread.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    public <T> List<T> select(String selectClause, Function<ResultSet, T> mapper, List<Consumer<PreparedStatement>> whereParameters) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement(selectClause)) {
-            whereParameters.forEach(obj -> obj.accept(stmt));
-            List<T> list = new ArrayList<>();
-            ResultSet rset = stmt.executeQuery();
-            while (rset.next()) {
-                list.add(mapper.apply(rset));
-            }
-            return list;
-        }
-    }
-
-    public void update(Long id, String cpuId) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement("update users set cpu_id = ?, created = ? where id = ?")) {
-            stmt.setString(1, cpuId);
-            stmt.setObject(2, new java.sql.Timestamp(new Date().getTime()));
-            stmt.setLong(3, id);
-            stmt.executeUpdate();
-            conn.commit();
-        }
-    }
-
-    private void closeConnection() {
-        try {
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(SignThread.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private void createTable(String createSQLQuery) {
-        Statement statement = null;
-        try {
-            statement = conn.createStatement();
-            statement.execute(createSQLQuery);
-            conn.commit();
-        } catch (Exception ex) {
-            try {
-                conn.rollback();
-            } catch (Exception ee) {
-                throw new RuntimeException("statement close Fatal Error!", ex);
-            }
-            Logger.getLogger(SignThread.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException("createTable Fatal Error!", ex);
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (Exception ee) {
-                    throw new RuntimeException("statement close Fatal Error!", ee);
-                }
             }
         }
     }

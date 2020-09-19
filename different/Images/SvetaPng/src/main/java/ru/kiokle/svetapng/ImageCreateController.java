@@ -78,7 +78,7 @@ public class ImageCreateController implements Initializable {
         handleDigitTextField(columnsCount, () -> configs.getProperty("columnsCount"));
         handleDigitTextField(rowsCount, () -> configs.getProperty("rowsCount"));
         handleFontName(() -> configs.getProperty("fontName"));
-        checkCheckBoxes();
+        checkCheckBoxes(configs);
         createConfigTable(configs);
     }
 
@@ -228,8 +228,14 @@ public class ImageCreateController implements Initializable {
         return table.getVisibleLeafColumn(newColumnIndex);
     }
 
-    private void checkCheckBoxes() {
-        if ((!oneFileCheckBox.isSelected() && !manyFilesCheckBox.isSelected()) || oneFileCheckBox.isSelected() && manyFilesCheckBox.isSelected()) {
+    private void checkCheckBoxes(Properties configs) {
+        if (configs != null && configs.get("oneFileCheckBox") != null && configs.get("manyFilesCheckBox") != null && configs.get("oneFileCheckBox").equals("1") && configs.get("manyFilesCheckBox").equals("0")) {
+            oneFileCheckBox.setSelected(true);
+            manyFilesCheckBox.setSelected(false);
+        } else if (configs != null && configs.get("oneFileCheckBox") != null && configs.get("manyFilesCheckBox") != null && configs.get("oneFileCheckBox").equals("0") && configs.get("manyFilesCheckBox").equals("1")) {
+            oneFileCheckBox.setSelected(false);
+            manyFilesCheckBox.setSelected(true);
+        } else if ((!oneFileCheckBox.isSelected() && !manyFilesCheckBox.isSelected()) || oneFileCheckBox.isSelected() && manyFilesCheckBox.isSelected()) {
             oneFileCheckBox.setSelected(true);
             manyFilesCheckBox.setSelected(false);
         }

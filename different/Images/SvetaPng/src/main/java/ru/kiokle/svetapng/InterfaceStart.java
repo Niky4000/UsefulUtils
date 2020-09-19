@@ -51,6 +51,7 @@ import ru.kiokle.marykaylib.bean.MailBean;
 import static ru.kiokle.marykaylib.bean.MailBean.ACCEPTED;
 import static ru.kiokle.marykaylib.bean.MailBean.CPU_ID;
 import static ru.kiokle.marykaylib.bean.MailBean.REASON;
+import static ru.kiokle.marykaylib.bean.MailBean.SIGN;
 import static ru.kiokle.marykaylib.bean.MailBean.USER_NAME;
 import ru.kiokle.marykaylib.threads.MailReaderThread;
 import ru.kiokle.marykaylib.threads.MailSenderThread;
@@ -102,6 +103,9 @@ public class InterfaceStart extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, Exception {
+        if (!saveFolder.exists()) {
+            saveFolder.mkdirs();
+        }
         Keys keys = new Keys(saveFolder);
         String loadedSignature = keys.loadSignature();
         if (loadedSignature != null) {
@@ -112,36 +116,36 @@ public class InterfaceStart extends Application {
             if (userName != null && keys.verify(cpuId + "_" + userName, loadedSignature, publicKey)) {
                 startApplication(primaryStage);
             } else {
-                sendMail();
+                sendMail(primaryStage);
             }
         } else {
-            sendMail();
+            sendMail(primaryStage);
         }
     }
 
-    public void startApplication(Stage primaryStage1) {
+    public void startApplication(Stage primaryStage) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("form.fxml"));
             root = (TabPane) loader.load();
             ImageCreateController imageCreateController = loader.getController();
-            primaryStage1.setOnHidden(e -> imageCreateController.shutdown());
+            primaryStage.setOnHidden(e -> imageCreateController.shutdown());
             Scene scene = new Scene(root, root.getPrefWidth(), root.getPrefHeight());
-            primaryStage1.setTitle("Программа создания наклеек для тестеров Mary Kay");
-            primaryStage1.setScene(scene);
+            primaryStage.setTitle("Программа создания наклеек для тестеров Mary Kay");
+            primaryStage.setScene(scene);
             root.prefHeightProperty().bind(scene.heightProperty());
             root.prefWidthProperty().bind(scene.widthProperty());
 //		if (rootDimensionsBean != null) {
 //			primaryStage.setX(rootDimensionsBean.getX());
 //			primaryStage.setY(rootDimensionsBean.getY());
 //		}
-            primaryStage1.show();
-            this.primaryStage = primaryStage1;
+            primaryStage.show();
+            this.primaryStage = primaryStage;
         } catch (IOException io) {
             throw new RuntimeException(io);
         }
     }
 
-    private void sendMail() {
+    private void sendMail(Stage primaryStage) {
         Properties properties = new Properties();
         Properties properties2 = new Properties();
         try {
@@ -159,13 +163,14 @@ public class InterfaceStart extends Application {
         String passwordForSending = (String) properties2.get("mail.send.password");
         String toMail = (String) properties2.get("mail.box.for.sending");
 
-//        TextInputDialog dialog = new TextInputDialog("Сюда необходимо ввести регистрационные данные");
-        TextInputDialog dialog = new TextInputDialog("Hello");
+        //        TextInputDialog dialog = new TextInputDialog("Hello");
+        TextInputDialog dialog = new TextInputDialog("Сюда необходимо ввести регистрационные данные");
         dialog.setTitle("Регистрационные данные. Необходимо подключение к Internet!");
         dialog.setHeaderText("В данное поле необходимо ввести регистрационные данные");
         dialog.setContentText("Поле:");
 
 // Traditional way to get the response value.
+        boolean activationWasSuccessful = false;
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             BlockingQueue<String> displayQueue = new LinkedBlockingQueue<String>();
@@ -181,10 +186,17 @@ public class InterfaceStart extends Application {
             } catch (Exception ex) {
                 Logger.getLogger(InterfaceStart.class.getName()).log(Level.SEVERE, null, ex);
                 exception = true;
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Произвести активацию не удалось, так как, вероятно, отсутствует Internet соединение!");
+                alert.setHeaderText("Произвести активацию не удалось, так как, вероятно, отсутствует Internet соединение!");
+                alert.setContentText("Произвести активацию не удалось, так как, вероятно, отсутствует Internet соединение!");
+                alert.setResizable(true);
+                alert.showAndWait();
+                throw new RuntimeException(ex);
             }
             displayQueue.add("Начата активация программы.");
             if (queue.size() == 1) {
-                analizeResponse(queue, exception);
+                activationWasSuccessful = analizeResponse(primaryStage, userName, queue, displayQueue, exception);
             } else {
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 Properties propertiesForSending = new Properties();
@@ -200,19 +212,27 @@ public class InterfaceStart extends Application {
                     displayQueue.add("Послан запрос на активацию программы.");
                     mailReaderThread.start();
                     displayQueue.add("Ожидание ответа сервера активации.");
-                    analizeResponse(queue, exception);
+                    activationWasSuccessful = analizeResponse(primaryStage, userName, queue, displayQueue, exception);
                 } catch (IOException ex) {
                     Logger.getLogger(InterfaceStart.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+            displayQueue.add(DEAD_PILL);
         } else {
-            activationErrorDialog();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Произвести активацию не удалось!");
+            alert.setHeaderText("Необходимо ввести регистрационные данные!");
+            alert.setContentText("Необходимо ввести регистрационные данные!");
+            alert.setResizable(true);
+            alert.showAndWait();
         }
         System.out.println("Hello!");
-        System.exit(0);
+        if (!activationWasSuccessful) {
+            System.exit(0);
+        }
     }
 
-    private void analizeResponse(ArrayBlockingQueue<MailBean> queue, boolean exception) {
+    private boolean analizeResponse(Stage primaryStage, String userName, ArrayBlockingQueue<MailBean> queue, BlockingQueue<String> displayQueue, boolean exception) {
         try {
             MailBean mailBean = queue.take();
             if (mailBean.isNull()) {
@@ -226,7 +246,38 @@ public class InterfaceStart extends Application {
                 }).collect(Collectors.toMap(objArr -> objArr[0], objArr -> objArr[1]));
                 String accepted = (String) data.get(ACCEPTED);
                 if (accepted != null && accepted.equals("true")) {
-                    startApplication(primaryStage);
+                    displayQueue.add("Послан запрос на активацию программы.");
+                    Keys keys = new Keys(saveFolder);
+                    try {
+                        PublicKey publicKey = keys.loadPublicKey(InterfaceStart.class);
+                        String cpuId = CpuClass.getCPUId();
+//                        String userName = Optional.ofNullable(getConfigs(saveFolder)).map(p -> (String) p.get("userName")).orElse(null);
+                        String signature = data.get(SIGN);
+                        keys.saveSignature(signature);
+                        CommonUtil.putConfigs(saveFolder, userName, signature);
+                        String loadedSignature = keys.loadSignature();
+                        if (userName != null && keys.verify(cpuId + "_" + userName, loadedSignature, publicKey)) {
+                            displayQueue.add("Послан запрос на активацию программы.");
+                            startApplication(primaryStage);
+                            return true;
+                        } else {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Произвести активацию удалось, но что-то пошло не так!");
+                            alert.setHeaderText("Произвести активацию удалось, но что-то пошло не так!");
+                            alert.setContentText("Произвести активацию удалось, но что-то пошло не так!");
+                            alert.setResizable(true);
+                            alert.showAndWait();
+                        }
+                    } catch (Exception ex) {
+                        Logger.getLogger(InterfaceStart.class.getName()).log(Level.SEVERE, null, ex);
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Произвести активацию удалось, но произошла неизвестная ошибка!");
+                        alert.setHeaderText("Произвести активацию удалось, но произошла неизвестная ошибка!");
+                        alert.setContentText(ex.getMessage());
+                        alert.setResizable(true);
+                        alert.showAndWait();
+                    }
+
                 } else {
                     String reason = (String) data.get(REASON) != null ? (String) data.get(REASON) : "По неизвестной технической причине!";
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -245,7 +296,9 @@ public class InterfaceStart extends Application {
         if (exception) {
             activationErrorDialog();
         }
+        return false;
     }
+
     private static final String equalsDelimiter = "=";
 
     private void activationErrorDialog() {
@@ -309,5 +362,6 @@ public class InterfaceStart extends Application {
     public void stop() {
 //		DeadCatUtils.serializeObject(ROOT_DIMENSIONS_BEAN_NAME, new RootDimensionsBean(root.getHeight(), root.getWidth(), primaryStage.getX(), primaryStage.getY()));
         System.out.println("Stage is closing");
+        System.exit(0);
     }
 }

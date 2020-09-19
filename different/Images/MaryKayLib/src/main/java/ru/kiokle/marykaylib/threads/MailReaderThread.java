@@ -34,6 +34,7 @@ public class MailReaderThread extends Thread {
     private static final int TIME_TO_WAIT = 20 * 1000;
 
     public MailReaderThread(String user, String password, String imapServer, String cpuId, Boolean request, Predicate<MailBean> deleteCondition, ArrayBlockingQueue<MailBean> queue) {
+        super("MailReaderThread");
         this.user = user;
         this.password = password;
         this.imapServer = imapServer;
