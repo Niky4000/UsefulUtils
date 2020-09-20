@@ -27,11 +27,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
 import static ru.kiokle.marykaylib.CommonUtil.APPLICATION_CONFIGS;
@@ -51,7 +54,7 @@ public class ImageCreateController implements Initializable {
     @FXML
     TextField pathToOutImages;
     @FXML
-    TextField pathToImageTemplate;
+    ComboBox pathToImageTemplate;
     @FXML
     TextField fontName;
     @FXML
@@ -74,13 +77,14 @@ public class ImageCreateController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         Properties configs = getConfigs(saveFolder);
         handlePathTextField(pathToOutImages, "Images" + s + "image.png", () -> configs.getProperty("pathToOutImages"));
-        handlePathTextField(pathToImageTemplate, "ImagesTemplates" + s + "MaryKeyTemplate.png", () -> configs.getProperty("pathToImageTemplate"));
+        handleComboBox(pathToImageTemplate, IMAGES_TEMPLATES, () -> configs.getProperty("pathToImageTemplate"));
         handleDigitTextField(columnsCount, () -> configs.getProperty("columnsCount"));
         handleDigitTextField(rowsCount, () -> configs.getProperty("rowsCount"));
         handleFontName(() -> configs.getProperty("fontName"));
         checkCheckBoxes(configs);
         createConfigTable(configs);
     }
+    private static final String IMAGES_TEMPLATES = "ImagesTemplates";
 
     private void createConfigTable(Properties configs) {
         String property = configs.getProperty("tableContent");
@@ -119,22 +123,61 @@ public class ImageCreateController implements Initializable {
 //        textColumn.setCellFactory(cellFactory);
 //        TableColumn textColumn = createColumn(configTable);
 //        textColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        TableColumn<ImageLabelTableBean, String> textColumn = createEditableColumn("Текст наклейки", obj -> obj.getTextProperty());
+        TableColumn<ImageLabelTableBean, String> textColumn = createEditableAreaColumn("Текст наклейки", obj -> obj.getTextProperty());
         TableColumn<ImageLabelTableBean, String> textSizeColumn = createEditableColumn("Размер текста", obj -> obj.getTextSizeProperty());
-        TableColumn<ImageLabelTableBean, String> valignColumn = createEditableColumn("Вертикальное смещение", obj -> obj.getValignProperty());
+//        TableColumn<ImageLabelTableBean, String> valignColumn = createEditableColumn("Вертикальное смещение", obj -> obj.getValignProperty());
         TableColumn<ImageLabelTableBean, String> countColumn = createEditableColumn("Количество", obj -> obj.getCountProperty());
+//        TableColumn checkBoxColumn = createCheckBoxColumn("Hello", null);
 
-        textColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.6));
+        textColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.7));
+//        checkBoxColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.1));
         textSizeColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.2));
-        valignColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.1));
+//        valignColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.1));
         countColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.1));
 
-        configTable.getColumns().addAll(textColumn, textSizeColumn, valignColumn, countColumn);
+//        configTable.getColumns().addAll(textColumn, textSizeColumn, valignColumn, countColumn);
+        configTable.getColumns().addAll(textColumn, textSizeColumn, countColumn);
         ObservableList<ImageLabelTableBean> data = FXCollections.observableArrayList(imageLabelTableBeanList);
         configTable.setItems(data);
         setTableEditable(configTable);
     }
     private static final Supplier<ImageLabelTableBean> DEFAULT_ELEMENT = () -> new ImageLabelTableBean("Hello", "400", "0", "1");
+
+    private <T> TableColumn createCheckBoxColumn(final String columnName, Class<T> objClass) {
+        TableColumn actionCol = new TableColumn(columnName);
+        actionCol.setCellValueFactory(new PropertyValueFactory<>("checked"));
+        Callback<TableColumn<T, String>, TableCell<T, String>> cellFactory = new Callback<TableColumn<T, String>, TableCell<T, String>>() {
+            @Override
+            public TableCell<T, String> call(TableColumn<T, String> p) {
+                final TableCell<T, String> cell = new TableCell<T, String>() {
+
+                    final TextArea textArea = new TextArea();
+
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setGraphic(textArea);
+                            setText(null);
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+        actionCol.setCellFactory(cellFactory);
+        return actionCol;
+    }
+
+    private TableColumn<ImageLabelTableBean, String> createEditableAreaColumn(String header, Function<ImageLabelTableBean, SimpleStringProperty> text) {
+        final TableColumn<ImageLabelTableBean, String> textColumn = new TableColumn<ImageLabelTableBean, String>(header);
+        textColumn.setCellValueFactory(cellDataFeatures -> text.apply(cellDataFeatures.getValue()));
+        textColumn.setCellFactory(cellDataFeatures -> new StringAreaTableCell());
+        return textColumn;
+    }
 
     private TableColumn<ImageLabelTableBean, String> createEditableColumn(String header, Function<ImageLabelTableBean, SimpleStringProperty> text) {
         final TableColumn<ImageLabelTableBean, String> textColumn = new TableColumn<ImageLabelTableBean, String>(header);
@@ -281,8 +324,28 @@ public class ImageCreateController implements Initializable {
         }
     }
 
+    private void handleComboBox(ComboBox comboBox, String imageName, Supplier<String> stringFromConfigs) {
+        List<String> fileNames = Arrays.stream(new File(pathToSelf + s + imageName).listFiles()).filter(file -> file.getName().endsWith(".png")).map(file -> file.getName()).collect(Collectors.toList());
+        ObservableList<String> options = FXCollections.observableArrayList(fileNames);
+        comboBox.setItems(options);
+        if (stringFromConfigs.get() != null && new File(stringFromConfigs.get()).exists()) {
+            String name = new File(stringFromConfigs.get()).getName();
+            comboBox.getSelectionModel().select(name);
+        } else if (!fileNames.isEmpty()) {
+            comboBox.getSelectionModel().selectFirst();
+        }
+    }
+
     private File handlePathFromTextField(TextField textField) {
         File file = new File(textField.getText());
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+        return file;
+    }
+
+    private File handlePathFromComboBox(ComboBox comboBox, String imageName) {
+        File file = new File(pathToSelf + s + imageName + s + (String) comboBox.getValue());
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
@@ -306,7 +369,7 @@ public class ImageCreateController implements Initializable {
     public void createImageAction(ActionEvent event) {
         List<SvetaStart.ImageLabel> imageLabelList = configTable.getItems().stream().map(obj -> new SvetaStart.ImageLabel(obj.getText(), Integer.valueOf(obj.getTextSize()), Integer.valueOf(obj.getValign()), Integer.valueOf(obj.getCount()))).collect(Collectors.toList());
         File outputImagesPath = handlePathFromTextField(pathToOutImages);
-        File templateImagePath = handlePathFromTextField(pathToImageTemplate);
+        File templateImagePath = handlePathFromComboBox(pathToImageTemplate, IMAGES_TEMPLATES);
         Integer columnsCountValue = handleDigitTextField(columnsCount, null);
         Integer rowsCountValue = handleDigitTextField(rowsCount, null);
         String conf = oneFileCheckBox.isSelected() ? "-conf" : "-confLine";
@@ -361,7 +424,7 @@ public class ImageCreateController implements Initializable {
         properties.setProperty("oneFileCheckBox", oneFileCheckBox.isSelected() ? "1" : "0");
         properties.setProperty("manyFilesCheckBox", manyFilesCheckBox.isSelected() ? "1" : "0");
         properties.setProperty("pathToOutImages", pathToOutImages.getText());
-        properties.setProperty("pathToImageTemplate", pathToImageTemplate.getText());
+        properties.setProperty("pathToImageTemplate", handlePathFromComboBox(pathToImageTemplate, IMAGES_TEMPLATES).getAbsolutePath());
         properties.setProperty("fontName", fontName.getText());
         properties.setProperty("columnsCount", columnsCount.getText());
         properties.setProperty("rowsCount", rowsCount.getText());

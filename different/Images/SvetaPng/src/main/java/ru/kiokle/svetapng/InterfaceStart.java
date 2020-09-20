@@ -5,11 +5,9 @@
  */
 package ru.kiokle.svetapng;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import ru.kiokle.marykaylib.Keys;
-import ru.kiokle.marykaylib.MailHandlerImpl;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -23,8 +21,6 @@ import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -46,7 +42,6 @@ import static ru.kiokle.marykaylib.CommonUtil.encodeValue;
 import static ru.kiokle.marykaylib.CommonUtil.getConfigs;
 import static ru.kiokle.marykaylib.CommonUtil.getPathToSaveFolder;
 import static ru.kiokle.marykaylib.MailHandlerImpl.QUEUE_SIZE;
-import ru.kiokle.marykaylib.MailHandlerWebImpl;
 import ru.kiokle.marykaylib.bean.MailBean;
 import static ru.kiokle.marykaylib.bean.MailBean.ACCEPTED;
 import static ru.kiokle.marykaylib.bean.MailBean.CPU_ID;
@@ -141,6 +136,7 @@ public class InterfaceStart extends Application {
             primaryStage.show();
             this.primaryStage = primaryStage;
         } catch (IOException io) {
+            io.printStackTrace();
             throw new RuntimeException(io);
         }
     }

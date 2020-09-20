@@ -31,15 +31,15 @@
                             <children>
                                 <Label text="Путь к сохраняемым изображениям" GridPane.rowIndex="1" GridPane.columnSpan="2" />
                                 <TextField fx:id="pathToOutImages" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="2" />
-                                <TextField fx:id="pathToImageTemplate" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="2" />
+                                <ComboBox fx:id="pathToImageTemplate" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="2" />
                                 <TextField fx:id="columnsCount" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.columnSpan="2" />
                                 <TextField fx:id="rowsCount" GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="2" />
-                                <Label text="Путь к фоновому изображению" GridPane.rowIndex="2" GridPane.columnSpan="2" />
+                                <Label text="Фоновое изображение" GridPane.rowIndex="2" GridPane.columnSpan="2" />
                                 <Label text="Количество столбцов" GridPane.rowIndex="5" GridPane.columnSpan="2" />
                                 <Label text="Количество строк" GridPane.rowIndex="6" GridPane.columnSpan="2" />
-                                <CheckBox fx:id="oneFileCheckBox" mnemonicParsing="false" onAction="#oneFileCheckBoxAction" text="Один файл" GridPane.rowIndex="3" GridPane.columnSpan="2" />
-                                <CheckBox fx:id="manyFilesCheckBox" mnemonicParsing="false" onAction="#manyFilesCheckBoxAction" text="Несколько файлов" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="2" />
-                                <Button mnemonicParsing="false" onAction="#createImageAction" text="Создать!" />
+                                <CheckBox fx:id="oneFileCheckBox" mnemonicParsing="false" onAction="#oneFileCheckBoxAction" text="Несколько файлов" GridPane.rowIndex="3" GridPane.columnSpan="2" />
+                                <CheckBox fx:id="manyFilesCheckBox" mnemonicParsing="false" onAction="#manyFilesCheckBoxAction" text="Один файл" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="2" />
+                                <Button mnemonicParsing="false" onAction="#createImageAction" text="Создать" />
                                 <TableView fx:id="configTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="7">
                                     <columns>
                                         <TableColumn prefWidth="75.0" text="C1" />
@@ -48,8 +48,8 @@
                                 </TableView>
                                 <Label text="Шрифт" GridPane.rowIndex="4" />
                                 <TextField fx:id="fontName" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.columnSpan="2" />
-                                <Button mnemonicParsing="false" onAction="#addTableRowAction" text="Добавить элемент!" GridPane.columnIndex="1" />
-                                <Button mnemonicParsing="false" onAction="#deleteTableRowAction" text="Убрать элемент!" GridPane.columnIndex="2" />
+                                <Button mnemonicParsing="false" onAction="#addTableRowAction" text="Добавить строчку" GridPane.columnIndex="1" />
+                                <Button mnemonicParsing="false" onAction="#deleteTableRowAction" text="Удалить строчку" GridPane.columnIndex="2" />
                             </children>
                         </GridPane>
                     </children>

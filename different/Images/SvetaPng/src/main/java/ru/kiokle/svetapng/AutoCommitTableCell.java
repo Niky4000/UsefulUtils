@@ -16,28 +16,38 @@ import javafx.scene.input.KeyEvent;
  *
  * @author me
  */
-public abstract class AutoCommitTableCell<S,T> extends TableCell<S,T>
-{
-    private Node field;
+public abstract class AutoCommitTableCell<S, T> extends TableCell<S, T> {
+
+    protected Node field;
     private boolean startEditing;
     private T defaultValue;
 
-
-    /** @return a newly created input field. */
+    /**
+     * @return a newly created input field.
+     */
     protected abstract Node newInputField();
 
-    /** @return the current value of the input field. */
+    /**
+     * @return the current value of the input field.
+     */
     protected abstract T getInputValue();
 
-    /** Sets given value to the input field. */
+    /**
+     * Sets given value to the input field.
+     */
     protected abstract void setInputValue(T value);
 
-    /** @return the default in case item is null, must be never null, else cell will not be editable. */
+    /**
+     * @return the default in case item is null, must be never null, else cell
+     * will not be editable.
+     */
     protected abstract T getDefaultValue();
 
-    /** @return converts the given value to a string, being the cell-renderer representation. */
+    /**
+     * @return converts the given value to a string, being the cell-renderer
+     * representation.
+     */
     protected abstract String inputValueToText(T value);
-
 
     @Override
     public void startEdit() {
@@ -47,13 +57,15 @@ public abstract class AutoCommitTableCell<S,T> extends TableCell<S,T>
             super.startEdit();  // updateItem() will be called
 
             setInputValue(getItem());
-        }
-        finally {
+        } finally {
             startEditing = false;
         }
     }
 
-    /** Redirects to commitEdit(). Leaving the cell should commit, just ESCAPE should cancel. */
+    /**
+     * Redirects to commitEdit(). Leaving the cell should commit, just ESCAPE
+     * should cancel.
+     */
     @Override
     public void cancelEdit() {
         // avoid JavaFX NullPointerException when calling commitEdit()
@@ -62,8 +74,8 @@ public abstract class AutoCommitTableCell<S,T> extends TableCell<S,T>
         commitEdit(getInputValue());
     }
 
-    private void cancelOnEscape() {
-        if (defaultValue != null)    {   // canceling default means writing null
+    protected void cancelOnEscape() {
+        if (defaultValue != null) {   // canceling default means writing null
             setItem(defaultValue = null);
             setText(null);
             setInputValue(null);
@@ -73,39 +85,43 @@ public abstract class AutoCommitTableCell<S,T> extends TableCell<S,T>
 
     @Override
     protected void updateItem(T newValue, boolean empty) {
-        if (startEditing && newValue == null)
+        if (startEditing && newValue == null) {
             newValue = (defaultValue = getDefaultValue());
+        }
 
         super.updateItem(newValue, empty);
 
         if (empty || newValue == null) {
             setText(null);
             setGraphic(null);
-        }
-        else {
+        } else {
             setText(inputValueToText(newValue));
             setGraphic(startEditing || isEditing() ? getInputField() : null);
         }
     }
 
-    protected final Node getInputField()    {
-        if (field == null)    {
+    protected final Node getInputField() {
+        if (field == null) {
             field = newInputField();
 
-            // a cell-editor won't be committed or canceled automatically by JFX
-            field.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-                if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.TAB)
-                    commitEdit(getInputValue());
-                else if (event.getCode() == KeyCode.ESCAPE)
-                    cancelOnEscape();
-            });
+            addEvent();
 
             contentDisplayProperty().bind(
                     Bindings.when(editingProperty())
-                        .then(ContentDisplay.GRAPHIC_ONLY)
-                        .otherwise(ContentDisplay.TEXT_ONLY)
-                );
+                            .then(ContentDisplay.GRAPHIC_ONLY)
+                            .otherwise(ContentDisplay.TEXT_ONLY)
+            );
         }
         return field;
+    }
+
+    protected void addEvent() {
+        // a cell-editor won't be committed or canceled automatically by JFX
+        field.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.TAB)
+                commitEdit(getInputValue());
+            else if (event.getCode() == KeyCode.ESCAPE)
+                cancelOnEscape();
+        });
     }
 }

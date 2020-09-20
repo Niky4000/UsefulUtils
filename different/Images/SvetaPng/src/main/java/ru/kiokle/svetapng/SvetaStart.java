@@ -181,7 +181,7 @@ public class SvetaStart {
     }
 
     private static void drawString(Graphics graphics, String text, int x, int y) {
-        for (String line : text.split("\n")) {
+        for (String line : text.replace("\\n", "\n").split("\n")) {
             int width = getStringWidth(graphics, line);
             graphics.drawString(line, x - (width / 2), y += graphics.getFontMetrics().getHeight());
         }
