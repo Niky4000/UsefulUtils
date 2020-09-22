@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import ru.ibs.pmp.service.check.msk.CheckNL;
 
 /**
  * @author NAnishhenko
@@ -52,7 +54,9 @@ public class TestPumpUtilsMain {
 //        testBillStatisticsDAOImpl(sessionFactoryProxy);
 //            Utils10733.start(sessionFactoryProxy);
 //            PmpWsImplTest.test(sessionFactoryProxy);
-            PmpWsImplTest.test();
+            List<String> argList = Arrays.asList(args);
+            LogAnalizer.analizeLogs(argList.get(0), new ArrayList<>(argList.subList(1, argList.size() - 1)).toArray(new String[1]));
+//            PmpWsImplTest.test();
 //            AccountingPeriodServiceImplTest.test();
 //            BillStatisticsDAOHibernateTest.test();
 //            RequirementControllerTest.test();
@@ -65,7 +69,7 @@ public class TestPumpUtilsMain {
 //                System.out.println();
 //            }
 //            ListBillsServiceImplTest.test();
-            PdfWatermarkTest.test();
+//            PdfWatermarkTest.test();
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
 //            CheckInvoiceNUTest.test();
