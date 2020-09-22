@@ -125,18 +125,18 @@ public class ImageCreateController implements Initializable {
 //        textColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         TableColumn<ImageLabelTableBean, String> textColumn = createEditableAreaColumn("Текст наклейки", obj -> obj.getTextProperty());
         TableColumn<ImageLabelTableBean, String> textSizeColumn = createEditableColumn("Размер текста", obj -> obj.getTextSizeProperty());
-//        TableColumn<ImageLabelTableBean, String> valignColumn = createEditableColumn("Вертикальное смещение", obj -> obj.getValignProperty());
+        TableColumn<ImageLabelTableBean, String> valignColumn = createEditableColumn("Вертикальное смещение", obj -> obj.getValignProperty());
         TableColumn<ImageLabelTableBean, String> countColumn = createEditableColumn("Количество", obj -> obj.getCountProperty());
 //        TableColumn checkBoxColumn = createCheckBoxColumn("Hello", null);
 
-        textColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.7));
+        textColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.6));
 //        checkBoxColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.1));
         textSizeColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.2));
-//        valignColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.1));
+        valignColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.1));
         countColumn.prefWidthProperty().bind(configTable.widthProperty().multiply(0.1));
 
 //        configTable.getColumns().addAll(textColumn, textSizeColumn, valignColumn, countColumn);
-        configTable.getColumns().addAll(textColumn, textSizeColumn, countColumn);
+        configTable.getColumns().addAll(textColumn, textSizeColumn, valignColumn, countColumn);
         ObservableList<ImageLabelTableBean> data = FXCollections.observableArrayList(imageLabelTableBeanList);
         configTable.setItems(data);
         setTableEditable(configTable);
