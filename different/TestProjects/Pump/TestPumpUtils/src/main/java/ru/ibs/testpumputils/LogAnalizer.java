@@ -22,6 +22,9 @@ public class LogAnalizer {
         File logDir = new File(logDirPath);
         File[] listFiles = logDir.listFiles();
         for (File logFile : listFiles) {
+            if(logFile.isDirectory()){
+                continue;
+            }
             String string = new String(Files.readAllBytes(logFile.toPath()));
             List<Integer> countList = Arrays.stream(substring).map(substr -> countSubstring(string, substr)).collect(Collectors.toList());
             System.out.println(logFile.getName() + " " + countList.stream().map(obj -> obj.toString()).reduce("", (str1, str2) -> str1 + " " + str2));
@@ -33,7 +36,6 @@ public class LogAnalizer {
         int count = 0;
         while (lastIndex != -1) {
             lastIndex = str.indexOf(findStr, lastIndex);
-
             if (lastIndex != -1) {
                 count++;
                 lastIndex += findStr.length();

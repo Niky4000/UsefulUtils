@@ -55,7 +55,7 @@ public class TestPumpUtilsMain {
 //            Utils10733.start(sessionFactoryProxy);
 //            PmpWsImplTest.test(sessionFactoryProxy);
             List<String> argList = Arrays.asList(args);
-            LogAnalizer.analizeLogs(argList.get(0), new ArrayList<>(argList.subList(1, argList.size() - 1)).toArray(new String[1]));
+            LogAnalizer.analizeLogs(argList.get(0), new ArrayList<>(argList.subList(1, argList.size())).toArray(new String[1]));
 //            PmpWsImplTest.test();
 //            AccountingPeriodServiceImplTest.test();
 //            BillStatisticsDAOHibernateTest.test();
@@ -64,7 +64,7 @@ public class TestPumpUtilsMain {
 //            String pocket2 = "(.+)$";
 //            Pattern parsePattern = Pattern.compile("ErrorCode=" + pocket + "MedicalCase.id=" + pocket + "patient.id=" + pocket + "patient.type=" + pocket + "Service.id=" + pocket + "price=" + pocket + "detail=" + pocket2, Pattern.DOTALL);
 //
-//            String row = "ErrorCode=CREATE.B4 MedicalCase.id=229274434 patient.id=5281196412 patient.type=0 Service.id=236000 price=2059820 detail=Поле фактического койко дня превышает 1000 дней!";
+//            String row = "ErrorCode=CREATE.B4 MedicalCase.id=229274434 patient.id=5281196412 patient.type=0 Service.id=236000 price=2059820 detail=???? ???????????? ????? ??? ????????? 1000 ????!";
 //            if (parsePattern.matcher(row).matches()) {
 //                System.out.println();
 //            }
