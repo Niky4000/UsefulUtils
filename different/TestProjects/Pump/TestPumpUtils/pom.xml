@@ -60,6 +60,14 @@
             <classifier>classes</classifier>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>ru.ibs.pmp</groupId>
+            <artifactId>module-reports-pmp</artifactId>
+            <version>1.1807.1</version>
+            <type>jar</type>
+            <classifier>classes</classifier>
+            <scope>compile</scope>
+        </dependency>
         <!--        <dependency>
             <groupId>ru.ibs.pmp</groupId>
             <artifactId>module-lpu-registry-pmp</artifactId>
@@ -74,13 +82,21 @@
             <version>2.5.0</version>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.birt.runtime</groupId>
+            <artifactId>org.eclipse.birt.runtime</artifactId>
+            <version>4.3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.birt.runtime.3_7_1</groupId>
+                    <artifactId>javax.wsdl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-dbcp2</artifactId>
             <version>2.7.0</version>
         </dependency>
-
-
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -141,13 +157,13 @@
             <artifactId>pmp-common-min</artifactId>
             <version>1.6.1-SNAPSHOT</version>
         </dependency>
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>net.sf.barcode4j</groupId>
             <artifactId>barcode4j</artifactId>
             <version>2.1</version>
         </dependency>-->
 
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
             <artifactId>org.eclipse.birt.runtime</artifactId>
             <version>4.3.1</version>
@@ -164,6 +180,11 @@
             <artifactId>org.eclipse.birt.report.engine.emitter.xml</artifactId>
             <version>1.0.0.201802150756</version>
         </dependency>-->
+        <dependency>
+            <groupId>ru.ibs.pmp</groupId>
+            <artifactId>module-reports-birt</artifactId>
+            <version>1.1807.1</version>
+        </dependency>
     </dependencies>
     <repositories>        
         <repository>

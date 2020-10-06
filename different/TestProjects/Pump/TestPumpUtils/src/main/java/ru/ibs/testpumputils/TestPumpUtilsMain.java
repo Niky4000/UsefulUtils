@@ -54,8 +54,8 @@ public class TestPumpUtilsMain {
 //        testBillStatisticsDAOImpl(sessionFactoryProxy);
 //            Utils10733.start(sessionFactoryProxy);
 //            PmpWsImplTest.test(sessionFactoryProxy);
-            List<String> argList = Arrays.asList(args);
-            LogAnalizer.analizeLogs(argList.get(0), new ArrayList<>(argList.subList(1, argList.size())).toArray(new String[1]));
+//            List<String> argList = Arrays.asList(args);
+//            LogAnalizer.analizeLogs(argList.get(0), new ArrayList<>(argList.subList(1, argList.size())).toArray(new String[1]));
 //            PmpWsImplTest.test();
 //            AccountingPeriodServiceImplTest.test();
 //            BillStatisticsDAOHibernateTest.test();
@@ -78,6 +78,8 @@ public class TestPumpUtilsMain {
 //            DbTest.test();
 //            Barcode128Test.test();
 //            new PdfBirtTest().executeReport();
+//            BirtOutputStreamTest.test3();
+            HttpTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
