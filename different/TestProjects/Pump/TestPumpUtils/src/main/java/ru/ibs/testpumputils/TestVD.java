@@ -17,6 +17,9 @@ import org.hibernate.criterion.Restrictions;
 import ru.ibs.pmp.api.model.MedicalCase;
 import ru.ibs.pmp.api.model.MedicalCaseAud;
 import ru.ibs.pmp.api.model.MedicalCaseAudPK;
+import ru.ibs.pmp.api.model.msk.TapInfo;
+import ru.ibs.pmp.api.model.msk.TapInfoAud;
+import ru.ibs.pmp.api.model.msk.TapInfoAudPK;
 import ru.ibs.pmp.api.practitioners.model.practitioner.PractCertificate;
 import ru.ibs.pmp.api.practitioners.model.practitioner.PractJob;
 import ru.ibs.pmp.api.practitioners.model.practitioner.Practitioner;
@@ -47,10 +50,14 @@ public class TestVD {
         final long rev = 404019050L;
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         CopyEntitiesUtil<MedicalCaseAud, MedicalCase> copyEntitiesUtil = new CopyEntitiesUtil<>();
+        CopyEntitiesUtil<TapInfoAud, TapInfo> copyEntitiesUtil_ = new CopyEntitiesUtil<>();
         Session session = sessionFactory.openSession();
         MedicalCaseAudPK medicalCaseAudPK = new MedicalCaseAudPK(medicalCaseId, rev);
         MedicalCaseAud medicalCaseAud = (MedicalCaseAud) session.get(MedicalCaseAud.class, medicalCaseAudPK);
+        TapInfoAud tapInfoAud = (TapInfoAud) session.get(TapInfoAud.class, new TapInfoAudPK(medicalCaseId, rev));
+        TapInfo tapInfo = copyEntitiesUtil_.copyAudEntities(tapInfoAud);
         MedicalCase medicalCase = copyEntitiesUtil.copyAudEntities(medicalCaseAud);
+        MedicalCase medicalCase2 = copyEntitiesUtil.copyRelatedEntities(medicalCase, TapInfo.class, tapInfo);
         try {
             CheckSpecialistVD checkSpecialistVD = new CheckSpecialistVD() {
                 Long practionerId;
@@ -78,7 +85,7 @@ public class TestVD {
 
             };
             ErrorMarker marker = new ErrorMarkerImpl("VD", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            checkSpecialistVD.execute(medicalCase, marker);
+            checkSpecialistVD.execute(medicalCase2, marker);
         } finally {
             sessionFactory.cleanSessions();
             sessionFactory.close();
