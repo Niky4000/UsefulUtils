@@ -64,7 +64,7 @@ public class TestVD {
 
                 @Override
                 protected PractJob getPractitionerJob(Long jobId) throws PmpFeatureException {
-                    PractJobAud practJobAud = (PractJobAud) session.get(PractJobAud.class, new PractJobAudPK(jobId, jobId));
+                    PractJobAud practJobAud = (PractJobAud) session.get(PractJobAud.class, new PractJobAudPK(jobId, rev));
                     CopyEntitiesUtil<PractJobAud, PractJob> copyEntitiesUtil = new CopyEntitiesUtil<>();
                     PractJob practJob = copyEntitiesUtil.copyAudEntities(practJobAud);
                     practionerId = practJob.getPractitioner().getId();
