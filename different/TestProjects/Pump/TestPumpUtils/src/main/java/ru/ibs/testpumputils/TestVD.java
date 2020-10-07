@@ -76,7 +76,7 @@ public class TestVD {
                     PractitionerAud practitionerAud = (PractitionerAud) session.get(PractitionerAud.class, new PractitionerAudPK(practionerId, rev));
                     CopyEntitiesUtil<PractitionerAud, Practitioner> copyEntitiesUtil = new CopyEntitiesUtil<>();
                     Practitioner practitioner = copyEntitiesUtil.copyAudEntities(practitionerAud, Practitioner.class);
-                    List<PractCertificateAud> practCertificateAudList = session.createCriteria(PractCertificateAud.class).add(Restrictions.and(Restrictions.eq("rev", rev), Restrictions.eq("practid", practitioner.getId()))).list();
+                    List<PractCertificateAud> practCertificateAudList = session.createCriteria(PractCertificateAud.class).add(Restrictions.and(Restrictions.eq("practsertificatAudPK.rev", rev), Restrictions.eq("practid", practitioner.getId()))).list();
                     final CopyEntitiesUtil<PractCertificateAud, PractCertificate> copyEntitiesUtil2 = new CopyEntitiesUtil<>();
                     Set<PractCertificate> practCertificateSet = practCertificateAudList.stream().map(obj -> copyEntitiesUtil2.copyAudEntities(obj, PractCertificate.class)).collect(Collectors.toSet());
                     practitioner.setCertificates(practCertificateSet);
