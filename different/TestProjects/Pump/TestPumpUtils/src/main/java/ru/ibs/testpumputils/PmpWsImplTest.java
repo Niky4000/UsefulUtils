@@ -225,9 +225,9 @@ public class PmpWsImplTest {
     }
 
     private static void testBillDAOHibernate() {
-//        List<BillStatusDto> billStatusesForSmo = billDAOHibernate.getBillStatusesForSmo("2020-08", "22", "1868", Bill.BillStatus.SENT, Bill.BillFetchType.SMO);
-        List<BillStatus2Dto> billStatuses2ForSmo = billDAOHibernate.getBillStatuses2ForSmo("2020-08", "22", "1868", "SENT", Bill.BillFetchType.SMO);
-        System.out.println(billStatuses2ForSmo.size());
+        List<BillStatusDto> billStatusesForSmo = billDAOHibernate.getBillStatusesForSmo("2020-08", "22", "1868", Bill.BillStatus.SENT, Bill.BillFetchType.SMO);
+//        List<BillStatus2Dto> billStatuses2ForSmo = billDAOHibernate.getBillStatuses2ForSmo("2020-08", "22", "1868", "SENT", Bill.BillFetchType.SMO);
+        System.out.println(billStatusesForSmo.size());
     }
 
     private static void testBill() {

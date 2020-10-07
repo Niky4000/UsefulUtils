@@ -2,6 +2,7 @@ host=192.168.192.111
 port=22
 user=root
 password=QWEzxc123
+gitPath=D:\\GIT\\pmp
 serverName=/tomcat-integ/
 launchScript=#!/bin/bash\ncd /home/pump/tomcat-integ\nbin/catalina.sh jpda start
 launchScriptPath=/tmp

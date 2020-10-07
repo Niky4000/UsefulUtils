@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.Channels;
@@ -198,14 +199,63 @@ public class SomeClass {
 //        testDateSort();
 //        System.out.println(getMonthsDifference(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-05-05 22:14:44"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-08-08 20:20:20")));
 //        staticTest();
-        testAtomicReference();
+//        testAtomicReference();
 //        getCertificateDateEnd(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-15 00:00:00"));
 //        getCertificateDateEnd(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-03-15 00:00:00"));
-        System.out.println(getMonthsDifference(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-28 00:00:00"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-08-15 00:00:00")));
+//        System.out.println(getMonthsDifference(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-05-28 00:00:00"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-08-15 00:00:00")));
 //        System.out.println("1234567890".substring(3, 6));
 //        new TransparentWatermark().create();
 //        new TransparentWatermark2().create();
 //        new TransparentWatermark3().create();
+//        testDateTrunc();
+//        parseResponseFromPhpServer();
+        encodeDecodeTest();
+    }
+
+    private static void encodeDecodeTest() {
+        String encodeValue = encodeValue("Привет!!!");
+        String decodeValue = decodeValue(encodeValue);
+        System.out.println(decodeValue);
+    }
+
+    public static String encodeValue(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static String decodeValue(String value) {
+        try {
+            return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    static Pattern fileListPattern = Pattern.compile("[(\\d+?)]\\s=>\\s(.+?)", Pattern.MULTILINE);
+
+    private static void parseResponseFromPhpServer() {
+        String response = "Array(    [0] => .    [1] => ..    [2] => A7C1FBFF002006A7_request)";
+        getFileList(response);
+    }
+
+    private static final String delimiter = "=> ";
+
+    private static List<String> getFileList(String sendPost) {
+//        Map<String, Object> params = new HashMap<>();
+//        params.put(GET_FILE_LIST, TRUE_PARAM);
+//        String sendPost = sendPost(url, params);
+
+        List<String> fileList = Arrays.stream(sendPost.replace("Array(", "").replace(")", "").split("    ")).filter(str -> str.contains(delimiter)).map(str -> str.substring(str.indexOf(delimiter) + delimiter.length())).filter(fileName -> !fileName.equals(".") && !fileName.equals("..")).collect(Collectors.toList());
+        return fileList;
+    }
+
+    private static void testDateTrunc() {
+        org.joda.time.LocalDateTime dateTime = org.joda.time.LocalDateTime.now();
+        org.joda.time.LocalDateTime withSecondOfMinute = dateTime.withSecondOfMinute(0).withMillisOfSecond(0);
+        System.out.println(withSecondOfMinute.toString());
     }
 
     private static void testAtomicReference() throws ParseException {
@@ -216,14 +266,6 @@ public class SomeClass {
         System.out.println(getMonthsDifferenceSupplier.get());
         System.out.println(getMonthsDifferenceSupplier.get());
         System.out.println(getMonthsDifferenceSupplier.get());
-    }
-
-    private static final long getMonthsDifference(Date date1, Date date2) {
-        Date truncate1 = DateUtils.truncate(date1, Calendar.MONTH);
-        Date truncate2 = DateUtils.truncate(date2, Calendar.MONTH);
-        LocalDate localDate1 = truncate1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate localDate2 = truncate2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        return ChronoUnit.MONTHS.between(localDate1, localDate2);
     }
 
     private static final long getMonthsDifference(Date date1, Date date2) {
