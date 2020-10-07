@@ -66,7 +66,7 @@ public class TestVD {
                 protected PractJob getPractitionerJob(Long jobId) throws PmpFeatureException {
                     PractJobAud practJobAud = (PractJobAud) session.get(PractJobAud.class, new PractJobAudPK(jobId, rev));
                     CopyEntitiesUtil<PractJobAud, PractJob> copyEntitiesUtil = new CopyEntitiesUtil<>();
-                    PractJob practJob = copyEntitiesUtil.copyAudEntities(practJobAud);
+                    PractJob practJob = copyEntitiesUtil.copyAudEntities(practJobAud, PractJob.class);
                     practionerId = practJob.getPractitioner().getId();
                     return practJob;
                 }
@@ -75,10 +75,10 @@ public class TestVD {
                 protected Practitioner getPractitioner() throws PmpFeatureException {
                     PractitionerAud practitionerAud = (PractitionerAud) session.get(PractitionerAud.class, new PractitionerAudPK(practionerId, rev));
                     CopyEntitiesUtil<PractitionerAud, Practitioner> copyEntitiesUtil = new CopyEntitiesUtil<>();
-                    Practitioner practitioner = copyEntitiesUtil.copyAudEntities(practitionerAud);
+                    Practitioner practitioner = copyEntitiesUtil.copyAudEntities(practitionerAud, Practitioner.class);
                     List<PractCertificateAud> practCertificateAudList = session.createCriteria(PractCertificateAud.class).add(Restrictions.and(Restrictions.eq("rev", rev), Restrictions.eq("practid", practitioner.getId()))).list();
                     final CopyEntitiesUtil<PractCertificateAud, PractCertificate> copyEntitiesUtil2 = new CopyEntitiesUtil<>();
-                    Set<PractCertificate> practCertificateSet = practCertificateAudList.stream().map(obj -> copyEntitiesUtil2.copyAudEntities(obj)).collect(Collectors.toSet());
+                    Set<PractCertificate> practCertificateSet = practCertificateAudList.stream().map(obj -> copyEntitiesUtil2.copyAudEntities(obj, PractCertificate.class)).collect(Collectors.toSet());
                     practitioner.setCertificates(practCertificateSet);
                     return practitioner;
                 }
