@@ -67,7 +67,7 @@ public class TestVD {
                     PractJobAud practJobAud = (PractJobAud) session.get(PractJobAud.class, new PractJobAudPK(jobId, rev));
                     CopyEntitiesUtil<PractJobAud, PractJob> copyEntitiesUtil = new CopyEntitiesUtil<>();
                     PractJob practJob = copyEntitiesUtil.copyAudEntities(practJobAud, PractJob.class);
-                    practionerId = practJob.getPractitioner().getId();
+                    practionerId = practJob.getPractitionerId();
                     return practJob;
                 }
 
