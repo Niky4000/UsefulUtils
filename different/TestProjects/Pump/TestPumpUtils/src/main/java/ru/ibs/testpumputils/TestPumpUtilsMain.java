@@ -65,7 +65,7 @@ public class TestPumpUtilsMain {
 //                System.out.println();
 //            }
 //            ListBillsServiceImplTest.test();
-            PdfWatermarkTest.test();
+//            PdfWatermarkTest.test();
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
 //            CheckInvoiceNUTest.test();

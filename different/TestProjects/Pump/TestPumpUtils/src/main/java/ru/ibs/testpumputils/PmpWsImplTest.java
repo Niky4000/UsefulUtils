@@ -181,6 +181,7 @@ import ru.ibs.pmp.service.gateway.CreateUpdateServiceImpl;
 //import ru.ibs.pmp.service.impl.AccountingPeriodServiceImpl;
 import ru.ibs.pmp.service.impl.HospCaseServiceImpl;
 import ru.ibs.pmp.service.impl.SaveMedicalCaseServiceImpl;
+import ru.ibs.pmp.smo.dto.BillStatus2Dto;
 import ru.ibs.pmp.smo.dto.BillStatusDto;
 import ru.ibs.pmp.zlib.service.export.msk.parcel.util.ServiceHelper;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
@@ -224,8 +225,9 @@ public class PmpWsImplTest {
     }
 
     private static void testBillDAOHibernate() {
-        List<BillStatusDto> billStatusesForSmo = billDAOHibernate.getBillStatusesForSmo("2020-08", "22", "1868", Bill.BillStatus.SENT, Bill.BillFetchType.SMO);
-        System.out.println(billStatusesForSmo.size());
+//        List<BillStatusDto> billStatusesForSmo = billDAOHibernate.getBillStatusesForSmo("2020-08", "22", "1868", Bill.BillStatus.SENT, Bill.BillFetchType.SMO);
+        List<BillStatus2Dto> billStatuses2ForSmo = billDAOHibernate.getBillStatuses2ForSmo("2020-08", "22", "1868", "SENT", Bill.BillFetchType.SMO);
+        System.out.println(billStatuses2ForSmo.size());
     }
 
     private static void testBill() {

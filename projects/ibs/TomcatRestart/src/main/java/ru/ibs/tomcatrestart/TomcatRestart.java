@@ -241,7 +241,7 @@ public class TomcatRestart {
             CommitBean latest = parseJSONcommits.values().stream().max((obj1, obj2) -> obj1.getDateAsDate().compareTo(obj2.getDateAsDate())).get();
 //        parseJSONcommits.values().stream().collect(Collectors.toMap(obj->obj.getCommitterName(), obj->obj.getAuthorName()));
             System.out.println(earliest.getId() + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(earliest.getDateAsDate()));
-            File repositoryDir = new File("D:\\GIT\\pmp");
+            File repositoryDir = new File("C:\\GIT\\pmp");
             Git git = Git.open(new File(repositoryDir.getAbsolutePath() + "/.git"));
 //        Iterable<RevCommit> iterable = git.log().call();
             Iterable<RevCommit> iterable = git.log().add(git.getRepository().resolve("heads/develop")).call();
@@ -334,7 +334,11 @@ public class TomcatRestart {
 //                    System.out.println();
 //                    System.out.println();
                     if (archiveDate != null) {
-                        s = falsifyString(entryIn.getName(), toByteArray, s, archiveDate);
+                        try {
+                            s = falsifyString(entryIn.getName(), toByteArray, s, archiveDate);
+                        } catch (Exception ee) {
+                            ee.printStackTrace();
+                        }
                     }
 //                    if (!entryIn.getName().endsWith("changelog.json")) {
 //                        System.out.println(s);
