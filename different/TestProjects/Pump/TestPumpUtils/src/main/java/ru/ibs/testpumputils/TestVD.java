@@ -83,6 +83,11 @@ public class TestVD {
                     return practitioner;
                 }
 
+                @Override
+                protected Practitioner getNurse() throws PmpFeatureException {
+                    return getPractitioner();
+                }
+
             };
             ErrorMarker marker = new ErrorMarkerImpl("VD", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
             checkSpecialistVD.execute(medicalCase2, marker);
