@@ -17,6 +17,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.Base64;
 import static org.apache.http.client.methods.RequestBuilder.options;
 import sun.net.www.protocol.http.HttpURLConnection;
 import static sun.security.krb5.Confounder.bytes;
@@ -150,7 +151,10 @@ public class HttpTest {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            Files.write(file.toPath(), sendResult, StandardOpenOption.TRUNCATE_EXISTING);
+            byte[] subBuffer = new byte[sendResult.length - 2];
+            System.arraycopy(sendResult, 1, subBuffer, 0, sendResult.length - 2);
+            byte[] decodedString = Base64.getDecoder().decode(subBuffer);
+            Files.write(file.toPath(), decodedString, StandardOpenOption.TRUNCATE_EXISTING);
         }
 //        System.out.println(sendResult);
     }

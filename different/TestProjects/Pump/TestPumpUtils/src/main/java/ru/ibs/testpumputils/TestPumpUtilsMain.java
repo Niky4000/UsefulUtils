@@ -79,8 +79,8 @@ public class TestPumpUtilsMain {
 //            Barcode128Test.test();
 //            new PdfBirtTest().executeReport();
 //            BirtOutputStreamTest.test3();
-//            HttpTest.test();
-            TestVD.test();
+            HttpTest.test();
+//            TestVD.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
