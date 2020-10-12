@@ -80,7 +80,7 @@ public class TestPumpUtilsMain {
 //            new PdfBirtTest().executeReport();
 //            BirtOutputStreamTest.test3();
 //            HttpTest.test();
-            TestVD.test();
+            TestVD.test2();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
