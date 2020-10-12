@@ -44,6 +44,7 @@ import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
 public class TestVD {
 
     static SessionFactoryInterface sessionFactory;
+    static SessionFactoryInterface practSessionFactory;
 
     public static void test() throws IOException {
         final long medicalCaseId = 261250705393L;
@@ -100,7 +101,9 @@ public class TestVD {
     public static void test2() throws IOException {
         final long medicalCaseId = 261250705393L;
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
+        practSessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildPractSessionFactory(), new SqlRewriteInterceptorExt()));
         Session session = sessionFactory.openSession();
+        Session practSession = practSessionFactory.openSession();
         MedicalCase medicalCase = (MedicalCase) session.get(MedicalCase.class, medicalCaseId);
 //        TapInfoAud tapInfoAud = (TapInfoAud) session.get(TapInfoAud.class, new TapInfoAudPK(medicalCaseId, rev));
         try {
@@ -109,15 +112,15 @@ public class TestVD {
 
                 @Override
                 protected PractJob getPractitionerJob(Long jobId) throws PmpFeatureException {
-                    PractJob practJob = (PractJob) session.get(PractJob.class, jobId);
+                    PractJob practJob = (PractJob) practSession.get(PractJob.class, jobId);
                     practionerId = practJob.getPractitionerId();
                     return practJob;
                 }
 
                 @Override
                 protected Practitioner getPractitioner() throws PmpFeatureException {
-                    Practitioner practitioner = (Practitioner) session.get(Practitioner.class, practionerId);
-                    List<PractCertificate> practCertificateList = session.createCriteria(PractCertificate.class).add(Restrictions.eq("practid", practitioner.getId())).list();
+                    Practitioner practitioner = (Practitioner) practSession.get(Practitioner.class, practionerId);
+                    List<PractCertificate> practCertificateList = practSession.createCriteria(PractCertificate.class).add(Restrictions.eq("practitionerId", practitioner.getId())).list();
                     practitioner.setCertificates(new HashSet<>(practCertificateList));
                     return practitioner;
                 }
@@ -131,6 +134,8 @@ public class TestVD {
             ErrorMarker marker = new ErrorMarkerImpl("VD", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
             checkSpecialistVD.execute(medicalCase, marker);
         } finally {
+            practSessionFactory.cleanSessions();
+            practSessionFactory.close();
             sessionFactory.cleanSessions();
             sessionFactory.close();
         }
