@@ -25,7 +25,7 @@ public class TestPumpUtilsMain {
         configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.pmp.db.url"));
         configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.pmp.db.username"));
         configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.pmp.db.password"));
-        EntityScanner.scanPackages("ru.ibs.pmp.api.model", "ru.ibs.pmp.auth.model", "ru.ibs.pmp.api.practitioners.model.practitioner.aud").addTo(configuration);
+        EntityScanner.scanPackages("ru.ibs.pmp.api.model", "ru.ibs.pmp.auth.model", "ru.ibs.pmp.api.practitioners.model.practitioner", "ru.ibs.pmp.api.practitioners.model.practitioner.aud").addTo(configuration);
         configuration.configure();
 //        ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
 //        return configuration.buildSessionFactory(serviceRegistry);
@@ -79,8 +79,8 @@ public class TestPumpUtilsMain {
 //            Barcode128Test.test();
 //            new PdfBirtTest().executeReport();
 //            BirtOutputStreamTest.test3();
-            HttpTest.test();
-//            TestVD.test();
+//            HttpTest.test();
+            TestVD.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

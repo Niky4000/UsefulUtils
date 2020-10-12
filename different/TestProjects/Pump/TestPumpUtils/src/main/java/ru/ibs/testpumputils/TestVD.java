@@ -96,8 +96,8 @@ public class TestVD {
             sessionFactory.close();
         }
     }
-    
-        public static void test2() throws IOException {
+
+    public static void test2() throws IOException {
         final long medicalCaseId = 261250705393L;
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         Session session = sessionFactory.openSession();
