@@ -47,7 +47,7 @@ public class TestVD {
 
     public static void test() throws IOException {
         final long medicalCaseId = 261250705393L;
-        final long rev = 404019050L;
+        final long rev = 391234700L;
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         CopyEntitiesUtil<MedicalCaseAud, MedicalCase> copyEntitiesUtil = new CopyEntitiesUtil<>();
         CopyEntitiesUtil<TapInfoAud, TapInfo> copyEntitiesUtil_ = new CopyEntitiesUtil<>();
