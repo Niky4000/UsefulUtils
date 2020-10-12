@@ -96,4 +96,43 @@ public class TestVD {
             sessionFactory.close();
         }
     }
+    
+        public static void test2() throws IOException {
+        final long medicalCaseId = 275013580390L;
+        sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
+        Session session = sessionFactory.openSession();
+        MedicalCase medicalCase = (MedicalCase) session.get(MedicalCase.class, medicalCaseId);
+//        TapInfoAud tapInfoAud = (TapInfoAud) session.get(TapInfoAud.class, new TapInfoAudPK(medicalCaseId, rev));
+        try {
+            CheckSpecialistVD checkSpecialistVD = new CheckSpecialistVD() {
+                Long practionerId;
+
+                @Override
+                protected PractJob getPractitionerJob(Long jobId) throws PmpFeatureException {
+                    PractJob practJob = (PractJob) session.get(PractJob.class, jobId);
+                    practionerId = practJob.getPractitionerId();
+                    return practJob;
+                }
+
+                @Override
+                protected Practitioner getPractitioner() throws PmpFeatureException {
+                    Practitioner practitioner = (Practitioner) session.get(Practitioner.class, practionerId);
+                    List<PractCertificate> practCertificateList = session.createCriteria(PractCertificate.class).add(Restrictions.eq("practid", practitioner.getId())).list();
+                    practitioner.setCertificates(new HashSet<>(practCertificateList));
+                    return practitioner;
+                }
+
+                @Override
+                protected Practitioner getNurse() throws PmpFeatureException {
+                    return getPractitioner();
+                }
+
+            };
+            ErrorMarker marker = new ErrorMarkerImpl("VD", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+            checkSpecialistVD.execute(medicalCase, marker);
+        } finally {
+            sessionFactory.cleanSessions();
+            sessionFactory.close();
+        }
+    }
 }
