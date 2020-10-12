@@ -46,7 +46,7 @@ public class TestVD {
     static SessionFactoryInterface sessionFactory;
 
     public static void test() throws IOException {
-        final long medicalCaseId = 275013580390L;
+        final long medicalCaseId = 261250705393L;
         final long rev = 404019050L;
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         CopyEntitiesUtil<MedicalCaseAud, MedicalCase> copyEntitiesUtil = new CopyEntitiesUtil<>();
@@ -98,7 +98,7 @@ public class TestVD {
     }
     
         public static void test2() throws IOException {
-        final long medicalCaseId = 275013580390L;
+        final long medicalCaseId = 261250705393L;
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         Session session = sessionFactory.openSession();
         MedicalCase medicalCase = (MedicalCase) session.get(MedicalCase.class, medicalCaseId);
