@@ -113,7 +113,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>ru.kiokle.svetapng.InterfaceStart</mainClass>
+                            <mainClass>ru.kiokle.svetapng.SvetaStart</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

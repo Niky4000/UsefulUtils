@@ -36,6 +36,7 @@ import ru.ibs.pmp.service.flk.ErrorMarkerImpl;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
+import ru.ibs.testpumputils.utils.FieldUtil;
 
 /**
  *
@@ -90,6 +91,7 @@ public class TestVD {
                 }
 
             };
+            FieldUtil.setField(checkSpecialistVD, CheckSpecialistVD.class, sessionFactory, "sessionFactory");
             ErrorMarker marker = new ErrorMarkerImpl("VD", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
             checkSpecialistVD.execute(medicalCase2, marker);
         } finally {
@@ -99,7 +101,7 @@ public class TestVD {
     }
 
     public static void test2() throws IOException {
-        final long medicalCaseId = 261250705393L;
+        final long medicalCaseId = 859769400L;
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         practSessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildPractSessionFactory(), new SqlRewriteInterceptorExt()));
         Session session = sessionFactory.openSession();
@@ -129,8 +131,8 @@ public class TestVD {
                 protected Practitioner getNurse() throws PmpFeatureException {
                     return getPractitioner();
                 }
-
             };
+            FieldUtil.setField(checkSpecialistVD, CheckSpecialistVD.class, sessionFactory, "sessionFactory");
             ErrorMarker marker = new ErrorMarkerImpl("VD", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
             checkSpecialistVD.execute(medicalCase, marker);
         } finally {

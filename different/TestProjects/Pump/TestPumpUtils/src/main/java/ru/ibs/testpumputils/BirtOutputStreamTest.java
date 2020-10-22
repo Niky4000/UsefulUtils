@@ -123,7 +123,7 @@ public class BirtOutputStreamTest {
         FieldUtil.setField(controller, scope, "scope");
         FieldUtil.setField(controller, reportService, "reportService");
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap(ImmutableMap.<String, List<String>>builder().put("moId", Arrays.asList("8888")).put("login", Arrays.asList("7777")).build());
-        controller.createReport("bugcollector", "user", "password", ReportOutputFormat.PDF.name(), params);
+//        controller.createReport("bugcollector", "user", "password", ReportOutputFormat.PDF.name(), params);
     }
     private static final String scope = "ru.ibs.pmp.arm.oms.controller.ReportController";
 

@@ -209,9 +209,35 @@ public class SomeClass {
 //        new TransparentWatermark3().create();
 //        testDateTrunc();
 //        parseResponseFromPhpServer();
-        encodeDecodeTest();
+//        encodeDecodeTest();
+        fixStringEndings2("/home/me/GIT/pmp/pmp/module-system-auth-api/src/main/java/ru/ibs/pmp/auth/filters/SecurityContextFilter.java");
+        fixStringEndings2("/home/me/GIT/pmp/pmp_core/pmp-common-min/src/main/java/ru/ibs/pmp/auth/model/Glue.java");
     }
 
+    private static void fixStringEndings(String fileName) throws Exception {
+        File file = new File(fileName);
+        byte[] readAllBytes = Files.readAllBytes(file.toPath());
+        byte[] readAllBytes2 = new byte[readAllBytes.length];
+        int j = 0;
+        byte[] rb = "\r".getBytes();
+        for (int i = 0; i < readAllBytes.length; i++) {
+            if (readAllBytes[i] != rb[0]) {
+                readAllBytes2[j] = readAllBytes[i];
+                j++;
+            }
+        }
+        byte[] readAllBytes3 = new byte[j];
+        System.arraycopy(readAllBytes2, 0, readAllBytes3, 0, j);
+        Files.write(file.toPath(), readAllBytes3, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    private static void fixStringEndings2(String fileName) throws Exception {
+        File file = new File(fileName);
+        String string = new String(Files.readAllBytes(file.toPath()));
+        String string2 = string.replaceAll("\n", "\r\n");
+        Files.write(file.toPath(), string2.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+    }
+    
     private static void encodeDecodeTest() {
         String encodeValue = encodeValue("Привет!!!");
         String decodeValue = decodeValue(encodeValue);
