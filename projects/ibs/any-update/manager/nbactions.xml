@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>run</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.5.0:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-classpath %classpath ${packageClassName} -git /home/me/GIT/pmp -url https://git.drzsrv.ru/mgfoms/pmp.git -branch test-recreator -pull -checkout -u NAnishhenko -p pagekeeper -mvn /home/me/netbeans-11.3/netbeans/java/maven/bin/mvn -build /home/me/GIT/pmp/pmp_core,/home/me/GIT/pmp/pmp,/home/me/GIT/pmp/pmp/module-pmp-bill-recreate</exec.args>
+                <exec.executable>java</exec.executable>
+            </properties>
+        </action>
+        <action>
+            <actionName>debug</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.5.0:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath ${packageClassName} -git /home/me/GIT/pmp -url https://git.drzsrv.ru/mgfoms/pmp.git -branch test-recreator -pull -checkout -u NAnishhenko -p pagekeeper -mvn /home/me/netbeans-11.3/netbeans/java/maven/bin/mvn -build /home/me/GIT/pmp/pmp_core,/home/me/GIT/pmp/pmp,/home/me/GIT/pmp/pmp/module-pmp-bill-recreate</exec.args>
+                <exec.executable>java</exec.executable>
+                <jpda.listen>true</jpda.listen>
+            </properties>
+        </action>
+        <action>
+            <actionName>profile</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.5.0:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-classpath %classpath ${packageClassName} -git /home/me/GIT/pmp -url https://git.drzsrv.ru/mgfoms/pmp.git -branch test-recreator -pull -checkout -u NAnishhenko -p pagekeeper -mvn /home/me/netbeans-11.3/netbeans/java/maven/bin/mvn -build /home/me/GIT/pmp/pmp_core,/home/me/GIT/pmp/pmp,/home/me/GIT/pmp/pmp/module-pmp-bill-recreate</exec.args>
+                <exec.executable>java</exec.executable>
+            </properties>
+        </action>
+    </actions>
