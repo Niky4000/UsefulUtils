@@ -99,7 +99,8 @@ public class TestPumpUtilsMain {
 //            TestVD.test2();
 //            ReportServiceImplTest.test();
 //            FeatureImplsTest.test();
-            FeatureImplsTest.test2();
+//            FeatureImplsTest.test2();
+            ExpertiseDAOHibernateTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
