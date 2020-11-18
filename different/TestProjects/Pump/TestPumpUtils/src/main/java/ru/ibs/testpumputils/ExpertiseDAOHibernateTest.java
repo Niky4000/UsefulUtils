@@ -45,13 +45,13 @@ public class ExpertiseDAOHibernateTest {
                     return false;
                 }
             };
-            FieldUtil.setField(expertiseDAOHibernate, sessionFactory, "sessionFactory");
+            FieldUtil.setField(expertiseDAOHibernate, ExpertiseDAOHibernate.class, sessionFactory, "sessionFactory");
             LpuMultifilialService lpuMultifilialService = new LpuMultifilialServiceImpl();
 //            FieldUtil.setField(requirementDAOHibernate, lpuMultifilialService, "lpuMultifilialService");
             FindNsiEntries findNsiEntries = new FindNsiEntriesFeature();
 //            FieldUtil.setField(nsiHelper, findNsiEntries, "findNsiEntries");
             FieldUtil.setField(lpuMultifilialService, findNsiEntries, "findNsiEntries");
-            FieldUtil.setField(expertiseDAOHibernate, lpuMultifilialService, "lpuMultifilialService");
+            FieldUtil.setField(expertiseDAOHibernate, ExpertiseDAOHibernate.class, lpuMultifilialService, "lpuMultifilialService");
             NsiServiceImpl nsiServiceImpl = new NsiServiceImpl();
             FieldUtil.setField(findNsiEntries, nsiServiceImpl, "nsiService");
             ApplicationContext appContext = (ApplicationContext) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{ApplicationContext.class}, new InvocationHandler() {
@@ -72,7 +72,7 @@ public class ExpertiseDAOHibernateTest {
             FieldUtil.setField(nsiServiceImpl, appContext, "appContext");
             FieldUtil.setField(nsiServiceImpl, nsiSessionFactoryProxy, "sessionFactory");
             FieldUtil.setField(findNsiEntries, nsiServiceImpl, "nsiService");
-            FieldUtil.setField(expertiseDAOHibernate, findNsiEntries, "findNsiEntries");
+            FieldUtil.setField(expertiseDAOHibernate, ExpertiseDAOHibernate.class, findNsiEntries, "findNsiEntries");
             FindExpertiseErrorsRequest request = new FindExpertiseErrorsRequest();
             request.setMoId(1892L);
             request.setLpuId("1892");
