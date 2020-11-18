@@ -65,8 +65,10 @@ public class ExpertiseDAOHibernateTest {
             FieldUtil.setField(nsiServiceImpl, appContext, "appContext");
             FieldUtil.setField(nsiServiceImpl, nsiSessionFactoryProxy, "sessionFactory");
             FieldUtil.setField(findNsiEntries, nsiServiceImpl, "nsiService");
+            FieldUtil.setField(expertiseDAOHibernate, findNsiEntries, "findNsiEntries");
             FindExpertiseErrorsRequest request = new FindExpertiseErrorsRequest();
             request.setMoId(1892L);
+            request.setLpuId("1892");
             request.setPeriod(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-01 00:00:00"));
             request.setDesc(true);
             request.setFieldSortName("id");
