@@ -97,7 +97,9 @@ public class TestPumpUtilsMain {
 //            BirtOutputStreamTest.test3();
 //            HttpTest.test();
 //            TestVD.test2();
-            ReportServiceImplTest.test3();
+//            ReportServiceImplTest.test();
+//            FeatureImplsTest.test();
+            FeatureImplsTest.test2();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

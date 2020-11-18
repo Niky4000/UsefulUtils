@@ -8,6 +8,7 @@ package ru.ibs.pmp.zzztestapplication;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableMap;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.LocationTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
@@ -103,12 +104,14 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.ibs.pmp.zzztestapplication.bean.BillStatisticsShortBean;
 import ru.ibs.pmp.zzztestapplication.bean.CommitBean;
+import ru.ibs.pmp.zzztestapplication.bean.MtrReestrFileStatus;
 import ru.ibs.pmp.zzztestapplication.bean.SomeBean1;
 import ru.ibs.pmp.zzztestapplication.bean.SomeBean2;
 import ru.ibs.pmp.zzztestapplication.bean.TestBean;
 import ru.ibs.pmp.zzztestapplication.threads.ConnectionMonitorDaemon;
 import ru.ibs.pmp.zzztestapplication.threads.TreadTest;
 import ru.ibs.pmp.zzztestapplication.threads.bean.MonitorBean;
+import ru.mgfoms.pump.mtr.ref.FileType;
 
 /**
  *
@@ -210,8 +213,56 @@ public class SomeClass {
 //        testDateTrunc();
 //        parseResponseFromPhpServer();
 //        encodeDecodeTest();
-        fixStringEndings2("/home/me/GIT/pmp/pmp/module-system-auth-api/src/main/java/ru/ibs/pmp/auth/filters/SecurityContextFilter.java");
-        fixStringEndings2("/home/me/GIT/pmp/pmp_core/pmp-common-min/src/main/java/ru/ibs/pmp/auth/model/Glue.java");
+//        fixStringEndings2("/home/me/GIT/pmp/pmp/module-system-auth-api/src/main/java/ru/ibs/pmp/auth/filters/SecurityContextFilter.java");
+//        fixStringEndings2("/home/me/GIT/pmp/pmp_core/pmp-common-min/src/main/java/ru/ibs/pmp/auth/model/Glue.java");
+//        fixStringEndings2("/home/me/GIT/pmp/pmp/module-persons-api/src/main/java/ru/ibs/pmp/api/patients/model/PatientPolicy.java");
+//        fixStringEndings2("/home/me/GIT/pmp/pmp/module-persons-api/src/main/java/ru/ibs/pmp/api/patients/model/PatientDocument.java");
+//        testSortingMtrReestrFileStatus();
+//        practionerNamePatternTest("Аль Баварид", "(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$");
+//        practionerNamePatternTest("Омар", "(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$");
+//        practionerNamePatternTest("Абед Аль Хафез Мофлех", "^$|(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$|^$");
+//        SpringTest.testRestTemplate();
+//        UniqueStringTest.test();
+        String get = OPLATA_DESCRIPTION.get(null);
+        System.out.println("get = " + get);
+    }
+
+    static final Map<Long, String> OPLATA_DESCRIPTION = ImmutableMap.<Long, String>builder()
+            .put(0L, "не принято решение об оплате")
+            .put(1L, "полная")
+            .put(2L, "полный отказ")
+            .put(3L, "частичный отказ").build();
+
+    private static void practionerNamePatternTest(String name, String patternStr) {
+        if (Pattern.compile(patternStr).matcher(name).matches()) {
+            System.out.println(name + " - Ok!");
+        } else {
+            System.out.println(name + " - Bad!");
+        }
+    }
+
+    private static void testSortingMtrReestrFileStatus() throws ParseException {
+        List<MtrReestrFileStatus> list = Arrays.asList(new MtrReestrFileStatus(new Date(), 1L, "111", "okato", "okatoOms", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO),
+                new MtrReestrFileStatus(new Date(), 2L, "111", "okato", "okatoOms", null, new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO),
+                new MtrReestrFileStatus(new Date(), 3L, "111", "okato", "okatoOms", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-03 00:00:00"), new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO),
+                new MtrReestrFileStatus(new Date(), 4L, "111", "okato", "okatoOms", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO));
+        Collections.sort(list, (obj1, obj2) -> {
+            if (obj1.dschet != null && obj2.dschet != null) {
+                int i = -obj1.dschet.compareTo(obj2.dschet);
+                if (i == 0) {
+                    return -Long.valueOf(obj1.id).compareTo(obj2.id);
+                } else {
+                    return i;
+                }
+            } else if (obj1.dschet == null && obj2.dschet != null) {
+                return 1;
+            } else if (obj1.dschet != null && obj2.dschet == null) {
+                return -1;
+            } else {
+                return -Long.valueOf(obj1.id).compareTo(obj2.id);
+            }
+        });
+        list.forEach(obj -> System.out.println(obj.id));
     }
 
     private static void fixStringEndings(String fileName) throws Exception {
@@ -237,7 +288,7 @@ public class SomeClass {
         String string2 = string.replaceAll("\n", "\r\n");
         Files.write(file.toPath(), string2.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
     }
-    
+
     private static void encodeDecodeTest() {
         String encodeValue = encodeValue("Привет!!!");
         String decodeValue = decodeValue(encodeValue);
