@@ -11,6 +11,7 @@ import java.lang.reflect.Proxy;
 import java.text.SimpleDateFormat;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
+import ru.ibs.pmp.api.model.dto.Paging;
 import ru.ibs.pmp.api.model.dto.msk.expertise.FindExpertiseErrorsRequest;
 import ru.ibs.pmp.api.nsi.interfaces.FindNsiEntries;
 import ru.ibs.pmp.dao.hibernate.expertise.ExpertiseDAOHibernate;
@@ -73,6 +74,7 @@ public class ExpertiseDAOHibernateTest {
             request.setDesc(true);
             request.setFieldSortName("id");
             request.setMailGwId(6018850L);
+            request.setPaging(Paging.initByOffset(0, 512));
             expertiseDAOHibernate.findErrors(request);
         } finally {
             sessionFactory.cleanSessions();
