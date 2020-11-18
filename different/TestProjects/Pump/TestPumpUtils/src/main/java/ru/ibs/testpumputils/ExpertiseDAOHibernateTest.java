@@ -20,6 +20,7 @@ import ru.ibs.pmp.lpu.service.impl.LpuMultifilialServiceImpl;
 import ru.ibs.pmp.nsi.features.impl.FindNsiEntriesFeature;
 import ru.ibs.pmp.nsi.service.NsiService;
 import ru.ibs.pmp.nsi.service.NsiServiceImpl;
+import ru.ibs.pmp.util.DbUtils;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
@@ -38,7 +39,12 @@ public class ExpertiseDAOHibernateTest {
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         nsiSessionFactoryProxy = TestPumpUtilsMain.buildNsiSessionFactory();
         try {
-            ExpertiseDAOHibernate expertiseDAOHibernate = new ExpertiseDAOHibernate();
+            ExpertiseDAOHibernate expertiseDAOHibernate = new ExpertiseDAOHibernate() {
+                @Override
+                protected boolean isUsesInH2() {
+                    return false;
+                }
+            };
             FieldUtil.setField(expertiseDAOHibernate, sessionFactory, "sessionFactory");
             LpuMultifilialService lpuMultifilialService = new LpuMultifilialServiceImpl();
 //            FieldUtil.setField(requirementDAOHibernate, lpuMultifilialService, "lpuMultifilialService");
