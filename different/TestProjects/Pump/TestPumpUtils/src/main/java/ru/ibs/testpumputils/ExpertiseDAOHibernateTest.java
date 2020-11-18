@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.text.SimpleDateFormat;
+import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import ru.ibs.pmp.api.model.dto.msk.expertise.FindExpertiseErrorsRequest;
 import ru.ibs.pmp.api.nsi.interfaces.FindNsiEntries;
@@ -18,7 +19,6 @@ import ru.ibs.pmp.lpu.service.impl.LpuMultifilialServiceImpl;
 import ru.ibs.pmp.nsi.features.impl.FindNsiEntriesFeature;
 import ru.ibs.pmp.nsi.service.NsiService;
 import ru.ibs.pmp.nsi.service.NsiServiceImpl;
-import static ru.ibs.testpumputils.PmpWsImplTest.nsiSessionFactoryProxy;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
@@ -31,9 +31,11 @@ import ru.ibs.testpumputils.utils.FieldUtil;
 public class ExpertiseDAOHibernateTest {
 
     static SessionFactoryInterface sessionFactory;
+    static SessionFactory nsiSessionFactoryProxy;
 
     public static void test() throws Exception {
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
+        nsiSessionFactoryProxy = TestPumpUtilsMain.buildNsiSessionFactory();
         try {
             ExpertiseDAOHibernate expertiseDAOHibernate = new ExpertiseDAOHibernate();
             FieldUtil.setField(expertiseDAOHibernate, sessionFactory, "sessionFactory");
@@ -73,6 +75,7 @@ public class ExpertiseDAOHibernateTest {
         } finally {
             sessionFactory.cleanSessions();
             sessionFactory.close();
+            nsiSessionFactoryProxy.close();
         }
     }
 }
