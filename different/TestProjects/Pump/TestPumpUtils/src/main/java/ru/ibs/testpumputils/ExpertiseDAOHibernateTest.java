@@ -40,10 +40,10 @@ public class ExpertiseDAOHibernateTest {
         nsiSessionFactoryProxy = TestPumpUtilsMain.buildNsiSessionFactory();
         try {
             ExpertiseDAOHibernate expertiseDAOHibernate = new ExpertiseDAOHibernate() {
-                @Override
-                protected boolean isUsesInH2() {
-                    return false;
-                }
+//                @Override
+//                protected boolean isUsesInH2() {
+//                    return false;
+//                }
             };
             FieldUtil.setField(expertiseDAOHibernate, ExpertiseDAOHibernate.class, sessionFactory, "sessionFactory");
             LpuMultifilialService lpuMultifilialService = new LpuMultifilialServiceImpl();

@@ -181,7 +181,6 @@ import ru.ibs.pmp.service.gateway.CreateUpdateServiceImpl;
 //import ru.ibs.pmp.service.impl.AccountingPeriodServiceImpl;
 import ru.ibs.pmp.service.impl.HospCaseServiceImpl;
 import ru.ibs.pmp.service.impl.SaveMedicalCaseServiceImpl;
-import ru.ibs.pmp.smo.dto.BillStatus2Dto;
 import ru.ibs.pmp.smo.dto.BillStatusDto;
 import ru.ibs.pmp.zlib.service.export.msk.parcel.util.ServiceHelper;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;

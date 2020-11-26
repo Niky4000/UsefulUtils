@@ -180,10 +180,15 @@
             <artifactId>org.eclipse.birt.report.engine.emitter.xml</artifactId>
             <version>1.0.0.201802150756</version>
         </dependency>-->
-        <dependency>
+<!--        <dependency>
             <groupId>ru.ibs.pmp</groupId>
             <artifactId>module-reports-birt</artifactId>
             <version>1.1807.1</version>
+        </dependency>-->
+        <dependency>
+            <groupId>ru.mgfoms.pmp</groupId>
+            <artifactId>reports-lib</artifactId>
+            <version>1.0.2</version>
         </dependency>
     </dependencies>
     <repositories>        

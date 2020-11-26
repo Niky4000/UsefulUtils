@@ -14,6 +14,7 @@ import com.itextpdf.text.pdf.parser.LocationTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -93,11 +94,16 @@ import java.util.zip.ZipOutputStream;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.krysalis.barcode4j.BarcodeGenerator;
+import org.krysalis.barcode4j.BarcodeUtil;
+import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -217,14 +223,112 @@ public class SomeClass {
 //        fixStringEndings2("/home/me/GIT/pmp/pmp_core/pmp-common-min/src/main/java/ru/ibs/pmp/auth/model/Glue.java");
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-persons-api/src/main/java/ru/ibs/pmp/api/patients/model/PatientPolicy.java");
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-persons-api/src/main/java/ru/ibs/pmp/api/patients/model/PatientDocument.java");
+//        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp-api/src/main/java/ru/ibs/pmp/service/SimpleServiceService.java");
+//        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp/src/main/java/ru/ibs/pmp/dao/hibernate/HospDeptStayDAOHibernate.java");
+//        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp/src/main/java/ru/ibs/pmp/service/impl/SimpleServiceServiceImpl.java");
+//        fixStringEndings2("ZZZZZZZZ");
 //        testSortingMtrReestrFileStatus();
 //        practionerNamePatternTest("Аль Баварид", "(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$");
 //        practionerNamePatternTest("Омар", "(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$");
 //        practionerNamePatternTest("Абед Аль Хафез Мофлех", "^$|(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$|^$");
 //        SpringTest.testRestTemplate();
 //        UniqueStringTest.test();
-        String get = OPLATA_DESCRIPTION.get(null);
-        System.out.println("get = " + get);
+//        String get = OPLATA_DESCRIPTION.get(null);
+//        System.out.println("get = " + get);
+//        urlAnalisys("http://10.170.89.2/123456789–0–C18.1–037061–20200125–01–20200303");
+//        urlAnalisys("http://10.170.89.2/123456789–0–C18.14–037061–20200125–01–20200303");
+//        urlAnalisys("http://10.170.89.2/123456789–0–C18–037061–20200125–01–20200303");
+//        urlAnalisys("http://10.170.89.2/123456789–0–C18.158–037061–20200125–01–20200303");
+//        urlAnalisys("http://10.170.89.2/ggh@#56/123456789–0–C18.18–037061–20200125–01–20200303");
+//        urlAnalisys("http://10.170.89.2/ggh@#56/123456789–0–C18.18–037061–20200125–01");
+//        urlAnalisys("http://10.170.89.2/ggh@#56/123456789–0–C18.18–037061–20200125");
+//        urlAnalisys("http://10.170.89.2/ggh@#56/123456789–0–C18.18–037061–20200125–20200303");
+//        urlAnalisys("http://127.0.0.5/2C00BB94-9D3F-4CFB-B740-CC9549C5A551/12345–2–C01.01–12345–20200112–01");
+//        barcodeTest();
+    }
+
+    public static void barcodeTest() throws Exception {
+        byte[] generate = generate("Hello World!!!");
+        File file = new File("/home/me/tmp/barcode.jpeg");
+        if (file.exists()) {
+            file.delete();
+        }
+        Files.write(file.toPath(), generate, StandardOpenOption.CREATE_NEW);
+    }
+
+    private static Configuration buildCfg(String type) {
+        DefaultConfiguration cfg = new DefaultConfiguration("barcode");
+        DefaultConfiguration child = new DefaultConfiguration(type);
+        cfg.addChild(child);
+        DefaultConfiguration attr = new DefaultConfiguration("human-readable");
+        DefaultConfiguration subAttr = new DefaultConfiguration("placement");
+        subAttr.setValue("bottom");
+        attr.addChild(subAttr);
+        child.addChild(attr);
+        return cfg;
+    }
+
+    public static byte[] generate(String text) {
+        try {
+            BarcodeGenerator barcodeGenerator = BarcodeUtil.getInstance().createBarcodeGenerator(buildCfg("code128"));
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            int resolution = 600;
+            BitmapCanvasProvider canvas = new BitmapCanvasProvider(byteArrayOutputStream, "image/jpeg", resolution, BufferedImage.TYPE_BYTE_BINARY, false, 0);
+            barcodeGenerator.generateBarcode(canvas, text);
+            canvas.finish();
+            return byteArrayOutputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static final String delimeter = "–";
+    private static final String HTTPS = "https?://";
+    private static final String zeroTo255 = "([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])";
+    private static final String IP_REGEXP = zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255;
+    private static final String prefixRegexp = ".*?/?";
+    private static final String patientIdRegexp = "\\d+?";
+    private static final String patientTypeRegexp = "[0-3]";
+    private static final String diagnosisRegexp = "\\w\\d+\\.?\\d{0,2}";
+    private static final String serviceCodeRegexp = "\\d+?";
+    private static final String serviceDateRegexp = "\\d{8}";
+    private static final String serviceNumberRegexp = "(" + delimeter + "\\d{2})?";
+    private static final String changeDateRegexp = "(" + delimeter + "\\d{8})?";
+
+    private static final void urlAnalisys(String urlToAnalyse) {
+        if (urlToAnalyse != null && urlToAnalyse.contains(delimeter)) {
+            boolean matches = Pattern.compile("^" + HTTPS + IP_REGEXP + "/" + prefixRegexp + patientIdRegexp + delimeter + patientTypeRegexp + delimeter + diagnosisRegexp + delimeter + serviceCodeRegexp + delimeter + serviceDateRegexp + serviceNumberRegexp + changeDateRegexp + "$").matcher(urlToAnalyse).matches();
+            if (matches) {
+                System.out.println("Ok!");
+            } else {
+                System.out.println("Bad!");
+            }
+        }
+//Описание
+//
+//Если ссылка не соответствует маске, то формируется сообщение об ошибке: «Ссылка не соответствует установленному формату строки (URL): протокол//ХОСТ/префикс/Идентификатор пациента–Тип пациента–Диагноз–Услуга–Дата услуги–порядковый номер ссылки для этого документа–дата редактирования».
+//
+//Требования к формату ссылки (строки (URL):
+//Формат строки (URL): протокол//ХОСТ/префикс/Идентификатор пациента–Тип пациента–Диагноз–Услуга–Дата услуги–порядковый номер ссылки для этого документа–дата редактирования, здесь:
+//Протокол – http: или https:
+//ХОСТ – IP адрес хоста
+//Префикс – произвольный путь
+//– символ разделитель «дефис» (код юникод 002D);
+//Идентификатор пациента – patientId, значение идентификатора пациента, полученное из РС ЕЗРЛ (УКЛ для ЗЛ, ИД ИН для иногороднего, ИД НИЛ для неидентифицированного, ИД НР для новорожденного);
+//Тип пациента – код из справочника «patient - Тип пациента»:
+//0 Застрахованное лицо г. Москвы (ЗЛ);
+//1 Иногородний (ИН);
+//2 Незарегистрированный новорожденный (НР);
+//3 Неидентифицированный (НИЛ);
+//Диагноз – код диагноза из МКБ-10 по справочнику «mkb10_» до максимально возможной подрубрики или конечного диагноза, например: S01, S01.1, S01.11;
+//Услуга – код из справочника reesus / reesms или идентификатор шаблона документа ЕМИАС;
+//Дата услуги в формате YYYYMMDD;
+//порядковый номер ссылки для этого документа – целое число от 1 до 99;
+//Дата редактирования в формате YYYYMMDD.
+//
+//Пример ссылки:
+//http://10.170.89.2/123456789–0–C18.1–037061–20200125–01–20200303
+
     }
 
     static final Map<Long, String> OPLATA_DESCRIPTION = ImmutableMap.<Long, String>builder()

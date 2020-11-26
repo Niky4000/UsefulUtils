@@ -100,7 +100,9 @@ public class TestPumpUtilsMain {
 //            ReportServiceImplTest.test();
 //            FeatureImplsTest.test();
 //            FeatureImplsTest.test2();
-            ExpertiseDAOHibernateTest.test();
+//            ExpertiseDAOHibernateTest.test();
+//            BarcodeTest.test();
+            ErrorsFileExporterTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
