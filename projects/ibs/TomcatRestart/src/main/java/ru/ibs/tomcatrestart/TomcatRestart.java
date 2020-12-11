@@ -378,6 +378,7 @@ public class TomcatRestart {
     static Pattern buildTimestamp = Pattern.compile("(build.timestamp=)(.+?\\s.+?)([\\s\n$])");
     static Pattern buildTime = Pattern.compile("(Build-Time: )(.+?\\s.+?)([\\s\n$])");
     static Pattern json = Pattern.compile("^[.+]$", Pattern.DOTALL);
+    static Pattern comments = Pattern.compile("(<!--)(.+?)(-->)");
 
     private String falsifyString(String fileName, byte[] toByteArray, String string, Date archiveDate) throws Exception {
         //        string = string.replaceAll("Built-By: IBS_ERZL", "Built-By: IBS");
@@ -388,6 +389,12 @@ public class TomcatRestart {
         string = applyChange(string, maven, "\n#" + new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy", new Locale("en", "EN")).format(archiveDate), "\n");
         string = applyChange(string, buildTimestamp, new SimpleDateFormat("dd-MM-yyyy HH:mm").format(archiveDate));
         string = applyChange(string, buildTime, new SimpleDateFormat("dd-MM-yyyy HH:mm").format(archiveDate));
+        try {
+            string = applyChange(string, comments, "");
+        } catch (Exception e) {
+            e.printStackTrace();
+            string = applyChange(string, comments, "");
+        }
         if (json.matcher(string).matches() || fileName.endsWith("changelog.json")) {
             getGitLogs(toByteArray);
             string = new String(jsonBytes, "utf-8");
