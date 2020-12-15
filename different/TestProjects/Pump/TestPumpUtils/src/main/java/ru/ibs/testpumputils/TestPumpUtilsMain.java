@@ -62,6 +62,19 @@ public class TestPumpUtilsMain {
         return sessionFactory;
     }
 
+    public static SessionFactory buildSmoSessionFactory() throws FileNotFoundException, IOException {
+        Properties p = new Properties();
+        p.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
+        Configuration configuration = new Configuration();
+        configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.smo.db.url"));
+        configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.smo.db.username"));
+        configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.smo.db.password"));
+        EntityScanner.scanPackages("ru.ibs.pmp.api.model.dbf.parcel", "ru.ibs.pmp.api.smo.model").addTo(configuration);
+        configuration.configure();
+        SessionFactory sessionFactory = configuration.buildSessionFactory();
+        return sessionFactory;
+    }
+
     public static void main(String args[]) throws Exception {
         System.out.println("Hello!!!");
 //        SessionFactoryInterface sessionFactoryProxy = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(buildSessionFactory(), new SqlRewriteInterceptorExt()));
@@ -102,7 +115,9 @@ public class TestPumpUtilsMain {
 //            FeatureImplsTest.test2();
 //            ExpertiseDAOHibernateTest.test();
 //            BarcodeTest.test();
-            ErrorsFileExporterTest.test();
+//            ErrorsFileExporterTest.test();
+            UpAndUdFileExporterTest.test();
+            UpAndUdFileExporterTest.test2();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

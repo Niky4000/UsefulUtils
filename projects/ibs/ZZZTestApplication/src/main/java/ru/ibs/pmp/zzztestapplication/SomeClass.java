@@ -73,6 +73,7 @@ import java.util.LongSummaryStatistics;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -110,6 +111,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.ibs.pmp.zzztestapplication.bean.BillStatisticsShortBean;
 import ru.ibs.pmp.zzztestapplication.bean.CommitBean;
+import ru.ibs.pmp.zzztestapplication.bean.InstanceQueueBean;
 import ru.ibs.pmp.zzztestapplication.bean.MtrReestrFileStatus;
 import ru.ibs.pmp.zzztestapplication.bean.SomeBean1;
 import ru.ibs.pmp.zzztestapplication.bean.SomeBean2;
@@ -226,7 +228,7 @@ public class SomeClass {
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp-api/src/main/java/ru/ibs/pmp/service/SimpleServiceService.java");
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp/src/main/java/ru/ibs/pmp/dao/hibernate/HospDeptStayDAOHibernate.java");
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp/src/main/java/ru/ibs/pmp/service/impl/SimpleServiceServiceImpl.java");
-//        fixStringEndings2("ZZZZZZZZ");
+        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp-api/src/main/java/ru/ibs/pmp/service/utils/pdf/PdfUtils.java");
 //        testSortingMtrReestrFileStatus();
 //        practionerNamePatternTest("Аль Баварид", "(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$");
 //        practionerNamePatternTest("Омар", "(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$");
@@ -245,6 +247,82 @@ public class SomeClass {
 //        urlAnalisys("http://10.170.89.2/ggh@#56/123456789–0–C18.18–037061–20200125–20200303");
 //        urlAnalisys("http://127.0.0.5/2C00BB94-9D3F-4CFB-B740-CC9549C5A551/12345–2–C01.01–12345–20200112–01");
 //        barcodeTest();
+//        Date truncatedDate = DateUtils.truncate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), Calendar.DAY_OF_MONTH);
+//        System.out.println(truncatedDate);
+//        String str = "qwertyuiop2020111100";
+//        System.out.println(new SimpleDateFormat("yyyyMMdd").parse(str.substring(str.length() - 10, str.length() - 2)).toString());
+//        System.out.println(checkEN3(d("2020-10-02"), d("2020-10-04"), "qwertyuiop2020111100", false));
+//        System.out.println(checkEN3(d("2020-10-04"), d("2020-10-04"), "qwertyuiop20201018xx", true));
+//        System.out.println(checkEN3(d("2020-10-04"), d("2020-10-04"), "qwertyuiopxx", true));
+//        System.out.println(checkEN3(null, d("2020-10-04"), "qwertyuiopxx", true));
+//        priorityQueueTest();
+//        testOutOfMemory();
+//        boolean contains = new HashSet<>(Arrays.asList("1", "2", "3")).contains(null);
+//        System.out.println("contains = " + contains);
+//        BillSum.analyze();
+//        System.out.println("1234567890".substring(0, 3));
+        countFiles();
+    }
+
+    private static void countFiles() {
+        Set<String> set1 = Arrays.stream(new File("/home/me/tmp/org/erzl/services").listFiles()).map(File::getName).collect(Collectors.toSet());
+        Set<String> set2 = Arrays.stream(new File("/home/me/tmp/org2/erzl/services").listFiles()).map(File::getName).collect(Collectors.toSet());
+        Set<String> set3 = Arrays.stream(new File("/home/me/GIT/pmp/pmp/module-persons-api/src/main/java/org/erzl/services").listFiles()).map(File::getName).collect(Collectors.toSet());
+        set1.stream().sorted().forEach(System.out::println);
+        System.out.println("---------------");
+        System.out.println("---------------");
+        HashSet<Object> set = new HashSet<>();
+        set.addAll(set1);
+        set.addAll(set2);
+        System.out.println(set.size());
+        set1.retainAll(set2);
+        set1.forEach(System.out::println);
+        set3.removeAll(set);
+        System.out.println("---------------");
+        System.out.println("---------------");
+        System.out.println(set3.size());
+        System.out.println("---------------");
+        System.out.println("---------------");
+        set3.forEach(System.out::println);
+    }
+
+    private static void testOutOfMemory() {
+        try {
+            throw new OutOfMemoryError("Critical level of memory detected!");
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        System.out.println("Exceptions was handled!");
+    }
+
+    private static void priorityQueueTest() {
+        PriorityQueue<InstanceQueueBean> queue = new PriorityQueue();
+        queue.add(new InstanceQueueBean("Instance1", new AtomicInteger(10)));
+        queue.add(new InstanceQueueBean("Instance2", new AtomicInteger(4)));
+        for (int i = 0; i < 12; i++) {
+            InstanceQueueBean instanceQueueBean = queue.poll();
+            System.out.println(instanceQueueBean.getInstanceName());
+            queue.offer(instanceQueueBean);
+//            System.out.println(queue.peek().getInstanceName());
+        }
+    }
+
+    private static boolean checkEN3(Date vmpDate, Date birthDay, String caseNumber, boolean newborn) {
+        return vmpDate != null
+                && ((birthDay != null && !newborn && vmpDate.before(birthDay))
+                || (newborn && tryToExctractDate(caseNumber).map(date -> vmpDate.before(date)).orElse(false)));
+    }
+
+    private static Optional<Date> tryToExctractDate(String str) {
+        try {
+            return Optional.of(new SimpleDateFormat("yyyyMMdd").parse(str.substring(str.length() - 10, str.length() - 2)));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    private static Date d(String str) throws ParseException {
+        return new SimpleDateFormat("yyyy-MM-dd").parse(str);
     }
 
     public static void barcodeTest() throws Exception {
