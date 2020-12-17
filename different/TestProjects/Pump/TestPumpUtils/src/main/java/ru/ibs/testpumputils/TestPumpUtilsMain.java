@@ -116,8 +116,11 @@ public class TestPumpUtilsMain {
 //            ExpertiseDAOHibernateTest.test();
 //            BarcodeTest.test();
 //            ErrorsFileExporterTest.test();
-            UpAndUdFileExporterTest.test();
-            UpAndUdFileExporterTest.test2();
+//            UpAndUdFileExporterTest.test();
+//            UpAndUdFileExporterTest.test2();
+            IntSmoAktMekFileExporterTest.test();
+            IntSmoAktTableFormFileExporterTest.test();
+            IntSmoAktPfFileExporterTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
