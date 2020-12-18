@@ -4,14 +4,29 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import ru.ibs.pmp.api.service.export.msk.pdf.PdfReportServiceAbstract;
+import ru.ibs.pmp.api.smo.model.Parcel;
 import ru.ibs.pmp.service.utils.pdf.PdfHelper;
+import ru.ibs.pmp.smo.dao.SmoReportDaoImpl;
 import ru.ibs.pmp.smo.dto.pdf.MgfomsReportData;
+import ru.ibs.pmp.smo.dto.pdf.SmoReportData;
+import ru.ibs.pmp.smo.export.mo.ReportExportContext;
 import ru.ibs.pmp.smo.report.model.MgfomsCathegoryData;
 import ru.ibs.pmp.smo.report.model.MgfomsHeadData;
+import ru.ibs.pmp.smo.report.model.SmoCathegoryData;
+import ru.ibs.pmp.smo.report.model.SmoHeadData;
 import ru.ibs.pmp.smo.services.pdf.MgfomsProtocol;
+import ru.ibs.pmp.smo.services.pdf.SmoProtocolGenerator;
 import ru.ibs.testpumputils.utils.FieldUtil;
+import static ru.ibs.testpumputils.utils.ObjectUtils.getSmoEntityManagerFactory;
 
 /**
  * @author NAnishhenko
@@ -73,7 +88,6 @@ public class PdfWatermarkTest {
 //        }
 //        Files.write(reportFile.toPath(), createReport, StandardOpenOption.CREATE_NEW);
 //    }
-//
 //    private static NilVmpCategoryData createNilCathegoryData(int index) {
 //        NilVmpCategoryData cathegoryData = new NilVmpCategoryData();
 //        cathegoryData.setCountPatient(10);
@@ -84,39 +98,69 @@ public class PdfWatermarkTest {
 //        cathegoryData.setSunMP(8888L);
 //        return cathegoryData;
 //    }
-//
-//    public static void test3() throws Exception {
-//        PdfHelper pdfHelper = new PdfHelper();
-//        SmoProtocolGenerator protocol = new SmoProtocolGenerator();
-//        FieldUtil.setField(protocol, PdfReportServiceAbstract.class, pdfHelper, "pdf");
-//        SmoReportData data = new SmoReportData();
-//        data.setCathegoryData(IntStream.rangeClosed(1, 200).mapToObj(i->createSmoCathegoryData(i)).collect(Collectors.toCollection(LinkedList::new)));
-//        MgfomsHeadData mgfomsHeadData = new MgfomsHeadData();
-//        mgfomsHeadData.setMoName("Какое-то МО");
-//        mgfomsHeadData.setPeriodTXT("2020-02-02");
-//        byte[] createReport = protocol.createReport(data);
-//        File reportFile = new File("D:\\tmp\\parcels\\report.pdf");
-//        if (reportFile.exists()) {
-//            reportFile.delete();
-//        }
-//        Files.write(reportFile.toPath(), createReport, StandardOpenOption.CREATE_NEW);
-//    }
-//
-//    private static SmoCathegoryData createSmoCathegoryData(int index) {
-//        SmoCathegoryData cathegoryData = new SmoCathegoryData();
-//        cathegoryData.setAll(10L);
-//        cathegoryData.setAppAdditional(10L);
-//        cathegoryData.setAppAll(10L);
-//        cathegoryData.setAppDirect(10L);
-//        cathegoryData.setAppUrgent(10L);
-//        cathegoryData.setFullColSpan(true);
-//        cathegoryData.setName("Some Name "+index);
-//        cathegoryData.setPatientBillCount(10);
-//        cathegoryData.setPatientCount(10);
-//        cathegoryData.setServiceType(Invoice.ServiceType.ST);
-//        cathegoryData.setStationaryAll(10L);
-//        cathegoryData.setStationaryVmp(10L);
-//        cathegoryData.setSumAll(100L);
-//        return cathegoryData;
-//    }
+    public static void test3() throws Exception {
+        LocalContainerEntityManagerFactoryBean entityManagerFactory = getSmoEntityManagerFactory();
+        EntityManagerFactory entityManagerFactory_ = entityManagerFactory.getNativeEntityManagerFactory();
+        EntityManager entityManager = entityManagerFactory_.createEntityManager();
+        try {
+            SmoReportDaoImpl smoReportDaoImpl = new SmoReportDaoImpl();
+            FieldUtil.setField(smoReportDaoImpl, entityManager, "entityManager");
+            ReportExportContext context = new ReportExportContext(null, null);
+            Parcel parcel = new Parcel();
+            context.setMoId(2186L);
+            context.setPeriod(new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-01"));
+            parcel.setId(74538L);
+            context.setParcel(parcel);
+            SmoReportData smoReportData = smoReportDaoImpl.getSmoReportData(context);
+            PdfHelper pdfHelper = new PdfHelper();
+            SmoProtocolGenerator protocol = new SmoProtocolGenerator();
+            FieldUtil.setField(protocol, PdfReportServiceAbstract.class, pdfHelper, "pdf");
+            SmoReportData data = new SmoReportData();
+            SmoHeadData head = new SmoHeadData();
+            head.setArchFileName("ArchFileName");
+            head.setCntPat("cntPat");
+            head.setCntRec("cntRec");
+            head.setCountFile(5);
+            head.setMoId("moId");
+            head.setMoName("moName");
+            head.setParcelId("parcelId");
+            head.setPeriodTXT("periodTXT");
+            head.setSmoId("smoId");
+            head.setSumRec("sumRec");
+            data.setHead(head);
+            data.setData(IntStream.rangeClosed(1, 200).mapToObj(i -> createSmoCathegoryData(i)).collect(Collectors.toCollection(LinkedList::new)));
+            MgfomsHeadData mgfomsHeadData = new MgfomsHeadData();
+            mgfomsHeadData.setMoName("Какое-то МО");
+            mgfomsHeadData.setPeriodTXT("2020-02-02");
+            byte[] createReport = protocol.createReport(smoReportData, true);
+            File reportFile = new File("/home/me/tmp/reportsPdf/report.pdf");
+            if (reportFile.exists()) {
+                reportFile.delete();
+            }
+            Files.write(reportFile.toPath(), createReport, StandardOpenOption.CREATE_NEW);
+        } finally {
+            entityManager.close();
+            entityManagerFactory_.close();
+        }
+    }
+
+    private static SmoCathegoryData createSmoCathegoryData(int index) {
+        SmoCathegoryData cathegoryData = new SmoCathegoryData();
+        cathegoryData.setCol1("10");
+        cathegoryData.setCol2("10");
+        cathegoryData.setCol3("10");
+        cathegoryData.setCol4("10");
+        cathegoryData.setCol5("10");
+        cathegoryData.setCol6("10");
+        cathegoryData.setCol7("10");
+        cathegoryData.setCol8("10");
+        cathegoryData.setCol9("10");
+        cathegoryData.setCol10("10");
+        cathegoryData.setCol11("10");
+        cathegoryData.setCol12("10");
+        cathegoryData.setCol13("10");
+        cathegoryData.setCol14("10");
+        cathegoryData.setGroup("GROUP");
+        return cathegoryData;
+    }
 }

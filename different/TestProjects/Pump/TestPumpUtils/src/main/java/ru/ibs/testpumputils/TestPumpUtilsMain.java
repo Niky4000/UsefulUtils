@@ -98,7 +98,7 @@ public class TestPumpUtilsMain {
 //                System.out.println();
 //            }
 //            ListBillsServiceImplTest.test();
-//            PdfWatermarkTest.test();
+            PdfWatermarkTest.test3();
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
 //            CheckInvoiceNUTest.test();
@@ -118,9 +118,9 @@ public class TestPumpUtilsMain {
 //            ErrorsFileExporterTest.test();
 //            UpAndUdFileExporterTest.test();
 //            UpAndUdFileExporterTest.test2();
-            IntSmoAktMekFileExporterTest.test();
-            IntSmoAktTableFormFileExporterTest.test();
-            IntSmoAktPfFileExporterTest.test();
+//            IntSmoAktMekFileExporterTest.test();
+//            IntSmoAktTableFormFileExporterTest.test();
+//            IntSmoAktPfFileExporterTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
