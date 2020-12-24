@@ -25,7 +25,7 @@ public class TestPumpUtilsMain {
         configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.pmp.db.url"));
         configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.pmp.db.username"));
         configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.pmp.db.password"));
-        EntityScanner.scanPackages("ru.ibs.pmp.api.model", "ru.ibs.pmp.auth.model").addTo(configuration);
+        EntityScanner.scanPackages("ru.ibs.pmp.api.model", "ru.ibs.pmp.auth.model", "ru.ibs.testpumputils.bean").addTo(configuration);
         configuration.configure();
 //        ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
 //        return configuration.buildSessionFactory(serviceRegistry);
@@ -98,7 +98,7 @@ public class TestPumpUtilsMain {
 //                System.out.println();
 //            }
 //            ListBillsServiceImplTest.test();
-            PdfWatermarkTest.test3();
+//            PdfWatermarkTest.test3();
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
 //            CheckInvoiceNUTest.test();
@@ -121,6 +121,7 @@ public class TestPumpUtilsMain {
 //            IntSmoAktMekFileExporterTest.test();
 //            IntSmoAktTableFormFileExporterTest.test();
 //            IntSmoAktPfFileExporterTest.test();
+            UnloadDbfs.unload();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
