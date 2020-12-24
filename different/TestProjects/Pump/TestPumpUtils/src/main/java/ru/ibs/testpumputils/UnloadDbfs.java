@@ -28,8 +28,8 @@ public class UnloadDbfs {
     public static void unload() throws Exception {
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         Date period = new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-01");
-        String ogrn = "1027739099772";
-//        String ogrn="1027739449913";
+//        String ogrn = "1027739099772";
+        String ogrn = "1027739449913";
         try {
             Session session = sessionFactory.openSession();
             try {
@@ -44,7 +44,8 @@ public class UnloadDbfs {
                     String name = obj.getName();
                     byte[] bytes = obj.getPayload();
                     String lpuId = obj.getMoId();
-                    Files.write(bytes, new File("/home/me/tmp/parcels/" + name));
+                    new File("C:\\tmp\\parcels\\" + lpuId + "\\").mkdirs();
+                    Files.write(bytes, new File("C:\\tmp\\parcels\\" + lpuId + "\\" + name));
                     System.out.println("lpuId = " + lpuId + " name = " + name + "!");
                 };
             } finally {
