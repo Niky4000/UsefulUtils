@@ -261,7 +261,15 @@ public class SomeClass {
 //        System.out.println("contains = " + contains);
 //        BillSum.analyze();
 //        System.out.println("1234567890".substring(0, 3));
-        countFiles();
+//        countFiles();
+//        testDate();
+    }
+
+    private static void testDate() {
+        String dateStr = new SimpleDateFormat("yyyy-MM").format(new Date());
+        String str = "1234-56";
+        System.out.println(str.substring(3, 4) + " & " + str.substring(str.length() - 2));
+        System.out.println(dateStr.substring(3, 4) + " & " + dateStr.substring(dateStr.length() - 2));
     }
 
     private static void countFiles() {

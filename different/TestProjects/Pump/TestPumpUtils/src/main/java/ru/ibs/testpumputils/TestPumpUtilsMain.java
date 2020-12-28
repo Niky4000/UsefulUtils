@@ -5,9 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -121,7 +118,8 @@ public class TestPumpUtilsMain {
 //            IntSmoAktMekFileExporterTest.test();
 //            IntSmoAktTableFormFileExporterTest.test();
 //            IntSmoAktPfFileExporterTest.test();
-            UnloadDbfs.unload();
+//            UnloadDbfs.unload();
+            EmergencyCtrlFileExporterTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
