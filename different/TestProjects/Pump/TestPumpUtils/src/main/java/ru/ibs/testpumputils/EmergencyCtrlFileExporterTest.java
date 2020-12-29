@@ -43,6 +43,7 @@ public class EmergencyCtrlFileExporterTest {
             parcel.setMoId(lpuId);
             parcel.setPeriod(period);
             context.setParcel(parcel);
+            context.setMoId(lpuId);
             Lpu lpu = new Lpu();
             lpu.setMoId(lpuId.toString());
             context.setLpu(lpu);
