@@ -119,7 +119,8 @@ public class TestPumpUtilsMain {
 //            IntSmoAktTableFormFileExporterTest.test();
 //            IntSmoAktPfFileExporterTest.test();
 //            UnloadDbfs.unload();
-            EmergencyCtrlFileExporterTest.test();
+//            EmergencyCtrlFileExporterTest.test();
+        new DownloadService("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=30583913-0-C16.2-60075-20201202-01-20201202", new File("C:\\tmp")).download();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

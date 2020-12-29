@@ -8,10 +8,11 @@ package ru.ibs.testpumputils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import java.util.Arrays;
 import java.util.Properties;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -23,25 +24,23 @@ import javax.net.ssl.SSLSession;
  */
 public class DownloadService {
 
-//  private static final Logger LOGGER = LoggerFactory.getLogger(DownloadService.class);
-    private static final String SCAN_SERVICE_CERT_PATH = "C:/tmp/emias/PpakScan.jks";
     private static final String SCAN_SERVICE_CERT_PASS = "836529";
-    
-
+    private final File dir;
+    private final File certificate;
     private String url;
-    private long interval = 1000;
 
-    public DownloadService(String url, File dir) {
+    public DownloadService(String url, File dir) throws URISyntaxException {
         this.url = url;
-//        getClass().getClassLoader().getResource(url);
+        this.dir = dir;
+        certificate = new File(getPathToRootFolder().getAbsolutePath() + File.separator + "PpakScan.jks");
         init();
     }
 
     public void init() {
         Properties props = System.getProperties();
-        props.setProperty("javax.net.ssl.trustStore", SCAN_SERVICE_CERT_PATH);
+        props.setProperty("javax.net.ssl.trustStore", certificate.getAbsolutePath());
         props.setProperty("javax.net.ssl.trustStorePassword", SCAN_SERVICE_CERT_PASS);
-        props.setProperty("javax.net.ssl.keyStore", SCAN_SERVICE_CERT_PATH);
+        props.setProperty("javax.net.ssl.keyStore", certificate.getAbsolutePath());
         props.setProperty("javax.net.ssl.keyStorePassword", SCAN_SERVICE_CERT_PASS);
         HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
             public boolean verify(String string, SSLSession ssls) {
@@ -50,17 +49,28 @@ public class DownloadService {
         });
     }
 
-    private void download() {
+    public void download() {
         try (InputStream in = new URL(url).openStream()) {
-            Files.copy(in, Paths.get("./image.jpg"), REPLACE_EXISTING);
-        } catch (IOException e) {
-            interval += 1000;
-//      LOGGER.error(String.format("I/O excetion, the check interval was increased up to %d ms", interval),e);
-            e.printStackTrace();
+            Files.copy(in, new File(dir.getAbsolutePath() + "/kkk").toPath(), REPLACE_EXISTING);
         } catch (Exception e) {
-//      LOGGER.error(String.format("Unexpected errror; certPath=%s", SCAN_SERVICE_CERT_PATH), e);
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
+    public static File getPathToRootFolder() {
+        try {
+            File file = new File(DownloadService.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            if (file.getAbsolutePath().contains("classes")) { // Launched from debugger!
+                file = Arrays.stream(file.getParentFile().listFiles()).filter(localFile -> localFile.getName().endsWith(".jar")).findFirst().get();
+            }
+            File parentFile = file.getParentFile();
+            if (parentFile.getAbsolutePath().contains("target")) {
+                parentFile = parentFile.getParentFile();
+            }
+            return parentFile;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
