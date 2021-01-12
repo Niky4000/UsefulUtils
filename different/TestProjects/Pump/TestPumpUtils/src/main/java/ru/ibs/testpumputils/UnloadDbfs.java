@@ -76,7 +76,7 @@ public class UnloadDbfs {
         Date period = new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-01");
 //        String ogrn = "1027739099772";
         String ogrn = "1027739449913";
-        Map<String, File> pdfFileMap = getPdfFileMap("/home/me/tmp/zip2");
+        Map<String, File> pdfFileMap = getPdfFileMap("C:\\tmp\\parcels2");
         try {
             List<UnloadZipBean> dbList = Db.select(sessionFactory, session -> (List<UnloadZipBean>) session.createSQLQuery("select ma.id,ma.name,ma.payload,ma.mo_id from PMP_MAILGW_ATTACHMENT ma \n"
                     + "inner join pmp_mailgw_log ml on ml.id=ma.log_entry_id and ml.period=ma.period and ml.mo_id=ma.mo_id\n"

@@ -43,6 +43,7 @@ public class DownloadService {
         props.setProperty("javax.net.ssl.keyStore", certificate.getAbsolutePath());
         props.setProperty("javax.net.ssl.keyStorePassword", SCAN_SERVICE_CERT_PASS);
         HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+            @Override
             public boolean verify(String string, SSLSession ssls) {
                 return true;
             }

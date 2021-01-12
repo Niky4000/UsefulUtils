@@ -120,9 +120,13 @@ public class TestPumpUtilsMain {
 //            IntSmoAktTableFormFileExporterTest.test();
 //            IntSmoAktPfFileExporterTest.test();
 //            UnloadDbfs.unload();
-            UnloadDbfs.replaceFileInArchieve(new File("/home/me/tmp/zip/5044/some.008"), "5044", getPdfFileMap("/home/me/tmp/zip2"));
+//            UnloadDbfs.replaceFileInArchieve(new File("/home/me/tmp/zip/5044/some.008"), "5044", getPdfFileMap("/home/me/tmp/zip2"));
+//            UnloadDbfs.replace();
 //            EmergencyCtrlFileExporterTest.test();
 //        new DownloadService("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=30583913-0-C16.2-60075-20201202-01-20201202", new File("C:\\tmp")).download();
+//            UnloadDbfs2.getPdfFileMap2("C:\\tmp\\parcels4acts");
+//            UnloadDbfs2.replaceFileInArchieve(new File("C:\\tmp\\parcels\\1796\\b0205125.110"), "1796", UnloadDbfs2.getPdfFileMap2("C:\\tmp\\parcels4acts"), UnloadDbfs2.getPdfFileMap2("C:\\tmp\\parcels5protocols"));
+            UnloadDbfs2.replace();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
