@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.Properties;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import static ru.ibs.testpumputils.UnloadDbfs.getPdfFileMap;
 
 /**
  * @author NAnishhenko
@@ -97,6 +96,7 @@ public class TestPumpUtilsMain {
 //            }
 //            ListBillsServiceImplTest.test();
 //            PdfWatermarkTest.test3();
+//            IntSmoAktMekSmpGeneratorTest.test();
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
 //            CheckInvoiceNUTest.test();
@@ -120,9 +120,10 @@ public class TestPumpUtilsMain {
 //            IntSmoAktTableFormFileExporterTest.test();
 //            IntSmoAktPfFileExporterTest.test();
 //            UnloadDbfs.unload();
-            UnloadDbfs.replaceFileInArchieve(new File("/home/me/tmp/zip/5044/some.008"), "5044", getPdfFileMap("/home/me/tmp/zip2"));
+//            UnloadDbfs.replaceFileInArchieve(new File("/home/me/tmp/zip/5044/some.008"), "5044", getPdfFileMap("/home/me/tmp/zip2"));
 //            EmergencyCtrlFileExporterTest.test();
 //        new DownloadService("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=30583913-0-C16.2-60075-20201202-01-20201202", new File("C:\\tmp")).download();
+            TestSmoSessionFactory.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

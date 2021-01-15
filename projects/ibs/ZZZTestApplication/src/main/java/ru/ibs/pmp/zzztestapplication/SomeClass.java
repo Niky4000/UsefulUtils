@@ -102,6 +102,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.joda.time.LocalTime;
 import org.krysalis.barcode4j.BarcodeGenerator;
 import org.krysalis.barcode4j.BarcodeUtil;
 import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
@@ -219,6 +220,7 @@ public class SomeClass {
 //        new TransparentWatermark2().create();
 //        new TransparentWatermark3().create();
 //        testDateTrunc();
+        testDateTrunc2(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-12-12 20:30:32"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-12-10 12:12:12"));
 //        parseResponseFromPhpServer();
 //        encodeDecodeTest();
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-system-auth-api/src/main/java/ru/ibs/pmp/auth/filters/SecurityContextFilter.java");
@@ -523,6 +525,20 @@ public class SomeClass {
         org.joda.time.LocalDateTime dateTime = org.joda.time.LocalDateTime.now();
         org.joda.time.LocalDateTime withSecondOfMinute = dateTime.withSecondOfMinute(0).withMillisOfSecond(0);
         System.out.println(withSecondOfMinute.toString());
+    }
+
+    private static Date testDateTrunc2(Date date, Date time) throws ParseException {
+        if (time == null) {
+            return date;
+        }
+        org.joda.time.LocalDate datePart = new org.joda.time.LocalDate(date);
+        LocalTime timePart = new LocalTime(time);
+        org.joda.time.LocalDateTime dateTime = datePart.toLocalDateTime(timePart);
+        Date result = dateTime.withSecondOfMinute(0).withMillisOfSecond(0).toDate();
+        Date truncatedDate = DateUtils.truncate(result, Calendar.MINUTE);
+        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(truncatedDate));
+        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(DateUtils.truncate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-12-12 14:44:44"), Calendar.MINUTE)));
+        return truncatedDate;
     }
 
     private static void testAtomicReference() throws ParseException {

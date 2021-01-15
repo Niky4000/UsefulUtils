@@ -1,6 +1,13 @@
 package ru.ibs.testpumputils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -9,10 +16,13 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.zip.GZIPInputStream;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import oracle.jdbc.oracore.Util;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import ru.ibs.pmp.api.service.export.msk.pdf.PdfReportServiceAbstract;
+import ru.ibs.pmp.api.smo.model.Bill;
 import ru.ibs.pmp.api.smo.model.Parcel;
 import ru.ibs.pmp.service.utils.pdf.PdfHelper;
 import ru.ibs.pmp.smo.dao.SmoReportDaoImpl;
@@ -45,7 +55,7 @@ public class PdfWatermarkTest {
         mgfomsReportData.setMgfomsHeadData(mgfomsHeadData);
         byte[] createReport = mgfomsProtocol.createReport(mgfomsReportData, true);
 //        File reportFile = new File("C:\\tmp\\parcels\\report.pdf");
-        File reportFile = new File("report.pdf");
+        File reportFile = new File("/home/me/tmp/reportsPdf/report.pdf");
         if (reportFile.exists()) {
             reportFile.delete();
         }
@@ -111,7 +121,11 @@ public class PdfWatermarkTest {
             context.setPeriod(new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-01"));
             parcel.setId(74538L);
             context.setParcel(parcel);
-            SmoReportData smoReportData = smoReportDaoImpl.getSmoReportData(context);
+            Bill bill = new Bill();
+            bill.setSmoId(2884L);
+            parcel.setBill(bill);
+//            SmoReportData smoReportData = smoReportDaoImpl.getSmoReportData(context);
+            SmoReportData smoReportData = deSerializeObject(new File("/home/me/tmp/reportsPdf/SmoReportData.bin"));
             PdfHelper pdfHelper = new PdfHelper();
             SmoProtocolGenerator protocol = new SmoProtocolGenerator();
             FieldUtil.setField(protocol, PdfReportServiceAbstract.class, pdfHelper, "pdf");
@@ -162,5 +176,40 @@ public class PdfWatermarkTest {
         cathegoryData.setCol14("10");
         cathegoryData.setGroup("GROUP");
         return cathegoryData;
+    }
+
+    private static final int BUFFER_SIZE = 1024 * 1024;
+
+    private static ObjectInput getInputStream(File serfile, boolean gzip) throws FileNotFoundException, IOException {
+        ObjectInput input;
+        if (gzip) {
+            try {
+                InputStream file = new FileInputStream(serfile);
+                InputStream zip = new GZIPInputStream(file, BUFFER_SIZE); // Use zip!
+                input = new ObjectInputStream(zip); // Use zip!
+            } catch (IOException ioe) {
+                InputStream file = new FileInputStream(serfile);
+                InputStream buffer = new BufferedInputStream(file, BUFFER_SIZE); // Do not use zip!
+                input = new ObjectInputStream(buffer); // Do not use zip!
+            }
+        } else {
+            InputStream file = new FileInputStream(serfile);
+            InputStream buffer = new BufferedInputStream(file, BUFFER_SIZE); // Do not use zip!
+            input = new ObjectInputStream(buffer); // Do not use zip!
+        }
+        return input;
+    }
+
+    private static <T> T deSerializeObject(File serfile) {
+        if (!serfile.exists()) {
+            return null;
+        }
+        try (ObjectInput input = getInputStream(serfile, false)) {
+            T obj = (T) input.readObject();
+            return obj;
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
