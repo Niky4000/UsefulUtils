@@ -66,7 +66,7 @@ public class TestPumpUtilsMain {
         configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.smo.db.url"));
         configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.smo.db.username"));
         configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.smo.db.password"));
-        EntityScanner.scanPackages("ru.ibs.pmp.api.model.dbf.parcel", "ru.ibs.pmp.api.smo.model").addTo(configuration);
+        EntityScanner.scanPackages("ru.ibs.pmp.api.smo.model").addTo(configuration);
         configuration.configure();
         SessionFactory sessionFactory = configuration.buildSessionFactory();
         return sessionFactory;
@@ -126,7 +126,7 @@ public class TestPumpUtilsMain {
 //        new DownloadService("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=30583913-0-C16.2-60075-20201202-01-20201202", new File("C:\\tmp")).download();
 //            UnloadDbfs2.getPdfFileMap2("C:\\tmp\\parcels4acts");
 //            UnloadDbfs2.replaceFileInArchieve(new File("C:\\tmp\\parcels\\1796\\b0205125.110"), "1796", UnloadDbfs2.getPdfFileMap2("C:\\tmp\\parcels4acts"), UnloadDbfs2.getPdfFileMap2("C:\\tmp\\parcels5protocols"));
-            UnloadDbfs2.replace();
+//            UnloadDbfs2.replace();
 //            EmergencyCtrlFileExporterTest.test();
 //        new DownloadService("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=30583913-0-C16.2-60075-20201202-01-20201202", new File("C:\\tmp")).download();
             TestSmoSessionFactory.test();
