@@ -1,0 +1,16 @@
+Thinking\nof Love    400    100    1
+Thinking\nof You    400    100    1
+Forever\nDiamonds    350    0    1
+Dream\nFearlessly    350    0    1
+Love\nFearlessly    350    0    1
+Live\nFearlessly    350    0    1
+Belara    500    0    1
+Elige    500    0    1
+Cityscape\nдля неё    400    0    1
+Enchanted\nWish    400    100    1
+Journey    500    0    1
+Illuminea    400    0    1
+Cityscape\nдля него    350    50    1
+Domain    500    0    1
+MK High\nIntensity    350    100    1
+True\nOriginal    400    0    1

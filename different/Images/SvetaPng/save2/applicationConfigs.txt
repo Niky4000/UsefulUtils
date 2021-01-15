@@ -1,0 +1,12 @@
+#configs
+#Sat Sep 19 15:20:55 SAMT 2020
+fontName=Liberation Serif
+sign=A7C1FBFF002006A7_Hello
+columnsCount=1
+pathToImageTemplate=/home/me/GIT/UsefulUtils/different/Images/SvetaPng/ImagesTemplates/MaryKeyTemplate.png
+rowsCount=1
+tableContent={text\=10, textSize\=800, valign\=0, count\=1}&{text\=11, textSize\=800, valign\=0, count\=1}&{text\=12, textSize\=800, valign\=0, count\=1}&{text\=13, textSize\=800, valign\=0, count\=1}&{text\=14, textSize\=800, valign\=0, count\=1}
+oneFileCheckBox=1
+manyFilesCheckBox=0
+userName=Hello
+pathToOutImages=/home/me/GIT/UsefulUtils/different/Images/SvetaPng/Images/image.png

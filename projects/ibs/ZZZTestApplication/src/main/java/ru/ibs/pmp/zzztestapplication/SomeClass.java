@@ -47,6 +47,7 @@ import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -112,15 +113,12 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.ibs.pmp.zzztestapplication.bean.BillStatisticsShortBean;
 import ru.ibs.pmp.zzztestapplication.bean.CommitBean;
-import ru.ibs.pmp.zzztestapplication.bean.InstanceQueueBean;
-import ru.ibs.pmp.zzztestapplication.bean.MtrReestrFileStatus;
 import ru.ibs.pmp.zzztestapplication.bean.SomeBean1;
 import ru.ibs.pmp.zzztestapplication.bean.SomeBean2;
 import ru.ibs.pmp.zzztestapplication.bean.TestBean;
 import ru.ibs.pmp.zzztestapplication.threads.ConnectionMonitorDaemon;
 import ru.ibs.pmp.zzztestapplication.threads.TreadTest;
 import ru.ibs.pmp.zzztestapplication.threads.bean.MonitorBean;
-import ru.mgfoms.pump.mtr.ref.FileType;
 
 /**
  *
@@ -265,6 +263,39 @@ public class SomeClass {
 //        System.out.println("1234567890".substring(0, 3));
 //        countFiles();
 //        testDate();
+        fixFileNames();
+    }
+
+    public static final String connectionString2 = "jdbc:oracle:thin:@omsdb-scan.mgf.msk.oms:1528/PUMPN";
+    public static final String user2 = "PMP_PROD";
+    public static final String password2 = "PMP_PROD";
+
+    private static void fixFileNames() throws SQLException {
+        Pattern pattern = Pattern.compile("^PDF(.+?)S.+$");
+        Map<String, Long> map = new HashMap<>();
+        Connection connection = DriverManager.getConnection(connectionString2, user2, password2);
+        ResultSet resultSet = connection.prepareCall("select mcod,moid from MOSPRLPU").executeQuery();
+        while (resultSet.next()) {
+            String mcod = resultSet.getString(1);
+            long filId = resultSet.getLong(2);
+            map.put(mcod, filId);
+        }
+        List<File> fileList = Arrays.stream(new File("C:\\tmp\\parcels3").listFiles()).filter(file -> file.getName().endsWith(".pdf")).collect(Collectors.toList());
+        for (File file : fileList) {
+            String fileName = file.getName();
+            Matcher matcher = pattern.matcher(fileName);
+            if (matcher.find()) {
+                String mcod = matcher.group(1);
+                Long filId = map.get(mcod);
+                if (filId != null) {
+                    String newFileName = fileName.replace(mcod, filId.toString());
+                    File newFile = new File(file.getParentFile().getAbsolutePath() + File.separator + newFileName);
+                    file.renameTo(newFile);
+                } else {
+                    System.out.println("mcodFromFile = " + mcod + "!");
+                }
+            }
+        }
     }
 
     private static void testDate() {
@@ -305,18 +336,17 @@ public class SomeClass {
         System.out.println("Exceptions was handled!");
     }
 
-    private static void priorityQueueTest() {
-        PriorityQueue<InstanceQueueBean> queue = new PriorityQueue();
-        queue.add(new InstanceQueueBean("Instance1", new AtomicInteger(10)));
-        queue.add(new InstanceQueueBean("Instance2", new AtomicInteger(4)));
-        for (int i = 0; i < 12; i++) {
-            InstanceQueueBean instanceQueueBean = queue.poll();
-            System.out.println(instanceQueueBean.getInstanceName());
-            queue.offer(instanceQueueBean);
-//            System.out.println(queue.peek().getInstanceName());
-        }
-    }
-
+//    private static void priorityQueueTest() {
+//        PriorityQueue<InstanceQueueBean> queue = new PriorityQueue();
+//        queue.add(new InstanceQueueBean("Instance1", new AtomicInteger(10)));
+//        queue.add(new InstanceQueueBean("Instance2", new AtomicInteger(4)));
+//        for (int i = 0; i < 12; i++) {
+//            InstanceQueueBean instanceQueueBean = queue.poll();
+//            System.out.println(instanceQueueBean.getInstanceName());
+//            queue.offer(instanceQueueBean);
+////            System.out.println(queue.peek().getInstanceName());
+//        }
+//    }
     private static boolean checkEN3(Date vmpDate, Date birthDay, String caseNumber, boolean newborn) {
         return vmpDate != null
                 && ((birthDay != null && !newborn && vmpDate.before(birthDay))
@@ -433,30 +463,29 @@ public class SomeClass {
         }
     }
 
-    private static void testSortingMtrReestrFileStatus() throws ParseException {
-        List<MtrReestrFileStatus> list = Arrays.asList(new MtrReestrFileStatus(new Date(), 1L, "111", "okato", "okatoOms", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO),
-                new MtrReestrFileStatus(new Date(), 2L, "111", "okato", "okatoOms", null, new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO),
-                new MtrReestrFileStatus(new Date(), 3L, "111", "okato", "okatoOms", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-03 00:00:00"), new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO),
-                new MtrReestrFileStatus(new Date(), 4L, "111", "okato", "okatoOms", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO));
-        Collections.sort(list, (obj1, obj2) -> {
-            if (obj1.dschet != null && obj2.dschet != null) {
-                int i = -obj1.dschet.compareTo(obj2.dschet);
-                if (i == 0) {
-                    return -Long.valueOf(obj1.id).compareTo(obj2.id);
-                } else {
-                    return i;
-                }
-            } else if (obj1.dschet == null && obj2.dschet != null) {
-                return 1;
-            } else if (obj1.dschet != null && obj2.dschet == null) {
-                return -1;
-            } else {
-                return -Long.valueOf(obj1.id).compareTo(obj2.id);
-            }
-        });
-        list.forEach(obj -> System.out.println(obj.id));
-    }
-
+//    private static void testSortingMtrReestrFileStatus() throws ParseException {
+//        List<MtrReestrFileStatus> list = Arrays.asList(new MtrReestrFileStatus(new Date(), 1L, "111", "okato", "okatoOms", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO),
+//                new MtrReestrFileStatus(new Date(), 2L, "111", "okato", "okatoOms", null, new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO),
+//                new MtrReestrFileStatus(new Date(), 3L, "111", "okato", "okatoOms", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-03 00:00:00"), new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO),
+//                new MtrReestrFileStatus(new Date(), 4L, "111", "okato", "okatoOms", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), new Date(), new Date(), FileType.R, 0, 0, 0, "FileName", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE, 0, BigDecimal.ZERO));
+//        Collections.sort(list, (obj1, obj2) -> {
+//            if (obj1.dschet != null && obj2.dschet != null) {
+//                int i = -obj1.dschet.compareTo(obj2.dschet);
+//                if (i == 0) {
+//                    return -Long.valueOf(obj1.id).compareTo(obj2.id);
+//                } else {
+//                    return i;
+//                }
+//            } else if (obj1.dschet == null && obj2.dschet != null) {
+//                return 1;
+//            } else if (obj1.dschet != null && obj2.dschet == null) {
+//                return -1;
+//            } else {
+//                return -Long.valueOf(obj1.id).compareTo(obj2.id);
+//            }
+//        });
+//        list.forEach(obj -> System.out.println(obj.id));
+//    }
     private static void fixStringEndings(String fileName) throws Exception {
         File file = new File(fileName);
         byte[] readAllBytes = Files.readAllBytes(file.toPath());
