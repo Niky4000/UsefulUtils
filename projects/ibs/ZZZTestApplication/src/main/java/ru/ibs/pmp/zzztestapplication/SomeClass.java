@@ -218,7 +218,7 @@ public class SomeClass {
 //        new TransparentWatermark2().create();
 //        new TransparentWatermark3().create();
 //        testDateTrunc();
-        testDateTrunc2(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-12-12 20:30:32"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-12-10 12:12:12"));
+//        testDateTrunc2(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-12-12 20:30:32"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-12-10 12:12:12"));
 //        parseResponseFromPhpServer();
 //        encodeDecodeTest();
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-system-auth-api/src/main/java/ru/ibs/pmp/auth/filters/SecurityContextFilter.java");
@@ -229,6 +229,8 @@ public class SomeClass {
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp/src/main/java/ru/ibs/pmp/dao/hibernate/HospDeptStayDAOHibernate.java");
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp/src/main/java/ru/ibs/pmp/service/impl/SimpleServiceServiceImpl.java");
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp-api/src/main/java/ru/ibs/pmp/service/utils/pdf/PdfUtils.java");
+//        fixStringEndings2("/home/me/GIT/pmp/pmp_core/pmp-common-min/src/main/java/ru/ibs/pmp/auth/model/SmoEntity.java");
+//        getAllBadFiles();
 //        testSortingMtrReestrFileStatus();
 //        practionerNamePatternTest("Аль Баварид", "(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$");
 //        practionerNamePatternTest("Омар", "(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$");
@@ -246,6 +248,10 @@ public class SomeClass {
 //        urlAnalisys("http://10.170.89.2/ggh@#56/123456789–0–C18.18–037061–20200125");
 //        urlAnalisys("http://10.170.89.2/ggh@#56/123456789–0–C18.18–037061–20200125–20200303");
 //        urlAnalisys("http://127.0.0.5/2C00BB94-9D3F-4CFB-B740-CC9549C5A551/12345–2–C01.01–12345–20200112–01");
+//        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=16417293-0-C61-60075-20201202-01-20201204");
+//        urlAnalisys("http://127.0.0.8/getHtml?url=16417293-0-C61-60075-20201202-01-20201204");
+        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=7149689-0-A00-001781-20210101-01-20210101");
+//        System.out.println(getUrlInfo("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=19790806-0-C43.5-60075-20201201-01-20201201"));
 //        barcodeTest();
 //        Date truncatedDate = DateUtils.truncate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), Calendar.DAY_OF_MONTH);
 //        System.out.println(truncatedDate);
@@ -263,7 +269,21 @@ public class SomeClass {
 //        System.out.println("1234567890".substring(0, 3));
 //        countFiles();
 //        testDate();
-        fixFileNames();
+//        fixFileNames();
+//        testCheckCountNumber(null);
+//        testCheckCountNumber(0);
+//        testCheckCountNumber(1);
+//        testCheckCountNumber(2);
+//        String gg = "select ID,PERIOD,MO_ID,CASE_TYPE,URL_POSITION_TYPE,URL_TABLE_NAME,URL_COLUMN_NAME,"
+//                + "URL_ID,URL_TEXT,SERVICE_CODE,DIAGNOSIS_CODE,SERVICE_DATE,PATIENT_ID,PATIENT_TYPE,PRIM_CHECK_DATE,PRIM_CHECK_ERROR,PRIM_CHECK_KSUM,LAST_CHECK_DATE,"
+//                + "LAST_CHECK_ERROR,LAST_CHECK_KSUM,CHECK_COUNT_NUMBER from pmp_medcase_url_validation"
+//                + "\n";
+//        System.out.println(gg.toLowerCase());
+    }
+
+    private static void testCheckCountNumber(Integer checkCountNumber) {
+        final int n = checkCountNumber != null ? ++checkCountNumber : 0;
+        System.out.println("n = " + n + "!");
     }
 
     public static final String connectionString2 = "jdbc:oracle:thin:@omsdb-scan.mgf.msk.oms:1528/PUMPN";
@@ -400,10 +420,21 @@ public class SomeClass {
         }
     }
 
-    private static final String delimeter = "–";
+    private static String getUrlInfo(String url) {
+        Matcher matcher = Pattern.compile("^.+?(" + patientIdRegexp + delimeter + patientTypeRegexp + delimeter + diagnosisRegexp + delimeter + serviceCodeRegexp + delimeter + serviceDateRegexp + serviceNumberRegexp + changeDateRegexp + ")$").matcher(url);
+        if (matcher.find()) {
+            String group = matcher.group(1);
+            return group;
+        } else {
+            return null;
+        }
+    }
+
+    private static final String delimeter = "[–-]";
     private static final String HTTPS = "https?://";
     private static final String zeroTo255 = "([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])";
     private static final String IP_REGEXP = zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255;
+    private static final String DOMAIN_NAME_REGEXP = "[\\w.]+?";
     private static final String prefixRegexp = ".*?/?";
     private static final String patientIdRegexp = "\\d+?";
     private static final String patientTypeRegexp = "[0-3]";
@@ -414,12 +445,13 @@ public class SomeClass {
     private static final String changeDateRegexp = "(" + delimeter + "\\d{8})?";
 
     private static final void urlAnalisys(String urlToAnalyse) {
-        if (urlToAnalyse != null && urlToAnalyse.contains(delimeter)) {
+        if (urlToAnalyse != null) {
             boolean matches = Pattern.compile("^" + HTTPS + IP_REGEXP + "/" + prefixRegexp + patientIdRegexp + delimeter + patientTypeRegexp + delimeter + diagnosisRegexp + delimeter + serviceCodeRegexp + delimeter + serviceDateRegexp + serviceNumberRegexp + changeDateRegexp + "$").matcher(urlToAnalyse).matches();
-            if (matches) {
-                System.out.println("Ok!");
+            boolean matches2 = Pattern.compile("^" + HTTPS + DOMAIN_NAME_REGEXP + "/" + prefixRegexp + patientIdRegexp + delimeter + patientTypeRegexp + delimeter + diagnosisRegexp + delimeter + serviceCodeRegexp + delimeter + serviceDateRegexp + serviceNumberRegexp + changeDateRegexp + "$").matcher(urlToAnalyse).matches();
+            if (matches || matches2) {
+                System.out.println(urlToAnalyse + " is Ok!");
             } else {
-                System.out.println("Bad!");
+                System.out.println(urlToAnalyse + " is Bad!");
             }
         }
 //Описание
@@ -503,10 +535,57 @@ public class SomeClass {
         Files.write(file.toPath(), readAllBytes3, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
+    private static void showTree(final File dir, final int nest, final List<String> badFiles, String baseDir) throws IOException {
+        if (!dir.isDirectory()) {
+            return;
+        }
+        StringBuilder whiteSpace = new StringBuilder();
+        for (int i = 0; i < nest; i++) {
+            whiteSpace.append(' ');
+        }
+        List<File> files = Arrays.stream(dir.listFiles()).filter(file -> file.isDirectory() || file.getName().endsWith(".java")).collect(Collectors.toList());
+        for (File file : files) {
+            System.out.println(whiteSpace.toString() + file.getName());
+            if (file.isDirectory()) {
+                showTree(file, nest + 1, badFiles, baseDir);
+            } else if (isJavaFileBad(file)) {
+//                badFiles.add(file.getAbsolutePath().replace(baseDir, ""));
+                badFiles.add(file.getAbsolutePath());
+            }
+        }
+    }
+
+    private static boolean isJavaFileBad(File file) throws IOException {
+//        String string = new String(Files.readAllBytes(file.toPath()));
+//        return string.contains("\r\n");
+        Integer count1 = 0;
+        Integer count2 = 0;
+        byte b1 = 0x0A;
+        byte b2 = 0x0D;
+        byte[] readAllBytes = Files.readAllBytes(file.toPath());
+        for (byte b : readAllBytes) {
+            if (b == b1) {
+                count1++;
+            }
+            if (b == b2) {
+                count2++;
+            }
+        }
+        return count1 > 0 && count2 > 0 && count1.equals(count2);
+    }
+
+    private static void getAllBadFiles() throws IOException {
+        List<String> badFiles = new ArrayList<>();
+//        showTree(new File("/home/me/GIT/pmp/pmp_core/pmp-common-min"), 0, badFiles);
+        showTree(new File("/home/me/GIT/pmp"), 0, badFiles, "/home/me/GIT/pmp");
+        showTree(new File("/home/me/GIT/pmp_core"), 0, badFiles, "/home/me/GIT/pmp");
+        badFiles.stream().forEach(System.out::println);
+    }
+
     private static void fixStringEndings2(String fileName) throws Exception {
         File file = new File(fileName);
         String string = new String(Files.readAllBytes(file.toPath()));
-        String string2 = string.replaceAll("\n", "\r\n");
+        String string2 = string.replaceAll("\r", "").replaceAll("\n", "\r\n");
         Files.write(file.toPath(), string2.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
     }
 
