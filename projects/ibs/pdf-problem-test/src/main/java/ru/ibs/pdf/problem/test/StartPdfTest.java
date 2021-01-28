@@ -35,6 +35,7 @@ public class StartPdfTest {
 
     private static final String PDF = "pdf";
     private static final String PDF2 = ".pdf";
+    private static final String delimiter = "_";
     private static final int TIME_TO_WAIT = 60;
 
     public static void main(String[] args) throws DocumentException, IOException {
@@ -44,16 +45,39 @@ public class StartPdfTest {
         List<String> argsList = Arrays.asList(args);
         deleteGoodFiles = deleteGoodFiles(argsList);
         File dir = getDir(argsList);
+        long maxFilesForProcess = getMaxFilesForProcess(argsList);
+        int threadNumberForProcess = getThreadNumberForProcess(argsList);
         if (!dir.exists()) {
             dir.mkdirs();
         }
         if (!isItMaster(argsList)) {
 //            waitForSomeTime();
-            createTestPdf(dir, getFileNumber(argsList));
+            ArrayBlockingQueue<String> arrayBlockingQueue = new ArrayBlockingQueue<String>(threadNumberForProcess);
+            createThreadList2(dir, threadNumberForProcess, getFileNumber(argsList), arrayBlockingQueue);
+            for (long i = 0L; i < maxFilesForProcess; i++) {
+                while (true) {
+                    try {
+                        arrayBlockingQueue.put("");
+                        break;
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            for (int i = 0; i < threadNumberForProcess; i++) {
+                while (true) {
+                    try {
+                        arrayBlockingQueue.put(DEAD_PILL);
+                        break;
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
         } else {
             String javaPath = getJavaPath(argsList);
             long maxFiles = getMaxFiles(argsList);
-            AtomicLong fileIndex = new AtomicLong(Arrays.stream(dir.listFiles()).map(file -> file.getName()).filter(fileName -> fileName.startsWith(PDF) && fileName.endsWith(PDF2)).map(fileName -> fileName.substring(PDF.length(), fileName.lastIndexOf(PDF2))).map(Long::valueOf).max(Long::compare).map(d -> d + 1L).orElse(0L));
+            AtomicLong fileIndex = new AtomicLong(Arrays.stream(dir.listFiles()).map(file -> file.getName()).filter(fileName -> fileName.startsWith(PDF) && fileName.endsWith(PDF2)).map(fileName -> fileName.substring(PDF.length(), fileName.lastIndexOf(delimiter))).map(Long::valueOf).max(Long::compare).map(d -> d + 1L).orElse(0L));
             int threadNumber = getThreadNumber(argsList);
 //            ThreadPoolExecutor executor = new ThreadPoolExecutor(threadNumber / 4, threadNumber, TIME_TO_WAIT, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(threadNumber));
             ArrayBlockingQueue<String[]> arrayBlockingQueue = new ArrayBlockingQueue<String[]>(threadNumber);
@@ -63,9 +87,9 @@ public class StartPdfTest {
                 final String threadName = "pdf_" + andIncrement;
                 final List<String> executeParams;
                 if (!isWindows()) {
-                    executeParams = new ArrayList<>(Arrays.asList(javaPath, "-jar", jarPath.getAbsolutePath(), "-d", dir.getAbsolutePath(), "-n", andIncrement + ""));
+                    executeParams = new ArrayList<>(Arrays.asList(javaPath, "-jar", jarPath.getAbsolutePath(), "-d", dir.getAbsolutePath(), "-n", andIncrement + "", "-mp", maxFilesForProcess + "", "-tp", threadNumberForProcess + ""));
                 } else {
-                    executeParams = new ArrayList<>(Arrays.asList("cmd.exe", "/c", "start", "/wait", javaPath, "-jar", jarPath.getAbsolutePath(), "-d", dir.getAbsolutePath(), "-n", andIncrement + ""));
+                    executeParams = new ArrayList<>(Arrays.asList("cmd.exe", "/c", "start", "/wait", javaPath, "-jar", jarPath.getAbsolutePath(), "-d", dir.getAbsolutePath(), "-n", andIncrement + "", "-mp", maxFilesForProcess + "", "-tp", threadNumberForProcess + ""));
                 }
                 if (!deleteGoodFiles) {
                     executeParams.add("-doNotDelete");
@@ -91,6 +115,33 @@ public class StartPdfTest {
             }
             System.out.println("Finished!");
         }
+    }
+
+    private static void createThreadList2(final File dir, int threadNumber, long fileNumber, final ArrayBlockingQueue<String> queue) {
+        final AtomicLong fileIndex = new AtomicLong(0L);
+        IntStream.range(0, threadNumber).mapToObj(n -> {
+            final String threadName = "pdfLocal_" + n;
+            Thread thread = new Thread(() -> {
+                while (true) {
+                    try {
+                        final String executeParams = queue.take();
+                        if (executeParams.equals(DEAD_PILL)) {
+                            break;
+                        }
+                        createTestPdf(dir, fileNumber, fileIndex.getAndIncrement());
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    } catch (DocumentException ex) {
+                        ex.printStackTrace();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                System.out.println("Thread " + threadName + " is finished!");
+            });
+            thread.setName(threadName);
+            return thread;
+        }).forEach(thread -> thread.start());
     }
 
     private static void waitForSomeTime() {
@@ -192,6 +243,14 @@ public class StartPdfTest {
         }
     }
 
+    private static long getMaxFilesForProcess(List<String> args) {
+        return Long.valueOf(args.get(args.indexOf("-mp") + 1)).longValue();
+    }
+
+    private static int getThreadNumberForProcess(List<String> args) {
+        return Integer.valueOf(args.get(args.indexOf("-tp") + 1)).intValue();
+    }
+
     private static long getMaxFiles(List<String> args) {
         return Long.valueOf(args.get(args.indexOf("-m") + 1)).longValue();
     }
@@ -254,7 +313,7 @@ public class StartPdfTest {
 
     private static boolean deleteGoodFiles;
 
-    private static void createTestPdf(File dir, long fileNumber) throws DocumentException, IOException {
+    private static void createTestPdf(File dir, long fileNumber, long index) throws DocumentException, IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4, 25, 25, 30, 25);
         PdfWriter.getInstance(document, stream);
@@ -264,7 +323,8 @@ public class StartPdfTest {
         }
         document.close();
         byte[] byteArray = stream.toByteArray();
-        File file = new File(dir.getAbsolutePath() + File.separator + PDF + fileNumber + PDF2);
+        File file = new File(dir.getAbsolutePath() + File.separator + PDF + fileNumber + delimiter + index + PDF2);
+        System.out.println(file.getAbsolutePath());
         if (file.exists()) {
             file.delete();
         }
