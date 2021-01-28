@@ -79,6 +79,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -250,7 +251,7 @@ public class SomeClass {
 //        urlAnalisys("http://127.0.0.5/2C00BB94-9D3F-4CFB-B740-CC9549C5A551/12345–2–C01.01–12345–20200112–01");
 //        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=16417293-0-C61-60075-20201202-01-20201204");
 //        urlAnalisys("http://127.0.0.8/getHtml?url=16417293-0-C61-60075-20201202-01-20201204");
-        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=7149689-0-A00-001781-20210101-01-20210101");
+//        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=7149689-0-A00-001781-20210101-01-20210101");
 //        System.out.println(getUrlInfo("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=19790806-0-C43.5-60075-20201201-01-20201201"));
 //        barcodeTest();
 //        Date truncatedDate = DateUtils.truncate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), Calendar.DAY_OF_MONTH);
@@ -279,6 +280,67 @@ public class SomeClass {
 //                + "LAST_CHECK_ERROR,LAST_CHECK_KSUM,CHECK_COUNT_NUMBER from pmp_medcase_url_validation"
 //                + "\n";
 //        System.out.println(gg.toLowerCase());
+        threadTest();
+    }
+
+    private static void threadTest() {
+        FutureTask<Boolean> futureTask = new FutureTask<Boolean>(() -> {
+            try {
+                Thread.sleep(10000);
+                String gg = null;
+                gg.length();
+                return true;
+            } catch (Exception e) {
+                throw new RuntimeException(stackTraceToString(e), e);
+            }
+        });
+        Thread thread = new Thread(futureTask);
+        thread.setName("ExceptionThread");
+        thread.start();
+        FutureTask<Boolean> futureTask2 = createTestFutureTask();
+        Thread thread2 = new Thread(futureTask2);
+        thread2.setName("ExceptionThread2");
+        thread2.start();
+        List<FutureTask<Boolean>> futureTaskList = Arrays.asList(futureTask, futureTask2);
+        try {
+            join(futureTaskList);
+            System.out.println("Everything is ok!");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println("Everything is bad!");
+        }
+    }
+
+    private static void join(List<FutureTask<Boolean>> futureTaskList) {
+        List<Exception> exceptionList = futureTaskList.stream().map(thread -> {
+            try {
+                thread.get();
+                return null;
+            } catch (Exception ex) {
+                return ex;
+            }
+        }).filter(ex -> ex != null).collect(Collectors.toList());
+        if (!exceptionList.isEmpty()) {
+            throw new RuntimeException(exceptionList.stream().map(e -> e.getMessage()).reduce((str1, str2) -> str1 + str2).get());
+        }
+    }
+
+    private static String stackTraceToString(Exception exception) {
+        return "Exception Message:" + exception.getMessage() + "\n\n" + Arrays.stream(exception.getStackTrace()).map(element -> element.toString() + "\n").reduce("", (str1, str2) -> str1 + str2) + "\n\n";
+    }
+
+    private static FutureTask<Boolean> createTestFutureTask() {
+        FutureTask<Boolean> futureTask = new FutureTask<Boolean>(() -> {
+            try {
+                Thread.sleep(10000);
+                String gg = null;
+                gg.length();
+                return true;
+            } catch (Exception e) {
+                throw new RuntimeException(stackTraceToString(e), e);
+            }
+        });
+        return futureTask;
     }
 
     private static void testCheckCountNumber(Integer checkCountNumber) {
