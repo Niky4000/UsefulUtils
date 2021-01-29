@@ -87,9 +87,9 @@ public class StartPdfTest {
                 final String threadName = "pdf_" + andIncrement;
                 final List<String> executeParams;
                 if (!isWindows()) {
-                    executeParams = new ArrayList<>(Arrays.asList(javaPath, "-jar", jarPath.getAbsolutePath(), "-d", dir.getAbsolutePath(), "-n", andIncrement + "", "-mp", maxFilesForProcess + "", "-tp", threadNumberForProcess + ""));
+                    executeParams = new ArrayList<>(Arrays.asList(javaPath, "-Xmx4G", "-jar", jarPath.getAbsolutePath(), "-d", dir.getAbsolutePath(), "-n", andIncrement + "", "-mp", maxFilesForProcess + "", "-tp", threadNumberForProcess + ""));
                 } else {
-                    executeParams = new ArrayList<>(Arrays.asList("cmd.exe", "/c", "start", "/wait", javaPath, "-jar", jarPath.getAbsolutePath(), "-d", dir.getAbsolutePath(), "-n", andIncrement + "", "-mp", maxFilesForProcess + "", "-tp", threadNumberForProcess + ""));
+                    executeParams = new ArrayList<>(Arrays.asList("cmd.exe", "/c", "start", "/wait", javaPath, "-Xmx4G", "-jar", jarPath.getAbsolutePath(), "-d", dir.getAbsolutePath(), "-n", andIncrement + "", "-mp", maxFilesForProcess + "", "-tp", threadNumberForProcess + ""));
                 }
                 if (!deleteGoodFiles) {
                     executeParams.add("-doNotDelete");
