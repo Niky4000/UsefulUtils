@@ -5,21 +5,25 @@
  */
 package ru.ibs.testpumputils;
 
+import com.google.common.io.Files;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import ru.ibs.pmp.api.service.export.msk.pdf.PdfReportServiceAbstract;
 import ru.ibs.pmp.api.smo.model.Parcel;
+import ru.ibs.pmp.service.utils.pdf.PdfHelper;
 import ru.ibs.pmp.smo.dao.SmoReportDao;
 import ru.ibs.pmp.smo.dao.SmoReportDaoImpl;
 import ru.ibs.pmp.smo.dto.pdf.SmpSmoDIReportData;
 import ru.ibs.pmp.smo.dto.request.ReportExportFileType;
 import ru.ibs.pmp.smo.export.mo.ReportExportContext;
-import ru.ibs.pmp.smo.report.export.impl.ProtocolSmpSmoDIExporter;
 import ru.ibs.pmp.smo.report.model.SmpSmoDICategoryData;
 import ru.ibs.pmp.smo.report.model.SmpSmoDIHeadData;
 import ru.ibs.pmp.smo.services.pdf.SmpSmoDIProtocol;
+import ru.ibs.testpumputils.utils.FieldUtil;
 import static ru.ibs.testpumputils.utils.ObjectUtils.getSmoEntityManagerFactory;
 
 /**
@@ -36,16 +40,21 @@ public class ProtocolSmpSmoDIExporterTest {
         EntityManagerFactory entityManagerFactory_ = entityManagerFactory.getNativeEntityManagerFactory();
         EntityManager entityManager = entityManagerFactory_.createEntityManager();
         try {
-            ProtocolSmpSmoDIExporter protocolSmpSmoDIExporter = new ProtocolSmpSmoDIExporter();
             SmoReportDao smoReportDao = new SmoReportDaoImpl();
+            FieldUtil.setField(smoReportDao, entityManager, "entityManager");
             SmpSmoDIProtocol smpSmoDIProtocol = new SmpSmoDIProtocol();
+            PdfHelper pdfHelper = new PdfHelper();
+            FieldUtil.setField(smpSmoDIProtocol, PdfReportServiceAbstract.class, pdfHelper, "pdf");
             Parcel parcel = new Parcel();
-            parcel.setId(1053912L);
-            ReportExportContext context = new ReportExportContext(0L, 0L, null, parcel, null, null, 4708L, new SimpleDateFormat("yyyy-MM-dd").parse("2020-10-01"), null, ReportExportFileType.FINAL, "SMP_ADD");
+            parcel.setId(967259L);
+            ReportExportContext context = new ReportExportContext(0L, 0L, null, parcel, null, null, 4708L, new SimpleDateFormat("yyyy-MM-dd").parse("2020-03-01"), null, ReportExportFileType.FINAL, "SMP_ADD");
             SmpSmoDIReportData smpSmoDIReportData = smoReportDao.getProtocolReportData(context, SmpSmoDIReportData.class, SmpSmoDICategoryData.class, SmpSmoDIHeadData.class, "getSmpSmoDIHeadData", "getSmpSmoDICategoryData");
-            smpSmoDIProtocol.createReport(smpSmoDIReportData, true);
+            byte[] createReport = smpSmoDIProtocol.createReport(smpSmoDIReportData, true);
+            File file = new File("C:\\tmp\\report.pdf");
+            Files.write(createReport, file);
         } finally {
             entityManager.close();
+            entityManagerFactory.destroy();
             smoSessionFactory.close();
         }
     }

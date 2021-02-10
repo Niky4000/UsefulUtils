@@ -96,7 +96,8 @@ public class TestPumpUtilsMain {
 //            }
 //            ListBillsServiceImplTest.test();
 //            PdfWatermarkTest.test3();
-            IntSmoAktMekSmpGeneratorTest.test();
+//            IntSmoAktMekSmpGeneratorTest.test();
+            ProtocolSmpSmoDIExporterTest.test();
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
 //            CheckInvoiceNUTest.test();
