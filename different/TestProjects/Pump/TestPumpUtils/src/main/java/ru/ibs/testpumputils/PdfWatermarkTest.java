@@ -116,6 +116,8 @@ public class PdfWatermarkTest {
             SmoReportDaoImpl smoReportDaoImpl = new SmoReportDaoImpl();
             FieldUtil.setField(smoReportDaoImpl, entityManager, "entityManager");
             ReportExportContext context = new ReportExportContext(null, null);
+            context.setSmoRequestId(0L);
+            context.setFlkVersion(0L);
             Parcel parcel = new Parcel();
             context.setMoId(2186L);
             context.setPeriod(new SimpleDateFormat("yyyy-MM-dd").parse("2020-11-01"));
@@ -124,8 +126,9 @@ public class PdfWatermarkTest {
             Bill bill = new Bill();
             bill.setSmoId(2884L);
             parcel.setBill(bill);
-//            SmoReportData smoReportData = smoReportDaoImpl.getSmoReportData(context);
-            SmoReportData smoReportData = deSerializeObject(new File("/home/me/tmp/reportsPdf/SmoReportData.bin"));
+            SmoReportData smoReportData = smoReportDaoImpl.getSmoReportData(context);
+//            SmoReportData smoReportData = deSerializeObject(new File("/home/me/tmp/reportsPdf/SmoReportData.bin"));
+//            smoReportData.setMgfoms(true);
             PdfHelper pdfHelper = new PdfHelper();
             SmoProtocolGenerator protocol = new SmoProtocolGenerator();
             FieldUtil.setField(protocol, PdfReportServiceAbstract.class, pdfHelper, "pdf");

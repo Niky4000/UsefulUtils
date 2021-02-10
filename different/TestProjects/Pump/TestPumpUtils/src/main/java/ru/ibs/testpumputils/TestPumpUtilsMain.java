@@ -96,7 +96,7 @@ public class TestPumpUtilsMain {
 //            }
 //            ListBillsServiceImplTest.test();
 //            PdfWatermarkTest.test3();
-//            IntSmoAktMekSmpGeneratorTest.test();
+            IntSmoAktMekSmpGeneratorTest.test();
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
 //            CheckInvoiceNUTest.test();
@@ -129,7 +129,7 @@ public class TestPumpUtilsMain {
 //            UnloadDbfs2.replace();
 //            EmergencyCtrlFileExporterTest.test();
 //        new DownloadService("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=30583913-0-C16.2-60075-20201202-01-20201202", new File("C:\\tmp")).download();
-            TestSmoSessionFactory.test();
+//            TestSmoSessionFactory.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
