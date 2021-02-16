@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Properties;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import ru.ibs.pmp.api.model.Bill.BillFetchType;
 
 /**
  * @author NAnishhenko
@@ -74,6 +75,7 @@ public class TestPumpUtilsMain {
 
     public static void main(String args[]) throws Exception {
         System.out.println("Hello!!!");
+        System.out.println(BillFetchType.SMP_ADD.name());
 //        SessionFactoryInterface sessionFactoryProxy = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(buildSessionFactory(), new SqlRewriteInterceptorExt()));
         try {
 //        TestUtils.testSyncServiceImpl(sessionFactoryProxy);
@@ -97,7 +99,7 @@ public class TestPumpUtilsMain {
 //            ListBillsServiceImplTest.test();
 //            PdfWatermarkTest.test3();
 //            IntSmoAktMekSmpGeneratorTest.test();
-            ProtocolSmpSmoDIExporterTest.test();
+//            ProtocolSmpSmoDIExporterTest.test();
 //            MoDepartmentSaveTest.test();
 //            CheckPmpDir11Test.test();
 //            CheckInvoiceNUTest.test();
@@ -131,6 +133,7 @@ public class TestPumpUtilsMain {
 //            EmergencyCtrlFileExporterTest.test();
 //        new DownloadService("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=30583913-0-C16.2-60075-20201202-01-20201202", new File("C:\\tmp")).download();
 //            TestSmoSessionFactory.test();
+            CheckOOTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

@@ -280,7 +280,8 @@ public class SomeClass {
 //                + "LAST_CHECK_ERROR,LAST_CHECK_KSUM,CHECK_COUNT_NUMBER from pmp_medcase_url_validation"
 //                + "\n";
 //        System.out.println(gg.toLowerCase());
-        threadTest();
+//        threadTest();
+        System.out.println(Boolean.valueOf("TRUE") + " " + Boolean.valueOf("FALSE"));
     }
 
     private static void threadTest() {
