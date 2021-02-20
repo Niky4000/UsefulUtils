@@ -75,7 +75,6 @@ public class TestPumpUtilsMain {
 
     public static void main(String args[]) throws Exception {
         System.out.println("Hello!!!");
-        System.out.println(BillFetchType.SMP_ADD.name());
 //        SessionFactoryInterface sessionFactoryProxy = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(buildSessionFactory(), new SqlRewriteInterceptorExt()));
         try {
 //        TestUtils.testSyncServiceImpl(sessionFactoryProxy);
@@ -133,7 +132,8 @@ public class TestPumpUtilsMain {
 //            EmergencyCtrlFileExporterTest.test();
 //        new DownloadService("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=30583913-0-C16.2-60075-20201202-01-20201202", new File("C:\\tmp")).download();
 //            TestSmoSessionFactory.test();
-            CheckOOTest.test();
+//            CheckOOTest.test();
+            BillFlkDAOHibernateTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

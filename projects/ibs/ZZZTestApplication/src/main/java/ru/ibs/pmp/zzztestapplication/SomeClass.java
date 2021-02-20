@@ -281,7 +281,39 @@ public class SomeClass {
 //                + "\n";
 //        System.out.println(gg.toLowerCase());
 //        threadTest();
-        System.out.println(Boolean.valueOf("TRUE") + " " + Boolean.valueOf("FALSE"));
+//        System.out.println(Boolean.valueOf("TRUE") + " " + Boolean.valueOf("FALSE"));
+        mkdirsHandler(new File("/home/me/zzzDel"));
+        waitSomeTime();
+    }
+
+    private static final int ATTEMPTS_COUNT = 10;
+    private static final int WAIT_TIME = 10 * 1000;
+
+    private static void mkdirsHandler(File outputDir) {
+        if (!outputDir.exists()) {
+            for (int i = 0; i < ATTEMPTS_COUNT; i++) {
+                boolean mkdirs = outputDir.mkdirs();
+                if (mkdirs) {
+                    break;
+                } else {
+                    if (i >= ATTEMPTS_COUNT - 1) {
+                        throw new RuntimeException("Mkdirs failed!");
+                    }
+                    waitSomeTime();
+                }
+            }
+        }
+    }
+
+    private static void waitSomeTime() {
+        while (true) {
+            try {
+                Thread.sleep(WAIT_TIME);
+                break;
+            } catch (InterruptedException ex) {
+                break;
+            }
+        }
     }
 
     private static void threadTest() {
