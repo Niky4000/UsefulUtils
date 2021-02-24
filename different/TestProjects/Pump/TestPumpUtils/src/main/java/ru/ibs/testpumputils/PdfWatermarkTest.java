@@ -19,7 +19,6 @@ import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import oracle.jdbc.oracore.Util;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import ru.ibs.pmp.api.service.export.msk.pdf.PdfReportServiceAbstract;
 import ru.ibs.pmp.api.smo.model.Bill;

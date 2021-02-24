@@ -282,10 +282,14 @@ public class SomeClass {
 //        System.out.println(gg.toLowerCase());
 //        threadTest();
 //        System.out.println(Boolean.valueOf("TRUE") + " " + Boolean.valueOf("FALSE"));
-        mkdirsHandler(new File("/home/me/zzzDel"));
-        waitSomeTime();
+//        mkdirsHandler(new File("/home/me/zzzDel"));
+//        waitSomeTime();
     }
 
+    private static void AtomicIntegerTest(){
+    
+    }
+    
     private static final int ATTEMPTS_COUNT = 10;
     private static final int WAIT_TIME = 10 * 1000;
 
