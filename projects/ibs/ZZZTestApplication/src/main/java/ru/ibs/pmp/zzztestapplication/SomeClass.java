@@ -231,6 +231,7 @@ public class SomeClass {
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp/src/main/java/ru/ibs/pmp/service/impl/SimpleServiceServiceImpl.java");
 //        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp-api/src/main/java/ru/ibs/pmp/service/utils/pdf/PdfUtils.java");
 //        fixStringEndings2("/home/me/GIT/pmp/pmp_core/pmp-common-min/src/main/java/ru/ibs/pmp/auth/model/SmoEntity.java");
+//        fixStringEndings2("/home/me/GIT/pmp/pmp/module-pmp-api/src/main/java/ru/ibs/pmp/service/utils/pdf/CellBuilder.java");
 //        getAllBadFiles();
 //        testSortingMtrReestrFileStatus();
 //        practionerNamePatternTest("Аль Баварид", "(^\\s*([А-ЯЁ][а-яё]*)([- `''.][А-ЯЁ][а-яё]*)*\\s*)$");
@@ -284,12 +285,20 @@ public class SomeClass {
 //        System.out.println(Boolean.valueOf("TRUE") + " " + Boolean.valueOf("FALSE"));
 //        mkdirsHandler(new File("/home/me/zzzDel"));
 //        waitSomeTime();
+        lpuList();
     }
 
-    private static void AtomicIntegerTest(){
-    
+    static String strLaunchTemplate = "/usr/java8_64/bin/java -Xdisablejavadump -Xdump:none -XX:GCTimeRatio=19 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -Xmx40G -Dlogs_dir=/u01/recreateFor119/2021_02_24__09_49_11/logs -Dpmp.config.path=/u01/recreateFor119/2021_02_24__09_49_11/conf/runtime.properties -jar /u01/recreateFor119/2021_02_24__09_49_11/module-pmp-bill-recreate.jar -m LPU_ID 2021-01 &";
+
+    private static void lpuList() {
+        StringBuilder sb = new StringBuilder("2074, 5240, 1873, 2085, 2346, 3602, 1872, 1901, 4305, 2285, 4628, 4475, 2342, 3915, 4986, 4510, 4620, 1874, 5114, 1851, 2858, 2186, 2161, 2123, 1909, 1896, 4522, 2778, 4575, 4508, 2060, 2290, 2157, 1892, 4623, 2390,4963,4723, 5149, 5243, 5302, 5320, 5350, 5393, 5398, 5400, 5401, 5429, 5450, 5453, 5454, 5455, 5350");
+        String lpuList = sb.toString();
+        Set<String> launchSet = Arrays.stream(lpuList.split(",")).map(String::trim).map(Integer::valueOf).map(lpuId -> strLaunchTemplate.replace("LPU_ID", lpuId.toString())).collect(Collectors.toSet());
+        List<String> launchList = new ArrayList<>(launchSet);
+        Collections.sort(launchList);
+        launchList.stream().forEach(System.out::println);
     }
-    
+
     private static final int ATTEMPTS_COUNT = 10;
     private static final int WAIT_TIME = 10 * 1000;
 

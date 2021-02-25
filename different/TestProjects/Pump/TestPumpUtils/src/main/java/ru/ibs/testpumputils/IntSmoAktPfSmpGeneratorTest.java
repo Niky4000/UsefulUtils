@@ -10,9 +10,12 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import org.hibernate.SessionFactory;
 import ru.ibs.pmp.api.service.export.msk.pdf.PdfReportServiceAbstract;
 import ru.ibs.pmp.api.smo.model.Parcel;
 import ru.ibs.pmp.auth.model.SmoEntity;
@@ -30,31 +33,39 @@ import ru.ibs.testpumputils.utils.FieldUtil;
 public class IntSmoAktPfSmpGeneratorTest {
 
     public static void test() throws Exception {
-        IntSmoAktPfSmpFileExporter intSmoAktPfSmpFileExporter = new IntSmoAktPfSmpFileExporter();
-        Method method = intSmoAktPfSmpFileExporter.getClass().getMethod("getSmoReportData", Long.class, Long.class, Date.class, ReportExportContext.class);
-        method.setAccessible(true);
-        SmoEntity smoEntity = new SmoEntity();
-        smoEntity.setCode("SMO");
-        ReportExportContext context = new ReportExportContext(null, smoEntity);
-        context.setDirectory("/home/me/tmp/reportsPdf");
+        SessionFactory smoSessionFactory = TestPumpUtilsMain.buildSmoSessionFactory();
+        try {
+            IntSmoAktPfSmpFileExporter intSmoAktPfSmpFileExporter = new IntSmoAktPfSmpFileExporter();
+            FieldUtil.setField(intSmoAktPfSmpFileExporter, smoSessionFactory, "sessionFactory");
+            Map<String, List<Method>> methodMap = Arrays.asList(intSmoAktPfSmpFileExporter.getClass().getDeclaredMethods()).stream().collect(Collectors.groupingBy(Method::getName));
+            Method method = Arrays.asList(intSmoAktPfSmpFileExporter.getClass().getDeclaredMethods()).stream().filter(method_ -> method_.getName().equals("getSmoReportData")).findFirst().get();
+//        Method method = intSmoAktPfSmpFileExporter.getClass().getMethod("getSmoReportData", Long.class, Long.class, Date.class, ReportExportContext.class);
+            method.setAccessible(true);
+            SmoEntity smoEntity = new SmoEntity();
+            smoEntity.setCode("SMO");
+            ReportExportContext context = new ReportExportContext(null, smoEntity);
+            context.setDirectory("/home/me/tmp/reportsPdf");
 //            Parcel parcel = (Parcel) Db.select(smoSessionFactory, session -> session.get(Parcel.class, 76645L));
-        Parcel parcel = new Parcel();
-        parcel.setId(1053909L);
-        parcel.setMoId(4708L);
-        parcel.setPeriod(new SimpleDateFormat("yyyy-MM-dd").parse("2020-12-01"));
-        context.setParcel(parcel);
-        context.setPeriod(new SimpleDateFormat("yyyy-MM-dd").parse("2020-12-01"));
-        context.setMoId(4708L);
-        ReportData smoReportData = (ReportData) method.invoke(intSmoAktPfSmpFileExporter, parcel.getId(), parcel.getMoId(), parcel.getPeriod(), context);
-        PdfHelper pdf = new PdfHelper();
-        IntSmoAktPfSmpGenerator intSmoAktPfSmpGenerator = new IntSmoAktPfSmpGenerator();
-        FieldUtil.setField(intSmoAktPfSmpGenerator, PdfReportServiceAbstract.class, pdf, "pdf");
-        byte[] createReport = intSmoAktPfSmpGenerator.createReport(smoReportData, true);
-        File reportFile = new File("/home/me/tmp/reportsPdf/report.pdf");
-        if (reportFile.exists()) {
-            reportFile.delete();
+            Parcel parcel = new Parcel();
+            parcel.setId(1053909L);
+            parcel.setMoId(4708L);
+            parcel.setPeriod(new SimpleDateFormat("yyyy-MM-dd").parse("2020-12-01"));
+            context.setParcel(parcel);
+            context.setPeriod(new SimpleDateFormat("yyyy-MM-dd").parse("2020-12-01"));
+            context.setMoId(4708L);
+            ReportData smoReportData = (ReportData) method.invoke(intSmoAktPfSmpFileExporter, parcel.getId(), parcel.getMoId(), parcel.getPeriod(), context);
+            PdfHelper pdf = new PdfHelper();
+            IntSmoAktPfSmpGenerator intSmoAktPfSmpGenerator = new IntSmoAktPfSmpGenerator();
+            FieldUtil.setField(intSmoAktPfSmpGenerator, PdfReportServiceAbstract.class, pdf, "pdf");
+            byte[] createReport = intSmoAktPfSmpGenerator.createReport(smoReportData, true);
+            File reportFile = new File("/home/me/tmp/reportsPdf/report.pdf");
+            if (reportFile.exists()) {
+                reportFile.delete();
+            }
+            Files.write(reportFile.toPath(), createReport, StandardOpenOption.CREATE_NEW);
+        } finally {
+            smoSessionFactory.close();
         }
-        Files.write(reportFile.toPath(), createReport, StandardOpenOption.CREATE_NEW);
     }
 
     private static ReportData createReportData() {
