@@ -283,7 +283,7 @@ public class UnloadDbfs2 {
         try {
             Session session = sessionFactory.openSession();
             try {
-                List<UnloadZipBean> dbList = (List<UnloadZipBean>) session.createSQLQuery("SELECT rownum as id, MIO.MESSAGE_FILE_NAME, MIO.LPU_ID, MIO.MESSAGE_FILE\n"
+                List<UnloadZipBean> dbList = (List<UnloadZipBean>) session.createSQLQuery("SELECT rownum as id, MIO.MESSAGE_FILE_NAME as name, MIO.LPU_ID as mo_id, MIO.MESSAGE_FILE as payload\n"
                         + "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
                         + "WHERE MIO.PERIOD = :period\n"
                         + "AND SMO_ID = :smoId\n"
