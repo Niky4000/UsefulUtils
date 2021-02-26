@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import ru.ibs.pmp.api.model.Bill;
 import ru.ibs.pmp.api.service.export.msk.pdf.PdfReportServiceAbstract;
 import ru.ibs.pmp.api.smo.model.Parcel;
 import ru.ibs.pmp.service.utils.pdf.PdfHelper;
@@ -47,7 +48,7 @@ public class ProtocolSmpSmoDIExporterTest {
             FieldUtil.setField(smpSmoDIProtocol, PdfReportServiceAbstract.class, pdfHelper, "pdf");
             Parcel parcel = new Parcel();
             parcel.setId(967259L);
-            ReportExportContext context = new ReportExportContext(0L, 0L, null, parcel, null, null, 4708L, new SimpleDateFormat("yyyy-MM-dd").parse("2020-03-01"), null, ReportExportFileType.FINAL, "SMP_ADD");
+            ReportExportContext context = new ReportExportContext(0L, 0L, null, parcel, null, null, 4708L, new SimpleDateFormat("yyyy-MM-dd").parse("2020-03-01"), null, ReportExportFileType.FINAL, Bill.BillFetchType.SMP_ADD);
             SmpSmoDIReportData smpSmoDIReportData = smoReportDao.getProtocolReportData(context, SmpSmoDIReportData.class, SmpSmoDICategoryData.class, SmpSmoDIHeadData.class, "getSmpSmoDIHeadData", "getSmpSmoDICategoryData");
             byte[] createReport = smpSmoDIProtocol.createReport(smpSmoDIReportData, true);
             File file = new File("C:\\tmp\\report.pdf");

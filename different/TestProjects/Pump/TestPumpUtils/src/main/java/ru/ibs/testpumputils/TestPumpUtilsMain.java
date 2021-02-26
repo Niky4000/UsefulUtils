@@ -24,7 +24,7 @@ public class TestPumpUtilsMain {
         configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.pmp.db.url"));
         configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.pmp.db.username"));
         configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.pmp.db.password"));
-        EntityScanner.scanPackages("ru.ibs.pmp.api.model", "ru.ibs.pmp.auth.model", "ru.ibs.testpumputils.bean").addTo(configuration);
+        EntityScanner.scanPackages("ru.ibs.pmp.api.model", "ru.ibs.pmp.auth.model", "ru.ibs.testpumputils.bean", "ru.ibs.pmp.lpu.model.mo").addTo(configuration);
         configuration.configure();
 //        ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
 //        return configuration.buildSessionFactory(serviceRegistry);
@@ -68,7 +68,7 @@ public class TestPumpUtilsMain {
         configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.smo.db.url"));
         configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.smo.db.username"));
         configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.smo.db.password"));
-        EntityScanner.scanPackages("ru.ibs.pmp.api.smo.model").addTo(configuration);
+        EntityScanner.scanPackages("ru.ibs.pmp.api.smo.model", "ru.ibs.pmp.auth.model").addTo(configuration);
         configuration.configure();
         SessionFactory sessionFactory = configuration.buildSessionFactory();
         return sessionFactory;
@@ -169,9 +169,9 @@ public class TestPumpUtilsMain {
 //            TestSmoSessionFactory.test();
 //            CheckOOTest.test();
 //            BillFlkDAOHibernateTest.test();
-//            QueueServiceImplTest.test();
+            QueueServiceImplTest.test();
 //            SmpSmoFiProtocolTest.test();
-            IntSmoAktPfSmpGeneratorTest.test();
+//            IntSmoAktPfSmpGeneratorTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

@@ -273,4 +273,36 @@ public class UnloadDbfs2 {
         SessionFactory sessionFactory = configuration.buildSessionFactory();
         return sessionFactory;
     }
+
+    public static void unload2() throws Exception {
+        sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
+        Date period = new SimpleDateFormat("yyyy-MM-dd").parse("2021-01-01");
+//        String ogrn = "1027739099772";
+//        String ogrn = "1027739449913";
+        Long smoId = 2884L;
+        try {
+            Session session = sessionFactory.openSession();
+            try {
+                List<UnloadZipBean> dbList = (List<UnloadZipBean>) session.createSQLQuery("SELECT rownum as id, MIO.MESSAGE_FILE_NAME, MIO.LPU_ID, MIO.MESSAGE_FILE\n"
+                        + "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
+                        + "WHERE MIO.PERIOD = :period\n"
+                        + "AND SMO_ID = :smoId\n"
+                        + "AND MIO.RESP_NUM_PER_BILL = :num").addEntity(UnloadZipBean.class)
+                        .setParameter("period", period).setParameter("smoId", smoId).setParameter("num", 1).list();
+                for (UnloadZipBean obj : dbList) {
+                    String name = obj.getName();
+                    byte[] bytes = obj.getPayload();
+                    String lpuId = obj.getMoId();
+                    new File("C:\\tmp\\parcels\\" + lpuId + "\\").mkdirs();
+                    Files.write(bytes, new File("C:\\tmp\\parcels\\" + lpuId + "\\" + name));
+                    System.out.println("lpuId = " + lpuId + " name = " + name + "!");
+                };
+            } finally {
+                session.close();
+            }
+        } finally {
+            sessionFactory.cleanSessions();
+            sessionFactory.close();
+        }
+    }
 }
