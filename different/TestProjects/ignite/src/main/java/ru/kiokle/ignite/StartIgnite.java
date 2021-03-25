@@ -5,19 +5,18 @@
  */
 package ru.kiokle.ignite;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteCluster;
 import org.apache.ignite.IgniteException;
 import org.apache.ignite.Ignition;
-import org.apache.ignite.client.ClientCache;
-import org.apache.ignite.client.IgniteClient;
-import org.apache.ignite.configuration.ClientConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.lang.IgniteRunnable;
 import org.apache.ignite.resources.IgniteInstanceResource;
-import org.apache.ignite.spi.IgniteSpiException;
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
@@ -32,33 +31,38 @@ public class StartIgnite {
     public static void main(String[] args) throws Exception {
         System.out.println("Hello World from Ignite!");
         StartIgnite startIgnite = new StartIgnite();
-        String ipRange = "127.0.0.1:48500..48520";
-        try (Ignite ignite = startIgnite.createServerInstance(ipRange, "first", 48500, 48100)) {
-            try (Ignite ignite2 = startIgnite.createServerInstance(ipRange, "second", 48500, 48100)) {
-                try (Ignite ignite3 = startIgnite.createServerInstance(ipRange, "third", 48500, 48100)) {
-                    try (Ignite ignite4 = startIgnite.createServerInstance(ipRange, "fourth", 48500, 48100)) {
-                        IgniteCluster cluster = ignite.cluster();
-                        int totalNodes = cluster.metrics().getTotalNodes();
-                        System.out.println("totalNodes = " + totalNodes);
-                        IgniteCache<Object, Object> cache = ignite.getOrCreateCache("cache");
-                        cache.put("1", "2");
-                        String get = (String) cache.get("1");
-                        System.out.println("Value1 = " + get);
-                        IgniteCache<Object, Object> cache2 = ignite2.getOrCreateCache("cache");
-                        String get2 = (String) cache2.get("1");
-                        System.out.println("Value2 = " + get2);
-                    }
-                    IgniteCluster cluster = ignite.cluster();
-                    int totalNodes = cluster.metrics().getTotalNodes();
-                    System.out.println("totalNodes = " + totalNodes);
-                }
+//        String ipRange = "127.0.0.1:48500..48520";
+        List<String> argsList = Arrays.asList(args);
+
+        try (Ignite ignite = startIgnite.createServerInstance(getParamList(argsList, "-ip"), getParamList(argsList, "-name").get(0), 48500, 48100)) {
+//            try (Ignite ignite2 = startIgnite.createServerInstance(ipRange, "second", 48500, 48100)) {
+//                try (Ignite ignite3 = startIgnite.createServerInstance(ipRange, "third", 48500, 48100)) {
+//                    try (Ignite ignite4 = startIgnite.createServerInstance(ipRange, "fourth", 48500, 48100)) {
+            for (int i = 0; i < 10; i++) {
                 IgniteCluster cluster = ignite.cluster();
                 int totalNodes = cluster.metrics().getTotalNodes();
                 System.out.println("totalNodes = " + totalNodes);
+                IgniteCache<Object, Object> cache = ignite.getOrCreateCache("cache");
+                cache.put("1", "2");
+                String get = (String) cache.get("1");
+                System.out.println("Value = " + get);
+                Thread.sleep(20 * 1000);
             }
-            IgniteCluster cluster = ignite.cluster();
-            int totalNodes = cluster.metrics().getTotalNodes();
-            System.out.println("totalNodes = " + totalNodes);
+//                        IgniteCache<Object, Object> cache2 = ignite2.getOrCreateCache("cache");
+//                        String get2 = (String) cache2.get("1");
+//                        System.out.println("Value2 = " + get2);
+//                    }
+//                    IgniteCluster cluster = ignite.cluster();
+//                    int totalNodes = cluster.metrics().getTotalNodes();
+//                    System.out.println("totalNodes = " + totalNodes);
+//                }
+//                IgniteCluster cluster = ignite.cluster();
+//                int totalNodes = cluster.metrics().getTotalNodes();
+//                System.out.println("totalNodes = " + totalNodes);
+//            }
+//            IgniteCluster cluster = ignite.cluster();
+//            int totalNodes = cluster.metrics().getTotalNodes();
+//            System.out.println("totalNodes = " + totalNodes);
         }
 
 //        IgniteConfiguration cfg = new IgniteConfiguration();
@@ -71,7 +75,20 @@ public class StartIgnite {
 //        }
     }
 
-    public Ignite createServerInstance(String ipRange, String instanceName, int initialLocalPort, int localPort) {
+    private static List<String> getParamList(List<String> argsList, String paramName) {
+        List<String> ipList = new ArrayList<>();
+        for (int i = argsList.indexOf(paramName) + 1; i < argsList.size(); i++) {
+            String ip = argsList.get(i);
+            if (ip.startsWith("-")) {
+                break;
+            } else {
+                ipList.add(ip);
+            }
+        }
+        return ipList;
+    }
+
+    public Ignite createServerInstance(List<String> ipRange, String instanceName, int initialLocalPort, int localPort) {
         IgniteConfiguration firstCfg = new IgniteConfiguration();
         firstCfg.setIgniteInstanceName(instanceName);
         // Explicitly configure TCP discovery SPI to provide list of initial nodes
@@ -85,7 +102,7 @@ public class StartIgnite {
         // Addresses and port range of the nodes from the first cluster.
         // 127.0.0.1 can be replaced with actual IP addresses or host names.
         // The port range is optional.
-        firstIpFinder.setAddresses(Collections.singletonList(ipRange));
+        firstIpFinder.setAddresses(ipRange);
         // Overriding IP finder.
         firstDiscoverySpi.setIpFinder(firstIpFinder);
         // Explicitly configure TCP communication SPI by changing local port number for

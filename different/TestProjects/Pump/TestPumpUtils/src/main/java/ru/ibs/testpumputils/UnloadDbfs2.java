@@ -99,11 +99,11 @@ public class UnloadDbfs2 {
                     byte[] messageFile = obj.getMessageFile();
                     String responseFileName = obj.getResponseFileName();
                     byte[] responseFile = obj.getResponseFile();
-                    String lpuId = obj.getLpuId();
-                    new File("C:\\tmp\\parcels\\" + lpuId + "\\message\\").mkdirs();
-                    new File("C:\\tmp\\parcels\\" + lpuId + "\\response\\").mkdirs();
-                    Files.write(messageFile, new File("C:\\tmp\\parcels\\" + lpuId + "\\message\\" + messageFileName));
-                    Files.write(responseFile, new File("C:\\tmp\\parcels\\" + lpuId + "\\response\\" + responseFileName));
+                    Long lpuId = obj.getLpuId();
+                    new File("C:\\tmp\\parcels4\\" + lpuId + "\\message\\").mkdirs();
+                    new File("C:\\tmp\\parcels4\\" + lpuId + "\\response\\").mkdirs();
+                    Files.write(messageFile, new File("C:\\tmp\\parcels4\\" + lpuId + "\\message\\" + messageFileName));
+                    Files.write(responseFile, new File("C:\\tmp\\parcels4\\" + lpuId + "\\response\\" + responseFileName));
                     System.out.println("lpuId = " + lpuId + "!");
                 };
             } finally {

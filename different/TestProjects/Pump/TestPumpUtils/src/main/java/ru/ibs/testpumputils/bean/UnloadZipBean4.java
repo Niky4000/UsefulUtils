@@ -1,5 +1,6 @@
 package ru.ibs.testpumputils.bean;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,20 +13,19 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "UnloadZipBean")
-public class UnloadZipBean4 {
+public class UnloadZipBean4 implements Serializable {
+
+    @Column(name = "qq")
+    private String qq;
 
     @Id
-    @Column(name = "qq")
-    private Long qq;
-
     @Column(name = "lpu_id")
-    private String lpuId;
+    private Long lpuId;
 
     @Lob
     @Column(name = "message_file")
     private byte[] messageFile;
 
-    @Lob
     @Column(name = "message_file_name")
     private String messageFileName;
 
@@ -33,23 +33,22 @@ public class UnloadZipBean4 {
     @Column(name = "response_file")
     private byte[] responseFile;
 
-    @Lob
     @Column(name = "response_file_name")
     private String responseFileName;
 
-    public Long getQq() {
+    public String getQq() {
         return qq;
     }
 
-    public void setQq(Long qq) {
+    public void setQq(String qq) {
         this.qq = qq;
     }
 
-    public String getLpuId() {
+    public Long getLpuId() {
         return lpuId;
     }
 
-    public void setLpuId(String lpuId) {
+    public void setLpuId(Long lpuId) {
         this.lpuId = lpuId;
     }
 
