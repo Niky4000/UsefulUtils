@@ -78,12 +78,12 @@ import ru.ibs.pmp.service.payer.msk.PayerServiceImpl;
 import ru.ibs.pmp.service.smo.SmoServiceImpl;
 import ru.ibs.pmp.util.LpuNamesLoader;
 import ru.ibs.pmp.zlib.service.BillService;
+import static ru.ibs.testpumputils.TestPumpUtilsMain.buildAuthSessionFactory;
 import ru.ibs.testpumputils.interceptors.SQLInterceptor;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
 import ru.ibs.testpumputils.utils.FieldUtil;
-import static ru.ibs.testpumputils.utils.ObjectUtils.buildAuthSessionFactory;
 import static ru.ibs.testpumputils.utils.ObjectUtils.getEntityManagerFactory;
 import ru.ibs.testpumputils.utils.XmlUtils;
 

@@ -14,11 +14,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import ru.ibs.pmp.api.model.MedicalCase;
-import ru.ibs.pmp.api.model.msk.TapInfo;
 import ru.ibs.pmp.api.nsi.interfaces.FindNsiEntries;
 import ru.ibs.pmp.api.nsi.interfaces.FindNsiSplpuEntry;
-import ru.ibs.pmp.dao.hibernate.AbstractGenericDAO;
-import ru.ibs.pmp.dao.hibernate.TapInfoDAOHibernate;
 import ru.ibs.pmp.nsi.features.impl.FindNsiEntriesFeature;
 import ru.ibs.pmp.nsi.features.impl.FindNsiSplpuFeature;
 import ru.ibs.pmp.nsi.service.NsiService;
@@ -26,11 +23,6 @@ import ru.ibs.pmp.service.check.msk.CheckNL;
 import ru.ibs.pmp.service.flk.ErrorMarker;
 import ru.ibs.pmp.service.flk.ErrorMarkerImpl;
 import ru.ibs.pmp.service.flk.check.AbstractFLKCheck;
-import ru.ibs.pmp.service.impl.ModulePmpAbstractGenericService;
-import ru.ibs.pmp.service.impl.TapInfoServiceImpl;
-import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
-import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
-import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
 import ru.ibs.testpumputils.utils.FieldUtil;
 
 /**

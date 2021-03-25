@@ -7,8 +7,6 @@ import java.util.List;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import ru.ibs.pmp.dao.hibernate.SqlRewriteInterceptor;
-import ru.ibs.testpumputils.interceptors.SQLInterceptor;
 import ru.ibs.testpumputils.utils.FieldUtil;
 
 /**

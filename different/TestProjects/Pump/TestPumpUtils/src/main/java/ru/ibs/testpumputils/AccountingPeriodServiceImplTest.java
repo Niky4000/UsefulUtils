@@ -11,7 +11,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.Query;
 import ru.ibs.pmp.api.model.Bill;
 import ru.ibs.pmp.api.model.dto.AccountingPeriodRequestDTO;
-import ru.ibs.pmp.api.model.dto.AccountingPeriodResponseDTO;
 import ru.ibs.pmp.api.nsi.dao.HolidayDatesRepository;
 import ru.ibs.pmp.api.nsi.interfaces.FindNsiEntries;
 import ru.ibs.pmp.api.service.payer.PayersService;
@@ -51,7 +50,6 @@ import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
 import ru.ibs.testpumputils.utils.FieldUtil;
-import ru.ibs.testpumputils.utils.XmlUtils;
 
 /**
  * @author NAnishhenko

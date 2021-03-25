@@ -36,6 +36,7 @@ import ru.ibs.pmp.api.model.msk.export.MailGwLogEntry;
 import ru.ibs.pmp.common.lib.Db;
 import ru.ibs.testpumputils.bean.UnloadZipBean2;
 import ru.ibs.testpumputils.bean.UnloadZipBean3;
+import ru.ibs.testpumputils.bean.UnloadZipBean4;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
@@ -70,6 +71,40 @@ public class UnloadDbfs2 {
                     new File("C:\\tmp\\parcels\\" + lpuId + "\\").mkdirs();
                     Files.write(bytes, new File("C:\\tmp\\parcels\\" + lpuId + "\\" + name));
                     System.out.println("lpuId = " + lpuId + " name = " + name + "!");
+                };
+            } finally {
+                session.close();
+            }
+        } finally {
+            sessionFactory.cleanSessions();
+            sessionFactory.close();
+        }
+    }
+
+    public static void unload3() throws Exception {
+        sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
+        try {
+            Session session = sessionFactory.openSession();
+            try {
+                List<UnloadZipBean4> dbList = (List<UnloadZipBean4>) session.createSQLQuery("SELECT MIO.QQ,LPU_ID,MIO.MESSAGE_FILE,MIO.MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
+                        + "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
+                        + "WHERE MIO.PERIOD = to_date('02.2021', 'MM.YYYY')\n"
+                        + "AND MIO.QQ IN  ('S5','ИН')\n"
+                        + "AND MIO.RESP_NUM_PER_BILL = 1\n"
+                        + "AND MSG_NUM_PER_BILL=1\n"
+                        + "ORDER BY MIO.QQ,LPU_ID").addEntity(UnloadZipBean4.class)
+                        .list();
+                for (UnloadZipBean4 obj : dbList) {
+                    String messageFileName = obj.getMessageFileName();
+                    byte[] messageFile = obj.getMessageFile();
+                    String responseFileName = obj.getResponseFileName();
+                    byte[] responseFile = obj.getResponseFile();
+                    String lpuId = obj.getLpuId();
+                    new File("C:\\tmp\\parcels\\" + lpuId + "\\message\\").mkdirs();
+                    new File("C:\\tmp\\parcels\\" + lpuId + "\\response\\").mkdirs();
+                    Files.write(messageFile, new File("C:\\tmp\\parcels\\" + lpuId + "\\message\\" + messageFileName));
+                    Files.write(responseFile, new File("C:\\tmp\\parcels\\" + lpuId + "\\response\\" + responseFileName));
+                    System.out.println("lpuId = " + lpuId + "!");
                 };
             } finally {
                 session.close();

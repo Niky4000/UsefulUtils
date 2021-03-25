@@ -14,7 +14,6 @@ import org.springframework.context.ApplicationContext;
 import ru.ibs.pmp.api.nsi.interfaces.FindNsiEntries;
 import ru.ibs.pmp.api.smo.model.Parcel;
 import ru.ibs.pmp.auth.model.SmoEntity;
-import static ru.ibs.pmp.auth.model.SmoEntity.MGFOMS_CODE;
 import ru.ibs.pmp.dao.hibernate.AbstractGenericDAO;
 import ru.ibs.pmp.dao.hibernate.RequirementDAOHibernate;
 import ru.ibs.pmp.dao.hibernate.SyncDAOHibernate;
@@ -31,12 +30,10 @@ import ru.ibs.pmp.service.impl.RequirementServiceImpl;
 import ru.ibs.pmp.smo.export.mo.ReportExportContext;
 import ru.ibs.pmp.smo.report.export.impl.UdFileExporter;
 import ru.ibs.pmp.smo.report.export.impl.UpFileExporter;
-import ru.ibs.testpumputils.interceptors.SQLInterceptor;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
 import ru.ibs.testpumputils.utils.FieldUtil;
-import static ru.ibs.testpumputils.utils.ObjectUtils.buildAuthSessionFactory;
 
 /**
  *

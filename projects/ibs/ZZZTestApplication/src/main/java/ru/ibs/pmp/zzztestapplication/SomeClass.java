@@ -8,6 +8,7 @@ package ru.ibs.pmp.zzztestapplication;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.LocationTextExtractionStrategy;
@@ -24,7 +25,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.RandomAccessFile;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -44,6 +47,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -74,7 +78,6 @@ import java.util.LongSummaryStatistics;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -285,7 +288,282 @@ public class SomeClass {
 //        System.out.println(Boolean.valueOf("TRUE") + " " + Boolean.valueOf("FALSE"));
 //        mkdirsHandler(new File("/home/me/zzzDel"));
 //        waitSomeTime();
-        lpuList();
+//        lpuList();
+//        iterableTest(IntStream.rangeClosed(1, 4000).asLongStream().mapToObj(i -> i).collect(Collectors.toList()));
+//        String sql = "SELECT medicalcas0_.id AS id1_74_0_, medicalcas0_.AMOUNT_ERR_FLK_BILL AS AMOUNT_ERR_FLK_BIL2_74_0_, medicalcas0_.PATIENT_BIRTH_DATE AS PATIENT_BIRTH_DATE3_74_0_, medicalcas0_.AMOUNT AS AMOUNT4_74_0_, medicalcas0_.AMOUNT_ERR AS AMOUNT_ERR5_74_0_, medicalcas0_.case_date AS case_date6_74_0_, medicalcas0_.case_number AS case_number7_74_0_, medicalcas0_.case_type AS case_type8_74_0_, medicalcas0_.CHANGE_DATE AS CHANGE_DATE9_74_0_, medicalcas0_.changed AS changed10_74_0_, medicalcas0_.cure_result AS cure_result11_74_0_, medicalcas0_.DIAGNOSIS AS DIAGNOSIS12_74_0_, medicalcas0_.DIRECTION_COMPOSITE_NUMBER AS DIRECTION_COMPOSI13_74_0_, medicalcas0_.direction_date AS direction_date14_74_0_, medicalcas0_.DIRECTION_DIAGNOSIS AS DIRECTION_DIAGNOS15_74_0_, medicalcas0_.direction_doctor_spec AS direction_doctor_16_74_0_, medicalcas0_.DIRECTION_GOAL AS DIRECTION_GOAL17_74_0_, medicalcas0_.DIRECTION_LPU_ID AS DIRECTION_LPU_ID18_74_0_, medicalcas0_.DIRECTION_LPU_RF_ID AS DIRECTION_LPU_RF_19_74_0_, medicalcas0_.direction_number AS direction_number20_74_0_, medicalcas0_.DISEASE_OUTCOME AS DISEASE_OUTCOME21_74_0_, medicalcas0_.doctor_job_id AS doctor_job_id22_74_0_, medicalcas0_.DS_ONK AS DS_ONK23_74_0_, medicalcas0_.HOSPITALIZATION_TYPE AS HOSPITALIZATION_T24_74_0_, medicalcas0_.injury AS injury25_74_0_, medicalcas0_.lpu_id AS lpu_id26_74_0_, medicalcas0_.n_card AS n_card27_74_0_, medicalcas0_.mo_id AS mo_id28_74_0_, medicalcas0_.NEWBORN_WEIGHT_GR AS NEWBORN_WEIGHT_GR29_74_0_, medicalcas0_.nurse_job_id AS nurse_job_id30_74_0_, medicalcas0_.patient_id AS patient_id31_74_0_, medicalcas0_.PATIENT_TYPE AS PATIENT_TYPE32_74_0_, medicalcas0_.payment_source AS payment_source33_74_0_, medicalcas0_.PERIOD AS PERIOD34_74_0_, medicalcas0_.CNT_PARCEL_S AS CNT_PARCEL_S35_74_0_, medicalcas0_.PATIENT_SEX AS PATIENT_SEX36_74_0_, medicalcas0_.special_case AS special_case37_74_0_, medicalcas0_.status AS status38_74_0_, medicalcas0_.STATUS_CHANGE_DATE AS STATUS_CHANGE_DAT39_74_0_, medicalcas0_.system_source AS system_source40_74_0_, medicalcas0_.DIRECTION_TARGET_DOCTOR_SPEC AS DIRECTION_TARGET_41_74_0_, medicalcas0_.USER_UNIQUEID AS USER_UNIQUEID42_74_0_, medicalcas0_1_.ARRIVAL_DATE AS ARRIVAL_DATE1_125_0_, medicalcas0_1_.CALL_TYPE AS CALL_TYPE2_125_0_, medicalcas0_1_.DOCTOR_JOB_ID2 AS DOCTOR_JOB_ID3_125_0_, medicalcas0_1_.DOCTOR_JOB_ID3 AS DOCTOR_JOB_ID4_125_0_, medicalcas0_1_.N_CARD AS N_CARD5_125_0_, medicalcas0_1_.MEDICAL_CASE_ID AS MEDICAL_CASE_ID6_125_0_, medicalcas0_1_.RECID AS RECID7_125_0_, medicalcas0_1_.service_code AS service_code8_125_0_, medicalcas0_1_.mo_id AS mo_id9_125_0_, medicalcas0_1_.PERIOD AS PERIOD10_125_0_, medicalcas0_1_.TEAM_NAME AS TEAM_NAME11_125_0_, medicalcas0_1_.TEAM_NUMBER AS TEAM_NUMBER12_125_0_, medicalcas0_1_.TEAM_PROFILE AS TEAM_PROFILE13_125_0_, medicalcas0_2_.service_place AS service_place1_129_0_, medicalcas0_2_.mo_id AS mo_id2_129_0_, medicalcas0_2_.PERIOD AS PERIOD3_129_0_, medicalcas0_2_.TREATMENT_FINISH AS TREATMENT_FINISH4_129_0_, medicalcas0_2_.TREATMENT_OBJECTIVE AS TREATMENT_OBJECTIV5_129_0_, medicalcas0_2_.TREATMENT_PRIMARY AS TREATMENT_PRIMARY6_129_0_, medicalcas0_2_.visit_purpose AS visit_purpose7_129_0_, medicalcas0_2_.VISIT_PURPOSE_FFOMS AS VISIT_PURPOSE_FFOM8_129_0_, medicalcas0_3_.CURE_END_DATE AS CURE_END_DATE1_44_0_, medicalcas0_3_.CURE_START_DATE AS CURE_START_DATE2_44_0_, medicalcas0_3_.HOSP_ANNUAL_TYPE AS HOSP_ANNUAL_TYPE3_44_0_, medicalcas0_3_.mo_id AS mo_id4_44_0_, medicalcas0_3_.PERIOD AS PERIOD5_44_0_, medicalcas0_3_.INTERRAPT_MS AS INTERRAPT_MS6_44_0_, medicalcas0_3_.MEDICAL_CASE_ID AS MEDICAL_CASE_ID7_44_0_, medicalcas0_3_.VMP_DATE AS VMP_DATE8_44_0_, medicalcas0_3_.VMP_NUMBER AS VMP_NUMBER9_44_0_, CASE WHEN medicalcas0_1_.MEDICAL_CASE_ID IS NOT NULL THEN 1 WHEN medicalcas0_2_.MEDICAL_CASE_ID IS NOT NULL THEN 2 WHEN medicalcas0_3_.MEDICAL_CASE_ID IS NOT NULL THEN 3 WHEN medicalcas0_.id IS NOT NULL THEN 0 END AS clazz_0_ FROM PMP_MEDICAL_CASE medicalcas0_ LEFT OUTER JOIN PMP_SMP_CASE medicalcas0_1_ ON medicalcas0_.id = medicalcas0_1_.MEDICAL_CASE_ID and medicalcas0_.mo_id = medicalcas0_1_.mo_id and medicalcas0_.period = medicalcas0_1_.period LEFT OUTER JOIN PMP_TAP_INFO medicalcas0_2_ ON medicalcas0_.id = medicalcas0_2_.MEDICAL_CASE_ID and medicalcas0_.mo_id = medicalcas0_2_.mo_id and medicalcas0_.period = medicalcas0_2_.period LEFT OUTER JOIN PMP_HOSP_CASE medicalcas0_3_ ON medicalcas0_.id = medicalcas0_3_.MEDICAL_CASE_ID and medicalcas0_.mo_id = medicalcas0_3_.mo_id and medicalcas0_.period = medicalcas0_3_.period WHERE medicalcas0_.id = ? AND medicalcas0_.mo_id = ? AND medicalcas0_.PERIOD = ?";
+//        addHints(sql);
+//        System.out.println("1234567".substring(1, 3));
+//        System.out.println(lpad(1234L));
+//        System.out.println(lpad(12345L));
+//        System.out.println(lpad(123456L));
+//        System.out.println("1234567".substring(0, 3));
+//        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(getTruncatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-18 22:44:22"))));
+//        System.out.println(getLpuOrdForJoining(774522L));
+//        System.out.println(getLpuOrdForJoining(1876L));
+//        System.out.println("checkForBugsInFiles started!");
+//        checkForBugsInFiles("/home/me/VMwareShared/stage6AskInsuranceStatusResponse_4708_2021_02_2");
+//        checkForBugsInFiles("/home/me/VMwareShared/stage6AskInsuranceStatusResponse_4708_2021_02_510650200_test");
+//        checkForBugsInFiles("/home/me/VMwareShared/serializedObjects_4708");
+//        System.out.println("checkForBugsInFiles finished!");
+//        List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
+//        List<Integer> subList = list.subList(0, list.size());
+//        List<Integer> subList2 = list.subList(0, list.size() - 1);
+//        handleLpuList();
+//        checkException();
+//        logMap("eeeeeeeeeeffffffffffyyyyyyyyyykkkkkkkkkkuuuuuuuuuuiiii");
+//        logMap("eeeeeeeeeeffffffffffyyyyyyyyyykkkkkkkkkkuuuuuuuuuu");
+        logMap("eeeeeeeeee\nffffffffff\nyyyyyyyyyy\nkkkkkkkkkk\nuuuuuuuuuu");
+        logMap("eeeeeeeeee\n\nffffffffff\n\nyyyyyyyyyy\n\nkkkkkkkkkk\n\nuuuuuuuuuu");
+    }
+
+    static final int MAX_STRING_SIZE = 10;
+    static final String NEW_LINE = "\n";
+    static final String NEW_DOUBLE_LINE = "\n\n";
+
+    private static void logMap(String details) {
+        if (details.length() <= MAX_STRING_SIZE) {
+//            AuditEntry auditEntry = AuditUtils.createSmoSyncAuditEntry(exception, details, smoRequest, smoRequest.getUser(), smoRequest.getSmoId(), getLocalIP(), time, false);
+//            return Arrays.asList(auditEntry);
+        } else {
+            List<String> splittedString = Arrays.asList(details.split(NEW_DOUBLE_LINE));
+            if (splittedString.stream().anyMatch(str -> str.length() > MAX_STRING_SIZE)) {
+                splittedString = Arrays.asList(details.split(NEW_LINE));
+                if (splittedString.stream().anyMatch(str -> str.length() > MAX_STRING_SIZE)) {
+                    splittedString = new ArrayList<>();
+                    for (int i = 0; i < (details.length() / MAX_STRING_SIZE) + (details.length() % MAX_STRING_SIZE > 0 ? 1 : 0); i++) {
+                        splittedString.add(details.substring(i * MAX_STRING_SIZE, Math.min((i + 1) * MAX_STRING_SIZE, details.length())));
+                    }
+                }
+            }
+//            List<AuditEntry> list = new ArrayList<>();
+            StringBuilder stringBuilder = new StringBuilder();
+            Iterator<String> iterator = splittedString.iterator();
+            int i = 0;
+            int length = 0;
+            while (iterator.hasNext()) {
+                String str = iterator.next();
+                if (length + str.length() + NEW_LINE.length() <= MAX_STRING_SIZE) {
+                    length += str.length();
+                    length += NEW_LINE.length();
+                    stringBuilder.append(str + NEW_LINE);
+                } else {
+//                    AuditEntry auditEntry = AuditUtils.createSmoSyncAuditEntry(exception, details, smoRequest, smoRequest.getUser(), smoRequest.getSmoId(), getLocalIP(), time, false);
+//                    list.add(auditEntry);
+                    System.out.println(stringBuilder.toString());
+                    stringBuilder = new StringBuilder(str);
+                    length = str.length();
+                    i++;
+                }
+            }
+            System.out.println(stringBuilder.toString());
+//            AuditEntry auditEntry = AuditUtils.createSmoSyncAuditEntry(exception, details, smoRequest, smoRequest.getUser(), smoRequest.getSmoId(), getLocalIP(), time, false);
+//            list.add(auditEntry);
+//            return list;
+        }
+    }
+
+    private static void checkException() {
+        String exceptionStackTrace = "";
+        try {
+            String hello = null;
+            hello.length();
+        } catch (Exception e) {
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            exceptionStackTrace = sw.toString();
+        }
+        System.out.println("----------------------");
+        System.out.println(exceptionStackTrace);
+    }
+
+    private static void handleLpuList() {
+        String lpuList = "1872, 1909, 2078, 2082, 4455, 4522";
+//        Set<String> notSet = new HashSet<>(Arrays.asList("1872", "1909", "2078", "2082", "2266", "2778", "4455", "4522"));
+//        Set<String> notSet = new HashSet<>(Arrays.asList("4639","2038","1874","4623","3546","2046","4504","4455","1909"));
+        Set<String> notSet = new HashSet<>(Arrays.asList("1933", "1864", "2078", "5365", "2346", "2266", "2078", "5004", "4939", "2038", "4639", "1874", "4623", "3546", "2046", "4504", "4455", "1909"));
+        HashSet<String> lpuSet = new HashSet<>(Arrays.asList(lpuList.split("\n")));
+//        lpuSet.removeAll(notSet);
+        String update = lpuSet.stream().map(str -> "update pmp_bill set status='DRAFT' where mo_id=" + str + " and period=to_date('2021-02-01','yyyy-MM-dd');").reduce("", (str1, str2) -> str1 + "\n" + str2);
+        String lpus = lpuSet.stream().map(str -> "select " + str + " as lpu_id from dual").reduce("", (str1, str2) -> str1 + " union all\n" + str2);
+        lpus = lpus.substring(lpus.indexOf("union all") + "union all".length() + 1);
+        String insert = "with main_q as(\n" + lpus + "\n)\n"
+                + "select \n"
+                + "'insert into pmp_sync (LPU_ID,PERIOD,CALL_DATA,FEATURE_NAME,CREATED,FAILED,IN_PROGRESS,IS_PROCESS_ALIVE,BILL_STATISTICS_ID,SERVER_IP,PARAMETERS,USER_UNIQUEID,PROCESS_ID)\n"
+                + "values('||q.lpu_id||',to_date(''2021-02-01'',''yyyy-MM-dd''),''RecreateBillsVirtualRequest'',''recreateBillsFeature'',SYSDATE,''0'',null,null,null,null,\n"
+                + "''[NO-FLK] '||\n"
+                + "(\n"
+                + "select \n"
+                + "listagg(b.id,',') within group(order by b.id) as fds\n"
+                + "from pmp_bill b\n"
+                + "inner join pmp_requirement re on re.id=b.requirement_id\n"
+                + "where re.period=to_date('2021-02-01','yyyy-MM-dd') and re.mo_id=q.lpu_id and b.bill_type<>'SPECIAL'\n"
+                + ")||\n"
+                + "''',''Me'',null);\n"
+                + "commit;\n"
+                + "' as str from main_q q;";
+        String send = "with main_q as(\n" + lpus + "\n)\n"
+                + ", second_q as(\n"
+                + "select \n"
+                + "'insert into pmp_sync (LPU_ID,PERIOD,CALL_DATA,FEATURE_NAME,CREATED,FAILED,IN_PROGRESS,IS_PROCESS_ALIVE,BILL_STATISTICS_ID,SERVER_IP,PARAMETERS,USER_UNIQUEID,PROCESS_ID)\n"
+                + "values('||q.lpu_id||',to_date(''2021-02-01'',''yyyy-MM-dd''),''SendBillsVirtualRequest'',''sendBillsFeature'',SYSDATE,''0'',null,null,null,null,\n"
+                + "'''||\n"
+                + "(\n"
+                + "select \n"
+                + "listagg(b.id,',') within group(order by b.id) as fds\n"
+                + "from pmp_bill b\n"
+                + "inner join pmp_requirement re on re.id=b.requirement_id\n"
+                + "where re.period=to_date('2021-02-01','yyyy-MM-dd') and re.mo_id=q.lpu_id and b.status like 'GENERATED%'\n"
+                + ")||\n"
+                + "''',''Me'',null);\n"
+                + "commit;\n"
+                + "' as str\n"
+                + ",(\n"
+                + "select \n"
+                + "listagg(b.id,',') within group(order by b.id) as fds\n"
+                + "from pmp_bill b\n"
+                + "inner join pmp_requirement re on re.id=b.requirement_id\n"
+                + "where re.period=to_date('2021-02-01','yyyy-MM-dd') and re.mo_id=q.lpu_id and b.status like 'GENERATED%'\n"
+                + ") as str2 \n"
+                + "from main_q q)\n"
+                + "select str from second_q where str2 is not null;";
+        System.out.println(update + "\ncommit;\n" + insert + "\n" + send + "\ncommit;\n");
+//        System.out.println(send);
+//        System.out.println(lpuSet.stream().reduce("", (str1, str2) -> str1 + "," + str2));
+    }
+
+    private static void checkForBugsInFiles(String dir) {
+        String str1 = "ns2:InsuranceStatusRequest";
+        String str2 = "ns2:InsuranceStatusResponse";
+        String str3 = "PetitionsInfo";
+        class LocalFileBean implements Comparable<LocalFileBean> {
+
+            private final String fileName;
+            private final Date created;
+            private final int requestCount;
+            private final int responseCount;
+
+            public LocalFileBean(String fileName, Date created, int requestCount, int responseCount) {
+                this.fileName = fileName;
+                this.created = created;
+                this.requestCount = requestCount;
+                this.responseCount = responseCount;
+            }
+
+            public String getFileName() {
+                return fileName;
+            }
+
+            public Date getCreated() {
+                return created;
+            }
+
+            public Integer getRequestCount() {
+                return requestCount;
+            }
+
+            public Integer getResponseCount() {
+                return responseCount;
+            }
+
+            @Override
+            public int compareTo(LocalFileBean o) {
+                return -this.created.compareTo(o.getCreated());
+            }
+
+            @Override
+            public String toString() {
+                return fileName + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(created) + " " + requestCount + " " + responseCount;
+            }
+        }
+        List<LocalFileBean> fileList = Arrays.stream(new File(dir).listFiles()).filter(file -> {
+            try {
+                String string = new String(Files.readAllBytes(file.toPath()));
+                return string.contains(str1) && string.contains(str2) && !string.contains(str3);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }).map(file -> {
+            try {
+                String string = new String(Files.readAllBytes(file.toPath()));
+                Integer count1 = findSubstringCount(string, str1);
+                Integer count2 = findSubstringCount(string, str2);
+                BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+                return new LocalFileBean(file.getName(), new Date(attr.creationTime().toMillis()), count1, count2);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }).filter(localFileBean -> {
+            try {
+                return !localFileBean.getRequestCount().equals(localFileBean.getResponseCount());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }).sorted().collect(Collectors.toList());
+        fileList.stream().forEach(System.out::println);
+    }
+
+    private static Integer findSubstringCount(String str, String findStr) {
+        int lastIndex = 0;
+        int count = 0;
+        while (lastIndex != -1) {
+            lastIndex = str.indexOf(findStr, lastIndex);
+            if (lastIndex != -1) {
+                count++;
+                lastIndex += findStr.length();
+            }
+        }
+        return count;
+    }
+
+    private static String getLpuOrdForJoining(Long S_LPU_ORD) {
+        if (S_LPU_ORD != null) {
+            if (S_LPU_ORD.toString().length() == 4) {
+                return S_LPU_ORD.toString();
+            } else if (S_LPU_ORD.toString().length() == 6 && S_LPU_ORD.toString().substring(0, 2).equals("77")) {
+                return S_LPU_ORD.toString().substring(2);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private static Date getTruncatedDate(Date date) {
+        return date != null ? DateUtils.truncate(date, Calendar.DAY_OF_MONTH) : null;
+    }
+
+    private static String lpad(Long value) {
+        return Strings.repeat("0", 6 - value.toString().length()) + value.toString();
+    }
+
+    private static String addHints(String sql) {
+        if (sql.startsWith("SELECT ")
+                && sql.contains("FROM PMP_MEDICAL_CASE")
+                && sql.contains("doctor_job_id")) {
+            return "SELECT /*+ index(this_ AK1_MEDICAL_CASE_N_L) */ " + sql.substring(7);
+        } else {
+            return sql;
+        }
+    }
+
+    private static int SLICE_SIZE = 1000;
+
+    private static void iterableTest(Iterable<Long> itrbl) {
+        Iterator<Long> iterator = itrbl.iterator();
+        if (iterator.hasNext()) {
+            List<List<Long>> listOfLists = new ArrayList<>();
+            while (iterator.hasNext()) {
+                List<Long> idList = new ArrayList<>();
+                do {
+                    idList.add(iterator.next());
+                } while (idList.size() < SLICE_SIZE && iterator.hasNext());
+                listOfLists.add(idList);
+            }
+            System.out.println(listOfLists.size());
+        }
     }
 
     static String strLaunchTemplate = "/usr/java8_64/bin/java -Xdisablejavadump -Xdump:none -XX:GCTimeRatio=19 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -Xmx40G -Dlogs_dir=/u01/recreateFor119/2021_02_24__09_49_11/logs -Dpmp.config.path=/u01/recreateFor119/2021_02_24__09_49_11/conf/runtime.properties -jar /u01/recreateFor119/2021_02_24__09_49_11/module-pmp-bill-recreate.jar -m LPU_ID 2021-01 &";
