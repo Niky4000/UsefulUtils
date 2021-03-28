@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,8 +59,10 @@ public class ArtPandaStart {
     public static void download(Integer id, String url, String downloadFolder) {
         try {
             System.out.println(id.toString() + " downloading started!");
+            Date startDate = new Date();
             FileUtils.copyURLToFile(new URL(url), new File(downloadFolder), CONNECT_TIMEOUT, READ_TIMEOUT);
-            System.out.println(id.toString() + " downloaded!");
+            Date endDate = new Date();
+            System.out.println(id.toString() + " downloaded per " + ((endDate.getTime() - startDate.getTime()) / 1000) + " seconds!");
         } catch (MalformedURLException ex) {
             throw new RuntimeException(ex);
         } catch (IOException ex) {
