@@ -36,7 +36,7 @@ public class ArtPandaStart {
         ArrayList<Thread> threadList = new ArrayList<Thread>();
         for (int i = from; i <= to; i++) {
             ArtPandaDownloadBean artPandaDownloadBean = artPandaDownloadBeanList.get(i);
-            Thread downloadThread = new Thread(() -> download(artPandaDownloadBean.getId(), artPandaDownloadBean.getUrl(), downloadFolder + File.separator + artPandaDownloadBean.getId() + "_" + artPandaDownloadBean.getName() + (artPandaDownloadBean.getUrl().substring(artPandaDownloadBean.getUrl().indexOf(".")))));
+            Thread downloadThread = new Thread(() -> download(artPandaDownloadBean.getId(), artPandaDownloadBean.getUrl(), downloadFolder + File.separator + artPandaDownloadBean.getId() + "_" + artPandaDownloadBean.getName() + (artPandaDownloadBean.getUrl().substring(artPandaDownloadBean.getUrl().lastIndexOf(".")))));
             downloadThread.start();
             threadList.add(downloadThread);
         }
