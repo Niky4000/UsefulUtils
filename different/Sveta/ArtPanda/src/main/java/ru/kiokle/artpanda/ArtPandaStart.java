@@ -52,8 +52,8 @@ public class ArtPandaStart {
         });
     }
 
-    private static final int CONNECT_TIMEOUT = 60;
-    private static final int READ_TIMEOUT = 60;
+    private static final int CONNECT_TIMEOUT = 60 * 1000;
+    private static final int READ_TIMEOUT = 60 * 1000;
 
     public static void download(Integer id, String url, String downloadFolder) {
         try {
