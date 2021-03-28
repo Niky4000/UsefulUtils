@@ -23,6 +23,7 @@ public class ArtPandaStart {
     public static void main(String[] args) throws Exception {
         String filePath = args[0];
         String downloadFolder = args[1];
+        new File(downloadFolder).mkdirs();
         String content = new String(Files.readAllBytes(new File(filePath).toPath()));
         List<ArtPandaDownloadBean> artPandaDownloadBeanList = Arrays.stream(content.split("\n")).filter(str -> str.length() > 0).map(str -> str.split(" - ")).map(ArtPandaDownloadBean::new).collect(Collectors.toList());
         System.out.println("Unique url size = " + artPandaDownloadBeanList.stream().map(ArtPandaDownloadBean::getUrl).collect(Collectors.toSet()).size() + "!");
