@@ -59,7 +59,6 @@ public class ArtPandaStart {
         try {
             System.out.println(id.toString() + " downloading started!");
             FileUtils.copyURLToFile(new URL(url), new File(downloadFolder), CONNECT_TIMEOUT, READ_TIMEOUT);
-
             System.out.println(id.toString() + " downloaded!");
         } catch (MalformedURLException ex) {
             throw new RuntimeException(ex);
