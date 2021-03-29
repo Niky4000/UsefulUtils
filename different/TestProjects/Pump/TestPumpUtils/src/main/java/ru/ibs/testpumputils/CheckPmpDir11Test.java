@@ -40,7 +40,6 @@ public class CheckPmpDir11Test {
     public static void test() throws Exception {
         MedicalCaseDAOHibernate medicalCaseDAOHibernate=new MedicalCaseDAOHibernate();
         int countCasesForYearByCardNumber = medicalCaseDAOHibernate.countCasesForYearByCardNumber(2L, "3", "4", 5L, new Date());
-        
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         nsiSessionFactoryProxy = TestPumpUtilsMain.buildNsiSessionFactory();
         try {
