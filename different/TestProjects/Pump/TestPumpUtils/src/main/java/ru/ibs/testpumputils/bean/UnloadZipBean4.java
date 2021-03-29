@@ -15,10 +15,13 @@ import javax.persistence.Table;
 @Table(name = "UnloadZipBean")
 public class UnloadZipBean4 implements Serializable {
 
+    @Id
+    @Column(name = "id")
+    private Long id;
+
     @Column(name = "qq")
     private String qq;
 
-    @Id
     @Column(name = "lpu_id")
     private Long lpuId;
 
@@ -35,6 +38,14 @@ public class UnloadZipBean4 implements Serializable {
 
     @Column(name = "response_file_name")
     private String responseFileName;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getQq() {
         return qq;

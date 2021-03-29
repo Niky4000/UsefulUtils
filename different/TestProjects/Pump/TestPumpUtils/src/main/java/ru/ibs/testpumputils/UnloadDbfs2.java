@@ -86,24 +86,25 @@ public class UnloadDbfs2 {
         try {
             Session session = sessionFactory.openSession();
             try {
-                List<UnloadZipBean4> dbList = (List<UnloadZipBean4>) session.createSQLQuery("SELECT MIO.QQ,LPU_ID,MIO.MESSAGE_FILE,MIO.MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
+                List<UnloadZipBean4> dbList = (List<UnloadZipBean4>) session.createSQLQuery("SELECT rownum as id, MIO.SMO_NAME as qq,LPU_ID,MIO.MESSAGE_FILE,MIO.MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
                         + "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
-                        + "WHERE MIO.PERIOD = to_date('02.2021', 'MM.YYYY')\n"
-                        + "AND MIO.QQ IN  ('S5','ИН')\n"
-                        + "AND MIO.RESP_NUM_PER_BILL = 1\n"
-                        + "AND MSG_NUM_PER_BILL=1\n"
-                        + "ORDER BY MIO.QQ,LPU_ID").addEntity(UnloadZipBean4.class)
+                        + "WHERE MIO.PERIOD = to_date('02.2021', 'MM.YYYY') --Период\n"
+                        + "AND MIO.QQ IN ('ВМП','ПД-ИН','ПД','НИЛ') --список СМО\n"
+                        + "AND MIO.RESP_NUM_PER_BILL = 1 --критерий последнего ответа\n"
+                        + "AND MSG_NUM_PER_BILL=1 --Критерий последней посылки\n"
+                        + "ORDER BY MIO.SMO_NAME,LPU_ID").addEntity(UnloadZipBean4.class)
                         .list();
                 for (UnloadZipBean4 obj : dbList) {
+                    String qq = obj.getQq();
                     String messageFileName = obj.getMessageFileName();
                     byte[] messageFile = obj.getMessageFile();
                     String responseFileName = obj.getResponseFileName();
                     byte[] responseFile = obj.getResponseFile();
                     Long lpuId = obj.getLpuId();
-                    new File("C:\\tmp\\parcels4\\" + lpuId + "\\message\\").mkdirs();
-                    new File("C:\\tmp\\parcels4\\" + lpuId + "\\response\\").mkdirs();
-                    Files.write(messageFile, new File("C:\\tmp\\parcels4\\" + lpuId + "\\message\\" + messageFileName));
-                    Files.write(responseFile, new File("C:\\tmp\\parcels4\\" + lpuId + "\\response\\" + responseFileName));
+                    new File("C:\\tmp\\parcels4\\" + lpuId + "\\" + qq + "\\message\\").mkdirs();
+                    new File("C:\\tmp\\parcels4\\" + lpuId + "\\" + qq + "\\response\\").mkdirs();
+                    Files.write(messageFile, new File("C:\\tmp\\parcels4\\" + lpuId + "\\" + qq + "\\message\\" + messageFileName));
+                    Files.write(responseFile, new File("C:\\tmp\\parcels4\\" + lpuId + "\\" + qq + "\\response\\" + responseFileName));
                     System.out.println("lpuId = " + lpuId + "!");
                 };
             } finally {
