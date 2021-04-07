@@ -28,21 +28,38 @@ public class Test13826 {
         try {
             List<Number> parcelIdListDb = Db.select(sessionFactory, session -> (List<Number>) session.createSQLQuery("select id from pmp_parcel where version_number=:rev and lpu_id=:lpuId and period=:period and creation_date>:creationDate and exists(select 1 from pmp_bill where id=bill_id and amount>0) order by creation_date desc")
                     .setParameter("rev", rev).setParameter("lpuId", lpuId).setParameter("period", period).setParameter("creationDate", created).list());
-            List<Long> parcelIdList = parcelIdListDb.stream().map(Number::longValue).sorted().collect(Collectors.toList());
-            for (Long parcelId : parcelIdList) {
-                List<Object[]> select = Db.select(sessionFactory, session -> (List<Object[]>) session.createSQLQuery(sql).setParameter("lpuId", lpuId).setParameter("period", period).setParameter("parcelId", parcelId).list());
-                if (!select.isEmpty()) {
-                    System.out.println("Errors for parcelId = " + parcelId.toString() + ":");
-                    for (Object[] objArray : select) {
-                        System.out.println(Arrays.stream(objArray).map(obj -> objToString(obj)).reduce("", (str1, str2) -> str1 + " " + str2));
+            if (!parcelIdListDb.isEmpty()) {
+                List<Long> parcelIdList = parcelIdListDb.stream().map(Number::longValue).sorted().collect(Collectors.toList());
+                String sql2 = Arrays.stream(sql.split("\n")).map(str -> removeComments(str)).reduce("", (str1, str2) -> str1 + "\n" + str2);
+                for (Long parcelId : parcelIdList) {
+                    List<Object[]> select = Db.select(sessionFactory, session -> (List<Object[]>) session.createSQLQuery(sql2).setParameter("lpuId", lpuId).setParameter("period", period).setParameter("parcelId", parcelId).list());
+                    if (!select.isEmpty()) {
+                        System.out.println("Errors for parcelId = " + parcelId.toString() + ":");
+                        for (Object[] objArray : select) {
+                            System.out.println(Arrays.stream(objArray).map(obj -> objToString(obj)).reduce("", (str1, str2) -> str1 + " " + str2));
+                        }
+                        System.out.println();
+                        System.out.println();
+                    } else {
+                        System.out.println("There are no errors for parcelId = " + parcelId.toString() + "!");
                     }
-                    System.out.println();
-                    System.out.println();
                 }
+            } else {
+                System.out.println("parcelId List is Empty! Apparently parameters are wrong!");
             }
         } finally {
             sessionFactory.cleanSessions();
             sessionFactory.close();
+        }
+    }
+
+    private static String removeComments(String sqlStr) {
+        if (sqlStr.startsWith("--")) {
+            return "";
+        } else if (sqlStr.contains("--")) {
+            return sqlStr.substring(0, sqlStr.indexOf("--"));
+        } else {
+            return sqlStr;
         }
     }
 
@@ -83,7 +100,6 @@ public class Test13826 {
             + "		)\n"
             + "		, SPRNCO AS (\n"
             + "			SELECT /*+ materialize */ CODE,\n"
-            + "				-- TO_DATE(DATE_B, 'YYYYMMDD') AS DATE_B,\n"
             + "				DIAG, IG,\n"
             + "				TO_DATE(DATEBEG_3, 'YYYYMMDD') AS DATEBEG_3,\n"
             + "				TO_DATE(DATEEND_3, 'YYYYMMDD') AS DATEEND_3,\n"
@@ -95,7 +111,7 @@ public class Test13826 {
             + "		, USVMPNOT2 AS (\n"
             + "			SELECT /*+ materialize */ TO_NUMBER(CODE) COD\n"
             + "			FROM SPRVER, PMP_NSI_NEW.NSI_SPECIALIZED_MED_SERVICE\n"
-            + "			WHERE VERSION_ID = SPRVER.USVMP_VER AND VMP146 != 2 -- НЕ стоматология\n"
+            + "			WHERE VERSION_ID = SPRVER.USVMP_VER AND VMP146 != 2 \n"
             + "		)\n"
             + "		, REESMS AS (\n"
             + "			SELECT TO_NUMBER(CODE) AS COD\n"
@@ -119,7 +135,7 @@ public class Test13826 {
             + "				)\n"
             + "		)\n"
             + "		, P_R AS (\n"
-            + "			SELECT PARCEL_ID, LPU_ID, PERIOD, SN_POL, /*PRIK_BEGIN_PERIOD*/ PRIK, /*PRIKS_BEGIN_PERIOD*/ PRIKS --, PRIK_BEGIN_PERIOD, PRIKS_BEGIN_PERIOD\n"
+            + "			SELECT PARCEL_ID, LPU_ID, PERIOD, SN_POL, /*PRIK_BEGIN_PERIOD*/ PRIK, /*PRIKS_BEGIN_PERIOD*/ PRIKS\n"
             + "			FROM PMP_PARCEL_R\n"
             + "			WHERE PARCEL_ID = :parcelId AND LPU_ID = :lpuId AND PERIOD = :period\n"
             + "		)\n"
@@ -141,7 +157,6 @@ public class Test13826 {
             + "			WHERE\n"
             + "				S.PARCEL_ID = :parcelId AND S.LPU_ID = :lpuId AND S.PERIOD = :period\n"
             + "				AND\n"
-            + "				-- Только для счетов застрахованных в Москве пациентов, не прикреплённых к амбулаторным МО по профилю ?терапия?/?педиатрия?.\n"
             + "				(\n"
             + "					R.PRIK IS NULL\n"
             + "					OR\n"
@@ -154,7 +169,6 @@ public class Test13826 {
             + "					S.NOVOR IS NOT NULL\n"
             + "				)\n"
             + "				AND\n"
-            + "				-- 1\n"
             + "				SUBSTR(S.IOTD, 2, 2) IN ('00', '22', '24', '90', '80', '81', '92', '91')\n"
             + "				AND\n"
             + "				REESUS.TPN IN ('p', 'q')\n"
@@ -166,12 +180,6 @@ public class Test13826 {
             + "			FROM PMP_PARCEL_S S\n"
             + "			JOIN USVMP2 ON\n"
             + "				S.COD = USVMP2.COD\n"
-            + "		--	JOIN REESUS ON\n"
-            + "		--		S.COD = REESUS.COD\n"
-            + "		--	JOIN PROFOT ON\n"
-            + "		--		SUBSTR(S.IOTD, 2, 2) = PROFOT.CODE\n"
-            + "		--		AND\n"
-            + "		--		PROFOT.USL_OK = 3\n"
             + "			WHERE PARCEL_ID = :parcelId AND LPU_ID = :lpuId AND PERIOD = :period\n"
             + "		)\n"
             + "		, P_R_PF AS (\n"
@@ -183,16 +191,14 @@ public class Test13826 {
             + "				R.PATIENT_TYPE != 1\n"
             + "		)\n"
             + "        , PH AS (\n"
-            + "            SELECT -- ЗЛ\n"
+            + "            SELECT \n"
             + "                'PH' ERROR_CODE\n"
             + "                , PS.PARCEL_ID\n"
             + "                , PS.ID PARCEL_S_ID\n"
             + "                , PS.INVOICE_ID\n"
             + "            FROM PS\n"
             + "            WHERE\n"
-            + "                -- исключения к 1\n"
             + "                NOT (\n"
-            + "                    -- исключение 1\n"
             + "					(\n"
             + "						PS.COD IN (1001, 1011, 1013, 1021, 1031, 1041, 1043, 1051, 1053, 1061, 1071, 1073, 1081, 1083, 1091, 1093, 1101, 1111, 1113, 1141, 1143, 1151, 1153, 1161\n"
             + "							, 1163, 1191, 1193, 1201, 1261, 1263, 1271, 1273, 1276, 1301, 1303, 1331, 1333, 1371, 1373, 1411, 1431, 1433, 1441, 1443, 1461, 1511, 1513, 1561, 1781\n"
@@ -204,10 +210,8 @@ public class Test13826 {
             + "						PS.CNT_PRV = 1\n"
             + "					)\n"
             + "                    OR\n"
-            + "                    -- исключение 2\n"
             + "                    PS.ORD = 7\n"
             + "                    OR\n"
-            + "                    -- исключение 3\n"
             + "                    (\n"
             + "                        PS.COD IN (37043, 37048, 137043, 37044, 37049, 137044, 137049)\n"
             + "                        AND\n"
@@ -640,7 +644,7 @@ public class Test13826 {
             + "						-- 1.	В случае оказания ПСМП по профилю «терапия»/«педиатрия»:\n"
             + "						(\n"
             + "							-- 1.1)	медицинские услуги из справочника НСИ «pervprXX», оказанные неприкреплённым к медицинским организациям пациентам в поликлиническом кабинете или дневном стационаре (2-3 символы фасетного кода отделения «00» / «22» / «24» / «90» / «80» / «81» / «92» / «91») МО, имеющих значение TPN = 1/2/3/4.\n"
-            + "							-- Примечание: иные медицинские услуги (имеющие признак TPN = p/q), равно как и перечисленные услуги, оказанные более одного раза для одной нозологии (рубрики МКБ 10 с точностью до маски ХХХ), оплате не подлежат.\n"
+            + "							-- Примечаниеиные медицинские услуги (имеющие признак TPN = p/q), равно как и перечисленные услуги, оказанные более одного раза для одной нозологии (рубрики МКБ 10 с точностью до маски ХХХ), оплате не подлежат.\n"
             + "							(\n"
             + "								(\n"
             + "									USVMP2.COD IS NULL\n"
@@ -896,7 +900,7 @@ public class Test13826 {
             + "							-- 5.	услуги, оказанные в женских консультациях (услуги, оказанные в отделении с 2-3 символами фасетного кода «08»);\n"
             + "							SUBSTR(S.IOTD, 2, 2) = '08'\n"
             + "							OR\n"
-            + "							-- 6.	услуги 37043, 37048, 137043, 37044, 37049, 137044, 137049, выполненных по направлению врача-онколога (данные о специальности направившего врача в ИС ПУМП. Коды специальности врача: 17, 41, 73, 82);\n"
+            + "							-- 6.	услуги 37043, 37048, 137043, 37044, 37049, 137044, 137049, выполненных по направлению врача-онколога (данные о специальности направившего врача в ИС ПУМП. Коды специальности врача17, 41, 73, 82);\n"
             + "							(\n"
             + "								S.COD IN (37043, 37048, 137043, 37044, 37049, 137044, 137049)\n"
             + "								AND\n"
@@ -927,7 +931,7 @@ public class Test13826 {
             + "								SPRLPU_ORD.TPN IN (1, 2, 3)\n"
             + "							)\n"
             + "							OR\n"
-            + "							-- 9.	медицинские услуги, имеющие по справочнику НСИ USVMP сочетание VMP = 11/13 И VMP146 = 2, оказанные в МО: 4734 (ЦНИИ СЧЛХ), 2321 (Первый МГМУ Сеченова), 4733 (МГМСУ Евдокимова), 4996 (НМИЦ Гематологии), 4698 (РНИМУ Пирогова), в клинико-диагностическом отделении (отделении с 2-3 символами фасетного кода «01»), или в рамках проведения УМО (услуги, имеющие ORD = 7 или номер медицинской карты (C_I) начинается с аббревиатуры «УМО»), а также услуги, оказанные пациентам, не имеющим прикрепления по профилю «стоматология».\n"
+            + "							-- 9.	медицинские услуги, имеющие по справочнику НСИ USVMP сочетание VMP = 11/13 И VMP146 = 2, оказанные в МО4734 (ЦНИИ СЧЛХ), 2321 (Первый МГМУ Сеченова), 4733 (МГМСУ Евдокимова), 4996 (НМИЦ Гематологии), 4698 (РНИМУ Пирогова), в клинико-диагностическом отделении (отделении с 2-3 символами фасетного кода «01»), или в рамках проведения УМО (услуги, имеющие ORD = 7 или номер медицинской карты (C_I) начинается с аббревиатуры «УМО»), а также услуги, оказанные пациентам, не имеющим прикрепления по профилю «стоматология».\n"
             + "								S.LPU_ID IN (4734, 2321, 4733, 4996, 4698)\n"
             + "								AND\n"
             + "								-- SUBSTR(LPAD(S.COD, 6, '0'), 1, 3) IN ('009', '109')\n"
