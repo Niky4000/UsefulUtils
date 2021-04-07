@@ -23,7 +23,7 @@ public class Test13826 {
         Long lpuId = Long.valueOf(args[0]);
         Date period = new SimpleDateFormat("yyyy-MM-dd").parse(args[1]);
         Long rev = Long.valueOf(args[2]);
-        Date created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(args[3]);
+        Date created = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").parse(args[3]);
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         try {
             List<Number> parcelIdListDb = Db.select(sessionFactory, session -> (List<Number>) session.createSQLQuery("select id from pmp_parcel where version_number=:rev and lpu_id=:lpuId and period=:period and creation_date>:creationDate and exists(select 1 from pmp_bill where id=bill_id and amount>0) order by creation_date desc")
