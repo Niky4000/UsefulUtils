@@ -164,7 +164,7 @@ public class TestPumpUtilsMain {
 //            UnloadDbfs2.getPdfFileMap2("C:\\tmp\\parcels4acts");
 //            UnloadDbfs2.replaceFileInArchieve(new File("C:\\tmp\\parcels\\1796\\b0205125.110"), "1796", UnloadDbfs2.getPdfFileMap2("C:\\tmp\\parcels4acts"), UnloadDbfs2.getPdfFileMap2("C:\\tmp\\parcels5protocols"));
 //            UnloadDbfs2.replace();
-            UnloadDbfs2.unload3();
+//            UnloadDbfs2.unload3();
 //            EmergencyCtrlFileExporterTest.test();
 //        new DownloadService("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=30583913-0-C16.2-60075-20201202-01-20201202", new File("C:\\tmp")).download();
 //            TestSmoSessionFactory.test();
@@ -173,6 +173,7 @@ public class TestPumpUtilsMain {
 //            QueueServiceImplTest.test();
 //            SmpSmoFiProtocolTest.test();
 //            IntSmoAktPfSmpGeneratorTest.test();
+            Test13826.test(args);
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
