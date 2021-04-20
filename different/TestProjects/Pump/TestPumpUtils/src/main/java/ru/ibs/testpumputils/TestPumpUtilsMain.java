@@ -173,7 +173,9 @@ public class TestPumpUtilsMain {
 //            QueueServiceImplTest.test();
 //            SmpSmoFiProtocolTest.test();
 //            IntSmoAktPfSmpGeneratorTest.test();
-            Test13826.test(args);
+//            Test13826.test(args);
+//            OrphanProtocolGeneratorTest.test();
+            CheckUrlTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

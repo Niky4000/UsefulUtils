@@ -257,6 +257,7 @@ public class SomeClass {
 //        urlAnalisys("http://127.0.0.8/getHtml?url=16417293-0-C61-60075-20201202-01-20201204");
 //        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=7149689-0-A00-001781-20210101-01-20210101");
 //        System.out.println(getUrlInfo("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=19790806-0-C43.5-60075-20201201-01-20201201"));
+        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=19132168-0-C25.0-60074-20210415-01-20210415");
 //        barcodeTest();
 //        Date truncatedDate = DateUtils.truncate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), Calendar.DAY_OF_MONTH);
 //        System.out.println(truncatedDate);
@@ -312,8 +313,8 @@ public class SomeClass {
 //        checkException();
 //        logMap("eeeeeeeeeeffffffffffyyyyyyyyyykkkkkkkkkkuuuuuuuuuuiiii");
 //        logMap("eeeeeeeeeeffffffffffyyyyyyyyyykkkkkkkkkkuuuuuuuuuu");
-        logMap("eeeeeeeeee\nffffffffff\nyyyyyyyyyy\nkkkkkkkkkk\nuuuuuuuuuu");
-        logMap("eeeeeeeeee\n\nffffffffff\n\nyyyyyyyyyy\n\nkkkkkkkkkk\n\nuuuuuuuuuu");
+//        logMap("eeeeeeeeee\nffffffffff\nyyyyyyyyyy\nkkkkkkkkkk\nuuuuuuuuuu");
+//        logMap("eeeeeeeeee\n\nffffffffff\n\nyyyyyyyyyy\n\nkkkkkkkkkk\n\nuuuuuuuuuu");
     }
 
     static final int MAX_STRING_SIZE = 10;
