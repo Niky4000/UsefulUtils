@@ -62,7 +62,19 @@ public class CheckUrlTest {
             }
 
             private final boolean urlAnalisys(String urlToAnalyse) {
-                return Pattern.compile("^" + HTTPS + IP_REGEXP + "/" + prefixRegexp + patientIdRegexp + delimeter + patientTypeRegexp + delimeter + diagnosisRegexp + delimeter + serviceCodeRegexp + delimeter + serviceDateRegexp + serviceNumberRegexp + changeDateRegexp + "$").matcher(urlToAnalyse).matches() || Pattern.compile("^" + HTTPS + DOMAIN_NAME_REGEXP + "/" + prefixRegexp + patientIdRegexp + delimeter + patientTypeRegexp + delimeter + diagnosisRegexp + delimeter + serviceCodeRegexp + delimeter + serviceDateRegexp + serviceNumberRegexp + changeDateRegexp + "$").matcher(urlToAnalyse).matches();
+//                return Pattern.compile("^" + HTTPS + IP_REGEXP + "/" + prefixRegexp + patientIdRegexp + delimeter + patientTypeRegexp + delimeter + diagnosisRegexp + delimeter + serviceCodeRegexp + delimeter + serviceDateRegexp + serviceNumberRegexp + changeDateRegexp + "$").matcher(urlToAnalyse).matches() || Pattern.compile("^" + HTTPS + DOMAIN_NAME_REGEXP + "/" + prefixRegexp + patientIdRegexp + delimeter + patientTypeRegexp + delimeter + diagnosisRegexp + delimeter + serviceCodeRegexp + delimeter + serviceDateRegexp + serviceNumberRegexp + changeDateRegexp + "$").matcher(urlToAnalyse).matches();
+                if (urlToAnalyse != null) {
+                    boolean matches = Pattern.compile("^" + HTTPS + IP_REGEXP + "/" + prefixRegexp + patientIdRegexp + delimeter + patientTypeRegexp + delimeter + diagnosisRegexp + delimeter + serviceCodeRegexp + delimeter + serviceDateRegexp + serviceNumberRegexp + changeDateRegexp + "$").matcher(urlToAnalyse).matches();
+                    boolean matches2 = Pattern.compile("^" + HTTPS + DOMAIN_NAME_REGEXP + "/" + prefixRegexp + patientIdRegexp + delimeter + patientTypeRegexp + delimeter + diagnosisRegexp + delimeter + serviceCodeRegexp + delimeter + serviceDateRegexp + serviceNumberRegexp + changeDateRegexp + "$").matcher(urlToAnalyse).matches();
+                    if (matches || matches2) {
+                        System.out.println(urlToAnalyse + " is Ok!");
+                    } else {
+                        System.out.println(urlToAnalyse + " is Bad!");
+                    }
+                    return matches || matches2;
+                } else {
+                    return true;
+                }
             }
 
             @Override

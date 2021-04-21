@@ -4,21 +4,26 @@ import com.google.common.io.Files;
 import fr.opensagres.xdocreport.core.io.IOUtils;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileOutputStream;
 import org.apache.cxf.helpers.FileUtils;
 import org.hibernate.Session;
-import static ru.ibs.pmp.api.utils.ZipUtils.zipFiles;
 import ru.ibs.testpumputils.bean.UnloadZipBean4;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
@@ -33,7 +38,9 @@ public class UnloadDbfs3 {
     public void unload4() throws Exception {
         SessionFactoryInterface sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         try {
-            unload4(sessionFactory, "C:\\tmp\\parcelsForTestUpload", new SimpleDateFormat("yyyy-MM-dd").parse("2021-02-01"), new HashSet<>(Arrays.asList("S5", "ИН")), "CORP", "IBS_ERZL", "ERZL100!", "\\\\hq-fs01\\MGFOMS\\PUMP-EXPORT\\");
+//            unload4(sessionFactory, "C:\\tmp\\parcelsForTestUpload", new SimpleDateFormat("yyyy-MM-dd").parse("2021-02-01"), new HashSet<>(Arrays.asList("S5", "ИН")), "CORP", "IBS_ERZL", "ERZL100!", "smb:\\\\hq-fs01\\MGFOMS\\PUMP-EXPORT\\");
+            File zipFile = new File("C:\\tmp\\parcelsForTestUpload\\2021_02.zip");
+            copySmpFile("CORP", "IBS_ERZL", "ERZL100!", "smb://hq-fs01/MGFOMS/PUMP-EXPORT/" + zipFile.getName(), zipFile);
         } finally {
             sessionFactory.cleanSessions();
             sessionFactory.close();
@@ -46,6 +53,7 @@ public class UnloadDbfs3 {
     public void unload4(SessionFactoryInterface sessionFactory, String dir, Date period, Set<String> qqList, String domain, String user, String password, String remotePath) throws Exception {
         Session session = sessionFactory.openSession();
         try {
+            new File(dir).mkdirs();
             List<UnloadZipBean4> dbList = (List<UnloadZipBean4>) session.createSQLQuery("SELECT rownum as id, MIO.SMO_NAME as qq,LPU_ID,MIO.MESSAGE_FILE,MIO.MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
                     + "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
                     + "WHERE MIO.PERIOD = :period --Период\n"
@@ -65,24 +73,65 @@ public class UnloadDbfs3 {
                 byte[] responseFile = obj.getResponseFile();
                 Long lpuId = obj.getLpuId();
                 dirsToRemove.add(new File(dir + File.separator + lpuId));
-                new File(dir + File.separator + lpuId + File.separator + qq + File.separator + MESSAGE).mkdirs();
-                new File(dir + File.separator + lpuId + File.separator + qq + File.separator + RESPONSE).mkdirs();
-                File messageFilePath = new File(dir + lpuId + File.separator + qq + File.separator + MESSAGE + messageFileName);
-                File responseFilePath = new File(dir + lpuId + File.separator + qq + File.separator + RESPONSE + responseFileName);
-                Files.write(messageFile, messageFilePath);
-                Files.write(responseFile, responseFilePath);
-                filesPathes.add(messageFilePath.getAbsolutePath());
-                filesPathes.add(responseFilePath.getAbsolutePath());
+                String handledQq = handleQq(qq);
+                new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + MESSAGE).mkdirs();
+                new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + RESPONSE).mkdirs();
+                File messageFilePath = new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + MESSAGE + File.separator + messageFileName);
+                File responseFilePath = new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + RESPONSE + File.separator + responseFileName);
+                try {
+                    Files.write(messageFile, messageFilePath);
+                    Files.write(responseFile, responseFilePath);
+                    filesPathes.add(lpuId + File.separator + handledQq + File.separator + MESSAGE + File.separator + messageFileName);
+                    filesPathes.add(lpuId + File.separator + handledQq + File.separator + RESPONSE + File.separator + responseFileName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
 //                System.out.println("lpuId = " + lpuId + "!");
             };
             File zipFile = new File(dir + File.separator + new SimpleDateFormat("yyyy_MM").format(period) + ".zip");
-            zipFiles(filesPathes, zipFile.getAbsolutePath());
+            zipFiles(dir + File.separator, filesPathes, zipFile.getAbsolutePath());
             dirsToRemove.stream().forEach(dirToRemove -> FileUtils.removeDir(dirToRemove));
             copySmpFile(domain, user, password, remotePath + zipFile.getName(), zipFile);
             zipFile.delete();
         } finally {
             session.close();
         }
+    }
+
+    public void zipFiles(String dir, List<String> filesPathes, String zipFilePath) throws IOException {
+        Map<String, Integer> map = new HashMap<>(filesPathes.size());
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFilePath))) {
+            for (String filePath : filesPathes) {
+                File file = new File(dir + filePath);
+                if (file.exists()) {
+                    try {
+                        Integer i = map.get(filePath);
+                        String postfix;
+                        if (i == null) {
+                            map.put(filePath, 1);
+                            postfix = "";
+                        } else {
+                            i++;
+                            map.put(filePath, i);
+                            postfix = "_" + i;
+                        }
+                        out.putNextEntry(new ZipEntry(filePath + postfix));
+                        Files.copy(file, out);
+                        out.closeEntry();
+                    } catch (Exception ee) {
+                        ee.printStackTrace();
+                        throw new RuntimeException(ee);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
+
+    private String handleQq(String qq) {
+        return qq.replace("(", "").replace(")", "").replace("\"", "");
     }
 
     private void copySmpFile(String domain, String user, String password, String remotePath, File localFile) throws IOException {
