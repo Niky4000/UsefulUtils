@@ -15,6 +15,7 @@ import java.io.IOException;
 import ru.ibs.testpumputils.bean.UnloadZipBean;
 import java.lang.reflect.Proxy;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
