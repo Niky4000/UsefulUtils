@@ -53,6 +53,7 @@ public class UnloadDbfs3 {
                     + "AND MIO.RESP_NUM_PER_BILL = 1 --критерий последнего ответа\n"
                     + "AND MSG_NUM_PER_BILL = 1 --Критерий последней посылки\n"
                     + "ORDER BY MIO.SMO_NAME,LPU_ID").addEntity(UnloadZipBean4.class)
+                    .setParameter("period", period).setParameterList("qqList", qqList)
                     .list();
             List<File> dirsToRemove = new ArrayList<>(dbList.size());
             List<String> filesPathes = new ArrayList<>(dbList.size() * 2);
