@@ -38,9 +38,12 @@ public class UnloadDbfs3 {
     public void unload4() throws Exception {
         SessionFactoryInterface sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         try {
-//            unload4(sessionFactory, "C:\\tmp\\parcelsForTestUpload", new SimpleDateFormat("yyyy-MM-dd").parse("2021-02-01"), new HashSet<>(Arrays.asList("S5", "ИН")), "CORP", "IBS_ERZL", "ERZL100!", "smb:\\\\hq-fs01\\MGFOMS\\PUMP-EXPORT\\");
-            File zipFile = new File("C:\\tmp\\parcelsForTestUpload\\2021_02.zip");
-            copySmpFile("CORP", "IBS_ERZL", "ERZL100!", "smb://hq-fs01/MGFOMS/PUMP-EXPORT/" + zipFile.getName(), zipFile);
+//            unload4(sessionFactory, "/u01/parcelsForTestUpload", new SimpleDateFormat("yyyy-MM-dd").parse("2021-03-01"), new HashSet<>(Arrays.asList("S5", "ИН")), "CORP", "IBS_ERZL", "ERZL100!", "smb://hq-fs01/MGFOMS/PUMP-EXPORT/");
+//            File zipFile = new File("/u01/parcelsForTestUpload/2021_02.zip");
+//            copySmpFile("CORP", "IBS_ERZL", "ERZL100!", "smb://hq-fs01/MGFOMS/PUMP-EXPORT/" + zipFile.getName(), zipFile);
+            unload4(sessionFactory, "/u01/parcelsForTestUpload", new SimpleDateFormat("yyyy-MM-dd").parse("2021-03-01"), new HashSet<>(Arrays.asList("S7", "R8", "M4", "R4", "M1", "I3")), "CORP", "IBS_ERZL", "ERZL100!", "smb://192.168.195.26/MGFOMS/PUMP-EXPORT/");
+//            File zipFile = new File("/u01/parcelsForTestUpload/2021_02.zip");
+//            copySmpFile("CORP", "IBS_ERZL", "ERZL100!", "smb://192.168.195.26/MGFOMS/PUMP-EXPORT/" + zipFile.getName(), zipFile);
         } finally {
             sessionFactory.cleanSessions();
             sessionFactory.close();
@@ -54,13 +57,29 @@ public class UnloadDbfs3 {
         Session session = sessionFactory.openSession();
         try {
             new File(dir).mkdirs();
-            List<UnloadZipBean4> dbList = (List<UnloadZipBean4>) session.createSQLQuery("SELECT rownum as id, MIO.SMO_NAME as qq,LPU_ID,MIO.MESSAGE_FILE,MIO.MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
+//            List<UnloadZipBean4> dbList = (List<UnloadZipBean4>) session.createSQLQuery("SELECT rownum as id, MIO.SMO_NAME as qq,LPU_ID,MIO.MESSAGE_FILE,MIO.MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
+//                    + "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
+//                    + "WHERE MIO.PERIOD = :period --Период\n"
+//                    + "AND MIO.QQ IN (:qqList) --список СМО\n"
+//                    + "AND MIO.RESP_NUM_PER_BILL = 1 --критерий последнего ответа\n"
+//                    + "AND MSG_NUM_PER_BILL = 1 --Критерий последней посылки\n"
+//                    + "ORDER BY MIO.SMO_NAME,LPU_ID").addEntity(UnloadZipBean4.class)
+//                    .setParameter("period", period).setParameterList("qqList", qqList)
+//                    .list();
+            List<UnloadZipBean4> dbList = (List<UnloadZipBean4>) session.createSQLQuery("SELECT rownum as id,SMO_NAME as qq,LPU_ID,MESSAGE_FILE,MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
+                    + "FROM\n"
+                    + "(\n"
+                    + "SELECT MIO.*,MIN (RESP_NUM_PER_BILL ) OVER (PARTITION BY LPU_ID,SMO_ID,PERIOD) MIN_RESPONSE --Последний ответ из отобранных\n"
                     + "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
                     + "WHERE MIO.PERIOD = :period --Период\n"
                     + "AND MIO.QQ IN (:qqList) --список СМО\n"
-                    + "AND MIO.RESP_NUM_PER_BILL = 1 --критерий последнего ответа\n"
-                    + "AND MSG_NUM_PER_BILL = 1 --Критерий последней посылки\n"
-                    + "ORDER BY MIO.SMO_NAME,LPU_ID").addEntity(UnloadZipBean4.class)
+                    + "AND MSG_NUM_PER_BILL = 1 --критерий последней посылки\n"
+                    + "AND STATUS IN ('ACCEPTED') --Принято\n"
+                    + "AND RESPONSE_IS_FINAL = 1 --критерий финального ответа\n"
+                    + "AND RESPONSE_STATUS IN ('OK') --Критерий наличия ответа\n"
+                    + ") MIO_RESPONSE\n"
+                    + "WHERE MIO_RESPONSE.RESP_NUM_PER_BILL=MIO_RESPONSE.MIN_RESPONSE\n"
+                    + "ORDER BY PERIOD,SMO_ID,LPU_ID").addEntity(UnloadZipBean4.class)
                     .setParameter("period", period).setParameterList("qqList", qqList)
                     .list();
             List<File> dirsToRemove = new ArrayList<>(dbList.size());
@@ -90,6 +109,9 @@ public class UnloadDbfs3 {
 //                System.out.println("lpuId = " + lpuId + "!");
             };
             File zipFile = new File(dir + File.separator + new SimpleDateFormat("yyyy_MM").format(period) + ".zip");
+            if (zipFile.exists()) {
+                zipFile.delete();
+            }
             zipFiles(dir + File.separator, filesPathes, zipFile.getAbsolutePath());
             dirsToRemove.stream().forEach(dirToRemove -> FileUtils.removeDir(dirToRemove));
             copySmpFile(domain, user, password, remotePath + zipFile.getName(), zipFile);
@@ -137,6 +159,9 @@ public class UnloadDbfs3 {
     private void copySmpFile(String domain, String user, String password, String remotePath, File localFile) throws IOException {
         NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(domain, user, password);
         SmbFile remoteFile = new SmbFile(remotePath, auth);
+        if (remoteFile.exists()) {
+            remoteFile.delete();
+        }
         SmbFileOutputStream out = new SmbFileOutputStream(remoteFile);
         FileInputStream fis = new FileInputStream(localFile);
         out.write(IOUtils.toByteArray(fis));
