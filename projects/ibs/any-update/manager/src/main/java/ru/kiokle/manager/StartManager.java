@@ -46,9 +46,12 @@ import org.eclipse.jgit.util.FS;
 public class StartManager {
 
     // Локальное переключение
-    // java -jar /home/me/GIT/UsefulUtils/projects/ibs/any-update/manager/target/manager.jar -mvn /home/me/netbeans-11.3/netbeans/java/maven/bin/mvn -build /home/me/GIT/pmp/pmp_core,/home/me/GIT/pmp/pmp,/home/me/GIT/pmp/pmp/module-pmp-bill-recreate
+    // JAVA_HOME=/usr/lib/jvm/jdk1.8.0_261
+    // java -jar /home/me/GIT/UsefulUtils/projects/ibs/any-update/manager/target/manager.jar -mvn /home/me/netbeans-12.1/netbeans/java/maven/bin/mvn -build /home/me/GIT/pmp/pmp_core,/home/me/GIT/pmp/pmp,/home/me/GIT/pmp/pmp/module-pmp-bill-recreate
     // Переключение на 26-м
     // java -jar manager.jar -cp1 /home/pump/manager/profiles/build-local.properties,/home/pump/tmp/pmp/pmp/profiles/build-local.properties -git /home/pump/tmp/pmp -url https://git.drzsrv.ru/mgfoms/pmp.git -checkout -pull -branch test-recreator -u NAnishhenko -p pagekeeper -clone -mvn /home/pump/manager/maven/bin/mvn -build /home/pump/tmp/pmp/pmp_core,/home/pump/tmp/pmp/pmp,/home/pump/tmp/pmp/pmp/module-pmp-bill-recreate
+    // Переключение на 116-м
+    // java -jar C:\GIT\UsefulUtils\projects\ibs\any-update\manager\target\manager.jar -mvn "C:\Program Files\NetBeans-12.1\netbeans\java\maven\bin\mvn.cmd" -build C:\GIT\pmp\pmp_core,C:\GIT\pmp\pmp,C:\GIT\pmp\pmp\module-pmp-bill-recreate
     public static void main(String[] args) throws Exception {
         System.out.println("Hello World!!! -----------------------------------------------------------------------");
         System.out.println("Hello World!!! -----------------------------------------------------------------------");
