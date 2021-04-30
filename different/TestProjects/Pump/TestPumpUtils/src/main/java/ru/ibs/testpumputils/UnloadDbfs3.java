@@ -10,6 +10,7 @@ import java.lang.reflect.Proxy;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,6 +21,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileOutputStream;
 import org.apache.cxf.helpers.FileUtils;
@@ -41,7 +43,8 @@ public class UnloadDbfs3 {
 //            unload4(sessionFactory, "/u01/parcelsForTestUpload", new SimpleDateFormat("yyyy-MM-dd").parse("2021-03-01"), new HashSet<>(Arrays.asList("S5", "ИН")), "CORP", "IBS_ERZL", "ERZL100!", "smb://hq-fs01/MGFOMS/PUMP-EXPORT/");
 //            File zipFile = new File("/u01/parcelsForTestUpload/2021_02.zip");
 //            copySmpFile("CORP", "IBS_ERZL", "ERZL100!", "smb://hq-fs01/MGFOMS/PUMP-EXPORT/" + zipFile.getName(), zipFile);
-            unload4(sessionFactory, "/u01/parcelsForTestUpload", new SimpleDateFormat("yyyy-MM-dd").parse("2021-03-01"), new HashSet<>(Arrays.asList("S7", "R8", "M4", "R4", "M1", "I3")), "CORP", "IBS_ERZL", "ERZL100!", "smb://192.168.195.26/MGFOMS/PUMP-EXPORT/");
+//            unload4(sessionFactory, "C:\\tmp\\parcelsForTestUpload", new SimpleDateFormat("yyyy-MM-dd").parse("2021-03-01"), new HashSet<>(Arrays.asList("ВМП", "ПД-ИН", "ПД", "ИН", "НИЛ", "СМП")), "CORP", "IBS_ERZL", "ERZL100!", "smb://192.168.195.26/MGFOMS/PUMP-EXPORT/");
+            unload4(sessionFactory, "C:\\tmp\\parcelsForTestUpload", new SimpleDateFormat("yyyy-MM-dd").parse("2021-03-01"), new HashSet<>(Arrays.asList("ВМП", "ПД-ИН", "ПД", "ИН", "НИЛ", "СМП")), "CORP", "IBS_ERZL", "ERZL100!", "smb://192.168.192.106/pump-import/");
 //            File zipFile = new File("/u01/parcelsForTestUpload/2021_02.zip");
 //            copySmpFile("CORP", "IBS_ERZL", "ERZL100!", "smb://192.168.195.26/MGFOMS/PUMP-EXPORT/" + zipFile.getName(), zipFile);
         } finally {
@@ -71,12 +74,14 @@ public class UnloadDbfs3 {
                     + "(\n"
                     + "SELECT MIO.*,MIN (RESP_NUM_PER_BILL ) OVER (PARTITION BY LPU_ID,SMO_ID,PERIOD) MIN_RESPONSE --Последний ответ из отобранных\n"
                     + "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
-                    + "WHERE MIO.PERIOD = :period --Период\n"
-                    + "AND MIO.QQ IN (:qqList) --список СМО\n"
-                    + "AND MSG_NUM_PER_BILL = 1 --критерий последней посылки\n"
+                    + "WHERE\n"
+                    + "MSG_NUM_PER_BILL=1 --критерий последней посылки\n"
                     + "AND STATUS IN ('ACCEPTED') --Принято\n"
-                    + "AND RESPONSE_IS_FINAL = 1 --критерий финального ответа\n"
                     + "AND RESPONSE_STATUS IN ('OK') --Критерий наличия ответа\n"
+                    + "AND RESP_NUM_PER_MSG=1 -- Критерий последнего ответа\n"
+                    + "AND PERIOD=:period\n"
+                    + "AND MIO.QQ IN (:qqList) --список СМО\n"
+                    + "--AND SMO_ID IS NULL\n"
                     + ") MIO_RESPONSE\n"
                     + "WHERE MIO_RESPONSE.RESP_NUM_PER_BILL=MIO_RESPONSE.MIN_RESPONSE\n"
                     + "ORDER BY PERIOD,SMO_ID,LPU_ID").addEntity(UnloadZipBean4.class)
@@ -114,7 +119,7 @@ public class UnloadDbfs3 {
             }
             zipFiles(dir + File.separator, filesPathes, zipFile.getAbsolutePath());
             dirsToRemove.stream().forEach(dirToRemove -> FileUtils.removeDir(dirToRemove));
-            copySmpFile(domain, user, password, remotePath + zipFile.getName(), zipFile);
+            copySmpFile(domain, user, password, remotePath, zipFile.getName(), zipFile);
             zipFile.delete();
         } finally {
             session.close();
@@ -156,9 +161,11 @@ public class UnloadDbfs3 {
         return qq.replace("(", "").replace(")", "").replace("\"", "");
     }
 
-    private void copySmpFile(String domain, String user, String password, String remotePath, File localFile) throws IOException {
+    private void copySmpFile(String domain, String user, String password, String remotePath, String zipFileName, File localFile) throws IOException {
         NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(domain, user, password);
-        SmbFile remoteFile = new SmbFile(remotePath, auth);
+        SmbFile remoteDir = new SmbFile(remotePath, auth);
+        checkFreeSpace(remoteDir, localFile);
+        SmbFile remoteFile = new SmbFile(remotePath + zipFileName, auth);
         if (remoteFile.exists()) {
             remoteFile.delete();
         }
@@ -166,6 +173,20 @@ public class UnloadDbfs3 {
         FileInputStream fis = new FileInputStream(localFile);
         out.write(IOUtils.toByteArray(fis));
         out.close();
+    }
+
+    private void checkFreeSpace(SmbFile remoteDir, File localFile) throws SmbException {
+        long diskFreeSpace = remoteDir.getDiskFreeSpace();
+        long length = localFile.length();
+        if (diskFreeSpace - length < 0) {
+            List<SmbFile> listFiles = new ArrayList<>(Arrays.asList(remoteDir.listFiles()));
+            Collections.sort(listFiles, (file1, file2) -> Long.valueOf(file1.getLastModified()).compareTo(file2.getLastModified()));
+            while (diskFreeSpace - length < 0 && !listFiles.isEmpty()) {
+                listFiles.get(0).delete();
+                listFiles.remove(0);
+                diskFreeSpace = remoteDir.getDiskFreeSpace();
+            }
+        }
     }
 
     public Integer getFileCountDir(String domain, String user, String password, String userDir) {
