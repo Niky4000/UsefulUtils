@@ -1450,7 +1450,7 @@
 					AND
 					SPRLPU_LPU.TPN IS NULL
 				THEN 'fh'
-			END F_TYPE2,s.f_type
+			END F_TYPE2,s.f_type,s.case_id
 		FROM PMP_PARCEL_S S
 		JOIN PMP_PARCEL_R R ON
 			S.PARCEL_ID = R.PARCEL_ID
@@ -1499,4 +1499,4 @@
 			AND S.LPU_ID = :lpuId
 			AND S.PARCEL_ID = :parcelId
       )
-      select * from t where F_TYPE != F_TYPE2 OR F_TYPE IS NULL OR F_TYPE2 IS NULL
+      select * from t where not ((F_TYPE IS NULL and F_TYPE2 IS NULL) or F_TYPE = F_TYPE2)
