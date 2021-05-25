@@ -81,7 +81,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
@@ -94,6 +100,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -258,7 +265,7 @@ public class SomeClass {
 //        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=7149689-0-A00-001781-20210101-01-20210101");
 //        System.out.println(getUrlInfo("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=19790806-0-C43.5-60075-20201201-01-20201201"));
 //        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=19132168-0-C25.0-60074-20210415-01-20210415");
-        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=19132168-0-C25.0-60074-20210415-01-20210415");
+//        urlAnalisys("https://cf.mosmedzdrav.ru/documentService/v1/getHtml?url=19132168-0-C25.0-60074-20210415-01-20210415");
 //        barcodeTest();
 //        Date truncatedDate = DateUtils.truncate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2020-10-04 00:00:00"), Calendar.DAY_OF_MONTH);
 //        System.out.println(truncatedDate);
@@ -316,6 +323,97 @@ public class SomeClass {
 //        logMap("eeeeeeeeeeffffffffffyyyyyyyyyykkkkkkkkkkuuuuuuuuuu");
 //        logMap("eeeeeeeeee\nffffffffff\nyyyyyyyyyy\nkkkkkkkkkk\nuuuuuuuuuu");
 //        logMap("eeeeeeeeee\n\nffffffffff\n\nyyyyyyyyyy\n\nkkkkkkkkkk\n\nuuuuuuuuuu");
+//        Integer maxPoolSize = 10;
+//        ArrayBlockingQueue<FutureTask> mainQueue = new ArrayBlockingQueue<FutureTask>(maxPoolSize);
+//        List<Thread> threadList = createThreadList(maxPoolSize, mainQueue);
+//        FutureTask<Boolean> futureTask = new FutureTask<Boolean>(() -> true);
+//        mainQueue.add(futureTask);
+//        System.out.println(futureTask.get());
+//        System.out.println(checkPrimVolumeValue(BigDecimal.ZERO).equals(checkPrimVolumeValue(BigDecimal.valueOf(0.0))));
+//        fixJsonFiles();
+//        lookupForBadStringsInJsonFiles();
+        futureExample();
+    }
+
+    private static void futureExample() {
+        ExecutorService executorService = Executors.newFixedThreadPool(10); // Это не надо! Он должен быть @Autowired!
+        List<Future<Long>> results = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Future<Long> submit = executorService.submit(() -> { // Тут что-то делаем! Делаем какие-то select'ы прочее!
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                return 10L;
+            });
+            results.add(submit); // Запихиваем результаты от отдельных потоков!
+        }
+        Long reduce = results.stream().map(future -> { // Ждём эти потоки!
+            try {
+                return future.get();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }).reduce(0L, (d1, d2) -> d1 + d2); // Что-то делаем с этими результами!
+        executorService.shutdown(); // Это тоже не надо делать!
+        System.out.println(reduce);
+    }
+
+    private <T> T deSerializeObjectFromJson(String str, TypeReference<T> ref) throws IOException {
+        return new ObjectMapper().readValue(str, ref);
+    }
+
+    private static void lookupForBadStringsInJsonFiles() {
+        Arrays.stream(new File("/home/me/GIT/pmp/pmp/module-pmp-bill-recreate/src/test/resources/RecreateCheckUtil").listFiles()).filter(file -> file.getName().startsWith("ResultModels_")).forEach(file -> {
+            try {
+                String string = new String(Files.readAllBytes(file.toPath()));
+                int indexOf = string.indexOf("identifier");
+                System.out.println(indexOf + " : " + file.getName());
+            } catch (IOException ex) {
+                Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+    }
+
+    private static void fixJsonFiles() {
+        Arrays.stream(new File("/home/me/GIT/pmp/pmp/module-pmp-bill-recreate/src/test/resources/RecreateCheckUtil").listFiles()).filter(file -> file.getName().startsWith("ResultModels_")).forEach(file -> {
+            try {
+                String string = new String(Files.readAllBytes(file.toPath()));
+                String string2 = string.replace(",\"identifier\":null", "").replace(",\"caseDatePrintable\":\"\"", ",\"caseDatePrintable\":null")
+                        .replace(",\"primaryDiagnosisCode\":null", "").replace(",\"secondaryDiagnosisCode\":null", "").replace(",\"itASpecialService\":false", "")
+                        .replace(",\"itASpecialService\":true", "");
+                Files.write(file.toPath(), string2.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+            } catch (IOException ex) {
+                Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+    }
+
+    private static BigDecimal checkPrimVolumeValue(BigDecimal primVolumeValue) {
+        if (primVolumeValue != null) {
+            return primVolumeValue.longValue() > 0 ? primVolumeValue : null;
+        } else {
+            return primVolumeValue;
+        }
+    }
+
+    private static List<Thread> createThreadList(int threadsCount, final ArrayBlockingQueue<FutureTask> queue) {
+        List<Thread> threadList = IntStream.range(0, threadsCount).mapToObj(i -> new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        FutureTask take = queue.take();
+                        take.run();
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
+        }).collect(Collectors.toList());
+        threadList.forEach(thread -> thread.start());
+        return threadList;
     }
 
     static final int MAX_STRING_SIZE = 10;

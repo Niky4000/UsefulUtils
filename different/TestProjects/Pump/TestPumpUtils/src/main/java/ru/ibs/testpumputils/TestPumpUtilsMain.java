@@ -68,7 +68,7 @@ public class TestPumpUtilsMain {
         configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.smo.db.url"));
         configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.smo.db.username"));
         configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.smo.db.password"));
-        EntityScanner.scanPackages("ru.ibs.pmp.api.smo.model", "ru.ibs.pmp.auth.model").addTo(configuration);
+        EntityScanner.scanPackages("ru.ibs.pmp.api.smo.model", "ru.ibs.pmp.api.model", "ru.ibs.pmp.auth.model").addTo(configuration);
         configuration.configure();
         SessionFactory sessionFactory = configuration.buildSessionFactory();
         return sessionFactory;
@@ -174,9 +174,11 @@ public class TestPumpUtilsMain {
 //            QueueServiceImplTest.test();
 //            SmpSmoFiProtocolTest.test();
 //            IntSmoAktPfSmpGeneratorTest.test();
-            Test13826.test(args);
+//            Test13826.test(args);
 //            OrphanProtocolGeneratorTest.test();
 //            CheckUrlTest.test();
+//            AcceptanceProtocolExporterTest.test();
+            ActMeeReportFileExporter2Test.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
