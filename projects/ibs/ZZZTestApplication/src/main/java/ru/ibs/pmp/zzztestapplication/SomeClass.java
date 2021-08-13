@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
@@ -83,8 +84,6 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -111,6 +110,10 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.xmlbeans.XmlOptions;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -119,6 +122,7 @@ import org.krysalis.barcode4j.BarcodeGenerator;
 import org.krysalis.barcode4j.BarcodeUtil;
 import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 import org.mozilla.universalchardet.UniversalDetector;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBody;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -332,7 +336,123 @@ public class SomeClass {
 //        System.out.println(checkPrimVolumeValue(BigDecimal.ZERO).equals(checkPrimVolumeValue(BigDecimal.valueOf(0.0))));
 //        fixJsonFiles();
 //        lookupForBadStringsInJsonFiles();
-        futureExample();
+//        futureExample();
+//        ActEkmpReportFileExporter2Test.test();
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        merge(new FileInputStream("/home/me/Downloads/act_ecmp2.docx"), Arrays.asList(new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx")), byteArrayOutputStream);
+//        File reportFile = new File("/home/me/tmp/reportsPdf/report.docx");
+//        if (reportFile.exists()) {
+//            reportFile.delete();
+//        }
+//        Files.write(reportFile.toPath(), byteArrayOutputStream.toByteArray(), StandardOpenOption.CREATE_NEW);
+//        System.out.println(Optional.ofNullable("Hello my sweetty girl!").filter(description -> description.length() > 0).map(description -> description.split(" ")).filter(array -> array.length > 0).map(array -> array[0]).orElse(null));
+//        System.out.println(Optional.ofNullable("Hello").filter(description -> description.length() > 0).map(description -> description.split(" ")).filter(array -> array.length > 0).map(array -> array[0]).orElse(null));
+//        testJsonParsing();
+//        System.out.println("Digit = " + getUnidentPersonPetitionsInfoWrapper(4));
+//        getPeriodList(new Date()).forEach(date -> System.out.println(date));
+//        Date truncatedDate = getTruncatedDate(new Date());
+//        Date endDate = getEndDate(truncatedDate);
+//        System.out.println(truncatedDate);
+//        System.out.println(endDate);
+        dateToString();
+    }
+
+    private static void dateToString() {
+//    2021-03-25T13:16:53.163+03:00
+        Date now = new Date();
+        String dateString = new SimpleDateFormat("yyyy-MM-dd").format(now) + "T" + new SimpleDateFormat("HH:mm:ss.SSSZ").format(now);
+        dateString = dateString.substring(0, dateString.length() - 2) + ":" + dateString.substring(dateString.length() - 2, dateString.length());
+        System.out.println("2021-03-25T13:16:53.163+03:00");
+        System.out.println(dateString);
+    }
+
+    private static List<java.sql.Date> getPeriodList(Date date) {
+        Date truncatedDate = DateUtils.truncate(date, Calendar.MONTH);
+        return Arrays.asList(toDate(truncatedDate), toDate(DateUtils.addMonths(truncatedDate, 1)), toDate(DateUtils.addMonths(truncatedDate, -1)));
+    }
+
+    private static java.sql.Date toDate(Date date) {
+        return new java.sql.Date(date.getTime());
+    }
+
+    private static final int ATTEMPTS_COUNT2 = 2;
+    private static final int TIME_TO_WAIT = 10 * 1000;
+
+    private static int someTestDigitState = 0;
+
+    private static int getUnidentPersonPetitionsInfoWrapper(int someDigit) {
+        someTestDigitState = someDigit;
+        Exception lastException = null;
+        for (int i = 0; i < ATTEMPTS_COUNT2; i++) {
+            try {
+                if (someTestDigitState > i) {
+                    throw new RuntimeException("someTestDigitState > i!");
+                } else {
+                    return someDigit + 10;
+                }
+            } catch (Exception e) {
+                System.out.println("getUnidentPersonPetitionsInfoWrapper Exception!");
+                lastException = e;
+                try {
+                    Thread.sleep(TIME_TO_WAIT);
+                } catch (InterruptedException ex) {
+                    System.out.println("getUnidentPersonPetitionsInfoWrapper InterruptedException!");
+                }
+                continue;
+            }
+        }
+        throw new RuntimeException(lastException);
+    }
+
+    private static final String jsonCode = "\"code\":";
+    private static final String jsonMessage = "\"message\":";
+
+    private static void testJsonParsing() {
+        String json = "{\"result\":\"FAIL\",\"code\":\"010\",\"message\":\"Сущность не найдена, url = {17247114-0-C15.8-56080-20210423-01-20210423}\",\"details\":[]}";
+        if (json.contains("\"code\":") && json.contains("\"message\":")) {
+            String codeValue = extractValue(json, jsonCode);
+            String messageValue = extractValue(json, jsonMessage);
+            System.out.println(codeValue + " " + messageValue);
+        }
+    }
+
+    private static String extractValue(String json, String key) {
+        int jsonCodeIndex = json.indexOf(key);
+        String codeValue = json.substring(jsonCodeIndex + key.length() + 1, json.indexOf("\"", jsonCodeIndex + key.length() + 1));
+        return codeValue;
+    }
+
+    private static void merge(InputStream src1, List<InputStream> src2List, OutputStream dest) throws Exception {
+        OPCPackage src1Package = OPCPackage.open(src1);
+        XWPFDocument src1Document = new XWPFDocument(src1Package);
+        XWPFParagraph paragraph_ = src1Document.createParagraph();
+        paragraph_.setPageBreak(true);
+        CTBody src1Body = src1Document.getDocument().getBody();
+        for (int i = 0; i < src2List.size(); i++) {
+            InputStream src2 = src2List.get(i);
+            OPCPackage src2Package = OPCPackage.open(src2);
+            XWPFDocument src2Document = new XWPFDocument(src2Package);
+            if (i < src2List.size() - 1) {
+                XWPFParagraph paragraph = src2Document.createParagraph();
+                paragraph.setPageBreak(true);
+            }
+            CTBody src2Body = src2Document.getDocument().getBody();
+            appendBody(src1Body, src2Body);
+        }
+        src1Document.write(dest);
+    }
+
+    private static void appendBody(CTBody src, CTBody append) throws Exception {
+        XmlOptions optionsOuter = new XmlOptions();
+        optionsOuter.setSaveOuter();
+        String srcString = src.xmlText();
+        String prefix = srcString.substring(0, srcString.indexOf(">") + 1);
+        String mainPart = srcString.substring(srcString.indexOf(">") + 1, srcString.lastIndexOf("<"));
+        String sufix = srcString.substring(srcString.lastIndexOf("<"));
+        String appendString = append.xmlText(optionsOuter);
+        String addPart = appendString.substring(appendString.indexOf(">") + 1, appendString.lastIndexOf("<"));
+        CTBody makeBody = CTBody.Factory.parse(prefix + mainPart + addPart + sufix);
+        src.set(makeBody);
     }
 
     private static void futureExample() {
@@ -479,26 +599,26 @@ public class SomeClass {
     }
 
     private static void handleLpuList() {
-        String lpuList = "1872, 1909, 2078, 2082, 4455, 4522";
+        String lpuList = "1816,1835,1840,1844,1863,1891,1905,1917,1962,2051,2084,2085,2086,2115,2116,2146,2157,2214,2245,2250,2275,2285,2336,2688,2834,2841,3434,4044,4087,4102,4281,4351,4397,4470,4475,4518,4575,4578,4588,4986,5165,5287,5298,5352";
 //        Set<String> notSet = new HashSet<>(Arrays.asList("1872", "1909", "2078", "2082", "2266", "2778", "4455", "4522"));
 //        Set<String> notSet = new HashSet<>(Arrays.asList("4639","2038","1874","4623","3546","2046","4504","4455","1909"));
         Set<String> notSet = new HashSet<>(Arrays.asList("1933", "1864", "2078", "5365", "2346", "2266", "2078", "5004", "4939", "2038", "4639", "1874", "4623", "3546", "2046", "4504", "4455", "1909"));
-        HashSet<String> lpuSet = new HashSet<>(Arrays.asList(lpuList.split("\n")));
+        HashSet<String> lpuSet = new HashSet<>(Arrays.asList(lpuList.split(",")));
 //        lpuSet.removeAll(notSet);
-        String update = lpuSet.stream().map(str -> "update pmp_bill set status='DRAFT' where mo_id=" + str + " and period=to_date('2021-02-01','yyyy-MM-dd');").reduce("", (str1, str2) -> str1 + "\n" + str2);
+        String update = lpuSet.stream().map(str -> "update pmp_bill set status='DRAFT' where mo_id=" + str + " and period=to_date('2021-05-01','yyyy-MM-dd') and bill_type='SMO';").reduce("", (str1, str2) -> str1 + "\n" + str2);
         String lpus = lpuSet.stream().map(str -> "select " + str + " as lpu_id from dual").reduce("", (str1, str2) -> str1 + " union all\n" + str2);
         lpus = lpus.substring(lpus.indexOf("union all") + "union all".length() + 1);
         String insert = "with main_q as(\n" + lpus + "\n)\n"
                 + "select \n"
                 + "'insert into pmp_sync (LPU_ID,PERIOD,CALL_DATA,FEATURE_NAME,CREATED,FAILED,IN_PROGRESS,IS_PROCESS_ALIVE,BILL_STATISTICS_ID,SERVER_IP,PARAMETERS,USER_UNIQUEID,PROCESS_ID)\n"
-                + "values('||q.lpu_id||',to_date(''2021-02-01'',''yyyy-MM-dd''),''RecreateBillsVirtualRequest'',''recreateBillsFeature'',SYSDATE,''0'',null,null,null,null,\n"
+                + "values('||q.lpu_id||',to_date(''2021-05-01'',''yyyy-MM-dd''),''RecreateBillsVirtualRequest'',''recreateBillsFeature'',SYSDATE,''0'',null,null,null,null,\n"
                 + "''[NO-FLK] '||\n"
                 + "(\n"
                 + "select \n"
                 + "listagg(b.id,',') within group(order by b.id) as fds\n"
                 + "from pmp_bill b\n"
                 + "inner join pmp_requirement re on re.id=b.requirement_id\n"
-                + "where re.period=to_date('2021-02-01','yyyy-MM-dd') and re.mo_id=q.lpu_id and b.bill_type<>'SPECIAL'\n"
+                + "where re.period=to_date('2021-05-01','yyyy-MM-dd') and re.mo_id=q.lpu_id and b.bill_type<>'SPECIAL'\n"
                 + ")||\n"
                 + "''',''Me'',null);\n"
                 + "commit;\n"
@@ -507,14 +627,14 @@ public class SomeClass {
                 + ", second_q as(\n"
                 + "select \n"
                 + "'insert into pmp_sync (LPU_ID,PERIOD,CALL_DATA,FEATURE_NAME,CREATED,FAILED,IN_PROGRESS,IS_PROCESS_ALIVE,BILL_STATISTICS_ID,SERVER_IP,PARAMETERS,USER_UNIQUEID,PROCESS_ID)\n"
-                + "values('||q.lpu_id||',to_date(''2021-02-01'',''yyyy-MM-dd''),''SendBillsVirtualRequest'',''sendBillsFeature'',SYSDATE,''0'',null,null,null,null,\n"
+                + "values('||q.lpu_id||',to_date(''2021-05-01'',''yyyy-MM-dd''),''SendBillsVirtualRequest'',''sendBillsFeature'',SYSDATE,''0'',null,null,null,null,\n"
                 + "'''||\n"
                 + "(\n"
                 + "select \n"
                 + "listagg(b.id,',') within group(order by b.id) as fds\n"
                 + "from pmp_bill b\n"
                 + "inner join pmp_requirement re on re.id=b.requirement_id\n"
-                + "where re.period=to_date('2021-02-01','yyyy-MM-dd') and re.mo_id=q.lpu_id and b.status like 'GENERATED%'\n"
+                + "where re.period=to_date('2021-05-01','yyyy-MM-dd') and re.mo_id=q.lpu_id and b.status like 'GENERATED%'\n"
                 + ")||\n"
                 + "''',''Me'',null);\n"
                 + "commit;\n"
@@ -524,12 +644,13 @@ public class SomeClass {
                 + "listagg(b.id,',') within group(order by b.id) as fds\n"
                 + "from pmp_bill b\n"
                 + "inner join pmp_requirement re on re.id=b.requirement_id\n"
-                + "where re.period=to_date('2021-02-01','yyyy-MM-dd') and re.mo_id=q.lpu_id and b.status like 'GENERATED%'\n"
+                + "where re.period=to_date('2021-05-01','yyyy-MM-dd') and re.mo_id=q.lpu_id and b.status like 'GENERATED%'\n"
                 + ") as str2 \n"
                 + "from main_q q)\n"
                 + "select str from second_q where str2 is not null;";
-        System.out.println(update + "\ncommit;\n" + insert + "\n" + send + "\ncommit;\n");
-//        System.out.println(send);
+//        System.out.println(update + "\ncommit;\n" + insert + "\n");
+//        System.out.println(update + "\ncommit;\n" + insert + "\n" + send + "\ncommit;\n");
+        System.out.println(send);
 //        System.out.println(lpuSet.stream().reduce("", (str1, str2) -> str1 + "," + str2));
     }
 
@@ -633,6 +754,10 @@ public class SomeClass {
 
     private static Date getTruncatedDate(Date date) {
         return date != null ? DateUtils.truncate(date, Calendar.DAY_OF_MONTH) : null;
+    }
+
+    private static Date getEndDate(Date truncatedDate) {
+        return DateUtils.addMilliseconds(DateUtils.addDays(truncatedDate, 1), -1);
     }
 
     private static String lpad(Long value) {

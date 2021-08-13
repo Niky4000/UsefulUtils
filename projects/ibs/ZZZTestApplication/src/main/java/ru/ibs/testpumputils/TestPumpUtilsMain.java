@@ -68,7 +68,8 @@ public class TestPumpUtilsMain {
         configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.smo.db.url"));
         configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.smo.db.username"));
         configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.smo.db.password"));
-        EntityScanner.scanPackages("ru.ibs.pmp.api.smo.model", "ru.ibs.pmp.api.model", "ru.ibs.pmp.auth.model").addTo(configuration);
+        configuration.setProperty("hibernate.cache.provider_class", "org.hibernate.cache.EhCacheProvider");
+        EntityScanner.scanPackages("ru.ibs.pmp.smo.dto.pdf").addTo(configuration);
         configuration.configure();
         SessionFactory sessionFactory = configuration.buildSessionFactory();
         return sessionFactory;
