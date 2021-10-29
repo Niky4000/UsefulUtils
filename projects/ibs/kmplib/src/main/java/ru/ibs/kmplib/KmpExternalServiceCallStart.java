@@ -21,6 +21,7 @@ import ru.ibs.kmplib.request.bean.Patient;
 import ru.ibs.kmplib.request.bean.Schedule;
 import ru.ibs.kmplib.request.bean.ScreeningBean;
 import ru.ibs.kmplib.response.bean.ScreeningResponseBean;
+import ru.ibs.kmplib.utils.Utils;
 
 /**
  *
@@ -53,10 +54,12 @@ public class KmpExternalServiceCallStart {
 		System.out.println("unmarshalling finished!");
 	}
 
-	public void groupingTest() {
-		List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = Arrays.asList(new KmpMedicamentPrescribe(1L, "DD0000801", "Аспирин табл. 500мг", new Diagnosis("J03.9", "Острый тонзиллит неуточненный")),
-			new KmpMedicamentPrescribe(2L, "DD0000801", "Аспирин табл. 500мг", new Diagnosis("J10.8", "Грипп")),
-			new KmpMedicamentPrescribe(3L, "SI002679", "Варфарин", new Diagnosis("J03.9", "Острый тонзиллит неуточненный")));
+	private static final int SLICE = 1024;
+
+	public void groupingTest(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList, DatabaseHandler databaseHandler) {
+//		List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = Arrays.asList(new KmpMedicamentPrescribe(1L, "DD0000801", "Аспирин табл. 500мг", new Diagnosis("J03.9", "Острый тонзиллит неуточненный")),
+//			new KmpMedicamentPrescribe(2L, "DD0000801", "Аспирин табл. 500мг", new Diagnosis("J10.8", "Грипп")),
+//			new KmpMedicamentPrescribe(3L, "SI002679", "Варфарин", new Diagnosis("J03.9", "Острый тонзиллит неуточненный")));
 		List<ScreeningBean> screeningBeanList = createScreeningBean(kmpMedicamentPrescribeList);
 		HttpHandler httpHandler = new HttpHandler();
 		List<ScreeningResponseBean> screeningResponseBeanList = screeningBeanList.stream().map(screeningBean -> httpHandler.sendPost(url, screeningBean, ScreeningResponseBean.class)).collect(Collectors.toList());
@@ -68,11 +71,15 @@ public class KmpExternalServiceCallStart {
 			String alert = Optional.ofNullable(allertMap.get(kmp.getDiagnosis())).map(map2 -> map2.get(kmp.getSid())).filter(alertList -> alertList != null && !alertList.isEmpty()).map(alertList -> alertList.stream().reduce((str1, str2) -> str1 + "\r\n" + str2).get()).orElse("Нет");
 			kmp.setAlert(alert);
 		});
+		for (List<KmpMedicamentPrescribe> kmpMedicamentPrescribeSubList : Utils.partition(kmpMedicamentPrescribeList, SLICE)) {
+			databaseHandler.updateKmpMedicamentPrescribe(kmpMedicamentPrescribeSubList);
+		}
 	}
 
 	private void testDataBase() {
 		DatabaseHandler databaseHandler = new DatabaseHandler("bulk-docs.updDs", "bulk-docs.nsi");
-		databaseHandler.handleKmpMedicamentPrescribeList();
+		List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = databaseHandler.handleKmpMedicamentPrescribeList();
+		groupingTest(kmpMedicamentPrescribeList, databaseHandler);
 	}
 
 	private ScreeningBean createTestScreeningBean() {

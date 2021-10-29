@@ -3,6 +3,7 @@ package ru.ibs.kmplib.utils;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -34,6 +35,18 @@ public class DbUtils {
 			}
 		} catch (Exception sqlex) {
 			throw new RuntimeException("Execution of the query " + sql + " Exception!", sqlex);
+		}
+	}
+
+	public static void ins(Connection сonnection, String sql, Consumer<CallableStatement> statementConsumer) {
+		try {
+			try (CallableStatement statement = сonnection.prepareCall(sql)) {
+				statementConsumer.accept(statement);
+				int executeUpdate = statement.executeUpdate();
+				сonnection.commit();
+			}
+		} catch (SQLException sqlex) {
+			throw new RuntimeException("Insertion Exception!", sqlex);
 		}
 	}
 }

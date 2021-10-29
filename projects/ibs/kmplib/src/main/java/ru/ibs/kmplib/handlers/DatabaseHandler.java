@@ -61,7 +61,7 @@ public class DatabaseHandler {
 		return ds;
 	}
 
-	public void handleKmpMedicamentPrescribeList() {
+	public List<KmpMedicamentPrescribe> handleKmpMedicamentPrescribeList() {
 		try (Connection pmpConnection = pmpDataSource.getConnection();
 			Connection nsiConnection = nsiDataSource.getConnection();) {
 			List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = getKmpMedicamentPrescribeList(pmpConnection);
@@ -79,6 +79,26 @@ public class DatabaseHandler {
 				bean.setName(Optional.ofNullable(mvDictVersionsMap.get(bean.getTruncatedDateInj())).map(MvDictVersionsBean::getMedicamentVer).map(versionId -> medicamentMap.get(versionId)).map(map -> map.get(bean.getSid())).orElse(null));
 				Optional.ofNullable(mvDictVersionsMap.get(bean.getTruncatedDateInj())).map(MvDictVersionsBean::getMkb10Ver).map(versionId -> mkb10Map.get(versionId)).map(map -> map.get(bean.getDiagnosis().getDiagnosisCode())).ifPresent(diagnosisName -> bean.getDiagnosis().setDiagnosisName(diagnosisName));
 			});
+			return kmpMedicamentPrescribeList;
+		} catch (SQLException sqlex) {
+			throw new RuntimeException(sqlex);
+		}
+	}
+
+	public void updateKmpMedicamentPrescribe(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList) {
+		String sql = "update kmp_medicament_prescribe set alert=? where id=?";
+		try (Connection pmpConnection = pmpDataSource.getConnection()) {
+			for (KmpMedicamentPrescribe kmpMedicamentPrescribe : kmpMedicamentPrescribeList) {
+				DbUtils.ins(pmpConnection, sql, statement -> {
+					try {
+						int i = 0;
+						statement.setString(++i, kmpMedicamentPrescribe.getAlert());
+						statement.setLong(++i, kmpMedicamentPrescribe.getId());
+					} catch (SQLException sqlex) {
+						throw new RuntimeException(sqlex);
+					}
+				});
+			}
 		} catch (SQLException sqlex) {
 			throw new RuntimeException(sqlex);
 		}
