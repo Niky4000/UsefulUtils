@@ -138,7 +138,7 @@ public class DatabaseHandler {
 				int i = 0;
 				Iterator<String> iterator = versionIdCollection.iterator();
 				while (iterator.hasNext()) {
-					statement.setString(1, iterator.next());
+					statement.setString(++i, iterator.next());
 				}
 			} catch (SQLException sqlex) {
 				throw new RuntimeException(sqlex);
@@ -163,7 +163,7 @@ public class DatabaseHandler {
 				int i = 0;
 				Iterator<String> iterator = versionIdCollection.iterator();
 				while (iterator.hasNext()) {
-					statement.setString(1, iterator.next());
+					statement.setString(++i, iterator.next());
 				}
 			} catch (SQLException sqlex) {
 				throw new RuntimeException(sqlex);
