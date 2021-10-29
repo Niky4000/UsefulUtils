@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import ru.ibs.kmplib.bean.Diagnosis;
 import ru.ibs.kmplib.bean.DrugAlertBean;
 import ru.ibs.kmplib.bean.KmpMedicamentPrescribe;
+import ru.ibs.kmplib.handlers.DatabaseHandler;
 import ru.ibs.kmplib.handlers.HttpHandler;
 import ru.ibs.kmplib.request.bean.Allergies;
 import ru.ibs.kmplib.request.bean.Diseases;
@@ -66,6 +67,11 @@ public class KmpExternalServiceCallStart {
 			String alert = Optional.ofNullable(allertMap.get(kmp.getDiagnosis())).map(map2 -> map2.get(kmp.getSid())).filter(alertList -> alertList != null && !alertList.isEmpty()).map(alertList -> alertList.stream().reduce((str1, str2) -> str1 + "\r\n" + str2).get()).orElse("Нет");
 			kmp.setAlert(alert);
 		});
+	}
+
+	private void testDataBase() {
+		DatabaseHandler databaseHandler = new DatabaseHandler("bulk-docs.updDs", "bulk-docs.nsi");
+		databaseHandler.handleKmpMedicamentPrescribeList();
 	}
 
 	private ScreeningBean createTestScreeningBean() {

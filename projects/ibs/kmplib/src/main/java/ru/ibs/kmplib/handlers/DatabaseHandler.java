@@ -36,15 +36,16 @@ public class DatabaseHandler {
 	private org.apache.tomcat.jdbc.pool.DataSource pmpDataSource;
 	private org.apache.tomcat.jdbc.pool.DataSource nsiDataSource;
 
-	public void setPmpDataSource(DataSource pmpDataSource) {
-		this.pmpDataSource = pmpDataSource;
+	public DatabaseHandler(String pmpPropsPrefix, String nsiPropsPrefix) {
+		try {
+			pmpDataSource = createAndSetDataSource(pmpPropsPrefix);
+			nsiDataSource = createAndSetDataSource(nsiPropsPrefix);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	public void setNsiDataSource(DataSource nsiDataSource) {
-		this.nsiDataSource = nsiDataSource;
-	}
-
-	public void createAndSetDataSource(String propsPrefix, Consumer<org.apache.tomcat.jdbc.pool.DataSource> consumer) throws FileNotFoundException, IOException {
+	private org.apache.tomcat.jdbc.pool.DataSource createAndSetDataSource(String propsPrefix) throws FileNotFoundException, IOException {
 		Properties properties = new Properties();
 		properties.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
 		org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
@@ -57,10 +58,10 @@ public class DatabaseHandler {
 		p.setInitialSize(0);
 		p.setMinIdle(0);
 		ds.setPoolProperties(p);
-		consumer.accept(ds);
+		return ds;
 	}
 
-	public void handleKmpMedicamentPrescribeList() throws SQLException {
+	public void handleKmpMedicamentPrescribeList() {
 		try (Connection pmpConnection = pmpDataSource.getConnection();
 			Connection nsiConnection = nsiDataSource.getConnection();) {
 			List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = getKmpMedicamentPrescribeList(pmpConnection);
@@ -78,6 +79,8 @@ public class DatabaseHandler {
 				bean.setName(Optional.ofNullable(mvDictVersionsMap.get(bean.getTruncatedDateInj())).map(MvDictVersionsBean::getMedicamentVer).map(versionId -> medicamentMap.get(versionId)).map(map -> map.get(bean.getSid())).orElse(null));
 				Optional.ofNullable(mvDictVersionsMap.get(bean.getTruncatedDateInj())).map(MvDictVersionsBean::getMkb10Ver).map(versionId -> mkb10Map.get(versionId)).map(map -> map.get(bean.getDiagnosis().getDiagnosisCode())).ifPresent(diagnosisName -> bean.getDiagnosis().setDiagnosisName(diagnosisName));
 			});
+		} catch (SQLException sqlex) {
+			throw new RuntimeException(sqlex);
 		}
 	}
 
