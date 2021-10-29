@@ -72,7 +72,7 @@ public class DatabaseHandler {
 			Set<String> mkb10VersionIdSet = mvDictVersions.stream().map(MvDictVersionsBean::getMkb10Ver).collect(Collectors.toSet());
 			Set<String> medicamentVersionIdSet = mvDictVersions.stream().map(MvDictVersionsBean::getMedicamentVer).collect(Collectors.toSet());
 			List<NsiMkbDiagnosesBean> mkb10BeanList = getMkb10(nsiConnection, mkb10VersionIdSet);
-			List<NsiMedicament> medicamentBeanList = getMedicamentDictionary(nsiConnection, mkb10VersionIdSet);
+			List<NsiMedicament> medicamentBeanList = getMedicamentDictionary(nsiConnection, medicamentVersionIdSet);
 			Map<String, Map<String, String>> mkb10Map = mkb10BeanList.stream().collect(Collectors.groupingBy(NsiMkbDiagnosesBean::getVersionId, Collectors.collectingAndThen(Collectors.toList(), list -> list.stream().collect(Collectors.toMap(NsiMkbDiagnosesBean::getCode, NsiMkbDiagnosesBean::getName)))));
 			Map<String, Map<String, String>> medicamentMap = medicamentBeanList.stream().collect(Collectors.groupingBy(NsiMedicament::getVersionId, Collectors.collectingAndThen(Collectors.toList(), list -> list.stream().collect(Collectors.toMap(NsiMedicament::getCode, NsiMedicament::getName)))));
 			kmpMedicamentPrescribeList.forEach(bean -> {
