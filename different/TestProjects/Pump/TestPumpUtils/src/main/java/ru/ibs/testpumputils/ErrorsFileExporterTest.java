@@ -26,24 +26,28 @@ public class ErrorsFileExporterTest {
     public static void test() throws Exception {
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         try {
-            Session session = sessionFactory.openSession();
-            List<Object[]> resultList = session.createSQLQuery("select period,mo_id,parcel_id,flk_version,file_name,recid,error_code,e_cod,e_ku,e_tip,refreason,et230,osn230,lpu_id,fil_id from table (pmp_smo1.pmp_ctrl_file.GET_TABLE(:period,:lpuId,:rev))").setParameter("period", new SimpleDateFormat("yyyy-MM-dd").parse("2020-05-01")).setParameter("lpuId", 4102L).setParameter("rev", 1008650L).list();
-            List<ErrorRecord> errorRecordList = resultList.stream().map(objArray -> {
-                ErrorRecord errorRecord = new ErrorRecord();
-                errorRecord.setMoId(objArray[1] != null ? ((Number) objArray[1]).intValue() : null); // mo_id
-                errorRecord.setParcelId(objArray[2] != null ? ((Number) objArray[2]).longValue() : null); // parcel_id
-                errorRecord.setFile((String) objArray[4]); // file_name VARCHAR2(20)
-                errorRecord.setRecordId((String) objArray[5]); // recid VARCHAR2(20)
-                errorRecord.setReasonCode((String) objArray[6]); // error_code VARCHAR2(20)
-                errorRecord.setReplacementServiceCode(objArray[7] != null ? ((Number) objArray[7]).intValue() : null); // e_cod NUMBER
-                errorRecord.setReplacementServiceQuantity(objArray[8] != null ? ((Number) objArray[8]).intValue() : null); // e_ku NUMBER
-                errorRecord.setInterruptionTypeCode((String) objArray[9]); // e_tip VARCHAR2(20)
-                errorRecord.setFomsCode((String) objArray[10]); // refreason VARCHAR2(20)
-                errorRecord.setExpertiseStage(objArray[11] != null ? ((Number) objArray[11]).intValue() : null); // et230 NUMBER
-                errorRecord.setReasonCode((String) objArray[12]); // osn230 VARCHAR2(20)
-                return errorRecord;
-            }).collect(Collectors.toList());
-            System.out.println("Size = " + errorRecordList.size() + "!");
+	    Session session = sessionFactory.openSession();
+	    try {
+		List<Object[]> resultList = session.createSQLQuery("select period,mo_id,parcel_id,flk_version,file_name,recid,error_code,e_cod,e_ku,e_tip,refreason,et230,osn230,lpu_id,fil_id from table (pmp_smo1.pmp_ctrl_file.GET_TABLE(:period,:lpuId,:rev))").setParameter("period", new SimpleDateFormat("yyyy-MM-dd").parse("2020-05-01")).setParameter("lpuId", 4102L).setParameter("rev", 1008650L).list();
+		List<ErrorRecord> errorRecordList = resultList.stream().map(objArray -> {
+		    ErrorRecord errorRecord = new ErrorRecord();
+		    errorRecord.setMoId(objArray[1] != null ? ((Number) objArray[1]).intValue() : null); // mo_id
+		    errorRecord.setParcelId(objArray[2] != null ? ((Number) objArray[2]).longValue() : null); // parcel_id
+		    errorRecord.setFile((String) objArray[4]); // file_name VARCHAR2(20)
+		    errorRecord.setRecordId((String) objArray[5]); // recid VARCHAR2(20)
+		    errorRecord.setReasonCode((String) objArray[6]); // error_code VARCHAR2(20)
+		    errorRecord.setReplacementServiceCode(objArray[7] != null ? ((Number) objArray[7]).intValue() : null); // e_cod NUMBER
+		    errorRecord.setReplacementServiceQuantity(objArray[8] != null ? ((Number) objArray[8]).intValue() : null); // e_ku NUMBER
+		    errorRecord.setInterruptionTypeCode((String) objArray[9]); // e_tip VARCHAR2(20)
+		    errorRecord.setFomsCode((String) objArray[10]); // refreason VARCHAR2(20)
+		    errorRecord.setExpertiseStage(objArray[11] != null ? ((Number) objArray[11]).intValue() : null); // et230 NUMBER
+		    errorRecord.setReasonCode((String) objArray[12]); // osn230 VARCHAR2(20)
+		    return errorRecord;
+		}).collect(Collectors.toList());
+		System.out.println("Size = " + errorRecordList.size() + "!");
+	    } finally {
+		session.close();
+	    }
         } finally {
             sessionFactory.cleanSessions();
             sessionFactory.close();

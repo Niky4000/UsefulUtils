@@ -68,14 +68,14 @@
             <classifier>classes</classifier>
             <scope>compile</scope>
         </dependency>
-<!--        <dependency>
+        <dependency>
             <groupId>ru.ibs.pmp</groupId>
             <artifactId>module-reports-pmp</artifactId>
             <version>1.1807.1</version>
             <type>jar</type>
             <classifier>classes</classifier>
             <scope>compile</scope>
-        </dependency>-->
+        </dependency>
         <!--        <dependency>
             <groupId>ru.ibs.pmp</groupId>
             <artifactId>module-lpu-registry-pmp</artifactId>

@@ -36,19 +36,23 @@ public class CheckH65Test {
     public static void test() throws Exception {
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         try {
-            Session session = sessionFactory.openSession();
-            MedicalCase medicalCase = (MedicalCase) session.get(MedicalCase.class, 242580090356L);
-            CheckH65 checkH65 = new CheckH65();
-            ServiceFacade serviceFacade = new ServiceFacadeImpl();
-            MedicalCaseServiceImplementation medicalCaseService = new MedicalCaseServiceImplementation() {
-            };
-            FieldUtil.setField(checkH65, AbstractFLKCheck.class, serviceFacade, "serviceFacade");
-            FieldUtil.setField(serviceFacade, medicalCaseService, "medicalCaseService");
-            MedicalCaseDAOHibernate medicalCaseDAOHibernate = new MedicalCaseDAOHibernate();
-            FieldUtil.setField(medicalCaseService, ModulePmpAbstractGenericService.class, medicalCaseDAOHibernate, "dao");
-            FieldUtil.setField(medicalCaseDAOHibernate, AbstractGenericDAO.class, sessionFactory, "sessionFactory");
-            ErrorMarker marker = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            checkH65.execute(medicalCase, marker);
+	    Session session = sessionFactory.openSession();
+	    try {
+		MedicalCase medicalCase = (MedicalCase) session.get(MedicalCase.class, 242580090356L);
+		CheckH65 checkH65 = new CheckH65();
+		ServiceFacade serviceFacade = new ServiceFacadeImpl();
+		MedicalCaseServiceImplementation medicalCaseService = new MedicalCaseServiceImplementation() {
+		};
+		FieldUtil.setField(checkH65, AbstractFLKCheck.class, serviceFacade, "serviceFacade");
+		FieldUtil.setField(serviceFacade, medicalCaseService, "medicalCaseService");
+		MedicalCaseDAOHibernate medicalCaseDAOHibernate = new MedicalCaseDAOHibernate();
+		FieldUtil.setField(medicalCaseService, ModulePmpAbstractGenericService.class, medicalCaseDAOHibernate, "dao");
+		FieldUtil.setField(medicalCaseDAOHibernate, AbstractGenericDAO.class, sessionFactory, "sessionFactory");
+		ErrorMarker marker = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+		checkH65.execute(medicalCase, marker);
+	    } finally {
+		session.close();
+	    }
         } finally {
             sessionFactory.cleanSessions();
             sessionFactory.close();

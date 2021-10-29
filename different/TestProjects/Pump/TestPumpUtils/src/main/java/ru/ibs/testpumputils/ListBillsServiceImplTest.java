@@ -28,9 +28,13 @@ public class ListBillsServiceImplTest {
             FieldUtil.setField(listBillsServiceImpl, billStatisticsDAO, "billStatisticsDAO");
             Method getInfoFromBillStatisticsTimeListWrapperMethod = listBillsServiceImpl.getClass().getDeclaredMethod("getInfoFromBillStatisticsTimeListWrapper", Bill.class);
             getInfoFromBillStatisticsTimeListWrapperMethod.setAccessible(true);
-            Session session = sessionFactory.openSession();
-            Bill bill = (Bill) session.get(Bill.class, 10169048L);
-            session.close();
+	    Bill bill;
+	    Session session = sessionFactory.openSession();
+	    try {
+		bill = (Bill) session.get(Bill.class, 10169048L);
+	    } finally {
+		session.close();
+	    }
             List<String> list = (List<String>) getInfoFromBillStatisticsTimeListWrapperMethod.invoke(listBillsServiceImpl, bill);
             list.stream().forEachOrdered(str -> System.out.println(str));
         } finally {

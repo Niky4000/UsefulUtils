@@ -25,16 +25,20 @@ public class CheckOOTest {
     public static void test() throws IOException {
         sessionFactory = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(TestPumpUtilsMain.buildSessionFactory(), new SqlRewriteInterceptorExt()));
         try {
-            Session session = sessionFactory.openSession();
-            CheckOO02 checkOO02 = new CheckOO02();
-            CheckOO03 checkOO03 = new CheckOO03();
-            MedicalCase medicalCase = (MedicalCase) session.get(MedicalCase.class, 1099704401L);
-            ErrorMarkerImpl marker = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            ErrorMarkerImpl marker2 = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            checkOO02.execute(medicalCase, marker);
-            checkOO03.execute(medicalCase, marker2);
-            System.err.println("CheckOO02 = " + marker.isMarkPlaced());
-            System.err.println("CheckOO03 = " + marker2.isMarkPlaced());
+	    Session session = sessionFactory.openSession();
+	    try {
+		CheckOO02 checkOO02 = new CheckOO02();
+		CheckOO03 checkOO03 = new CheckOO03();
+		MedicalCase medicalCase = (MedicalCase) session.get(MedicalCase.class, 1099704401L);
+		ErrorMarkerImpl marker = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+		ErrorMarkerImpl marker2 = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+		checkOO02.execute(medicalCase, marker);
+		checkOO03.execute(medicalCase, marker2);
+		System.err.println("CheckOO02 = " + marker.isMarkPlaced());
+		System.err.println("CheckOO03 = " + marker2.isMarkPlaced());
+	    } finally {
+		session.close();
+	    }
         } finally {
             sessionFactory.cleanSessions();
             sessionFactory.close();

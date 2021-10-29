@@ -95,6 +95,7 @@ public class TestVD {
             ErrorMarker marker = new ErrorMarkerImpl("VD", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
             checkSpecialistVD.execute(medicalCase2, marker);
         } finally {
+	    session.close();
             sessionFactory.cleanSessions();
             sessionFactory.close();
         }
@@ -136,6 +137,8 @@ public class TestVD {
             ErrorMarker marker = new ErrorMarkerImpl("VD", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
             checkSpecialistVD.execute(medicalCase, marker);
         } finally {
+	    session.close();
+	    practSession.close();
             practSessionFactory.cleanSessions();
             practSessionFactory.close();
             sessionFactory.cleanSessions();

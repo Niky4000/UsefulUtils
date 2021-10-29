@@ -67,11 +67,14 @@ public class CheckInvoiceNUTest {
             FieldUtil.setField(tapInfoDAOHibernate, AbstractGenericDAO.class, sessionFactory, "sessionFactory");
 
             ErrorMarker errorMarker = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            Session session = sessionFactory.openSession();
+	    Session session = sessionFactory.openSession();
+	    try {
 //            TapInfo medicalCase = (TapInfo) session.get(MedicalCase.class, 240581330381L);
-            TapInfo medicalCase = (TapInfo) session.get(MedicalCase.class, 244212335386L);
-            checkInvoiceNU.execute(medicalCase, errorMarker);
-            session.close();
+		TapInfo medicalCase = (TapInfo) session.get(MedicalCase.class, 244212335386L);
+		checkInvoiceNU.execute(medicalCase, errorMarker);
+	    } finally {
+		session.close();
+	    }
         } finally {
             sessionFactory.cleanSessions();
             sessionFactory.close();

@@ -230,16 +230,19 @@ public class PmpWsImplTest {
     }
 
     private static void testBill() {
-        Session session = sessionFactory.openSession();
-        Requirement requirement = (Requirement) session.get(Requirement.class, 100023483L);
+	Session session = sessionFactory.openSession();
+	try {
+	    Requirement requirement = (Requirement) session.get(Requirement.class, 100023483L);
 //        for (Bill bill : requirement.getBills()) {
 //            BillInfo billInfo = billDAOHibernate.getBillInfo(bill, 0L);
 //        }
-        List<BillInfo> billInfoList = requirement.getBills().stream().map(bill -> billDAOHibernate.getBillInfo(bill, 0L)).collect(Collectors.toList());
+	    List<BillInfo> billInfoList = requirement.getBills().stream().map(bill -> billDAOHibernate.getBillInfo(bill, 0L)).collect(Collectors.toList());
 //        String billInfoListStr = billInfoList.stream().map(billInfo -> billInfo.getBillId() + " " + (billInfo.getSentAISOMSDate() != null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(billInfo.getSentAISOMSDate()) : "null") + "\r\n").sorted().reduce((str1, str2) -> str1 + str2).get();
-        String billInfoListStr = billInfoList.stream().map(billInfo -> "select " + billInfo.getBillId() + " as bill_id, '" + (billInfo.getSentAISOMSDate() != null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(billInfo.getSentAISOMSDate()) : "null") + "' as send_date from dual\r\nunion all\r\n").sorted().reduce((str1, str2) -> str1 + str2).get();
-        System.out.println(billInfoListStr);
-        session.close();
+	    String billInfoListStr = billInfoList.stream().map(billInfo -> "select " + billInfo.getBillId() + " as bill_id, '" + (billInfo.getSentAISOMSDate() != null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(billInfo.getSentAISOMSDate()) : "null") + "' as send_date from dual\r\nunion all\r\n").sorted().reduce((str1, str2) -> str1 + str2).get();
+	    System.out.println(billInfoListStr);
+	} finally {
+	    session.close();
+	}
     }
 
     private static Object parseJSONcommits(byte[] string, TypeReference ref) throws Exception {

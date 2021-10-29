@@ -25,10 +25,14 @@ public class BillStatisticsDAOHibernateTest {
             Method method = BillStatisticsDAOHibernate.class.getDeclaredMethod("getInfoFromBillStatisticsTimeList", List.class);
             method.setAccessible(true);
             method.invoke(billStatisticsDAOHibernate, Arrays.asList("RmiHost: 192.168.192.217: Warning! Duplicate patients: 993240579 patientType: 1 insuranceNumber: 2958520828000351 caseId: 198904265356 billId: 100203119!"));
-            Session session = sessionFactory.openSession();
-            Requirement requirement = (Requirement) session.get(Requirement.class, 100023146L);
-            FieldUtil.setField(billStatisticsDAOHibernate, sessionFactory, "sessionFactory");
-            billStatisticsDAOHibernate.getDuplicatePatientsInfo(requirement);
+	    Session session = sessionFactory.openSession();
+	    try {
+		Requirement requirement = (Requirement) session.get(Requirement.class, 100023146L);
+		FieldUtil.setField(billStatisticsDAOHibernate, sessionFactory, "sessionFactory");
+		billStatisticsDAOHibernate.getDuplicatePatientsInfo(requirement);
+	    } finally {
+		session.close();
+	    }
         } finally {
             sessionFactory.cleanSessions();
             sessionFactory.close();

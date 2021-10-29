@@ -68,19 +68,21 @@ public class CheckNLTest {
 //            FieldUtil.setField(tapInfoDAOHibernate, AbstractGenericDAO.class, sessionFactory, "sessionFactory");
 
             ErrorMarker errorMarker = new ErrorMarkerImpl("", new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new HashSet<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            Session session = sessionFactory.openSession();
-
-            FindNsiSplpuEntry findNsiSplpuEntry = new FindNsiSplpuFeature();
-            FieldUtil.setField(checkNL, AbstractFLKCheck.class, findNsiSplpuEntry, "findNsiSplpuEntry");
-            ru.ibs.pmp.nsi.service.NsiService nsiService = new ru.ibs.pmp.nsi.service.NsiServiceImpl();
-            FieldUtil.setField(nsiService, nsiSessionFactoryProxy, "sessionFactory");
-            FieldUtil.setField(nsiService, appContext, "appContext");
-            FieldUtil.setField(findNsiSplpuEntry, nsiService, "nsiService");
+	    Session session = sessionFactory.openSession();
+	    try {
+		FindNsiSplpuEntry findNsiSplpuEntry = new FindNsiSplpuFeature();
+		FieldUtil.setField(checkNL, AbstractFLKCheck.class, findNsiSplpuEntry, "findNsiSplpuEntry");
+		ru.ibs.pmp.nsi.service.NsiService nsiService = new ru.ibs.pmp.nsi.service.NsiServiceImpl();
+		FieldUtil.setField(nsiService, nsiSessionFactoryProxy, "sessionFactory");
+		FieldUtil.setField(nsiService, appContext, "appContext");
+		FieldUtil.setField(findNsiSplpuEntry, nsiService, "nsiService");
 
 //            TapInfo medicalCase = (TapInfo) session.get(MedicalCase.class, 240581330381L);
-            MedicalCase medicalCase = (MedicalCase) session.get(MedicalCase.class, 245218540358L);
-            checkNL.execute(medicalCase, errorMarker);
-            session.close();
+		MedicalCase medicalCase = (MedicalCase) session.get(MedicalCase.class, 245218540358L);
+		checkNL.execute(medicalCase, errorMarker);
+	    } finally {
+		session.close();
+	    }
         } finally {
 //            sessionFactory.cleanSessions();
             sessionFactory.close();
