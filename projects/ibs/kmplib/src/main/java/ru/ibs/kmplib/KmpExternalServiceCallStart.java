@@ -35,7 +35,8 @@ public class KmpExternalServiceCallStart {
 		KmpExternalServiceCallStart kmpExternalServiceCallStart = new KmpExternalServiceCallStart();
 //		kmpExternalServiceCallStart.test();
 //		kmpExternalServiceCallStart.parsingTest();
-		kmpExternalServiceCallStart.groupingTest();
+//		kmpExternalServiceCallStart.groupingTest();
+		kmpExternalServiceCallStart.testDataBase();
 	}
 
 	public void test() throws Exception {
