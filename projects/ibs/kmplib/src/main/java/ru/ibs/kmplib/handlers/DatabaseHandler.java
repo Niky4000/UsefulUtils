@@ -87,7 +87,7 @@ public class DatabaseHandler {
 	private static final int LIMIT = 1048576;
 
 	private List<KmpMedicamentPrescribe> getKmpMedicamentPrescribeList(Connection pmpConnection) throws SQLException {
-		DbUtils.ex(pmpConnection, "select id,sid,date_inj,ds from kmp_medicament_prescribe where alert is null", statement -> {
+		return DbUtils.ex(pmpConnection, "select id,sid,date_inj,ds from kmp_medicament_prescribe where alert is null", statement -> {
 		}, resultSet -> {
 			try {
 				int i = 0;
@@ -100,7 +100,6 @@ public class DatabaseHandler {
 				throw new RuntimeException(sqlex);
 			}
 		}, LIMIT);
-		return null;
 	}
 
 	private List<MvDictVersionsBean> getMvDictVersions(final Connection nsiConnection, Collection<java.sql.Date> periodCollection) {
