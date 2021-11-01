@@ -13,6 +13,7 @@ import ru.ibs.kmplib.bean.DrugAlertBean;
 import ru.ibs.kmplib.bean.KmpMedicamentPrescribe;
 import ru.ibs.kmplib.handlers.DatabaseHandler;
 import ru.ibs.kmplib.handlers.HttpHandler;
+import ru.ibs.kmplib.handlers.MainHandler;
 import ru.ibs.kmplib.request.bean.Allergies;
 import ru.ibs.kmplib.request.bean.Diseases;
 import ru.ibs.kmplib.request.bean.DopingAlerts;
@@ -38,8 +39,15 @@ public class KmpExternalServiceCallStart {
 //		kmpExternalServiceCallStart.test();
 //		kmpExternalServiceCallStart.parsingTest();
 //		kmpExternalServiceCallStart.groupingTest();
-		kmpExternalServiceCallStart.testDataBase();
+//		kmpExternalServiceCallStart.testDataBase();
 //		kmpExternalServiceCallStart.straightHttpTest();
+		kmpExternalServiceCallStart.run();
+	}
+
+	public void run() {
+//		MainHandler mainHandler = new MainHandler(url, DatabaseHandler.createDataSource("bulk-docs.updDs"), DatabaseHandler.createDataSource("bulk-docs.nsi"));
+		MainHandler mainHandler = new MainHandler(url, null, null);
+		mainHandler.init();
 	}
 
 	public void test() throws Exception {
@@ -71,9 +79,9 @@ public class KmpExternalServiceCallStart {
 		HttpHandler httpHandler = new HttpHandler();
 		List<ScreeningResponseBean> screeningResponseBeanList = screeningBeanList.stream().map(screeningBean -> httpHandler.sendPost(url, screeningBean, ScreeningResponseBean.class)).collect(Collectors.toList());
 		Map<Diagnosis, Map<String, Set<String>>> allertMap = screeningResponseBeanList.stream().filter(responseBean -> responseBean.getDiseaseContraindications() != null && responseBean.getDiseaseContraindications().getItemsList() != null && !responseBean.getDiseaseContraindications().getItemsList().isEmpty())
-				.flatMap(responseBean -> responseBean.getDiseaseContraindications().getItemsList().stream()).filter(item -> item.getAlert() != null && item.getDrugsList() != null && !item.getDrugsList().isEmpty() && item.getDiseasesList() != null && item.getDiseasesList().size() == 1)
-				.collect(Collectors.groupingBy(item -> new Diagnosis(item.getDiseasesList().get(0).getCode()), Collectors.collectingAndThen(Collectors.toList(), ff -> ff.stream().flatMap(item -> item.getDrugsList().stream().map(drug -> new DrugAlertBean(drug, item.getAlert())))
-				.collect(Collectors.groupingBy(DrugAlertBean::getCode, Collectors.collectingAndThen(Collectors.toList(), ff2 -> ff2.stream().map(DrugAlertBean::getAlert).collect(Collectors.toSet())))))));
+			.flatMap(responseBean -> responseBean.getDiseaseContraindications().getItemsList().stream()).filter(item -> item.getAlert() != null && item.getDrugsList() != null && !item.getDrugsList().isEmpty() && item.getDiseasesList() != null && item.getDiseasesList().size() == 1)
+			.collect(Collectors.groupingBy(item -> new Diagnosis(item.getDiseasesList().get(0).getCode()), Collectors.collectingAndThen(Collectors.toList(), ff -> ff.stream().flatMap(item -> item.getDrugsList().stream().map(drug -> new DrugAlertBean(drug, item.getAlert())))
+			.collect(Collectors.groupingBy(DrugAlertBean::getCode, Collectors.collectingAndThen(Collectors.toList(), ff2 -> ff2.stream().map(DrugAlertBean::getAlert).collect(Collectors.toSet())))))));
 		kmpMedicamentPrescribeList.forEach(kmp -> {
 			String alert = Optional.ofNullable(allertMap.get(kmp.getDiagnosis())).map(map2 -> map2.get(kmp.getSid())).filter(alertSet -> alertSet != null && !alertSet.isEmpty()).map(alertSet -> alertSet.stream().sorted().reduce((str1, str2) -> str1 + "\r\n" + str2).get()).orElse("Нет");
 			kmp.setAlert(alert);
@@ -94,10 +102,10 @@ public class KmpExternalServiceCallStart {
 		screeningBean.setScreeningTypes("DrugDrugInteractions, AllergicReactions, AgeContraindications, DiseaseContraindications");
 		screeningBean.setPatient(new Patient("1985-11-07", "Female"));
 		screeningBean.setDrugsList(Arrays.asList(new Drugs(new Schedule("2021-10-20", "2021-10-25"), true, "DispensableDrug", "DD0000801", "Аспирин табл. 500мг"),
-				new Drugs(null, true, "DispensableDrug", "DD0009390", "Варфарекс табл. 5мг"),
-				new Drugs(null, true, "DispensableDrug", "DD999999", "Ошибочный препарат")));
+			new Drugs(null, true, "DispensableDrug", "DD0009390", "Варфарекс табл. 5мг"),
+			new Drugs(null, true, "DispensableDrug", "DD999999", "Ошибочный препарат")));
 		screeningBean.setAllergiesList(Arrays.asList(new Allergies(true, "ScreenableIngredient", "SI002679", "Варфарин"),
-				new Allergies(true, "AllergenClass", "ALGC0029", "Салицилаты")));
+			new Allergies(true, "AllergenClass", "ALGC0029", "Салицилаты")));
 		screeningBean.setDiseasesList(Arrays.asList(new Diseases(true, "ICD10CM", "J03.9", "Острый тонзиллит неуточненный")));
 		screeningBean.setOptions(new Options(true, true, new DopingAlerts(false, false)));
 		screeningBean.setIncludeFinishedDrugs(false);

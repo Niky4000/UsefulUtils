@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -56,20 +58,26 @@ public class DatabaseHandler {
 		this.nsiDataSource = nsiDataSource;
 	}
 
-	public static org.apache.tomcat.jdbc.pool.DataSource createDataSource(String propsPrefix) throws FileNotFoundException, IOException {
-		Properties properties = new Properties();
-		properties.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
-		org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
-		PoolProperties p = new PoolProperties();
-		p.setName(propsPrefix);
-		p.setDriverClassName(properties.getProperty(propsPrefix + ".datasource.pooled.driverClass"));
-		p.setUrl(properties.getProperty(propsPrefix + ".datasource.pooled.jdbcUrl"));
-		p.setUsername(properties.getProperty(propsPrefix + ".datasource.pooled.user"));
-		p.setPassword(properties.getProperty(propsPrefix + ".datasource.pooled.password"));
-		p.setInitialSize(0);
-		p.setMinIdle(0);
-		ds.setPoolProperties(p);
-		return ds;
+	public static org.apache.tomcat.jdbc.pool.DataSource createDataSource(String propsPrefix) {
+		try {
+			Properties properties = new Properties();
+			properties.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
+			org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
+			PoolProperties p = new PoolProperties();
+			p.setName(propsPrefix);
+			p.setDriverClassName(properties.getProperty(propsPrefix + ".datasource.pooled.driverClass"));
+			p.setUrl(properties.getProperty(propsPrefix + ".datasource.pooled.jdbcUrl"));
+			p.setUsername(properties.getProperty(propsPrefix + ".datasource.pooled.user"));
+			p.setPassword(properties.getProperty(propsPrefix + ".datasource.pooled.password"));
+			p.setInitialSize(0);
+			p.setMinIdle(0);
+			ds.setPoolProperties(p);
+			return ds;
+		} catch (FileNotFoundException ex) {
+			throw new RuntimeException(ex);
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 
 	private final Map<CacheKey<java.util.Date>, MvDictVersionsBean> mvDictVersionsMap = new HashMap<>();
@@ -107,16 +115,21 @@ public class DatabaseHandler {
 	}
 
 	private static final int secondsToKeepCache = 60 * 60 * 2; // 2 hours!
+	private static final long millisecondsMultiplier = 1000;
 
 	public long cleanCache() {
 		synchronized (mvDictVersionsMap) {
 			synchronized (mkb10Map) {
 				synchronized (medicamentMap) {
 					java.util.Date now = new java.util.Date();
-					List<java.util.Date> dateList = Arrays.asList(cleanCache(now, mvDictVersionsMap.entrySet().iterator()), cleanCache(now, mkb10Map.entrySet().iterator()), cleanCache(now, medicamentMap.entrySet().iterator()));
-					Collections.sort(dateList);
-					long waitTime = (long) secondsToKeepCache - (now.getTime() - dateList.get(0).getTime());
-					return waitTime > 0L ? waitTime : 0L;
+					List<java.util.Date> dateList = Arrays.asList(cleanCache(now, mvDictVersionsMap.entrySet().iterator()), cleanCache(now, mkb10Map.entrySet().iterator()), cleanCache(now, medicamentMap.entrySet().iterator())).stream().filter(date -> date != null).collect(Collectors.toList());
+					if (!dateList.isEmpty()) {
+						Collections.sort(dateList);
+						long waitTime = (long) secondsToKeepCache * millisecondsMultiplier - (now.getTime() - dateList.get(0).getTime());
+						return waitTime > 0L ? waitTime : 0L;
+					} else {
+						return (long) secondsToKeepCache * millisecondsMultiplier;
+					}
 				}
 			}
 		}
@@ -132,7 +145,7 @@ public class DatabaseHandler {
 				minimumCreated = created;
 			}
 		}
-		return minimumCreated != null ? minimumCreated : DateUtils.addSeconds(now, -secondsToKeepCache);
+		return minimumCreated;
 	}
 
 	public List<Long> isItTriggered() {

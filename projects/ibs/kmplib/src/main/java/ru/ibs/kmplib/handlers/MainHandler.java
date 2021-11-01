@@ -64,8 +64,21 @@ public class MainHandler {
 				}
 			}
 		});
-		cacheThread.setName("MainKmpHandlingThread");
+		cacheThread.setName("MainKmpCacheCleaningThread");
 		cacheThread.start();
+		joinToThread(mainThread);
+		joinToThread(cacheThread);
+	}
+
+	private static void joinToThread(Thread thread) {
+		while (true) {
+			try {
+				thread.join();
+				break;
+			} catch (InterruptedException ex) {
+				log.error("InterruptedException in joinToThread!", ex);
+			}
+		}
 	}
 
 	private void handle() {
