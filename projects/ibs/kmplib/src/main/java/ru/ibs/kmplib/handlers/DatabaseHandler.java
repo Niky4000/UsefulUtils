@@ -179,17 +179,19 @@ public class DatabaseHandler {
 	}
 
 	private void updateTime(Connection pmpConnection, String timeColumn, List<Long> idList) {
-		final String sql = "update KMP_PRECALC_TABLE_LOG set " + timeColumn + "=? where id in(" + idList.stream().map(obj -> "?").reduce((str1, str2) -> str1 + "," + str2).get() + ")";
-		DbUtils.ins(pmpConnection, sql, statement -> {
-			try {
-				statement.setTimestamp(1, new Timestamp(new java.util.Date().getTime()));
-				for (int i = 1; i <= idList.size(); i++) {
-					statement.setLong(i + 1, idList.get(i - 1));
+		if (!idList.isEmpty()) {
+			final String sql = "update KMP_PRECALC_TABLE_LOG set " + timeColumn + "=? where id in(" + idList.stream().map(obj -> "?").reduce((str1, str2) -> str1 + "," + str2).get() + ")";
+			DbUtils.ins(pmpConnection, sql, statement -> {
+				try {
+					statement.setTimestamp(1, new Timestamp(new java.util.Date().getTime()));
+					for (int i = 1; i <= idList.size(); i++) {
+						statement.setLong(i + 1, idList.get(i - 1));
+					}
+				} catch (SQLException ex) {
+					throw new RuntimeException(ex);
 				}
-			} catch (SQLException ex) {
-				throw new RuntimeException(ex);
-			}
-		});
+			});
+		}
 	}
 
 	public void updateKmpMedicamentPrescribe(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList) {

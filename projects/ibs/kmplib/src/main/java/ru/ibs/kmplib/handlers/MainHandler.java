@@ -39,6 +39,8 @@ public class MainHandler {
 		databaseHandler = new DatabaseHandler(pmpDataSource, nsiDataSource);
 	}
 
+	private static final int TIME_TO_WAIT = 20 * 1000; // 20 seconds
+
 	public void init() {
 		Thread mainThread = new Thread(() -> {
 			while (true) {
@@ -51,23 +53,28 @@ public class MainHandler {
 				} catch (Exception ex) {
 					log.error("mainThread Exception!", ex);
 				}
+				waitSomeTime(TIME_TO_WAIT);
 			}
 		});
 		mainThread.setName("MainKmpHandlingThread");
 		mainThread.start();
 		Thread cacheThread = new Thread(() -> {
 			while (true) {
-				try {
-					Thread.sleep(databaseHandler.cleanCache());
-				} catch (InterruptedException ex) {
-					log.error("cacheThread InterruptedException!", ex);
-				}
+				waitSomeTime(databaseHandler.cleanCache());
 			}
 		});
 		cacheThread.setName("MainKmpCacheCleaningThread");
 		cacheThread.start();
 		joinToThread(mainThread);
 		joinToThread(cacheThread);
+	}
+
+	private void waitSomeTime(long timeToWait) {
+		try {
+			Thread.sleep(timeToWait);
+		} catch (InterruptedException ex) {
+			log.error("cacheThread InterruptedException!", ex);
+		}
 	}
 
 	private static void joinToThread(Thread thread) {
