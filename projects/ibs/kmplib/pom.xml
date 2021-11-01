@@ -6,51 +6,61 @@
     <version>0.1</version>
     <packaging>jar</packaging>
     <properties>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<maven.compiler.source>1.8</maven.compiler.source>
-	<maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <dependencies>
-	<dependency>
-	    <groupId>oracle</groupId>
-	    <artifactId>ojdbc6</artifactId>
-	    <version>11.2.0.3</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.apache.tomcat</groupId>
-	    <artifactId>tomcat-jdbc</artifactId>
-	    <version>10.0.12</version>
-	</dependency>
-	<dependency>
-	    <groupId>commons-io</groupId>
-	    <artifactId>commons-io</artifactId>
-	    <version>2.6</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-lang3</artifactId>
-	    <version>3.0</version>
-	</dependency>
-	<dependency>
-	    <groupId>com.fasterxml.jackson.core</groupId>
-	    <artifactId>jackson-databind</artifactId>
-	    <version>2.13.0</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>slf4j-api</artifactId>
-	    <version>1.7.5</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>slf4j-simple</artifactId>
-	    <version>1.7.5</version>
-	</dependency>
+        <dependency>
+            <groupId>oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>11.2.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jdbc</artifactId>
+            <version>10.0.12</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.13</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.0.13</version>
+        </dependency>
     </dependencies>
     <repositories>        
-	<repository>
-	    <id>mvnrepository</id>
-	    <url>http://www.datanucleus.org/downloads/maven2/</url>
-	</repository>
+        <repository>
+            <id>mvnrepository</id>
+            <url>http://www.datanucleus.org/downloads/maven2/</url>
+        </repository>
     </repositories>
 </project>
