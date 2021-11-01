@@ -12,7 +12,7 @@ public class Utils {
 	public static <T> List<List<T>> partition(List<T> list, int slice) {
 		List<List<T>> list2 = new ArrayList<>();
 		for (int i = 0; i < (list.size() / slice) + 1; i++) {
-			list2.add(new ArrayList<>(list.subList(i * slice, Math.min(list.size() - 1, (i + 1) * slice))));
+			list2.add(new ArrayList<>(list.subList(i * slice, Math.min(list.size(), (i + 1) * slice))));
 		}
 		return list2;
 	}
