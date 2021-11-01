@@ -20,12 +20,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ibs.kmplib.bean.Diagnosis;
 import ru.ibs.kmplib.bean.KmpMedicamentPrescribe;
 import ru.ibs.kmplib.bean.MvDictVersionsBean;
@@ -43,6 +43,7 @@ public class DatabaseHandler {
 
 	private org.apache.tomcat.jdbc.pool.DataSource pmpDataSource;
 	private org.apache.tomcat.jdbc.pool.DataSource nsiDataSource;
+	private static final Logger log = LoggerFactory.getLogger("kmp");
 
 	public DatabaseHandler(String pmpPropsPrefix, String nsiPropsPrefix) {
 		try {

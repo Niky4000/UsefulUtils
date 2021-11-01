@@ -90,6 +90,7 @@ public class MainHandler {
 
 	private void handle() {
 		List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = databaseHandler.handleKmpMedicamentPrescribeList();
+		log.info("kmpMedicamentPrescribeList size is " + kmpMedicamentPrescribeList.size() + "!");
 		groupIt(kmpMedicamentPrescribeList, databaseHandler);
 	}
 
@@ -98,10 +99,12 @@ public class MainHandler {
 	private void groupIt(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList, DatabaseHandler databaseHandler) {
 		List<ScreeningBean> screeningBeanList = createScreeningBean(kmpMedicamentPrescribeList);
 		List<ScreeningResponseBean> screeningResponseBeanList = screeningBeanList.stream().map(screeningBean -> httpHandler.sendPost(url, screeningBean, ScreeningResponseBean.class)).collect(Collectors.toList());
+		log.info("screeningResponseBeanList size is " + screeningResponseBeanList.size() + "!");
 		Map<Diagnosis, Map<String, Set<String>>> allertMap = screeningResponseBeanList.stream().filter(responseBean -> responseBean.getDiseaseContraindications() != null && responseBean.getDiseaseContraindications().getItemsList() != null && !responseBean.getDiseaseContraindications().getItemsList().isEmpty())
 			.flatMap(responseBean -> responseBean.getDiseaseContraindications().getItemsList().stream()).filter(item -> item.getAlert() != null && item.getDrugsList() != null && !item.getDrugsList().isEmpty() && item.getDiseasesList() != null && item.getDiseasesList().size() == 1)
 			.collect(Collectors.groupingBy(item -> new Diagnosis(item.getDiseasesList().get(0).getCode()), Collectors.collectingAndThen(Collectors.toList(), ff -> ff.stream().flatMap(item -> item.getDrugsList().stream().map(drug -> new DrugAlertBean(drug, item.getAlert())))
 			.collect(Collectors.groupingBy(DrugAlertBean::getCode, Collectors.collectingAndThen(Collectors.toList(), ff2 -> ff2.stream().map(DrugAlertBean::getAlert).collect(Collectors.toSet())))))));
+		log.info("allertMap size is " + screeningResponseBeanList.size() + "!");
 		kmpMedicamentPrescribeList.forEach(kmp -> {
 			String alert = Optional.ofNullable(allertMap.get(kmp.getDiagnosis())).map(map2 -> map2.get(kmp.getSid())).filter(alertSet -> alertSet != null && !alertSet.isEmpty()).map(alertSet -> alertSet.stream().sorted().reduce((str1, str2) -> str1 + "\r\n" + str2).get()).orElse("Нет");
 			kmp.setAlert(alert);
@@ -109,6 +112,7 @@ public class MainHandler {
 		for (List<KmpMedicamentPrescribe> kmpMedicamentPrescribeSubList : Utils.partition(kmpMedicamentPrescribeList, SLICE)) {
 			databaseHandler.updateKmpMedicamentPrescribe(kmpMedicamentPrescribeSubList);
 		}
+		log.info("kmpMedicamentPrescribeSubList was updated!");
 	}
 
 	private static final int SCREENING_SLICE = 2048;
