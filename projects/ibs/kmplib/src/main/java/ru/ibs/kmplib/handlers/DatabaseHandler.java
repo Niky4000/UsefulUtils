@@ -116,6 +116,7 @@ public class DatabaseHandler {
 
 	private static final int secondsToKeepCache = 60 * 60 * 2; // 2 hours!
 	private static final long millisecondsMultiplier = 1000;
+	private static final long timeOffset = 20 * 1000;
 
 	public long cleanCache() {
 		synchronized (mvDictVersionsMap) {
@@ -126,7 +127,7 @@ public class DatabaseHandler {
 					if (!dateList.isEmpty()) {
 						Collections.sort(dateList);
 						long waitTime = (long) secondsToKeepCache * millisecondsMultiplier - (now.getTime() - dateList.get(0).getTime());
-						return waitTime > 0L ? waitTime : 0L;
+						return waitTime > 0L ? Math.min(waitTime + timeOffset, (long) secondsToKeepCache * millisecondsMultiplier) : timeOffset;
 					} else {
 						return (long) secondsToKeepCache * millisecondsMultiplier;
 					}
