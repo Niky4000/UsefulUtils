@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    
+    <property name="PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%-5level] - %msg%n"/>
+
+    <appender name="FILE_KMP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+	    <maxHistory>4</maxHistory>
+	    <fileNamePattern>${logs_dir:-.}/http.%d{yyyy-MM-dd}.log</fileNamePattern>
+	</rollingPolicy>
+	<encoder>
+	    <charset>UTF-8</charset>
+	    <pattern>${PATTERN}</pattern>
+	</encoder>
+    </appender>
+    
+    <logger level="info" name="kmp">
+	<appender-ref ref="FILE_KMP" />
+    </logger>
+    
+</configuration>
