@@ -14,7 +14,8 @@ public class SmoFileNameGenerationTest {
     public static void test() throws Exception {
         smoSessionFactory = TestPumpUtilsMain.buildSmoSessionFactory();
         try {
-            Db.select(smoSessionFactory, session -> (String) session.createSQLQuery("SELECT PMP_SMO1.CALC_ACT_NUM_DOC(:smoExaminationId) || '_act_сancell_atach' || '.docx' FROM DUAL").setParameter("smoExaminationId", 41874L).uniqueResult());
+            String filename = Db.select(smoSessionFactory, session -> (String) session.createSQLQuery("SELECT PMP_SMO1.CALC_ACT_NUM_DOC(:smoExaminationId) || '_act_cancell_atach' || '.docx' FROM DUAL").setParameter("smoExaminationId", 41874L).uniqueResult());
+            System.out.println(filename);
         } finally {
             smoSessionFactory.close();
         }

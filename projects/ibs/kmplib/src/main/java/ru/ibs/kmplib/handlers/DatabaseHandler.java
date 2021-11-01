@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -63,7 +65,7 @@ public class DatabaseHandler {
 
 	public List<KmpMedicamentPrescribe> handleKmpMedicamentPrescribeList() {
 		try (Connection pmpConnection = pmpDataSource.getConnection();
-			Connection nsiConnection = nsiDataSource.getConnection();) {
+				Connection nsiConnection = nsiDataSource.getConnection();) {
 			List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = getKmpMedicamentPrescribeList(pmpConnection);
 			Set<java.util.Date> periodSet = kmpMedicamentPrescribeList.stream().map(KmpMedicamentPrescribe::getTruncatedDateInj).collect(Collectors.toSet());
 			Set<Date> periodCollection = periodSet.stream().map(date -> new java.sql.Date(date.getTime())).collect(Collectors.toSet());
@@ -86,18 +88,19 @@ public class DatabaseHandler {
 	}
 
 	public void updateKmpMedicamentPrescribe(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList) {
-		String sql = "update kmp_medicament_prescribe set alert=? where id=?";
 		try (Connection pmpConnection = pmpDataSource.getConnection()) {
-			for (KmpMedicamentPrescribe kmpMedicamentPrescribe : kmpMedicamentPrescribeList) {
-				DbUtils.ins(pmpConnection, sql, statement -> {
-					try {
-						int i = 0;
-						statement.setString(++i, kmpMedicamentPrescribe.getAlert());
-						statement.setLong(++i, kmpMedicamentPrescribe.getId());
-					} catch (SQLException sqlex) {
-						throw new RuntimeException(sqlex);
-					}
-				});
+			try {
+				pmpConnection.setAutoCommit(false);
+				Statement statement = pmpConnection.createStatement();
+				for (KmpMedicamentPrescribe kmpMedicamentPrescribe : kmpMedicamentPrescribeList) {
+					String sql = "update kmp_medicament_prescribe set alert='" + kmpMedicamentPrescribe.getAlert() + "' where id=" + kmpMedicamentPrescribe.getId().toString();
+					statement.addBatch(sql);
+				}
+				int[] executeBatch = statement.executeBatch();
+				pmpConnection.commit();
+			} catch (SQLException e) {
+				pmpConnection.rollback();
+				throw new RuntimeException(e);
 			}
 		} catch (SQLException sqlex) {
 			throw new RuntimeException(sqlex);

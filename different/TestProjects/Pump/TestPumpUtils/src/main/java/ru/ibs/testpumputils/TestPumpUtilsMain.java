@@ -179,7 +179,8 @@ public class TestPumpUtilsMain {
 //            CheckUrlTest.test();
 //            AcceptanceProtocolExporterTest.test();
 //            ActMeeReportFileExporter2Test.test();
-            ActEkmpReportFileExporter2Test.test();
+//            ActEkmpReportFileExporter2Test.test();
+            SmoFileNameGenerationTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
