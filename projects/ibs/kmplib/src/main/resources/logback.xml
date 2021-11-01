@@ -6,7 +6,7 @@
     <appender name="FILE_KMP" class="ch.qos.logback.core.rolling.RollingFileAppender">
 	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 	    <maxHistory>4</maxHistory>
-	    <fileNamePattern>${logs_dir:-.}/http.%d{yyyy-MM-dd}.log</fileNamePattern>
+	    <fileNamePattern>${logs_dir:-.}/kmp.%d{yyyy-MM-dd}.log</fileNamePattern>
 	</rollingPolicy>
 	<encoder>
 	    <charset>UTF-8</charset>
