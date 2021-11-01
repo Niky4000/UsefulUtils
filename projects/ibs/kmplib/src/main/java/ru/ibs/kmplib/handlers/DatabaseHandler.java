@@ -184,7 +184,7 @@ public class DatabaseHandler {
 			try {
 				statement.setTimestamp(1, new Timestamp(new java.util.Date().getTime()));
 				for (int i = 1; i <= idList.size(); i++) {
-					statement.setLong(i + 1, idList.get(i));
+					statement.setLong(i + 1, idList.get(i - 1));
 				}
 			} catch (SQLException ex) {
 				throw new RuntimeException(ex);
