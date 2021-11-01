@@ -42,6 +42,7 @@ public class MainHandler {
 	private static final int TIME_TO_WAIT = 20 * 1000; // 20 seconds
 
 	public void init() {
+		log.info("Hello from KmpExternalServiceCallStart!");
 		Thread mainThread = new Thread(() -> {
 			while (true) {
 				try {
