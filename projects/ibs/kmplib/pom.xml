@@ -11,11 +11,11 @@
 	<maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>11.2.0.3</version>
-        </dependency>
+	<dependency>
+	    <groupId>oracle</groupId>
+	    <artifactId>ojdbc6</artifactId>
+	    <version>11.2.0.3</version>
+	</dependency>
 	<dependency>
 	    <groupId>org.apache.tomcat</groupId>
 	    <artifactId>tomcat-jdbc</artifactId>
@@ -36,5 +36,16 @@
 	    <artifactId>jackson-databind</artifactId>
 	    <version>2.13.0</version>
 	</dependency>
+	<dependency>
+	    <groupId>org.slf4j</groupId>
+	    <artifactId>slf4j-api</artifactId>
+	    <version>1.7.5</version>
+	</dependency>
     </dependencies>
+    <repositories>        
+	<repository>
+	    <id>mvnrepository</id>
+	    <url>http://www.datanucleus.org/downloads/maven2/</url>
+	</repository>
+    </repositories>
 </project>

@@ -35,12 +35,9 @@ public class HttpHandler {
 			con.setRequestMethod("POST");
 			con.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
 			con.setRequestProperty("User-Agent", USER_AGENT);
-//			String urlParameters = handleMarshalledObject(marshall(obj));
 			con.setDoOutput(true);
-//			DataOutputStream wr = new DataOutputStream(con.getOutputStream());
 			OutputStream outputStream = con.getOutputStream();
 			marshallToTheOutputStream(outputStream, obj);
-//			wr.writeBytes(urlParameters);
 			outputStream.flush();
 			outputStream.close();
 			int responseCode = con.getResponseCode();
@@ -61,12 +58,12 @@ public class HttpHandler {
 					K kk = unmarshall(encodeToUtf8, objClass);
 					return kk;
 				} catch (Exception e) {
-					e.printStackTrace();
-					File file = new File("C:\\tmp\\kmp\\response.txt");
-					if (file.exists()) {
-						file.delete();
-					}
-					Files.write(file.toPath(), encodeToUtf8, StandardOpenOption.CREATE_NEW);
+//					e.printStackTrace();
+//					File file = new File("C:\\tmp\\kmp\\response.txt");
+//					if (file.exists()) {
+//						file.delete();
+//					}
+//					Files.write(file.toPath(), encodeToUtf8, StandardOpenOption.CREATE_NEW);
 					throw new RuntimeException(e);
 				}
 			} else {
@@ -85,6 +82,7 @@ public class HttpHandler {
 		objectMapper.writeValue(outputStream, obj);
 	}
 
+	// It's for debug purpose!
 	@SuppressWarnings("all")
 	public <K> K sendPost(String urlStr, String urlParameters, Class<K> objClass) {
 		try {
@@ -142,8 +140,8 @@ public class HttpHandler {
 	}
 
 	private String handleMarshalledObject(String obj) {
-		return obj.replace("Т", "\\Т");
-//		return obj;
+//		return obj.replace("Т", "\\Т");
+		return obj;
 	}
 
 	private String handleHttpResponseString(byte[] bytes) throws UnsupportedEncodingException {
