@@ -94,9 +94,12 @@ public class MainHandler {
 	}
 
 	private void handle() {
-		List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = databaseHandler.handleKmpMedicamentPrescribeList();
-		log.info("kmpMedicamentPrescribeList size is " + kmpMedicamentPrescribeList.size() + "!");
-		groupIt(kmpMedicamentPrescribeList, databaseHandler);
+		List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList;
+		do {
+			kmpMedicamentPrescribeList = databaseHandler.handleKmpMedicamentPrescribeList();
+			log.info("kmpMedicamentPrescribeList size is " + kmpMedicamentPrescribeList.size() + "!");
+			groupIt(kmpMedicamentPrescribeList, databaseHandler);
+		} while (!kmpMedicamentPrescribeList.isEmpty());
 	}
 
 	private static final int SLICE = 16384;
