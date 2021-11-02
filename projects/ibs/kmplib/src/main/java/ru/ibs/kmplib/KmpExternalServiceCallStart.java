@@ -35,8 +35,6 @@ import ru.ibs.kmplib.utils.Utils;
  */
 public class KmpExternalServiceCallStart {
 
-	private static final String url = "https://int.drugscreening.ru/v1/screening?access_token=3C042X3b0d033m3u1E0D1U291R0S1B0E";
-
 	public static void main(String[] args) throws Exception {
 //		System.out.println("Hello from KmpExternalServiceCallStart!");
 		KmpExternalServiceCallStart kmpExternalServiceCallStart = new KmpExternalServiceCallStart();
@@ -56,10 +54,12 @@ public class KmpExternalServiceCallStart {
 	}
 
 	public void test() throws Exception {
+		Properties properties = new Properties();
+		properties.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
 		HttpHandler httpHandler = new HttpHandler();
 		ScreeningBean createScreeningBean = createTestScreeningBean();
 		System.out.println(httpHandler.marshall(createScreeningBean));
-		ScreeningResponseBean screeningResponseBean = httpHandler.sendPost(url, createScreeningBean, ScreeningResponseBean.class);
+		ScreeningResponseBean screeningResponseBean = httpHandler.sendPost(properties.getProperty("runtime.kmp.url"), createScreeningBean, ScreeningResponseBean.class);
 	}
 
 	public void parsingTest() throws Exception {
@@ -69,20 +69,24 @@ public class KmpExternalServiceCallStart {
 		System.out.println("unmarshalling finished!");
 	}
 
-	public void straightHttpTest() {
+	public void straightHttpTest() throws FileNotFoundException, IOException {
+		Properties properties = new Properties();
+		properties.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
 		HttpHandler httpHandler = new HttpHandler();
-		httpHandler.sendPost(url, "{\"ScreeningTypes\":\"DiseaseContraindications\",\"Drugs\":[{\"Screen\":true,\"Type\":\"DispensableDrug\",\"Code\":\"DD0014452\",\"Name\":\"Винкристин-Тева р-р для в/в введ. 1мг/мл\"}],\"Diseases\":[{\"Screen\":true,\"Type\":\"ICD10CM\",\"Code\":\"C83.7\",\"Name\":\"Опухоль Беркитта\"}],\"Options\":{\"IncludeInsignificantInactiveIngredients\":true,\"IncludeMonographs\":true},\"IncludeFinishedDrugs\":false}", ScreeningResponseBean.class);
+		httpHandler.sendPost(properties.getProperty("runtime.kmp.url"), "{\"ScreeningTypes\":\"DiseaseContraindications\",\"Drugs\":[{\"Screen\":true,\"Type\":\"DispensableDrug\",\"Code\":\"DD0014452\",\"Name\":\"Винкристин-Тева р-р для в/в введ. 1мг/мл\"}],\"Diseases\":[{\"Screen\":true,\"Type\":\"ICD10CM\",\"Code\":\"C83.7\",\"Name\":\"Опухоль Беркитта\"}],\"Options\":{\"IncludeInsignificantInactiveIngredients\":true,\"IncludeMonographs\":true},\"IncludeFinishedDrugs\":false}", ScreeningResponseBean.class);
 	}
 
 	private static final int SLICE = 16384;
 
-	public void groupingTest(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList, DatabaseHandler databaseHandler) {
+	public void groupingTest(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList, DatabaseHandler databaseHandler) throws FileNotFoundException, IOException {
 //		List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = Arrays.asList(new KmpMedicamentPrescribe(1L, "DD0000801", "Аспирин табл. 500мг", new Diagnosis("J03.9", "Острый тонзиллит неуточненный")),
 //			new KmpMedicamentPrescribe(2L, "DD0000801", "Аспирин табл. 500мг", new Diagnosis("J10.8", "Грипп")),
 //			new KmpMedicamentPrescribe(3L, "SI002679", "Варфарин", new Diagnosis("J03.9", "Острый тонзиллит неуточненный")));
+		Properties properties = new Properties();
+		properties.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
 		List<ScreeningBean> screeningBeanList = createScreeningBean(kmpMedicamentPrescribeList);
 		HttpHandler httpHandler = new HttpHandler();
-		List<ScreeningResponseBean> screeningResponseBeanList = screeningBeanList.stream().map(screeningBean -> httpHandler.sendPost(url, screeningBean, ScreeningResponseBean.class)).collect(Collectors.toList());
+		List<ScreeningResponseBean> screeningResponseBeanList = screeningBeanList.stream().map(screeningBean -> httpHandler.sendPost(properties.getProperty("runtime.kmp.url"), screeningBean, ScreeningResponseBean.class)).collect(Collectors.toList());
 		Map<Diagnosis, Map<String, Set<String>>> allertMap = screeningResponseBeanList.stream().filter(responseBean -> responseBean.getDiseaseContraindications() != null && responseBean.getDiseaseContraindications().getItemsList() != null && !responseBean.getDiseaseContraindications().getItemsList().isEmpty())
 			.flatMap(responseBean -> responseBean.getDiseaseContraindications().getItemsList().stream()).filter(item -> item.getAlert() != null && item.getDrugsList() != null && !item.getDrugsList().isEmpty() && item.getDiseasesList() != null && item.getDiseasesList().size() == 1)
 			.collect(Collectors.groupingBy(item -> new Diagnosis(item.getDiseasesList().get(0).getCode()), Collectors.collectingAndThen(Collectors.toList(), ff -> ff.stream().flatMap(item -> item.getDrugsList().stream().map(drug -> new DrugAlertBean(drug, item.getAlert())))
@@ -96,7 +100,7 @@ public class KmpExternalServiceCallStart {
 		}
 	}
 
-	private void testDataBase() {
+	private void testDataBase() throws IOException {
 		DatabaseHandler databaseHandler = new DatabaseHandler("bulk-docs.updDs", "bulk-docs.nsi");
 		List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = databaseHandler.handleKmpMedicamentPrescribeList();
 		groupingTest(kmpMedicamentPrescribeList, databaseHandler);
