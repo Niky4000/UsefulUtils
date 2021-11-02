@@ -30,17 +30,17 @@ import ru.ibs.kmplib.bean.UpdateBean;
 public class MainHandler {
 
 	private final String url;
-	private final DataSource pmpDataSource;
+	private final DataSource kmpDataSource;
 	private final DataSource nsiDataSource;
 	private final DatabaseHandler databaseHandler;
 	private final HttpHandler httpHandler = new HttpHandler();
 	private static final Logger log = LoggerFactory.getLogger("kmp");
 
-	public MainHandler(String url, DataSource pmpDataSource, DataSource nsiDataSource) {
+	public MainHandler(String url, DataSource kmpDataSource, DataSource nsiDataSource) {
 		this.url = url;
-		this.pmpDataSource = pmpDataSource;
+		this.kmpDataSource = kmpDataSource;
 		this.nsiDataSource = nsiDataSource;
-		databaseHandler = new DatabaseHandler(pmpDataSource, nsiDataSource);
+		databaseHandler = new DatabaseHandler(kmpDataSource, nsiDataSource);
 	}
 
 	private static final int TIME_TO_WAIT = 20 * 1000; // 20 seconds

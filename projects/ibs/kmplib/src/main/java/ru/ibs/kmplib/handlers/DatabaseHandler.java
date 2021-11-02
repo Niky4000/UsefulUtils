@@ -44,21 +44,21 @@ import ru.ibs.kmplib.utils.Utils;
  */
 public class DatabaseHandler {
 
-	private org.apache.tomcat.jdbc.pool.DataSource pmpDataSource;
+	private org.apache.tomcat.jdbc.pool.DataSource kmpDataSource;
 	private org.apache.tomcat.jdbc.pool.DataSource nsiDataSource;
 	private static final Logger log = LoggerFactory.getLogger("kmp");
 
-	public DatabaseHandler(String pmpPropsPrefix, String nsiPropsPrefix) {
+	public DatabaseHandler(String kmpPropsPrefix, String nsiPropsPrefix) {
 		try {
-			pmpDataSource = createDataSource(pmpPropsPrefix);
+			kmpDataSource = createDataSource(kmpPropsPrefix);
 			nsiDataSource = createDataSource(nsiPropsPrefix);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public DatabaseHandler(DataSource pmpDataSource, DataSource nsiDataSource) {
-		this.pmpDataSource = pmpDataSource;
+	public DatabaseHandler(DataSource kmpDataSource, DataSource nsiDataSource) {
+		this.kmpDataSource = kmpDataSource;
 		this.nsiDataSource = nsiDataSource;
 	}
 
@@ -89,12 +89,12 @@ public class DatabaseHandler {
 	private final Map<CacheKey<String>, Map<String, String>> medicamentMap = new HashMap<>();
 
 	public List<KmpMedicamentPrescribe> handleKmpMedicamentPrescribeList() {
-		try (Connection pmpConnection = pmpDataSource.getConnection();
+		try (Connection kmpConnection = kmpDataSource.getConnection();
 			Connection nsiConnection = nsiDataSource.getConnection();) {
 			synchronized (mvDictVersionsMap) {
 				synchronized (mkb10Map) {
 					synchronized (medicamentMap) {
-						List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = getKmpMedicamentPrescribeList(pmpConnection);
+						List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList = getKmpMedicamentPrescribeList(kmpConnection);
 						Set<java.util.Date> periodSet = kmpMedicamentPrescribeList.stream().map(KmpMedicamentPrescribe::getTruncatedDateInj).collect(Collectors.toSet());
 						Set<Date> periodCollection = periodSet.stream().filter(date -> !mvDictVersionsMap.containsKey(new CacheKey<>(date))).map(date -> new java.sql.Date(date.getTime())).collect(Collectors.toSet());
 						List<MvDictVersionsBean> mvDictVersions = getMvDictVersions(nsiConnection, periodCollection);
@@ -155,8 +155,8 @@ public class DatabaseHandler {
 
 	public List<Long> isItTriggered() {
 		final String sql = "select id from KMP_PRECALC_TABLE_LOG where PROC_NAME='UPDATE_MEDICAMENT_PRESCRIBE_VIA_SCREENING_SERVICE' and PROC_END_DATE_TIME is null";
-		try (Connection pmpConnection = pmpDataSource.getConnection()) {
-			List<Long> idList = ex(pmpConnection, sql, statement -> {
+		try (Connection kmpConnection = kmpDataSource.getConnection()) {
+			List<Long> idList = ex(kmpConnection, sql, statement -> {
 			}, resultSet -> {
 				try {
 					return resultSet.getLong(1);
@@ -164,29 +164,29 @@ public class DatabaseHandler {
 					throw new RuntimeException(ex);
 				}
 			});
-			updateStartTime(pmpConnection, idList);
+			updateStartTime(kmpConnection, idList);
 			return idList;
 		} catch (SQLException sqlex) {
 			throw new RuntimeException(sqlex);
 		}
 	}
 
-	private void updateStartTime(Connection pmpConnection, List<Long> idList) {
-		updateTime(pmpConnection, "PROC_START_DATE_TIME", idList);
+	private void updateStartTime(Connection kmpConnection, List<Long> idList) {
+		updateTime(kmpConnection, "PROC_START_DATE_TIME", idList);
 	}
 
 	public void updateEndTime(List<Long> idList) {
-		try (Connection pmpConnection = pmpDataSource.getConnection()) {
-			updateTime(pmpConnection, "PROC_END_DATE_TIME", idList);
+		try (Connection kmpConnection = kmpDataSource.getConnection()) {
+			updateTime(kmpConnection, "PROC_END_DATE_TIME", idList);
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
 
-	private void updateTime(Connection pmpConnection, String timeColumn, List<Long> idList) {
+	private void updateTime(Connection kmpConnection, String timeColumn, List<Long> idList) {
 		if (!idList.isEmpty()) {
 			final String sql = "update KMP_PRECALC_TABLE_LOG set " + timeColumn + "=? where id in(" + idList.stream().map(obj -> "?").reduce((str1, str2) -> str1 + "," + str2).get() + ")";
-			DbUtils.ins(pmpConnection, sql, statement -> {
+			DbUtils.ins(kmpConnection, sql, statement -> {
 				try {
 					statement.setTimestamp(1, new Timestamp(new java.util.Date().getTime()));
 					for (int i = 1; i <= idList.size(); i++) {
@@ -208,9 +208,9 @@ public class DatabaseHandler {
 				UpdateBean updateBean = updateBeanList.get(i);
 				if (updateBean instanceof RangeUpdateBean) {
 					RangeUpdateBean rangeUpdateBean = (RangeUpdateBean) updateBean;
-					try (Connection pmpConnection = pmpDataSource.getConnection()) {
+					try (Connection kmpConnection = kmpDataSource.getConnection()) {
 						String sql = "update kmp_medicament_prescribe set alert=? where id>=? and id<=? and alert is null";
-						DbUtils.ins(pmpConnection, sql, statement -> {
+						DbUtils.ins(kmpConnection, sql, statement -> {
 							try {
 								statement.setString(1, rangeUpdateBean.getAlert());
 								statement.setLong(2, rangeUpdateBean.getId());
@@ -228,18 +228,18 @@ public class DatabaseHandler {
 			}
 			ArrayList<UpdateBean> updateBeanSubList = new ArrayList<>(updateBeanList.subList(i, updateBeanList.size()));
 			for (List<UpdateBean> updateBeanSubList2 : Utils.partition(updateBeanSubList, SLICE)) {
-				try (Connection pmpConnection = pmpDataSource.getConnection()) {
+				try (Connection kmpConnection = kmpDataSource.getConnection()) {
 					try {
-						pmpConnection.setAutoCommit(false);
-						Statement statement = pmpConnection.createStatement();
+						kmpConnection.setAutoCommit(false);
+						Statement statement = kmpConnection.createStatement();
 						for (UpdateBean updateBean : updateBeanSubList2) {
 							String sql = "update kmp_medicament_prescribe set alert='" + updateBean.getAlert() + "' where id=" + updateBean.getId().toString();
 							statement.addBatch(sql);
 						}
 						int[] executeBatch = statement.executeBatch();
-						pmpConnection.commit();
+						kmpConnection.commit();
 					} catch (SQLException e) {
-						pmpConnection.rollback();
+						kmpConnection.rollback();
 						throw new RuntimeException(e);
 					}
 				} catch (SQLException sqlex) {
@@ -251,18 +251,18 @@ public class DatabaseHandler {
 
 	public void updateKmpMedicamentPrescribe(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList) {
 		if (!kmpMedicamentPrescribeList.isEmpty()) {
-			try (Connection pmpConnection = pmpDataSource.getConnection()) {
+			try (Connection kmpConnection = kmpDataSource.getConnection()) {
 				try {
-					pmpConnection.setAutoCommit(false);
-					Statement statement = pmpConnection.createStatement();
+					kmpConnection.setAutoCommit(false);
+					Statement statement = kmpConnection.createStatement();
 					for (KmpMedicamentPrescribe kmpMedicamentPrescribe : kmpMedicamentPrescribeList) {
 						String sql = "update kmp_medicament_prescribe set alert='" + kmpMedicamentPrescribe.getAlert() + "' where id=" + kmpMedicamentPrescribe.getId().toString();
 						statement.addBatch(sql);
 					}
 					int[] executeBatch = statement.executeBatch();
-					pmpConnection.commit();
+					kmpConnection.commit();
 				} catch (SQLException e) {
-					pmpConnection.rollback();
+					kmpConnection.rollback();
 					throw new RuntimeException(e);
 				}
 			} catch (SQLException sqlex) {
@@ -273,8 +273,8 @@ public class DatabaseHandler {
 
 	private static final int LIMIT = 1048576;
 
-	private List<KmpMedicamentPrescribe> getKmpMedicamentPrescribeList(Connection pmpConnection) throws SQLException {
-		return ex(pmpConnection, "select id,sid,date_inj,ds from kmp_medicament_prescribe where alert is null", statement -> {
+	private List<KmpMedicamentPrescribe> getKmpMedicamentPrescribeList(Connection kmpConnection) throws SQLException {
+		return ex(kmpConnection, "select id,sid,date_inj,ds from kmp_medicament_prescribe where alert is null", statement -> {
 		}, resultSet -> {
 			try {
 				int i = 0;

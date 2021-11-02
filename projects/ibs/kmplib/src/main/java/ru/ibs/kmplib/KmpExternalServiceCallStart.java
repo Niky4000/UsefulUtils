@@ -45,7 +45,7 @@ public class KmpExternalServiceCallStart {
 	}
 
 	public void run() {
-		MainHandler mainHandler = new MainHandler(url, DatabaseHandler.createDataSource("bulk-docs.updDs"), DatabaseHandler.createDataSource("bulk-docs.nsi"));
+		MainHandler mainHandler = new MainHandler(url, DatabaseHandler.createDataSource("bulk-docs.kmp"), DatabaseHandler.createDataSource("bulk-docs.nsi"));
 		mainHandler.init();
 	}
 
