@@ -31,9 +31,12 @@ import ru.ibs.kmplib.bean.KmpMedicamentPrescribe;
 import ru.ibs.kmplib.bean.MvDictVersionsBean;
 import ru.ibs.kmplib.bean.NsiMedicament;
 import ru.ibs.kmplib.bean.NsiMkbDiagnosesBean;
+import ru.ibs.kmplib.bean.RangeUpdateBean;
+import ru.ibs.kmplib.bean.UpdateBean;
 import ru.ibs.kmplib.request.bean.CacheKey;
 import ru.ibs.kmplib.utils.DbUtils;
 import static ru.ibs.kmplib.utils.DbUtils.ex;
+import ru.ibs.kmplib.utils.Utils;
 
 /**
  *
@@ -196,23 +199,75 @@ public class DatabaseHandler {
 		}
 	}
 
-	public void updateKmpMedicamentPrescribe(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList) {
-		try (Connection pmpConnection = pmpDataSource.getConnection()) {
-			try {
-				pmpConnection.setAutoCommit(false);
-				Statement statement = pmpConnection.createStatement();
-				for (KmpMedicamentPrescribe kmpMedicamentPrescribe : kmpMedicamentPrescribeList) {
-					String sql = "update kmp_medicament_prescribe set alert='" + kmpMedicamentPrescribe.getAlert() + "' where id=" + kmpMedicamentPrescribe.getId().toString();
-					statement.addBatch(sql);
+	private static final int SLICE = 16384;
+
+	public void updateKmpMedicamentPrescribe2(List<UpdateBean> updateBeanList) {
+		if (!updateBeanList.isEmpty()) {
+			int i = 0;
+			for (i = 0; i < updateBeanList.size(); i++) {
+				UpdateBean updateBean = updateBeanList.get(i);
+				if (updateBean instanceof RangeUpdateBean) {
+					RangeUpdateBean rangeUpdateBean = (RangeUpdateBean) updateBean;
+					try (Connection pmpConnection = pmpDataSource.getConnection()) {
+						String sql = "update kmp_medicament_prescribe set alert=? where id>=? and id<=? and alert is null";
+						DbUtils.ins(pmpConnection, sql, statement -> {
+							try {
+								statement.setString(1, rangeUpdateBean.getAlert());
+								statement.setLong(2, rangeUpdateBean.getId());
+								statement.setLong(3, rangeUpdateBean.getId2());
+							} catch (SQLException ex) {
+								throw new RuntimeException(ex);
+							}
+						});
+					} catch (SQLException ex) {
+						throw new RuntimeException(ex);
+					}
+				} else {
+					break;
 				}
-				int[] executeBatch = statement.executeBatch();
-				pmpConnection.commit();
-			} catch (SQLException e) {
-				pmpConnection.rollback();
-				throw new RuntimeException(e);
 			}
-		} catch (SQLException sqlex) {
-			throw new RuntimeException(sqlex);
+			ArrayList<UpdateBean> updateBeanSubList = new ArrayList<>(updateBeanList.subList(i, updateBeanList.size()));
+			for (List<UpdateBean> updateBeanSubList2 : Utils.partition(updateBeanSubList, SLICE)) {
+				try (Connection pmpConnection = pmpDataSource.getConnection()) {
+					try {
+						pmpConnection.setAutoCommit(false);
+						Statement statement = pmpConnection.createStatement();
+						for (UpdateBean updateBean : updateBeanSubList2) {
+							String sql = "update kmp_medicament_prescribe set alert='" + updateBean.getAlert() + "' where id=" + updateBean.getId().toString();
+							statement.addBatch(sql);
+						}
+						int[] executeBatch = statement.executeBatch();
+						pmpConnection.commit();
+					} catch (SQLException e) {
+						pmpConnection.rollback();
+						throw new RuntimeException(e);
+					}
+				} catch (SQLException sqlex) {
+					throw new RuntimeException(sqlex);
+				}
+			}
+		}
+	}
+
+	public void updateKmpMedicamentPrescribe(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList) {
+		if (!kmpMedicamentPrescribeList.isEmpty()) {
+			try (Connection pmpConnection = pmpDataSource.getConnection()) {
+				try {
+					pmpConnection.setAutoCommit(false);
+					Statement statement = pmpConnection.createStatement();
+					for (KmpMedicamentPrescribe kmpMedicamentPrescribe : kmpMedicamentPrescribeList) {
+						String sql = "update kmp_medicament_prescribe set alert='" + kmpMedicamentPrescribe.getAlert() + "' where id=" + kmpMedicamentPrescribe.getId().toString();
+						statement.addBatch(sql);
+					}
+					int[] executeBatch = statement.executeBatch();
+					pmpConnection.commit();
+				} catch (SQLException e) {
+					pmpConnection.rollback();
+					throw new RuntimeException(e);
+				}
+			} catch (SQLException sqlex) {
+				throw new RuntimeException(sqlex);
+			}
 		}
 	}
 
