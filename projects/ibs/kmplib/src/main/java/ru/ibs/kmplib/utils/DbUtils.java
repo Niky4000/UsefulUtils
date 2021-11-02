@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
+ * Некоторые методы, упрощающие взаимодействие с БД!
  *
  * @author me
  */

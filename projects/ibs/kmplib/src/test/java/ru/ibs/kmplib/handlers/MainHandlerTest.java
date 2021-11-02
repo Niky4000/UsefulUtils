@@ -10,6 +10,8 @@ import ru.ibs.kmplib.bean.RangeUpdateBean;
 import ru.ibs.kmplib.bean.UpdateBean;
 
 /**
+ * Тест на корректность преобразования kmpMedicamentPrescribeList в диапазонные
+ * RangeUpdateBean и точечные UpdateBean!
  *
  * @author me
  */

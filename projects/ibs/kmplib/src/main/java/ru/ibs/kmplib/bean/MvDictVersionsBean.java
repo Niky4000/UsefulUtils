@@ -3,6 +3,7 @@ package ru.ibs.kmplib.bean;
 import java.util.Date;
 
 /**
+ * Объект, представляющий версии справочников!
  *
  * @author me
  */

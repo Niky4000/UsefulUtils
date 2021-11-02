@@ -1,6 +1,7 @@
 package ru.ibs.kmplib.bean;
 
 /**
+ * Сущность МКБ-10!
  *
  * @author me
  */

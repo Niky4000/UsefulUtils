@@ -1,6 +1,7 @@
 package ru.ibs.kmplib.bean;
 
 /**
+ * Объект диапазонного обновления в БД!
  *
  * @author me
  */

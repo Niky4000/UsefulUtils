@@ -1,11 +1,15 @@
 package ru.ibs.kmplib;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import ru.ibs.kmplib.bean.Diagnosis;
@@ -34,7 +38,7 @@ public class KmpExternalServiceCallStart {
 	private static final String url = "https://int.drugscreening.ru/v1/screening?access_token=3C042X3b0d033m3u1E0D1U291R0S1B0E";
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("Hello from KmpExternalServiceCallStart!");
+//		System.out.println("Hello from KmpExternalServiceCallStart!");
 		KmpExternalServiceCallStart kmpExternalServiceCallStart = new KmpExternalServiceCallStart();
 //		kmpExternalServiceCallStart.test();
 //		kmpExternalServiceCallStart.parsingTest();
@@ -44,8 +48,10 @@ public class KmpExternalServiceCallStart {
 		kmpExternalServiceCallStart.run();
 	}
 
-	public void run() {
-		MainHandler mainHandler = new MainHandler(url, DatabaseHandler.createDataSource("bulk-docs.kmp"), DatabaseHandler.createDataSource("bulk-docs.nsi"));
+	public void run() throws FileNotFoundException, IOException {
+		Properties properties = new Properties();
+		properties.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
+		MainHandler mainHandler = new MainHandler(properties.getProperty("runtime.kmp.url"), DatabaseHandler.createDataSource("bulk-docs.kmp"), DatabaseHandler.createDataSource("bulk-docs.nsi"));
 		mainHandler.init();
 	}
 

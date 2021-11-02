@@ -1,6 +1,7 @@
 package ru.ibs.kmplib.bean;
 
 /**
+ * Объект точечного обновления в БД!
  *
  * @author me
  */

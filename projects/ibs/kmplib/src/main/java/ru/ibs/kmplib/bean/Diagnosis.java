@@ -3,6 +3,7 @@ package ru.ibs.kmplib.bean;
 import java.util.Objects;
 
 /**
+ * Объект группировки основных данных БД!
  *
  * @author me
  */

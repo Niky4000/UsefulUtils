@@ -1,6 +1,7 @@
 package ru.ibs.kmplib.bean;
 
 /**
+ * Сущность медикамента!
  *
  * @author me
  */

@@ -16,13 +16,18 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import javax.xml.bind.JAXBException;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
+ * Класс, осуществляющий непосредственное взаимодействие по https с внещним
+ * сервисом! Посылает json-запросы!
  *
  * @author me
  */
 public class HttpHandler {
 
+	private static final Logger log = LoggerFactory.getLogger("kmp");
 	private static final int HTTP_READ_TIMEOUT = 60 * 1000;
 	private static final String USER_AGENT = "Apache-HttpClient/4.1.1 (java 1.5)";
 
@@ -36,12 +41,12 @@ public class HttpHandler {
 			con.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
 			con.setRequestProperty("User-Agent", USER_AGENT);
 			con.setDoOutput(true);
-			OutputStream outputStream = con.getOutputStream();
-			marshallToTheOutputStream(outputStream, obj);
-			outputStream.flush();
-			outputStream.close();
+			try (OutputStream outputStream = con.getOutputStream()) {
+				marshallToTheOutputStream(outputStream, obj); // Объект сразу сериализуем в выходной поток! А иначе были отмечены какие-то странные глюки!
+				outputStream.flush();
+			}
 			int responseCode = con.getResponseCode();
-			byte[] bytes = null;
+			byte[] bytes;
 			if (responseCode == java.net.HttpURLConnection.HTTP_OK) {
 				try (InputStream in = con.getInputStream()) {
 					bytes = IOUtils.toByteArray(in);
@@ -58,12 +63,7 @@ public class HttpHandler {
 					K kk = unmarshall(encodeToUtf8, objClass);
 					return kk;
 				} catch (Exception e) {
-//					e.printStackTrace();
-//					File file = new File("C:\\tmp\\kmp\\response.txt");
-//					if (file.exists()) {
-//						file.delete();
-//					}
-//					Files.write(file.toPath(), encodeToUtf8, StandardOpenOption.CREATE_NEW);
+					log.error("sendPost Exception!", e);
 					throw new RuntimeException(e);
 				}
 			} else {
@@ -71,7 +71,7 @@ public class HttpHandler {
 				throw new RuntimeException(string);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("sendPost Exception!", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -84,6 +84,7 @@ public class HttpHandler {
 
 	// It's for debug purpose!
 	@SuppressWarnings("all")
+	@Deprecated
 	public <K> K sendPost(String urlStr, String urlParameters, Class<K> objClass) {
 		try {
 			URL url = new URL(urlStr);

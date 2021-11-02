@@ -5,6 +5,7 @@ import java.util.Date;
 import org.apache.commons.lang3.time.DateUtils;
 
 /**
+ * Основной объект данных БД!
  *
  * @author me
  */
@@ -45,6 +46,11 @@ public class KmpMedicamentPrescribe implements Comparable<KmpMedicamentPrescribe
 		return dateInj;
 	}
 
+	/**
+	 * Получить период!
+	 *
+	 * @return
+	 */
 	public Date getTruncatedDateInj() {
 		return truncatedDateInj;
 	}
