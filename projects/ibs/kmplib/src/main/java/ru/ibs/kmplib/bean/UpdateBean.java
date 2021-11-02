@@ -24,6 +24,14 @@ public class UpdateBean implements Comparable<UpdateBean> {
 
 	@Override
 	public int compareTo(UpdateBean o) {
-		return this.id.compareTo(o.getId());
+		if (this.getClass().equals(o.getClass())) {
+			return this.id.compareTo(o.getId());
+		} else if (this instanceof RangeUpdateBean && o instanceof UpdateBean) {
+			return -1;
+		} else if (this instanceof UpdateBean && o instanceof RangeUpdateBean) {
+			return 1;
+		} else {
+			return this.id.compareTo(o.getId());
+		}
 	}
 }
