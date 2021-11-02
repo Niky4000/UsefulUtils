@@ -106,6 +106,7 @@ public class MainHandler {
 
 	private void groupIt(List<KmpMedicamentPrescribe> kmpMedicamentPrescribeList, DatabaseHandler databaseHandler) {
 		if (!kmpMedicamentPrescribeList.isEmpty()) {
+			Collections.sort(kmpMedicamentPrescribeList);
 			List<ScreeningBean> screeningBeanList = createScreeningBean(kmpMedicamentPrescribeList);
 			List<ScreeningResponseBean> screeningResponseBeanList = screeningBeanList.stream().map(screeningBean -> httpHandler.sendPost(url, screeningBean, ScreeningResponseBean.class)).collect(Collectors.toList());
 			log.info("screeningResponseBeanList size is " + screeningResponseBeanList.size() + "!");

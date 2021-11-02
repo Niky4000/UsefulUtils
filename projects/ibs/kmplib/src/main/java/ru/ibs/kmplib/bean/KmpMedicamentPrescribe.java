@@ -8,7 +8,7 @@ import org.apache.commons.lang3.time.DateUtils;
  *
  * @author me
  */
-public class KmpMedicamentPrescribe {
+public class KmpMedicamentPrescribe implements Comparable<KmpMedicamentPrescribe> {
 
 	private final Long id;
 	private final String sid;
@@ -75,5 +75,10 @@ public class KmpMedicamentPrescribe {
 
 	public void setAlert(String alert) {
 		this.alert = alert;
+	}
+
+	@Override
+	public int compareTo(KmpMedicamentPrescribe o) {
+		return this.id.compareTo(o.getId());
 	}
 }
