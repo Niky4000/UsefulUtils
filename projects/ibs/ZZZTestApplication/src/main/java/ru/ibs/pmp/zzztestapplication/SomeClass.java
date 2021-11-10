@@ -35,6 +35,10 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
@@ -85,8 +89,6 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -98,7 +100,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -396,9 +397,58 @@ public class SomeClass {
 //		Method method = SomeClass.class.getDeclaredMethod("splitString", String.class, int.class);
 //		System.out.println(resolve("http://192.168.195.200:8095/parus_pump/wsdl", method));
 //		atomicLongOverflow();
-		System.out.println(getFileNameFromZip("/home/me/VMwareShared/2021-10/131908740"));
-		System.out.println(getFileNameFromZip("/home/me/VMwareShared/2021-10/131908740"));
-		System.out.println(getFileNameFromZip("/home/me/VMwareShared/2021-10/131908740"));
+//		System.out.println(getFileNameFromZip("/home/me/VMwareShared/2021-10/131908740"));
+//		System.out.println(getFileNameFromZip("/home/me/VMwareShared/2021-10/131908740"));
+//		System.out.println(getFileNameFromZip("/home/me/VMwareShared/2021-10/131908740"));
+//		testThreadDelay();
+		testOnion();
+	}
+
+	public static void testOnion() throws IOException {
+		InetSocketAddress HiddenerProxyAddress = new InetSocketAddress("127.0.0.1", 9050);
+		Proxy hiddenProxy = new Proxy(Proxy.Type.SOCKS, HiddenerProxyAddress);
+		Socket socket = new Socket(hiddenProxy);
+//		SocketAddress sa = new InetSocketAddress("www.facebook.com", 80);
+		InetSocketAddress sa = InetSocketAddress.createUnresolved("m23lmyby7xizdazov3n2qftsorddepepm7gax6qq3iqhmtliwvbomzyd.onion", 80);
+		socket.connect(sa);
+		boolean connected = socket.isConnected();
+		boolean closed = socket.isClosed();
+		socket.close();
+		System.out.println("connected = " + connected + " closed = " + closed + "!");
+	}
+
+	private static final long second = 1000;
+	private static final long delay = 10;
+
+	public static void testThreadDelay() {
+		final long timePerOneRequest = second / delay;
+		Thread thread = new Thread(() -> {
+			for (int i = 0; i < 100; i++) {
+				try {
+					Date startTime = new Date();
+					Thread.sleep(Double.valueOf(Math.random() * 200).longValue());
+					Date endTime = new Date();
+					Long selfTime = endTime.getTime() - startTime.getTime();
+					Long timeToWait = timePerOneRequest - selfTime;
+					if (timeToWait > 0) {
+						Thread.sleep(timeToWait);
+					}
+					System.out.println("selfTime = " + selfTime + " timeToWait = " + timeToWait + "!");
+				} catch (InterruptedException ex) {
+					Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+				}
+			}
+		});
+		thread.setName("DelayedThread");
+		Date startTime = new Date();
+		thread.start();
+		try {
+			thread.join();
+		} catch (InterruptedException ex) {
+			Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		Date endTime = new Date();
+		System.out.println("totalTime = " + (endTime.getTime() - startTime.getTime()) + "!");
 	}
 
 	public static String getFileNameFromZip(String zipFile) {
