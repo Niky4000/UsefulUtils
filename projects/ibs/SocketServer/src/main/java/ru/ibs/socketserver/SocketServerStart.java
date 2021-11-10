@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -43,8 +44,8 @@ public class SocketServerStart {
 	private void socketHandler(final Socket socket, File dir) throws IOException {
 		File file = new File(dir.getAbsolutePath() + File.separator + "file_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS").format(new Date()));
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(BUFFER_SIZE);
-		try {
-			InputStream inputStream = socket.getInputStream();
+		try (InputStream inputStream = socket.getInputStream();
+				OutputStream outputStream = socket.getOutputStream();) {
 			byte[] b = new byte[BUFFER_SIZE];
 			int read = 0;
 			do {
