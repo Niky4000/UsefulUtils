@@ -7,6 +7,8 @@ package ru.ibs.pmp.zzztestapplication;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -38,7 +40,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
@@ -132,6 +133,12 @@ import org.krysalis.barcode4j.BarcodeUtil;
 import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBody;
+import org.silvertunnel_ng.netlib.api.NetFactory;
+import org.silvertunnel_ng.netlib.api.NetLayerIDs;
+import org.silvertunnel_ng.netlib.api.NetSocket;
+import org.silvertunnel_ng.netlib.api.util.TcpipNetAddress;
+import org.silvertunnel_ng.netlib.util.ByteArrayUtil;
+import org.silvertunnel_ng.netlib.util.HttpUtil;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -401,7 +408,49 @@ public class SomeClass {
 //		System.out.println(getFileNameFromZip("/home/me/VMwareShared/2021-10/131908740"));
 //		System.out.println(getFileNameFromZip("/home/me/VMwareShared/2021-10/131908740"));
 //		testThreadDelay();
-		testOnion();
+//		testOnion();
+//		testSilverTunnel();
+		testCaffeineCache();
+	}
+
+	public static void testCaffeineCache() {
+		AtomicReference<String> identifyPatientCacheValue = new AtomicReference<>();
+		identifyPatientCacheValue.compareAndSet(null, "Hello!");
+		identifyPatientCacheValue.compareAndSet(null, "World!");
+		System.out.println("identifyPatientCacheValue=" + identifyPatientCacheValue.get() + "!");
+		Cache<String, String> cache = Caffeine.<String, String>newBuilder().expireAfterWrite(2, TimeUnit.DAYS).build();
+		String get = cache.get("7", (key) -> {
+			System.out.println("key=" + key + "!");
+			return null;
+		});
+		String get2 = cache.getIfPresent("7");
+		String get3 = cache.get("7", (key) -> {
+			System.out.println("key=" + key + "!");
+			return null;
+		});
+		String get4 = cache.getIfPresent("7");
+		System.out.println("get=" + get + "!");
+		System.out.println("get2=" + get2 + "!");
+		System.out.println("get3=" + get3 + "!");
+		System.out.println("get4=" + get4 + "!");
+	}
+
+	public static void testSilverTunnel() throws IOException {
+		final String TORCHECK_HOSTNAME = "ya.ru";
+		final TcpipNetAddress TORCHECK_NETADDRESS = new TcpipNetAddress(TORCHECK_HOSTNAME, 80);
+		// create connection
+		final NetSocket topSocket = NetFactory.getInstance().getNetLayerById(NetLayerIDs.TOR_OVER_TLS_OVER_TCPIP)
+			.createNetSocket(null, null, TORCHECK_NETADDRESS);
+		HttpUtil.getInstance();
+		// communicate with the remote side
+		final byte[] httpResponse = HttpUtil.get(topSocket, TORCHECK_NETADDRESS, "/checktor.php", 5000);
+		String httpResponseStr = ByteArrayUtil.showAsString(httpResponse);
+		System.out.println("http response body: " + httpResponseStr);
+		if ("Congratulations. Your browser is configured to use Tor.".equals(httpResponseStr)) {
+			System.out.println("works");
+		} else {
+			System.out.println("something went wrong");
+		}
 	}
 
 	public static void testOnion() throws IOException {
