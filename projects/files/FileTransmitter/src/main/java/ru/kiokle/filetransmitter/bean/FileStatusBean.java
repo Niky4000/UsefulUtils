@@ -46,4 +46,9 @@ public class FileStatusBean implements Serializable {
     public boolean isReady() {
         return ready;
     }
+
+	@Override
+	public String toString() {
+		return "FileStatusBean{" + "length=" + length + ", md5=" + md5 + ", fileRelativePath=" + fileRelativePath + ", absolutePath=" + absolutePath + ", ready=" + ready + '}';
+	}
 }

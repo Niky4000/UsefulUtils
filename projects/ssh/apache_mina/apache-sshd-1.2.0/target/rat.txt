@@ -2,7 +2,7 @@
 *****************************************************
 Summary
 -------
-Generated at: 2018-02-08T10:07:56+03:00
+Generated at: 2021-11-30T11:11:13+03:00
 Notes: 2
 Binaries: 0
 Archives: 1
@@ -32,11 +32,11 @@ Archives:
   Binary files (which do not require AL headers) will be marked B
   Compressed archives will be marked A
   Notices, licenses etc will be marked N
-  N     LICENSE.txt
-  N     NOTICE.txt
   AL    pom.xml
-  AL    src/legal/notices.xml
+  N     NOTICE.txt
   A     src/tomcat-apr-5.5.23-sources.jar
+  AL    src/legal/notices.xml
+  N     LICENSE.txt
  
 *****************************************************
  Printing headers for files without AL header...

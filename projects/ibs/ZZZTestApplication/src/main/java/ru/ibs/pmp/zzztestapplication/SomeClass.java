@@ -17,6 +17,8 @@ import com.itextpdf.text.pdf.parser.LocationTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import ij.ImagePlus;
+import ij.ImageStack;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -90,6 +92,7 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -410,7 +413,24 @@ public class SomeClass {
 //		testThreadDelay();
 //		testOnion();
 //		testSilverTunnel();
-		testCaffeineCache();
+//		testCaffeineCache();
+//		testImageCorrelator();
+		testJoinStrings();
+	}
+
+	public static void testJoinStrings() {
+		List<String> statusCollection = Arrays.asList("Hello", "My", "World!");
+		String mainStr = statusCollection.stream().map(str -> "?").reduce((str1, str2) -> str1 + "," + str2).get();
+		System.out.println(mainStr);
+	}
+
+	public static void testImageCorrelator() {
+		ImagePlus imagePlus1 = new ImagePlus("/home/me/Downloads/700.jpg");
+		ImagePlus imagePlus2 = new ImagePlus("/home/me/Downloads/IMG_6093.png");
+		ImagePlus imagePlus3 = new ImagePlus("/home/me/Downloads/IMG_6087.png");
+		ImageCorrelator imageCorrelator = new ImageCorrelator();
+		imageCorrelator.correlate(imagePlus1.getImageStack(), imagePlus2.getImageStack());
+		imageCorrelator.correlate(imagePlus1.getImageStack(), imagePlus3.getImageStack());
 	}
 
 	public static void testCaffeineCache() {
@@ -454,8 +474,8 @@ public class SomeClass {
 	}
 
 	public static void testOnion() throws IOException {
-		InetSocketAddress HiddenerProxyAddress = new InetSocketAddress("127.0.0.1", 9050);
-		Proxy hiddenProxy = new Proxy(Proxy.Type.SOCKS, HiddenerProxyAddress);
+		InetSocketAddress hiddenerProxyAddress = new InetSocketAddress("127.0.0.1", 9050);
+		Proxy hiddenProxy = new Proxy(Proxy.Type.SOCKS, hiddenerProxyAddress);
 		Socket socket = new Socket(hiddenProxy);
 //		SocketAddress sa = new InetSocketAddress("www.facebook.com", 80);
 		InetSocketAddress sa = InetSocketAddress.createUnresolved("m23lmyby7xizdazov3n2qftsorddepepm7gax6qq3iqhmtliwvbomzyd.onion", 80);

@@ -76,3 +76,5 @@
 /projects/tor/myorchid/target/
 /projects/ibs/SocketServer/target/
 /projects/tor/orchid/target/
+/projects/guava/rate_limiter/target/
+/projects/ssh/apache_mina/apache-sshd-1.2.0/sshd-core/target/
