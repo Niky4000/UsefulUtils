@@ -185,7 +185,7 @@ public class ActEkmpReportFileExporter2Test {
         ActEkmpReportGenerator2 actEkmpReportGenerator2 = new ActEkmpReportGenerator2() {
             @Override
             public String getTemplatePath() {
-                return "/home/me/VMwareShared/act_ekmp2.docx";
+                return "/home/me/GIT/pmp/pmp/module-smo/src/main/resources/word_templates/act_ekmp2.docx";
             }
         };
         ActEkmpReportGenerator22 actEkmpReportGenerator22 = new ActEkmpReportGenerator22() {
