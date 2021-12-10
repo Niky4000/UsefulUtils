@@ -10,7 +10,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Proxy;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +38,6 @@ import org.apache.cxf.helpers.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import ru.ibs.pmp.auth.model.SmoEntity;
-import ru.ibs.pmp.reports.custom.bean.UnloadZipBean4;
 import ru.ibs.pmp.reports.engine.Report;
 import ru.ibs.pmp.reports.engine.ReportBuildTask;
 import ru.ibs.pmp.reports.engine.ReportParameter;
@@ -126,47 +130,55 @@ public class CustomMGFOMIArchivesUploaderTest {
 
 	private void unload(Session session, String dir, Date period, Set<String> qqList, String domain, String user, String password, String remotePath) throws Exception {
 		new File(dir).mkdirs();
-		List<UnloadZipBean4> dbList = (List<UnloadZipBean4>) session.createSQLQuery("SELECT rownum as id,SMO_NAME as qq,LPU_ID,MESSAGE_FILE,MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
-				+ "FROM\n"
-				+ "(\n"
-				+ "SELECT MIO.*,MIN (RESP_NUM_PER_BILL ) OVER (PARTITION BY LPU_ID,SMO_ID,PERIOD) MIN_RESPONSE --Последний ответ из отобранных\n"
-				+ "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
-				+ "WHERE MIO.PERIOD = :period --Период\n"
-				+ "AND MIO.QQ IN (:qqList) --список СМО\n"
-				+ "AND MSG_NUM_PER_BILL = 1 --критерий последней посылки\n"
-				+ "AND MESSAGE_STATUS IN ('OK')\n"
-				+ "AND RESPONSE_STATUS IN ('OK') --Критерий наличия ответа\n"
-				+ "AND RESP_NUM_PER_MSG = 1 -- Критерий последнего ответа\n"
-				+ ") MIO_RESPONSE\n"
-				+ "WHERE MIO_RESPONSE.RESP_NUM_PER_BILL=MIO_RESPONSE.MIN_RESPONSE\n"
-				+ "ORDER BY PERIOD,SMO_ID,LPU_ID").addEntity(UnloadZipBean4.class)
-				.setParameter("period", period).setParameterList("qqList", qqList)
-				.list();
-		List<File> dirsToRemove = new ArrayList<>(dbList.size());
-		List<String> filesPathes = new ArrayList<>(dbList.size() * 2);
-		for (UnloadZipBean4 obj : dbList) {
-			String qq = obj.getQq();
-			String messageFileName = obj.getMessageFileName();
-			byte[] messageFile = obj.getMessageFile();
-			String responseFileName = obj.getResponseFileName();
-			byte[] responseFile = obj.getResponseFile();
-			Long lpuId = obj.getLpuId();
-			dirsToRemove.add(new File(dir + File.separator + lpuId));
-			String handledQq = handleQq(qq);
-			new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + MESSAGE).mkdirs();
-			new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + RESPONSE).mkdirs();
-			File messageFilePath = new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + MESSAGE + File.separator + messageFileName);
-			File responseFilePath = new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + RESPONSE + File.separator + responseFileName);
-			try {
-				Files.write(messageFile, messageFilePath);
-				Files.write(responseFile, responseFilePath);
-				filesPathes.add(lpuId + File.separator + handledQq + File.separator + MESSAGE + File.separator + messageFileName);
-				filesPathes.add(lpuId + File.separator + handledQq + File.separator + RESPONSE + File.separator + responseFileName);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+		final List<File> dirsToRemove = new ArrayList<>();
+		final List<String> filesPathes = new ArrayList<>();
+		session.doWork(connection -> {
+			try (PreparedStatement prepareStatement = connection.prepareStatement("SELECT rownum as id,SMO_NAME as qq,LPU_ID,MESSAGE_FILE,MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
+					+ "FROM\n"
+					+ "(\n"
+					+ "SELECT MIO.*,MIN (RESP_NUM_PER_BILL ) OVER (PARTITION BY LPU_ID,SMO_ID,PERIOD) MIN_RESPONSE --Последний ответ из отобранных\n"
+					+ "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
+					+ "WHERE MIO.PERIOD = ? --Период\n"
+					+ "AND MIO.QQ IN (" + qqList.stream().map(str -> "?").reduce((str1, str2) -> str1 + "," + str2).get() + ") --список СМО\n"
+					+ "AND MSG_NUM_PER_BILL = 1 --критерий последней посылки\n"
+					+ "AND MESSAGE_STATUS IN ('OK')\n"
+					+ "AND RESPONSE_STATUS IN ('OK') --Критерий наличия ответа\n"
+					+ "AND RESP_NUM_PER_MSG = 1 -- Критерий последнего ответа\n"
+					+ ") MIO_RESPONSE\n"
+					+ "WHERE MIO_RESPONSE.RESP_NUM_PER_BILL=MIO_RESPONSE.MIN_RESPONSE\n"
+					+ "ORDER BY PERIOD,SMO_ID,LPU_ID")) {
+				prepareStatement.setDate(1, new java.sql.Date(period.getTime()));
+				List<String> qqList2 = new ArrayList<>(qqList);
+				for (int i = 0; i < qqList.size(); i++) {
+					prepareStatement.setString(i + 2, qqList2.get(i));
+				}
+				try (ResultSet resultSet = prepareStatement.getResultSet()) {
+					while (resultSet.next()) {
+						long id = resultSet.getLong(1);
+						String qq = resultSet.getString(2);
+						long lpuId = resultSet.getLong(3);
+						Blob messageFile = resultSet.getBlob(4);
+						String messageFileName = resultSet.getString(5);
+						Blob responseFile = resultSet.getBlob(4);
+						String responseFileName = resultSet.getString(5);
+						dirsToRemove.add(new File(dir + File.separator + lpuId));
+						String handledQq = handleQq(qq);
+						new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + MESSAGE).mkdirs();
+						new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + RESPONSE).mkdirs();
+						File messageFilePath = new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + MESSAGE + File.separator + messageFileName);
+						File responseFilePath = new File(dir + File.separator + lpuId + File.separator + handledQq + File.separator + RESPONSE + File.separator + responseFileName);
+						try {
+							writeBlobToFile(messageFile.getBinaryStream(), new FileOutputStream(messageFilePath));
+							writeBlobToFile(responseFile.getBinaryStream(), new FileOutputStream(responseFilePath));
+							filesPathes.add(lpuId + File.separator + handledQq + File.separator + MESSAGE + File.separator + messageFileName);
+							filesPathes.add(lpuId + File.separator + handledQq + File.separator + RESPONSE + File.separator + responseFileName);
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}
 			}
-		}
-		;
+		});
 		File zipFile = new File(dir + File.separator + new SimpleDateFormat("yyyy_MM").format(period) + ".zip");
 		if (zipFile.exists()) {
 			zipFile.delete();
@@ -175,6 +187,20 @@ public class CustomMGFOMIArchivesUploaderTest {
 		dirsToRemove.stream().forEach(dirToRemove -> FileUtils.removeDir(dirToRemove));
 		copySmpFile(domain, user, password, remotePath, zipFile.getName(), zipFile);
 		zipFile.delete();
+	}
+
+	private static final int BUFFER = 1024 * 1024;
+
+	private void writeBlobToFile(InputStream inputStream, OutputStream outputStream) throws IOException {
+		byte[] bytes = new byte[BUFFER];
+		int read = 0;
+		do {
+			read = inputStream.read(bytes);
+			if (read < 0) {
+				break;
+			}
+			outputStream.write(bytes, 0, read);
+		} while (read > 0);
 	}
 
 	private void zipFiles(String dir, List<String> filesPathes, String zipFilePath) throws IOException {
