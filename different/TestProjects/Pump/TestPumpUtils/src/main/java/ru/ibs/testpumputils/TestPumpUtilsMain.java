@@ -181,7 +181,8 @@ public class TestPumpUtilsMain {
 //            ActMeeReportFileExporter2Test.test();
 //            ActEkmpReportFileExporter2Test.test();
 //            SmoFileNameGenerationTest.test();
-			MessageUtilsTest.testMessageUtils();
+//			MessageUtilsTest.testMessageUtils();
+			CustomMGFOMIArchivesUploaderTest.test();
 		} finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
