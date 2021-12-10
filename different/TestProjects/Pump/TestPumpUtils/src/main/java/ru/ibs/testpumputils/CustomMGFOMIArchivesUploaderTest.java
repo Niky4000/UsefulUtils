@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Proxy;
 import java.sql.Blob;
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
@@ -132,27 +133,28 @@ public class CustomMGFOMIArchivesUploaderTest {
 		new File(dir).mkdirs();
 		final List<File> dirsToRemove = new ArrayList<>();
 		final List<String> filesPathes = new ArrayList<>();
+		String sql = "SELECT rownum as id,SMO_NAME as qq,LPU_ID,MESSAGE_FILE,MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
+				+ "FROM\n"
+				+ "(\n"
+				+ "SELECT MIO.*,MIN(RESP_NUM_PER_BILL) OVER (PARTITION BY LPU_ID,SMO_ID,PERIOD) MIN_RESPONSE --Последний ответ из отобранных\n"
+				+ "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
+				+ "WHERE MIO.PERIOD = ? --Период\n"
+				+ "AND MIO.QQ IN (" + qqList.stream().map(str -> "?").reduce((str1, str2) -> str1 + "," + str2).get() + ") --список СМО\n"
+				+ "AND MSG_NUM_PER_BILL = 1 --критерий последней посылки\n"
+				+ "AND MESSAGE_STATUS IN ('OK')\n"
+				+ "AND RESPONSE_STATUS IN ('OK') --Критерий наличия ответа\n"
+				+ "AND RESP_NUM_PER_MSG = 1 -- Критерий последнего ответа\n"
+				+ ") MIO_RESPONSE\n"
+				+ "WHERE MIO_RESPONSE.RESP_NUM_PER_BILL=MIO_RESPONSE.MIN_RESPONSE\n"
+				+ "ORDER BY PERIOD,SMO_ID,LPU_ID";
 		session.doWork(connection -> {
-			try (PreparedStatement prepareStatement = connection.prepareStatement("SELECT rownum as id,SMO_NAME as qq,LPU_ID,MESSAGE_FILE,MESSAGE_FILE_NAME,RESPONSE_FILE_NAME,RESPONSE_FILE\n"
-					+ "FROM\n"
-					+ "(\n"
-					+ "SELECT MIO.*,MIN (RESP_NUM_PER_BILL ) OVER (PARTITION BY LPU_ID,SMO_ID,PERIOD) MIN_RESPONSE --Последний ответ из отобранных\n"
-					+ "FROM MSG_IN_OUT_CONNECTION_FILES MIO\n"
-					+ "WHERE MIO.PERIOD = ? --Период\n"
-					+ "AND MIO.QQ IN (" + qqList.stream().map(str -> "?").reduce((str1, str2) -> str1 + "," + str2).get() + ") --список СМО\n"
-					+ "AND MSG_NUM_PER_BILL = 1 --критерий последней посылки\n"
-					+ "AND MESSAGE_STATUS IN ('OK')\n"
-					+ "AND RESPONSE_STATUS IN ('OK') --Критерий наличия ответа\n"
-					+ "AND RESP_NUM_PER_MSG = 1 -- Критерий последнего ответа\n"
-					+ ") MIO_RESPONSE\n"
-					+ "WHERE MIO_RESPONSE.RESP_NUM_PER_BILL=MIO_RESPONSE.MIN_RESPONSE\n"
-					+ "ORDER BY PERIOD,SMO_ID,LPU_ID")) {
-				prepareStatement.setDate(1, new java.sql.Date(period.getTime()));
+			try (CallableStatement statement = connection.prepareCall(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+				statement.setDate(1, new java.sql.Date(period.getTime()));
 				List<String> qqList2 = new ArrayList<>(qqList);
 				for (int i = 0; i < qqList.size(); i++) {
-					prepareStatement.setString(i + 2, qqList2.get(i));
+					statement.setString(i + 2, qqList2.get(i));
 				}
-				try (ResultSet resultSet = prepareStatement.getResultSet()) {
+				try (ResultSet resultSet = statement.executeQuery()) {
 					while (resultSet.next()) {
 						long id = resultSet.getLong(1);
 						String qq = resultSet.getString(2);
