@@ -40,7 +40,7 @@ import ru.ibs.pmp.service.ListBillsService;
 import ru.ibs.pmp.service.RequirementService;
 //import ru.ibs.pmp.service.impl.AccountingPeriodServiceImpl;
 import ru.ibs.pmp.service.impl.ListBillsServiceImpl;
-import ru.ibs.pmp.service.impl.ModulePmpAbstractGenericService;
+import ru.ibs.pmp.api.mailgw.service.impl.ModulePmpAbstractGenericService;
 import ru.ibs.pmp.service.impl.RequirementServiceImpl;
 import ru.ibs.pmp.service.payer.AbstractPayerService;
 import ru.ibs.pmp.service.payer.msk.PayerServiceImpl;

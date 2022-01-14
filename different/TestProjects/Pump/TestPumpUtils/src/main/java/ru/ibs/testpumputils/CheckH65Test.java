@@ -18,7 +18,7 @@ import ru.ibs.pmp.service.flk.ErrorMarker;
 import ru.ibs.pmp.service.flk.ErrorMarkerImpl;
 import ru.ibs.pmp.service.flk.check.AbstractFLKCheck;
 import ru.ibs.pmp.service.impl.MedicalCaseServiceImplementation;
-import ru.ibs.pmp.service.impl.ModulePmpAbstractGenericService;
+import ru.ibs.pmp.api.mailgw.service.impl.ModulePmpAbstractGenericService;
 import ru.ibs.pmp.service.impl.ServiceFacadeImpl;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;

@@ -19,7 +19,7 @@ import ru.ibs.pmp.service.check.msk.CheckInvoiceNU;
 import ru.ibs.pmp.service.flk.ErrorMarker;
 import ru.ibs.pmp.service.flk.ErrorMarkerImpl;
 import ru.ibs.pmp.service.flk.check.AbstractFLKCheck;
-import ru.ibs.pmp.service.impl.ModulePmpAbstractGenericService;
+import ru.ibs.pmp.api.mailgw.service.impl.ModulePmpAbstractGenericService;
 import ru.ibs.pmp.service.impl.TapInfoServiceImpl;
 import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
 import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;

@@ -5,11 +5,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import ru.ibs.testpumputils.interceptors.SqlRewriteInterceptorExt;
+import ru.ibs.testpumputils.interfaces.SessionFactoryInterface;
+import ru.ibs.testpumputils.interfaces.SessionFactoryInvocationHandler;
 
 /**
  * @author NAnishhenko
@@ -110,7 +114,7 @@ public class TestPumpUtilsMain {
 
 	public static void main(String args[]) throws Exception {
 		System.out.println("Hello!!!");
-//        SessionFactoryInterface sessionFactoryProxy = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(buildSessionFactory(), new SqlRewriteInterceptorExt()));
+        SessionFactoryInterface sessionFactoryProxy = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(buildSessionFactory(), new SqlRewriteInterceptorExt()));
 		try {
 //        TestUtils.testSyncServiceImpl(sessionFactoryProxy);
 //        testBillStatisticsDAOImpl(sessionFactoryProxy);
@@ -182,7 +186,8 @@ public class TestPumpUtilsMain {
 //            ActEkmpReportFileExporter2Test.test();
 //            SmoFileNameGenerationTest.test();
 //			MessageUtilsTest.testMessageUtils();
-			CustomMGFOMIArchivesUploaderTest.test();
+//			CustomMGFOMIArchivesUploaderTest.test();
+			HorizCalcServiceImplTest.test();
 		} finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

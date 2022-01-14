@@ -96,7 +96,7 @@ import ru.ibs.pmp.pmp.ws.CreateUpdateAmbCaseRequestBean190601;
 import ru.ibs.pmp.pmp.ws.impl.PmpWsImpl;
 import ru.ibs.pmp.service.RequirementService;
 import ru.ibs.pmp.service.impl.MedicalCaseServiceImpl;
-import ru.ibs.pmp.service.impl.ModulePmpAbstractGenericService;
+import ru.ibs.pmp.api.mailgw.service.impl.ModulePmpAbstractGenericService;
 import ru.ibs.pmp.service.impl.RequirementServiceImpl;
 import ru.ibs.pmp.service.impl.SimpleServiceServiceImpl;
 import ru.ibs.pmp.service.impl.msk.BillServiceImpl;
