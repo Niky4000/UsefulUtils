@@ -1,0 +1,12 @@
+You may put *.jar in this directory if you need to build Orchid offline (== can not access remote gradle repositories).
+
+Needed jars are:
+
+commons-io
+guava
+jsoup
+proguard
+xmlrpc-client
+xmlrpc-common
+
+jsr305 might be needed too if you use old JDK.

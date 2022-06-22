@@ -1,0 +1,10 @@
+/.nb-gradle/
+/.gradle/
+/build/
+/private/
+
+build-revision
+
+*.class
+*.jar
+*.zip
