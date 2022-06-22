@@ -1,1 +1,1 @@
-java -jar "D:\GIT\UsefulUtils\projects\ibs\TomcatRestart\target\TomcatRestart.jar" -i -conf D:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties.txt
+java -Dfile.encoding=UTF-8 -jar "C:\GIT\UsefulUtils\projects\ibs\TomcatRestart\target\TomcatRestart.jar" -i -conf C:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties.txt

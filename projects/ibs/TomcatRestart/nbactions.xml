@@ -10,7 +10,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath ${packageClassName} -rl -i -conf C:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties_remote_111_integ.txt</exec.args>
+                <exec.args>-classpath %classpath ${packageClassName} -rl -i -conf C:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties_remote_111.txt</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
@@ -24,7 +24,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath ${packageClassName} -rl -i -conf C:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties_remote_111_integ.txt</exec.args>
+                <exec.args>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath ${packageClassName} -rl -i -conf C:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties_remote_111.txt</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
             </properties>
@@ -39,7 +39,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath ${packageClassName} -rl -i -conf C:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties_remote_111_integ.txt</exec.args>
+                <exec.args>-classpath %classpath ${packageClassName} -rl -i -conf C:\GIT\UsefulUtils\projects\ibs\TomcatRestart\properties_remote_111.txt</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>

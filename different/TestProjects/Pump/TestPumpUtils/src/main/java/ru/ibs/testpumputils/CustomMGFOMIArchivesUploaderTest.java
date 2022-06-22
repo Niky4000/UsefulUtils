@@ -39,6 +39,7 @@ import org.apache.cxf.helpers.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import ru.ibs.pmp.auth.model.SmoEntity;
+import ru.ibs.pmp.reports.custom.CustomMGFOMIArchivesUploader;
 import ru.ibs.pmp.reports.engine.Report;
 import ru.ibs.pmp.reports.engine.ReportBuildTask;
 import ru.ibs.pmp.reports.engine.ReportParameter;
@@ -64,7 +65,8 @@ public class CustomMGFOMIArchivesUploaderTest {
 			buildTask.setReport(report);
 			Session session = sessionFactory.openSession();
 			try {
-				new CustomMGFOMIArchivesUploaderTest().buildReport(buildTask, session);
+//				new CustomMGFOMIArchivesUploaderTest().buildReport(buildTask, session);
+                new CustomMGFOMIArchivesUploader().buildReport(buildTask, session);
 			} finally {
 				session.close();
 			}
