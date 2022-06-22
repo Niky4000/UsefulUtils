@@ -1,0 +1,170 @@
+[2021-05-27 12:34:17.331][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration boolean -> org.hibernate.type.BooleanType@6239aba6
+[2021-05-27 12:34:17.336][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration boolean -> org.hibernate.type.BooleanType@6239aba6
+[2021-05-27 12:34:17.336][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.Boolean -> org.hibernate.type.BooleanType@6239aba6
+[2021-05-27 12:34:17.339][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration numeric_boolean -> org.hibernate.type.NumericBooleanType@132e0cc
+[2021-05-27 12:34:17.341][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration true_false -> org.hibernate.type.TrueFalseType@d41f816
+[2021-05-27 12:34:17.342][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration yes_no -> org.hibernate.type.YesNoType@7a55af6b
+[2021-05-27 12:34:17.344][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration byte -> org.hibernate.type.ByteType@74589991
+[2021-05-27 12:34:17.344][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration byte -> org.hibernate.type.ByteType@74589991
+[2021-05-27 12:34:17.344][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.Byte -> org.hibernate.type.ByteType@74589991
+[2021-05-27 12:34:17.346][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration character -> org.hibernate.type.CharacterType@6cce16f4
+[2021-05-27 12:34:17.346][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration char -> org.hibernate.type.CharacterType@6cce16f4
+[2021-05-27 12:34:17.346][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.Character -> org.hibernate.type.CharacterType@6cce16f4
+[2021-05-27 12:34:17.348][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration short -> org.hibernate.type.ShortType@7a362b6b
+[2021-05-27 12:34:17.348][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration short -> org.hibernate.type.ShortType@7a362b6b
+[2021-05-27 12:34:17.348][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.Short -> org.hibernate.type.ShortType@7a362b6b
+[2021-05-27 12:34:17.349][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration integer -> org.hibernate.type.IntegerType@1c93f6e1
+[2021-05-27 12:34:17.350][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration int -> org.hibernate.type.IntegerType@1c93f6e1
+[2021-05-27 12:34:17.350][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.Integer -> org.hibernate.type.IntegerType@1c93f6e1
+[2021-05-27 12:34:17.352][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration long -> org.hibernate.type.LongType@a4add54
+[2021-05-27 12:34:17.353][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration long -> org.hibernate.type.LongType@a4add54
+[2021-05-27 12:34:17.353][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.Long -> org.hibernate.type.LongType@a4add54
+[2021-05-27 12:34:17.355][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration float -> org.hibernate.type.FloatType@a3d9978
+[2021-05-27 12:34:17.355][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration float -> org.hibernate.type.FloatType@a3d9978
+[2021-05-27 12:34:17.355][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.Float -> org.hibernate.type.FloatType@a3d9978
+[2021-05-27 12:34:17.357][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration double -> org.hibernate.type.DoubleType@9ebe38b
+[2021-05-27 12:34:17.357][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration double -> org.hibernate.type.DoubleType@9ebe38b
+[2021-05-27 12:34:17.357][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.Double -> org.hibernate.type.DoubleType@9ebe38b
+[2021-05-27 12:34:17.359][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration big_decimal -> org.hibernate.type.BigDecimalType@39de3d36
+[2021-05-27 12:34:17.360][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.math.BigDecimal -> org.hibernate.type.BigDecimalType@39de3d36
+[2021-05-27 12:34:17.361][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration big_integer -> org.hibernate.type.BigIntegerType@64bce832
+[2021-05-27 12:34:17.361][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.math.BigInteger -> org.hibernate.type.BigIntegerType@64bce832
+[2021-05-27 12:34:17.362][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration string -> org.hibernate.type.StringType@484094a5
+[2021-05-27 12:34:17.363][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.String -> org.hibernate.type.StringType@484094a5
+[2021-05-27 12:34:17.364][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration nstring -> org.hibernate.type.StringNVarcharType@22f31dec
+[2021-05-27 12:34:17.366][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration ncharacter -> org.hibernate.type.CharacterNCharType@545b995e
+[2021-05-27 12:34:17.368][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration url -> org.hibernate.type.UrlType@77102b91
+[2021-05-27 12:34:17.369][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.net.URL -> org.hibernate.type.UrlType@77102b91
+[2021-05-27 12:34:17.390][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration date -> org.hibernate.type.DateType@d62fe5b
+[2021-05-27 12:34:17.390][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.sql.Date -> org.hibernate.type.DateType@d62fe5b
+[2021-05-27 12:34:17.394][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration time -> org.hibernate.type.TimeType@24ba9639
+[2021-05-27 12:34:17.395][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.sql.Time -> org.hibernate.type.TimeType@24ba9639
+[2021-05-27 12:34:17.397][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration timestamp -> org.hibernate.type.TimestampType@4331d187
+[2021-05-27 12:34:17.398][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.sql.Timestamp -> org.hibernate.type.TimestampType@4331d187
+[2021-05-27 12:34:17.398][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.util.Date -> org.hibernate.type.TimestampType@4331d187
+[2021-05-27 12:34:17.403][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration dbtimestamp -> org.hibernate.type.DbTimestampType@5bf8fa12
+[2021-05-27 12:34:17.404][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration calendar -> org.hibernate.type.CalendarType@6b88ca8c
+[2021-05-27 12:34:17.405][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.util.Calendar -> org.hibernate.type.CalendarType@6b88ca8c
+[2021-05-27 12:34:17.405][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.util.GregorianCalendar -> org.hibernate.type.CalendarType@6b88ca8c
+[2021-05-27 12:34:17.406][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration calendar_date -> org.hibernate.type.CalendarDateType@52c3cb31
+[2021-05-27 12:34:17.407][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration locale -> org.hibernate.type.LocaleType@65a15628
+[2021-05-27 12:34:17.408][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.util.Locale -> org.hibernate.type.LocaleType@65a15628
+[2021-05-27 12:34:17.408][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration currency -> org.hibernate.type.CurrencyType@740d2e78
+[2021-05-27 12:34:17.409][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.util.Currency -> org.hibernate.type.CurrencyType@740d2e78
+[2021-05-27 12:34:17.410][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration timezone -> org.hibernate.type.TimeZoneType@29a0cdb
+[2021-05-27 12:34:17.410][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.util.TimeZone -> org.hibernate.type.TimeZoneType@29a0cdb
+[2021-05-27 12:34:17.412][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration class -> org.hibernate.type.ClassType@4ed5eb72
+[2021-05-27 12:34:17.412][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.Class -> org.hibernate.type.ClassType@4ed5eb72
+[2021-05-27 12:34:17.414][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration uuid-binary -> org.hibernate.type.UUIDBinaryType@8ad6665
+[2021-05-27 12:34:17.414][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.util.UUID -> org.hibernate.type.UUIDBinaryType@8ad6665
+[2021-05-27 12:34:17.415][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration uuid-char -> org.hibernate.type.UUIDCharType@bcef303
+[2021-05-27 12:34:17.417][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration pg-uuid -> org.hibernate.type.PostgresUUIDType@63787180
+[2021-05-27 12:34:17.420][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration binary -> org.hibernate.type.BinaryType@3d1848cc
+[2021-05-27 12:34:17.421][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration byte[] -> org.hibernate.type.BinaryType@3d1848cc
+[2021-05-27 12:34:17.421][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration [B -> org.hibernate.type.BinaryType@3d1848cc
+[2021-05-27 12:34:17.423][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration wrapper-binary -> org.hibernate.type.WrapperBinaryType@648c94da
+[2021-05-27 12:34:17.423][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration Byte[] -> org.hibernate.type.WrapperBinaryType@648c94da
+[2021-05-27 12:34:17.423][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration [Ljava.lang.Byte; -> org.hibernate.type.WrapperBinaryType@648c94da
+[2021-05-27 12:34:17.424][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration image -> org.hibernate.type.ImageType@24111ef1
+[2021-05-27 12:34:17.426][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration characters -> org.hibernate.type.CharArrayType@7ca20101
+[2021-05-27 12:34:17.426][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration char[] -> org.hibernate.type.CharArrayType@7ca20101
+[2021-05-27 12:34:17.426][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration [C -> org.hibernate.type.CharArrayType@7ca20101
+[2021-05-27 12:34:17.427][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration wrapper-characters -> org.hibernate.type.CharacterArrayType@388526fb
+[2021-05-27 12:34:17.427][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration [Ljava.lang.Character; -> org.hibernate.type.CharacterArrayType@388526fb
+[2021-05-27 12:34:17.428][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration Character[] -> org.hibernate.type.CharacterArrayType@388526fb
+[2021-05-27 12:34:17.428][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration text -> org.hibernate.type.TextType@460ebd80
+[2021-05-27 12:34:17.429][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration ntext -> org.hibernate.type.NTextType@7776ab
+[2021-05-27 12:34:17.434][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration blob -> org.hibernate.type.BlobType@6ad3381f
+[2021-05-27 12:34:17.434][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.sql.Blob -> org.hibernate.type.BlobType@6ad3381f
+[2021-05-27 12:34:17.434][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration materialized_blob -> org.hibernate.type.MaterializedBlobType@4748a0f9
+[2021-05-27 12:34:17.438][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration clob -> org.hibernate.type.ClobType@5adb0db3
+[2021-05-27 12:34:17.439][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.sql.Clob -> org.hibernate.type.ClobType@5adb0db3
+[2021-05-27 12:34:17.443][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration nclob -> org.hibernate.type.NClobType@4612b856
+[2021-05-27 12:34:17.443][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.sql.NClob -> org.hibernate.type.NClobType@4612b856
+[2021-05-27 12:34:17.444][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration materialized_clob -> org.hibernate.type.MaterializedClobType@2a448449
+[2021-05-27 12:34:17.444][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration materialized_nclob -> org.hibernate.type.MaterializedNClobType@e8df99a
+[2021-05-27 12:34:17.445][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration serializable -> org.hibernate.type.SerializableType@4ff4357f
+[2021-05-27 12:34:17.448][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration object -> org.hibernate.type.ObjectType@74eb909f
+[2021-05-27 12:34:17.448][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration java.lang.Object -> org.hibernate.type.ObjectType@74eb909f
+[2021-05-27 12:34:17.449][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration imm_date -> org.hibernate.type.AdaptedImmutableType@5629510
+[2021-05-27 12:34:17.449][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration imm_time -> org.hibernate.type.AdaptedImmutableType@4df5bcb4
+[2021-05-27 12:34:17.449][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration imm_timestamp -> org.hibernate.type.AdaptedImmutableType@12c7a01b
+[2021-05-27 12:34:17.449][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration imm_dbtimestamp -> org.hibernate.type.AdaptedImmutableType@13d9b21f
+[2021-05-27 12:34:17.449][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration imm_calendar -> org.hibernate.type.AdaptedImmutableType@2826f61
+[2021-05-27 12:34:17.449][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration imm_calendar_date -> org.hibernate.type.AdaptedImmutableType@62727399
+[2021-05-27 12:34:17.449][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration imm_binary -> org.hibernate.type.AdaptedImmutableType@4d9ac0b4
+[2021-05-27 12:34:17.449][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration imm_serializable -> org.hibernate.type.AdaptedImmutableType@130dca52
+[2021-05-27 12:34:17.468][INFO ][main][][][] - [o.h.annotations.common.Version] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[2021-05-27 12:34:17.478][INFO ][main][][][] - [org.hibernate.Version] HHH000412: Hibernate Core {4.3.6.Final}
+[2021-05-27 12:34:17.483][INFO ][main][][][] - [org.hibernate.cfg.Environment] HHH000206: hibernate.properties not found
+[2021-05-27 12:34:17.487][INFO ][main][][][] - [org.hibernate.cfg.Environment] HHH000021: Bytecode provider name : javassist
+[2021-05-27 12:34:21.857][INFO ][main][][][] - [org.hibernate.cfg.Configuration] HHH000043: Configuring from resource: /hibernate.cfg.xml
+[2021-05-27 12:34:21.857][INFO ][main][][][] - [org.hibernate.cfg.Configuration] HHH000040: Configuration resource: /hibernate.cfg.xml
+[2021-05-27 12:34:21.938][WARN ][main][][][] - [o.h.i.util.xml.DTDEntityResolver] HHH000223: Recognized obsolete hibernate namespace http://hibernate.sourceforge.net/. Use namespace http://www.hibernate.org/dtd/ instead. Refer to Hibernate 3.6 Migration Guide!
+[2021-05-27 12:34:21.966][INFO ][main][][][] - [org.hibernate.cfg.Configuration] HHH000041: Configured SessionFactory: null
+[2021-05-27 12:34:22.156][WARN ][main][][][] - [o.h.e.j.c.i.DriverManagerConnectionProviderImpl] HHH000402: Using Hibernate built-in connection pool (not for production use!)
+[2021-05-27 12:34:22.754][INFO ][main][][][] - [o.h.e.j.c.i.DriverManagerConnectionProviderImpl] HHH000401: using driver [oracle.jdbc.driver.OracleDriver] at URL [jdbc:oracle:thin:@db.test.drzsrv.ru:1521:ERZ]
+[2021-05-27 12:34:22.755][INFO ][main][][][] - [o.h.e.j.c.i.DriverManagerConnectionProviderImpl] HHH000046: Connection properties: {user=pmp_smo, password=****}
+[2021-05-27 12:34:22.755][INFO ][main][][][] - [o.h.e.j.c.i.DriverManagerConnectionProviderImpl] HHH000006: Autocommit mode: false
+[2021-05-27 12:34:22.757][INFO ][main][][][] - [o.h.e.j.c.i.DriverManagerConnectionProviderImpl] HHH000115: Hibernate connection pool size: 20 (min=1)
+[2021-05-27 12:34:24.451][INFO ][main][][][] - [org.hibernate.dialect.Dialect] HHH000400: Using dialect: org.hibernate.dialect.Oracle10gDialect
+[2021-05-27 12:34:24.643][DEBUG][main][][][] - [o.h.type.BasicTypeRegistry] Adding type registration org.hibernate.envers.internal.entities.RevisionTypeType -> org.hibernate.type.CustomType@1bd0b0e5
+[2021-05-27 12:34:26.361][WARN ][main][][][] - [org.hibernate.mapping.RootClass] HHH000038: Composite-id class does not override equals(): ru.ibs.pmp.api.smo.model.AutoCreateExpertiseMtrPk
+[2021-05-27 12:34:26.362][WARN ][main][][][] - [org.hibernate.mapping.RootClass] HHH000039: Composite-id class does not override hashCode(): ru.ibs.pmp.api.smo.model.AutoCreateExpertiseMtrPk
+[2021-05-27 12:34:26.389][INFO ][main][][][] - [o.h.e.t.i.TransactionFactoryInitiator] HHH000399: Using default transaction strategy (direct JDBC transactions)
+[2021-05-27 12:34:26.397][INFO ][main][][][] - [o.h.h.i.a.ASTQueryTranslatorFactory] HHH000397: Using ASTQueryTranslatorFactory
+[2021-05-27 12:34:27.439][TRACE][main][][][] - [org.hibernate.type.TypeFactory] Scoping types to session factory org.hibernate.internal.SessionFactoryImpl@485e13d7
+[2021-05-27 12:34:27.581][INFO ][main][][][] - [o.h.v.internal.util.Version] HV000001: Hibernate Validator 5.0.1.Final
+[2021-05-27 12:34:29.893][DEBUG][main][][][] - [o.h.e.c.i.m.AuditMetadataGenerator] Generating first-pass auditing mapping for entity ru.ibs.pmp.auth.model.SmoEntity
+[2021-05-27 12:34:29.936][DEBUG][main][][][] - [o.h.e.c.i.m.AuditMetadataGenerator] Generating second-pass auditing mapping for entity ru.ibs.pmp.auth.model.SmoEntity
+[2021-05-27 12:34:30.105][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.ServiceMedicament]; using defaults.
+[2021-05-27 12:34:30.459][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.Requirement]; using defaults.
+[2021-05-27 12:34:30.493][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospDeptStay]; using defaults.
+[2021-05-27 12:34:30.587][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedcaseOnkconsMembers]; using defaults.
+[2021-05-27 12:34:30.608][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedCaseOnkCons]; using defaults.
+[2021-05-27 12:34:30.654][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.CostEntity]; using defaults.
+[2021-05-27 12:34:30.754][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedicalCase]; using defaults.
+[2021-05-27 12:34:30.845][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.Parcel]; using defaults.
+[2021-05-27 12:34:30.896][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospService]; using defaults.
+[2021-05-27 12:34:30.944][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedCaseOnkDiag]; using defaults.
+[2021-05-27 12:34:30.997][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.AbstractMedicine]; using defaults.
+[2021-05-27 12:34:31.025][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospitalDepStay]; using defaults.
+[2021-05-27 12:34:31.120][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospOperation]; using defaults.
+[2021-05-27 12:34:31.229][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedCaseOnkProt]; using defaults.
+[2021-05-27 12:34:31.261][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.Cost]; using defaults.
+[2021-05-27 12:34:31.589][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.Bill]; using defaults.
+[2021-05-27 12:34:31.672][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.InvoiceEntity]; using defaults.
+[2021-05-27 12:34:31.736][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.RiskFactor]; using defaults.
+[2021-05-27 12:34:31.762][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedCaseOnkSl]; using defaults.
+[2021-05-27 12:34:31.790][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.SimpleService]; using defaults.
+[2021-05-27 12:34:31.941][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospRehabilitation]; using defaults.
+[2021-05-27 12:34:32.034][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospReanimation]; using defaults.
+[2021-05-27 12:34:32.129][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospMedicament]; using defaults.
+[2021-05-27 12:34:32.139][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.MedcaseDirection]; using defaults.
+[2021-05-27 12:34:32.182][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedCaseOnkUsl]; using defaults.
+[2021-05-27 12:34:32.235][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.RequirementsProtocol]; using defaults.
+[2021-05-27 12:34:32.297][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.Bill260Sync]; using defaults.
+[2021-05-27 12:34:32.339][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.BulkDocsSync]; using defaults.
+[2021-05-27 12:34:32.362][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.Invoice]; using defaults.
+[2021-05-27 12:34:32.425][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedicalCase.medcaseDirections]; using defaults.
+[2021-05-27 12:34:32.434][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.SimpleService.medCaseOnkDiags]; using defaults.
+[2021-05-27 12:34:32.437][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedicalCase.medCaseOnkCons]; using defaults.
+[2021-05-27 12:34:32.442][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospDeptStay.medCaseOnkProts]; using defaults.
+[2021-05-27 12:34:32.448][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospDeptStay.hospMedicaments]; using defaults.
+[2021-05-27 12:34:32.460][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedCaseOnkCons.medcaseOnkconsMembers]; using defaults.
+[2021-05-27 12:34:32.465][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedicalCase.medCaseOnkDiags]; using defaults.
+[2021-05-27 12:34:32.470][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedicalCase.simpleServices]; using defaults.
+[2021-05-27 12:34:32.477][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospDeptStay.hospServices]; using defaults.
+[2021-05-27 12:34:32.489][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.SimpleService.serviceMedicaments]; using defaults.
+[2021-05-27 12:34:32.533][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospDeptStay.hospReanimations]; using defaults.
+[2021-05-27 12:34:32.539][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.SimpleService.medCaseOnkProts]; using defaults.
+[2021-05-27 12:34:32.547][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.InvoiceEntity.costs]; using defaults.
+[2021-05-27 12:34:32.551][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospDeptStay.medCaseOnkDiags]; using defaults.
+[2021-05-27 12:34:32.562][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedicalCase.medCaseOnkUsls]; using defaults.
+[2021-05-27 12:34:32.569][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.msk.export.MailGwLogEntry.attachments]; using defaults.
+[2021-05-27 12:34:32.577][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedicalCase.invoices]; using defaults.
+[2021-05-27 12:34:32.581][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospCase.hospDeptStays]; using defaults.
+[2021-05-27 12:34:32.586][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.yar.HospDeptStay.hospOperations]; using defaults.
+[2021-05-27 12:34:32.589][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.MedicalCase.medCaseOnkProts]; using defaults.
+[2021-05-27 12:34:32.602][WARN ][main][][][] - [o.h.c.e.AbstractEhcacheRegionFactory] HHH020003: Could not find a specific ehcache configuration for cache named [ru.ibs.pmp.api.model.Invoice.costs]; using defaults.
+[2021-05-27 12:34:34.240][INFO ][main][][][] - [o.h.e.j.c.i.DriverManagerConnectionProviderImpl] HHH000030: Cleaning up connection pool [jdbc:oracle:thin:@db.test.drzsrv.ru:1521:ERZ]

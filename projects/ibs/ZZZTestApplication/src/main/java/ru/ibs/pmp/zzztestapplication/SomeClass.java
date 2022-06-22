@@ -5,6 +5,7 @@
  */
 package ru.ibs.pmp.zzztestapplication;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -35,6 +36,7 @@ import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -57,6 +59,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -64,6 +67,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -87,22 +91,32 @@ import java.util.LongSummaryStatistics;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Phaser;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -114,6 +128,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import javassist.util.proxy.MethodHandler;
+import javassist.util.proxy.ProxyFactory;
+import javax.activation.DataHandler;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -145,9 +162,11 @@ import org.silvertunnel_ng.netlib.api.NetSocket;
 import org.silvertunnel_ng.netlib.api.util.TcpipNetAddress;
 import org.silvertunnel_ng.netlib.util.ByteArrayUtil;
 import org.silvertunnel_ng.netlib.util.HttpUtil;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import ru.ibs.pmp.api.help.model.Changelog;
 import ru.ibs.pmp.zzztestapplication.bean.AnswerType;
 import ru.ibs.pmp.zzztestapplication.bean.BillStatisticsShortBean;
 import ru.ibs.pmp.zzztestapplication.bean.CommitBean;
@@ -157,6 +176,7 @@ import ru.ibs.pmp.zzztestapplication.bean.SaveMoDeptRequest;
 import ru.ibs.pmp.zzztestapplication.bean.SomeBean1;
 import ru.ibs.pmp.zzztestapplication.bean.SomeBean2;
 import ru.ibs.pmp.zzztestapplication.bean.TestBean;
+import ru.ibs.pmp.zzztestapplication.interfaces.SecondInterface;
 import ru.ibs.pmp.zzztestapplication.threads.ConnectionMonitorDaemon;
 import ru.ibs.pmp.zzztestapplication.threads.TreadTest;
 import ru.ibs.pmp.zzztestapplication.threads.bean.MonitorBean;
@@ -218,6 +238,14 @@ public class SomeClass {
 //        bigDecimalTest();
 //        bigDecimalTest2("1.274");
 //        bigDecimalTest2("1.275");
+//		bigDecimalTest4("0.02");
+//		bigDecimalTest4("0.48");
+//		bigDecimalTest4("0.50");
+//		bigDecimalTest4("0.52");
+//		bigDecimalTest4("0.00");
+//		bigDecimalTest4("0");
+//		bigDecimalTest4("-0.00");
+//		bigDecimalTest4("-0.02");
 //        testCursors();
 //        System.out.println(LongestWord("d aads qwertyuio asd asd oiuytrewq ff"));
 //        System.out.println(LongestWord("d aads qwertyuio asd asd oiuytrewq ff"));
@@ -364,13 +392,15 @@ public class SomeClass {
 //        lookupForBadStringsInJsonFiles();
 //        futureExample();
 //        ActEkmpReportFileExporter2Test.test();
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//        merge(new FileInputStream("/home/me/Downloads/act_ecmp2.docx"), Arrays.asList(new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx"), new FileInputStream("/home/me/Downloads/act_ecmp2_2.docx")), byteArrayOutputStream);
-//        File reportFile = new File("/home/me/tmp/reportsPdf/report.docx");
-//        if (reportFile.exists()) {
-//            reportFile.delete();
-//        }
-//        Files.write(reportFile.toPath(), byteArrayOutputStream.toByteArray(), StandardOpenOption.CREATE_NEW);
+// -----------------------------------------------------------------------------
+//		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//		merge(new FileInputStream("/home/me/tmp/merge/2/report1.docx"), Arrays.asList(new FileInputStream("/home/me/tmp/merge/2/report2_1.docx"), new FileInputStream("/home/me/tmp/merge/2/report2_2.docx")), byteArrayOutputStream);
+//		File reportFile = new File("/home/me/tmp/reportsPdf/report.docx");
+//		if (reportFile.exists()) {
+//			reportFile.delete();
+//		}
+//		Files.write(reportFile.toPath(), byteArrayOutputStream.toByteArray(), StandardOpenOption.CREATE_NEW);
+// -----------------------------------------------------------------------------
 //        System.out.println(Optional.ofNullable("Hello my sweetty girl!").filter(description -> description.length() > 0).map(description -> description.split(" ")).filter(array -> array.length > 0).map(array -> array[0]).orElse(null));
 //        System.out.println(Optional.ofNullable("Hello").filter(description -> description.length() > 0).map(description -> description.split(" ")).filter(array -> array.length > 0).map(array -> array[0]).orElse(null));
 //        testJsonParsing();
@@ -430,11 +460,665 @@ public class SomeClass {
 //		System.out.println(addSpacesBetweenThreeDigits("22.55"));
 //		System.out.println(addSpacesBetweenThreeDigits("222.55"));
 //		System.out.println(addSpacesBetweenThreeDigits("2222.55"));
+//		System.out.println(addSpacesBetweenThreeDigits("52 5 05 0 66.44"));
 //		parseIpAndPort("192.168.192.217:40080");
 //		testReportExportFileType();
 //		testListArray();
 //		testExcelCreation();
-		testExcelCreation2(getMoDepartmentList(), "Departments");
+//		testExcelCreation2(getMoDepartmentList(), "Departments");
+//		createDataSource("");
+//		CommitBean proxy = createProxy();
+//		proxy.getAuthorEmail();
+//		DataHandler dataHandlerProxy = createDataHandlerProxy(null);
+//		dataHandlerProxy.getAllCommands();
+//		sortTest3();
+//		testFunctionalInterfaces();
+//		testString(null);
+//		Parent parent = new Parent() {
+//		};
+//		parent.test();
+//		System.out.println((-7 % 5) > (7 % -5));
+//		testComputeMethods();
+//		semaphoreTestWrapper();
+//		downloadContentTest();
+//		Instant timeToKeepForCommonFile = LocalDateTime.now().minusDays(DAYS_TO_KEEP_COMMON_CACHE_FILES).toInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
+//		deleteOldFiles(new File("/home/me/tmp/oldFilesDeletiongTest"), timeToKeepForCommonFile);
+//		reentrantLockTest();
+//		mapTest();
+//		setTest();
+//		reportListHandlerImplTest();
+//		caffeineTest();
+//		System.out.println(Math.pow(2, 5) + "");
+//		testBytes();
+//		testChangeLog();
+//		testScheduledExecutorService();
+		System.out.println(testBigDecimalNull(2L));
+		System.out.println(testBigDecimalNull(8L));
+		System.out.println(testBigDecimalNull(null));
+	}
+
+	private static BigDecimal testBigDecimalNull(Long digit) {
+		return BigDecimal.valueOf(digit);
+	}
+
+	private static void testScheduledExecutorService() {
+		System.out.println(Thread.currentThread().getName() + " started! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.scheduleAtFixedRate(() -> {
+			System.out.println(Thread.currentThread().getName() + " started! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+//			wait10Seconds();
+//			System.out.println(Thread.currentThread().getName() + " finished! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+		}, 4, 10, TimeUnit.SECONDS);
+	}
+
+	private static void testChangeLog() throws FileNotFoundException, JsonProcessingException {
+		java.io.InputStream is = new FileInputStream(new File("/home/me/Downloads/zzChangeLog.txt"));
+		Scanner s = new Scanner(is).useDelimiter("\\A");
+		String cha = s.hasNext() ? s.next() : "";
+		Date lastCommitDate = new ObjectMapper().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ZZZZ")).setTimeZone(TimeZone.getTimeZone("UTC")).readValue(cha, Changelog.class).get(0).getDate();
+		String buildTime = new SimpleDateFormat("dd-MM-yyyy HH:mm").format(lastCommitDate);
+		System.out.println(buildTime);
+	}
+
+	private static List<Byte> testBytes() {
+		byte[] value = new byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4};
+		Object obj = value;
+		List<Byte> list = new ArrayList<>(((byte[]) value).length);
+		if (obj.getClass().isArray()) {
+			if (obj.getClass().equals(byte[].class)) {
+				for (Byte b : (byte[]) value) {
+					list.add(b);
+				}
+			}
+		}
+		return list;
+	}
+
+	private static void caffeineTest() {
+		final Cache<String, AtomicReference<String>> lastErrorsCache = Caffeine.<String, AtomicReference<String>>newBuilder().expireAfterWrite(24, TimeUnit.SECONDS).build();
+		AtomicInteger i = new AtomicInteger(0);
+		for (int k = 0; k < 20; k++) {
+			String newValue = "newValue_" + i.incrementAndGet();
+			for (int j = 0; j < 4; j++) {
+				String value = handleCache(lastErrorsCache, newValue);
+				System.out.println("caffeineTest: " + value);
+				wait2Seconds();
+			}
+		}
+	}
+
+	private static String handleCache(Cache<String, AtomicReference<String>> lastErrorsCache, final String newValue_) {
+		String key = "do";
+		String value = lastErrorsCache.get(key, str -> {
+			System.out.println("There is no any value! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+			return new AtomicReference<>(newValue_);
+		}).accumulateAndGet(newValue_, (oldValue, newValue) -> {
+			if (!newValue.equals(oldValue)) {
+				System.out.println("Values are different! " + oldValue + " != " + newValue + "! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+				return newValue;
+			}
+			return oldValue;
+		});
+		return value;
+	}
+
+	private static void reportListHandlerImplTest() throws InterruptedException {
+		final ReadWriteLock lock = new ReentrantReadWriteLock(true);
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 4, 10 * 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(4));
+		Thread writeThread = new Thread(() -> {
+			while (true) {
+				cleanerThread(lock);
+			}
+		});
+		writeThread.setName("writeThread");
+		writeThread.start();
+		while (true) {
+			List<Future<?>> list = handleReportList(lock, executor, Arrays.asList(() -> getReadTask(1), () -> getReadTask(2)));
+			System.out.println("Tasks were added! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+			list.forEach(l -> {
+				try {
+					l.get();
+				} catch (InterruptedException ex) {
+					Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+				} catch (ExecutionException ex) {
+					Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+				}
+			});
+		}
+//		writeThread.join();
+	}
+
+	private static void getReadTask(int number) {
+		System.out.println("readThread" + number + " started it's work! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+		wait2Seconds();
+		System.out.println("readThread" + number + " finished it's work! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+	}
+
+	private static void cleanerThread(ReadWriteLock lock) {
+		lock.writeLock().lock();
+		try {
+			try {
+				System.out.println("writeThread started it's work! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+				wait10Seconds();
+				System.out.println("writeThread finished it's work! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+			} catch (Exception ex) {
+				logger.error("Unexpected Exception occured!", ex);
+			}
+		} finally {
+			lock.writeLock().unlock();
+		}
+//		wait10Seconds();
+	}
+
+	private static List<Future<?>> handleReportList(ReadWriteLock lock, ExecutorService executor, List<Runnable> tasks) {
+		List<Future<?>> ret = new ArrayList<>();
+		try {
+			for (Runnable task : tasks) {
+				ret.add(executor.submit(() -> {
+					lock.readLock().lock();
+					try {
+						task.run();
+					} finally {
+						lock.readLock().unlock();
+					}
+				}));
+			}
+			logger.debug("Set to  executor process " + (tasks == null ? 0 : tasks.size()) + " reports.");
+		} catch (Exception e) {
+			logger.debug("ReportExecutor has exception.", e);
+		}
+		return ret;
+	}
+
+	private static void mapTest() {
+		Map<String, String> map = new HashMap<>();
+		map.put("1", "1");
+		map.put("2", "2");
+		map.put("3", "3");
+		map.put("4", "4");
+		map.put("5", "5");
+		map.put("6", "6");
+		map.put("7", "7");
+		map.put("8", "8");
+		map.put("9", "9");
+		map.put("10", "10");
+		map.put("11", "11");
+		map.put("12", "12");
+		map.put("13", "13");
+		map.put("14", "14");
+		System.out.println(map.get("2"));
+	}
+
+	private static void setTest() {
+		Set<String> set = new HashSet<>();
+		set.add("1");
+		set.add("2");
+		set.add("3");
+		set.add("4");
+		set.add("5");
+		set.add("6");
+		set.add("7");
+		set.add("8");
+		set.add("9");
+		set.add("10");
+		set.add("11");
+		set.add("12");
+		set.add("13");
+		set.add("14");
+		System.out.println(set.contains("2"));
+	}
+
+	private static void reentrantLockTest() throws InterruptedException {
+		ReadWriteLock lock = new ReentrantReadWriteLock();
+		Thread readThread1 = getReadThread(lock, 1);
+		Thread readThread2 = getReadThread(lock, 2);
+		Thread writeThread = new Thread(() -> {
+			while (true) {
+//				System.out.println("writeThread is on the point of doing it's work! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+				lock.writeLock().lock();
+				try {
+					System.out.println("writeThread started it's work! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+					wait10Seconds();
+					System.out.println("writeThread finished it's work! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+				} finally {
+					lock.writeLock().unlock();
+					wait2Seconds();
+				}
+			}
+		});
+		readThread1.setName("readThread1");
+		readThread2.setName("readThread2");
+		writeThread.setName("writeThread");
+		readThread1.start();
+		readThread2.start();
+		writeThread.start();
+		readThread1.join();
+		readThread2.join();
+		writeThread.join();
+	}
+
+	private static Thread getReadThread(ReadWriteLock lock, int number) {
+		return new Thread(() -> {
+			while (true) {
+//				System.out.println("readThread" + number + " is on the point of doing it's work! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+				lock.readLock().lock();
+				try {
+					System.out.println("readThread" + number + " started it's work! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+					wait10Seconds();
+					System.out.println("readThread" + number + " finished it's work! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+				} finally {
+					lock.readLock().unlock();
+					wait2Seconds();
+				}
+			}
+		});
+	}
+
+	private static final int DAYS_TO_KEEP_COMMON_CACHE_FILES = 2;
+	private final static org.slf4j.Logger logger = LoggerFactory.getLogger(SomeClass.class);
+
+	private static void deleteOldFiles(File serFileDir, Instant timeToKeepForCommonFile) {
+		if (serFileDir.exists()) {
+			try {
+				Arrays.stream(serFileDir.listFiles()).forEach(file -> {
+					try {
+						if (file.isDirectory()) {
+							deleteOldFiles(file, timeToKeepForCommonFile);
+							if (file.listFiles().length == 0) {
+								file.delete();
+								logger.debug("dirrectory " + file.getAbsolutePath() + " was deleted because it was empty!");
+							}
+						} else {
+							BasicFileAttributes attr = null;
+							try {
+								attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+							} catch (Exception ee) {
+								logger.debug("readAttributes failed!");
+								logger.debug("File " + file.getAbsolutePath() + " with unknown lastAccessTime was deleted!");
+								file.delete();
+							}
+							if (attr != null) {
+								FileTime lastAccessTime = attr.lastAccessTime();
+								Instant fileTime = lastAccessTime.toInstant();
+								if (fileTime.isBefore(timeToKeepForCommonFile)) {
+									logger.debug("File " + file.getAbsolutePath() + " with lastAccessTime: " + lastAccessTime + " was deleted!");
+									file.delete();
+								}
+							}
+						}
+					} catch (Exception ex) {
+						logger.debug("Fatal Exception occured!");
+						throw new RuntimeException(ex);
+					}
+				});
+			} catch (Exception ex) {
+				logger.debug("Something wrong happened with the file " + serFileDir.getAbsolutePath() + "!");
+			}
+		} else {
+			logger.debug("File " + serFileDir.getAbsolutePath() + " does not exist!");
+		}
+	}
+
+	public static void downloadContentTest() {
+		for (int i = 0; i < waitTimeMap.size(); i++) {
+			waitFourSeconds(i);
+		}
+		throw new RuntimeException("downloadContent: number of attempts exceeded!");
+	}
+
+	private static final int FOUR_SECONDS = 4 * 1000;
+	private static final Map<Integer, Integer> waitTimeMap; //MapBuilder.<Integer, Integer>builder().put(0, FOUR_SECONDS).put(1, FOUR_SECONDS * 2).put(2, FOUR_SECONDS * 4).put(3, FOUR_SECONDS * 8).put(4, FOUR_SECONDS * 16).put(5, FOUR_SECONDS * 32).put(6, FOUR_SECONDS * 64).put(7, FOUR_SECONDS * 128).build();
+
+	static {
+		waitTimeMap = new HashMap<>();
+		waitTimeMap.put(0, FOUR_SECONDS);
+		waitTimeMap.put(1, FOUR_SECONDS * 2);
+		waitTimeMap.put(2, FOUR_SECONDS * 4);
+		waitTimeMap.put(3, FOUR_SECONDS * 8);
+		waitTimeMap.put(4, FOUR_SECONDS * 16);
+		waitTimeMap.put(5, FOUR_SECONDS * 32);
+		waitTimeMap.put(6, FOUR_SECONDS * 64);
+		waitTimeMap.put(7, FOUR_SECONDS * 128);
+	}
+
+	private static void waitFourSeconds(int attemptNumber) {
+		System.out.println("waitTimeMap = " + waitTimeMap.getOrDefault(attemptNumber, FOUR_SECONDS) + "!");
+	}
+
+	private static void semaphoreTestWrapper() {
+		Thread thread1 = new Thread(() -> semaphoreTest());
+		thread1.setName("Thread1");
+		Thread thread2 = new Thread(() -> semaphoreTest());
+		thread2.setName("Thread2");
+		Thread thread3 = new Thread(() -> semaphoreTest());
+		thread3.setName("Thread3");
+		Thread thread4 = new Thread(() -> semaphoreTest());
+		thread4.setName("Thread4");
+		thread1.start();
+		thread2.start();
+		thread3.start();
+		thread4.start();
+		while (true) {
+			try {
+				thread1.join();
+				thread2.join();
+				thread3.join();
+				thread4.join();
+				break;
+			} catch (InterruptedException ex) {
+				Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+
+	}
+
+	private static Semaphore customMGFOMIArchivesUploaderSemaphore = new Semaphore(1);
+
+	private static void semaphoreTest() {
+		try {
+			System.out.println("Thread " + Thread.currentThread().getName() + " started it's execution! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+			customMGFOMIArchivesUploaderSemaphore.acquireUninterruptibly();
+			while (true) {
+				try {
+					Thread.sleep(4000);
+					break;
+				} catch (InterruptedException ex) {
+					Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+				}
+			}
+			System.out.println("Thread " + Thread.currentThread().getName() + " executed! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+		} finally {
+			customMGFOMIArchivesUploaderSemaphore.release();
+		}
+	}
+
+	private static void testComputeMethods() {
+		HashMap<String, Integer> map = new HashMap<>();
+		map.put("2", 10);
+		Integer value1 = map.computeIfAbsent("2", key -> Integer.valueOf(key) * 2 + 40);
+		Integer value2 = map.computeIfPresent("2", (str, digit) -> digit + 10);
+		Integer value3 = map.computeIfPresent("1", (str, digit) -> Integer.valueOf(str) * 2 + 40);
+		Integer value4 = map.computeIfAbsent("1", key -> Integer.valueOf(key) * 2 + 40);
+		Integer value5 = map.computeIfAbsent("1", key -> Integer.valueOf(key) * 2 + 80);
+		Integer value6 = map.compute("3", (str, digit) -> {
+			return Integer.valueOf(str) * 2 + 80 + (digit != null ? digit : 0);
+		});
+		Integer value7 = map.compute("3", (str, digit) -> {
+			return Integer.valueOf(str) * 2 + 20 + (digit != null ? digit : 0);
+		});
+		Integer value8 = map.get("1");
+		Integer value9 = map.get("2");
+		Integer value10 = map.get("3");
+		List<String> list = Arrays.asList("4", "5", "6", "7");
+		Integer some = list.stream().map(obj -> map.get(obj)).filter(obj -> obj != null).findAny().orElse(null);
+		AtomicReference<String> ref = new AtomicReference<>();
+		ref.set("7");
+		String accumulateAndGet = ref.accumulateAndGet("8", (v1, v2) -> {
+			if (v1.compareTo(v2) == 1) {
+				return v1;
+			} else {
+				return v2;
+			}
+		});
+		String andAccumulate = ref.getAndAccumulate("9", (v1, v2) -> {
+			if (v1.compareTo(v2) == 1) {
+				return v1;
+			} else {
+				return v2;
+			}
+		});
+		boolean compareAndSet = ref.compareAndSet("8", "10");
+		boolean compareAndSet2 = ref.compareAndSet("9", "10");
+		String andUpdate = ref.getAndUpdate(str -> Integer.valueOf(Integer.valueOf(str) + 2).toString());
+		String updateAndGet = ref.updateAndGet(str -> Integer.valueOf(Integer.valueOf(str) + 2).toString());
+		ConcurrentHashMap<String, Integer> map2 = new ConcurrentHashMap<>();
+		CountDownLatch countDownLatch = new CountDownLatch(2);
+//		Thread thread = createTestThread2("test1", map2, countDownLatch);
+//		Thread thread2 = createTestThread2("test2", map2, countDownLatch);
+		Thread thread = createTestThread("test1", ref, countDownLatch);
+		Thread thread2 = createTestThread("test2", ref, countDownLatch);
+		startThreadsAndWaitForThem(thread, thread2, countDownLatch);
+		System.out.println("Hello!");
+		ReentrantLock lock = new ReentrantLock();
+		Condition condition = lock.newCondition();
+		ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
+		ReentrantReadWriteLock.ReadLock readLock = reentrantReadWriteLock.readLock();
+		ReentrantReadWriteLock.WriteLock writeLock = reentrantReadWriteLock.writeLock();
+	}
+
+	private static void startThreadsAndWaitForThem(Thread thread, Thread thread2, CountDownLatch countDownLatch) {
+		thread.start();
+		thread2.start();
+		while (true) {
+			try {
+				countDownLatch.await();
+				break;
+			} catch (InterruptedException ex) {
+				Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+		while (true) {
+			try {
+				thread.join();
+				thread2.join();
+				break;
+			} catch (InterruptedException ex) {
+				Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+	}
+
+	private static Thread createTestThread(String threadName, AtomicReference<String> ref, CountDownLatch countDownLatch) {
+		Thread thread = new Thread(() -> {
+			System.out.println("Thread " + threadName + " has started!");
+			countDownLatch.countDown();
+			String accumulateAndGet = ref.accumulateAndGet("8", (v1, v2) -> {
+				System.out.println(Thread.currentThread().getName() + " is working! v1 = " + v1.toString() + " and v2 = " + v2.toString() + "!");
+				wait10Seconds();
+				try {
+					if (v1.compareTo(v2) == 1) {
+						return v1;
+					} else {
+						return v2;
+					}
+				} finally {
+					System.out.println(Thread.currentThread().getName() + " has finished it's work!");
+				}
+			});
+		});
+		thread.setName(threadName);
+		return thread;
+	}
+
+	public static void wait10Seconds() {
+		while (true) {
+			try {
+				Thread.sleep(10 * 1000);
+				break;
+			} catch (InterruptedException ex) {
+				Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+	}
+
+	public static void wait2Seconds() {
+		while (true) {
+			try {
+				Thread.sleep(2 * 1000);
+				break;
+			} catch (InterruptedException ex) {
+				Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+	}
+
+	private static Thread createTestThread2(String threadName, ConcurrentHashMap<String, Integer> map2, CountDownLatch countDownLatch) {
+		Thread thread = new Thread(() -> {
+			System.out.println("Thread " + threadName + " has started!");
+			countDownLatch.countDown();
+			map2.compute("4", (str, digit) -> {
+				try {
+					Integer value = Integer.valueOf(str) * 2 + (digit != null ? digit : 0);
+					System.out.println(Thread.currentThread().getName() + " is working! And value = " + value.toString() + "!");
+					wait10Seconds();
+					return value;
+				} finally {
+					System.out.println(Thread.currentThread().getName() + " has finished it's work!");
+				}
+			});
+		});
+		thread.setName(threadName);
+		return thread;
+	}
+
+	private static void testString(Object obj) {
+		if (obj instanceof String) {
+			System.out.println("It's a String!");
+		} else {
+			System.out.println("It's not a string!");
+		}
+	}
+
+	private static void testFunctionalInterfaces() {
+		SecondInterface st = (s1, s2) -> s1 + " " + s2;
+		System.out.println(st.someMethod(st.some("Hello", "World!")));
+	}
+
+	private static void sortTest3() {
+		List<Integer> list = new ArrayList<>();
+		list.add(1);
+		list.add(4);
+		list.add(3);
+		list.add(2);
+		list.add(10);
+		list.add(9);
+		list.add(12);
+		list.add(11);
+		list.add(5);
+		list.add(22);
+		list.add(23);
+		list.add(6);
+		list.add(20);
+		list.add(21);
+		list.add(25);
+		list.add(24);
+		list.add(7);
+		list.add(18);
+		list.add(19);
+		list.add(16);
+		list.add(17);
+		list.add(35);
+		list.add(8);
+		list.add(36);
+		list.add(15);
+		list.add(33);
+		list.add(34);
+		list.add(13);
+		list.add(32);
+		list.add(14);
+		list.add(29);
+		list.add(27);
+		list.add(30);
+		list.add(28);
+		list.add(31);
+		list.add(26);
+		Collections.sort(list);
+	}
+
+	private static DataHandler createDataHandlerProxy(final byte[] bytes) {
+		ProxyFactory factory = new ProxyFactory();
+		factory.setSuperclass(DataHandler.class);
+		MethodHandler handler = new MethodHandler() {
+			@Override
+			public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
+				if (thisMethod.getName().equals("hashCode")) {
+					return 1;
+				} else if (thisMethod.getName().equals("getInputStream")) {
+					return new ByteArrayInputStream(bytes);
+				} else {
+					return null;
+				}
+			}
+		};
+		DataHandler dataHandler;
+		try {
+			dataHandler = (DataHandler) factory.create(new Class<?>[]{javax.activation.DataSource.class}, new Object[]{null}, handler);
+			return dataHandler;
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+
+	private static CommitBean createProxy() {
+		ProxyFactory factory = new ProxyFactory();
+		factory.setSuperclass(CommitBean.class);
+		MethodHandler handler = new MethodHandler() {
+			@Override
+			public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
+				return null;
+			}
+		};
+		CommitBean proxyObject;
+		try {
+			proxyObject = (CommitBean) factory.create(new Class<?>[]{}, new Object[]{}, handler);
+			return proxyObject;
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+
+	/**
+	 * Функция создания DataSource!
+	 *
+	 * @param propsPrefix - префикс настроек
+	 * @return - DataSource
+	 */
+	public static org.apache.tomcat.jdbc.pool.DataSource createDataSource(String propsPrefix) {
+		Supplier<org.apache.tomcat.jdbc.pool.DataSource> dataSourceSupplier = () -> {
+			return null;
+		};
+		final AtomicReference<org.apache.tomcat.jdbc.pool.DataSource> datasource = new AtomicReference(dataSourceSupplier.get());
+		ProxyFactory factory = new ProxyFactory();
+		factory.setSuperclass(org.apache.tomcat.jdbc.pool.DataSource.class);
+		MethodHandler handler = new MethodHandler() {
+			@Override
+			public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
+				if (thisMethod.getName().equals("getConnection")) {
+					Connection connection = (Connection) java.lang.reflect.Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{Connection.class}, new InvocationHandler() {
+
+						@Override
+						public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+							try {
+								return method.invoke(proxy, args);
+							} catch (Exception e) {
+								String handleStackTrace = handleStackTrace(e);
+								if (handleStackTrace.contains("java.sql.SQLRecoverableException")) {
+									datasource.set(dataSourceSupplier.get());
+								}
+								throw new RuntimeException(e);
+							}
+						}
+					});
+					return connection;
+				} else {
+					return thisMethod.invoke(datasource, args);
+				}
+			}
+		};
+		org.apache.tomcat.jdbc.pool.DataSource dataHandler;
+		try {
+			dataHandler = (org.apache.tomcat.jdbc.pool.DataSource) factory.create(new Class<?>[]{}, new Object[]{}, handler);
+			return dataHandler;
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+
+	private static String handleStackTrace(Exception exception) {
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		exception.printStackTrace(printWriter);
+		return stringWriter.toString();
 	}
 
 	private static List<List<String>> getMoDepartmentList() {
@@ -548,15 +1232,16 @@ public class SomeClass {
 	}
 
 	private static String addSpacesBetweenThreeDigits(String digitAsString) {
+		String digitAsStringWithoutSpaces = removeSpaces(digitAsString);
 		StringBuilder sb = new StringBuilder();
 		String addLater = "";
-		int indexFrom = digitAsString.length() - 1;
-		if (digitAsString.contains(".")) {
-			addLater = digitAsString.substring(digitAsString.indexOf("."));
-			indexFrom = digitAsString.indexOf(".") - 1;
+		int indexFrom = digitAsStringWithoutSpaces.length() - 1;
+		if (digitAsStringWithoutSpaces.contains(".")) {
+			addLater = digitAsStringWithoutSpaces.substring(digitAsStringWithoutSpaces.indexOf("."));
+			indexFrom = digitAsStringWithoutSpaces.indexOf(".") - 1;
 		}
 		for (int i = 0; i <= indexFrom; i++) {
-			sb.append(digitAsString.charAt(indexFrom - i));
+			sb.append(digitAsStringWithoutSpaces.charAt(indexFrom - i));
 			if ((i + 1) % 3 == 0 && i != indexFrom) {
 				sb.append(" ");
 			}
@@ -564,6 +1249,10 @@ public class SomeClass {
 		sb.reverse();
 		sb.append(addLater);
 		return sb.toString();
+	}
+
+	private static String removeSpaces(String digitAsString) {
+		return digitAsString.replace(" ", "");
 	}
 
 	public static String getSumOfTwoStrings(String str1, String str2, int scale) {
@@ -2441,6 +3130,19 @@ public class SomeClass {
 		queue.put(new MonitorBean(MonitorBean.MonitorBeanEnum.CLOSE, ""));
 		monitorDaemon.join();
 		System.out.println("testCursors finished!");
+	}
+
+	private static void bigDecimalTest4(String value) {
+		BigDecimal bd1 = new BigDecimal(value);
+		BigDecimal bd2 = bd1.setScale(2, BigDecimal.ROUND_HALF_UP);
+		boolean b = bd1.setScale(2, BigDecimal.ROUND_HALF_UP).compareTo(BigDecimal.ZERO) == 1;
+		System.out.println(b + " " + bd1.toString() + " --> " + bd2.toString());
+	}
+
+	private static void bigDecimalTest3(String value) {
+		BigDecimal bd1 = new BigDecimal(value);
+		BigDecimal bd2 = bd1.setScale(0, BigDecimal.ROUND_HALF_UP);
+		System.out.println(bd1.toString() + " --> " + bd2.toString());
 	}
 
 	private static void bigDecimalTest2(String value) {

@@ -79,3 +79,6 @@
 /projects/guava/rate_limiter/target/
 /projects/ssh/apache_mina/apache-sshd-1.2.0/sshd-core/target/
 /different/TestProjects/Pump/TestDocxTemplates3/target/
+/different/TestProjects/SomeTestProject/target/
+/different/TestProjects/SomeTestProject2/target/
+/different/TestProjects/MemoryLeak/target/

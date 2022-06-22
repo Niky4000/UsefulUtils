@@ -114,7 +114,7 @@ public class TestPumpUtilsMain {
 
 	public static void main(String args[]) throws Exception {
 		System.out.println("Hello!!!");
-        SessionFactoryInterface sessionFactoryProxy = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(buildSessionFactory(), new SqlRewriteInterceptorExt()));
+//		SessionFactoryInterface sessionFactoryProxy = (SessionFactoryInterface) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{SessionFactoryInterface.class}, new SessionFactoryInvocationHandler(buildSessionFactory(), new SqlRewriteInterceptorExt()));
 		try {
 //        TestUtils.testSyncServiceImpl(sessionFactoryProxy);
 //        testBillStatisticsDAOImpl(sessionFactoryProxy);
@@ -186,8 +186,10 @@ public class TestPumpUtilsMain {
 //            ActEkmpReportFileExporter2Test.test();
 //            SmoFileNameGenerationTest.test();
 //			MessageUtilsTest.testMessageUtils();
+//			MessageUtilsTest2.testMessageUtils();
 //			CustomMGFOMIArchivesUploaderTest.test();
-			HorizCalcServiceImplTest.test();
+//			HorizCalcServiceImplTest.test();
+			ActMeeReportFileExporter3Test.test();
 		} finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
