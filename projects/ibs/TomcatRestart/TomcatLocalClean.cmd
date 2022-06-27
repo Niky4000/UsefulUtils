@@ -1,1 +1,0 @@
-java -jar "C:\GIT\UsefulUtils\projects\ibs\TomcatRestart\target\TomcatRestart.jar" -clean
