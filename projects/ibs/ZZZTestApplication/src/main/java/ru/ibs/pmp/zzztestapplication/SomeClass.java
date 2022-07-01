@@ -492,9 +492,22 @@ public class SomeClass {
 //		testBytes();
 //		testChangeLog();
 //		testScheduledExecutorService();
-		System.out.println(testBigDecimalNull(2L));
-		System.out.println(testBigDecimalNull(8L));
-		System.out.println(testBigDecimalNull(null));
+//		System.out.println(testBigDecimalNull(2L));
+//		System.out.println(testBigDecimalNull(8L));
+//		System.out.println(testBigDecimalNull(null));
+		cacheTest();
+	}
+
+	private static void cacheTest() throws InterruptedException {
+		Cache<String, Object> cache = Caffeine.<String, Object>newBuilder().expireAfterWrite(1, TimeUnit.MINUTES).build();
+		for (int i = 0; i < 14; i++) {
+			Object value = cache.asMap().computeIfAbsent("4", key_ -> {
+				System.out.println("Key " + key_ + " is absent!");
+				return Integer.valueOf(key_) * 2;
+			});
+			System.out.println("Value is " + value.toString() + "! " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+			Thread.sleep(10 * 1000);
+		}
 	}
 
 	private static BigDecimal testBigDecimalNull(Long digit) {
