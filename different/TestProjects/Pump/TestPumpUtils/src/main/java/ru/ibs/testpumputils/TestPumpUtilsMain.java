@@ -190,7 +190,9 @@ public class TestPumpUtilsMain {
 //			CustomMGFOMIArchivesUploaderTest.test();
 //			HorizCalcServiceImplTest.test();
 //			ActMeeReportFileExporter3Test.test();
-            SaveMedicalCaseServiceImplTest.test();
+//            SaveMedicalCaseServiceImplTest.test();
+//            AuditUtilTest.test();
+            Task15072Test.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

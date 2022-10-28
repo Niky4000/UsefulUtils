@@ -20,6 +20,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import ij.ImagePlus;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
@@ -44,6 +46,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
@@ -70,6 +73,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -98,6 +102,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -117,6 +123,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -124,6 +131,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -180,6 +188,7 @@ import ru.ibs.pmp.zzztestapplication.interfaces.SecondInterface;
 import ru.ibs.pmp.zzztestapplication.threads.ConnectionMonitorDaemon;
 import ru.ibs.pmp.zzztestapplication.threads.TreadTest;
 import ru.ibs.pmp.zzztestapplication.threads.bean.MonitorBean;
+import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
  *
@@ -495,7 +504,666 @@ public class SomeClass {
 //		System.out.println(testBigDecimalNull(2L));
 //		System.out.println(testBigDecimalNull(8L));
 //		System.out.println(testBigDecimalNull(null));
-		cacheTest();
+//		cacheTest();
+//		System.out.println(new String(sendPost("http://127.0.0.1:8081/deposit/open", "{\n"
+//				+ "  \"jsonrpc\": \"2.0\",\n"
+//				+ "  \"method\": \"createRequest\",\n"
+//				+ "  \"id\": 1,\n"
+//				+ "  \"params\": {\n"
+//				+ "    \"depositRequestParams\": {\n"
+//				+ "      \"clientId\": \"97852156885215482\",\n"
+//				+ "      \"rate\": \"2\",\n"
+//				+ "      \"depositProduct\": \"1\",\n"
+//				+ "      \"productNumber\": \"№156\",\n"
+//				+ "      \"division\": 2,\n"
+//				+ "      \"sum\": \"10000\",\n"
+//				+ "      \"currency\": \"EUR\",\n"
+//				+ "      \"termInMonths\": 6,\n"
+//				+ "      \"withdrawalAccount\": \"40817978300110011001\"\n"
+//				+ "    }\n"
+//				+ "  }\n"
+//				+ "}")));
+//		System.out.println("-------------------------------");
+//		System.out.println(new String(sendPost("http://127.0.0.1:8081/deposit/open", "{\n"
+//				+ "  \"jsonrpc\": \"2.0\",\n"
+//				+ "  \"method\": \"searchOpenedDeposit\",\n"
+//				+ "  \"id\": 1,\n"
+//				+ "  \"params\": {\n"
+//				+ "    \"searchdepositparams\": {\n"
+//				+ "      \"clientId\": \"97852156885215482\"\n"
+//				+ "    }\n"
+//				+ "  }\n"
+//				+ "}")));
+//
+//		System.out.println(new String(sendPost("http://127.0.0.1:8081/deposit/open", "GET", "{\n"
+//				+ "  \"jsonrpc\": \"2.0\",\n"
+//				+ "  \"method\": \"searchOpenedDeposit\",\n"
+//				+ "  \"id\": 1,\n"
+//				+ "  \"params\": {\n"
+//				+ "    \"searchdepositparams\": {\n"
+//				+ "      \"clientId\": \"97852156885215482\"\n"
+//				+ "    }\n"
+//				+ "  }\n"
+//				+ "}", MapBuilder.<String, String>builder().build())));
+//		testMaps();
+//		testBigDecimal2(BigDecimal.valueOf(Double.valueOf("123.4")));
+//		testBigDecimal2(BigDecimal.valueOf(Double.valueOf("123.44")));
+//		testBigDecimal2(BigDecimal.valueOf(Double.valueOf("9999.99")));
+//		testBigDecimal2(BigDecimal.valueOf(Double.valueOf("10000.0004")));
+//		System.out.println(getDateDiffInMonth(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2000-01-01 00:00:00"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2017-12-23 00:00:00")));
+//		System.out.println(getDateDiffInMonth2(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2000-01-01 00:00:00"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2017-12-23 00:00:00")));
+//		System.out.println("----------");
+//		System.out.println(getDateDiffInMonth(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2003-01-23 00:00:00"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-01-01 00:00:00")));
+//		System.out.println(getDateDiffInMonth2(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2003-01-23 00:00:00"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-01-01 00:00:00")));
+//		testMaps2();
+//		generateCode();
+//		System.out.println(processLogs(Arrays.asList("4", "1 2 50", "1 7 70", "1 3 20", "2 2 17", "2"), 2));
+//		System.out.println(processLogs(Arrays.asList("9 7 50", "22 7 20", "33 7 50", "22 7 30", "2"), 3));
+//		System.out.println(numberOfItems("|**|*|*", Arrays.asList(1, 5), Arrays.asList(5, 6)));
+//		getHeaviestPackage(Arrays.asList(2, 9, 10, 3, 7));
+//		System.out.println(getMaxFreqDeviation("bbacccabab"));
+//		SomeClass someClass = new SomeClass();
+//		int[] arr = new int[]{7, 8, 4, 5, 2, 1, 6, 3};
+//		someClass.quickSort(arr, 0, arr.length - 1);
+//		for (int i = 0; i < arr.length; i++) {
+//			System.out.print(arr[i] + " ");
+//		}
+//		List<Integer> list = Arrays.asList(3, 7, 2, 1);
+//		Collections.sort(list, (d1, d2) -> d1.compareTo(d2));
+		int i = -2;
+		i >>>= 1;
+		System.out.println(i);
+	}
+
+	public void quickSort(int arr[], int begin, int end) {
+		if (begin < end) {
+			int partitionIndex = partition(arr, begin, end);
+			quickSort(arr, begin, partitionIndex - 1);
+			quickSort(arr, partitionIndex + 1, end);
+		}
+	}
+
+	private int partition(int arr[], int begin, int end) {
+		int pivot = arr[end];
+		int i = (begin - 1);
+		for (int j = begin; j < end; j++) {
+			if (arr[j] <= pivot) {
+				i++;
+				int swapTemp = arr[i];
+				arr[i] = arr[j];
+				arr[j] = swapTemp;
+			}
+		}
+		int swapTemp = arr[i + 1];
+		arr[i + 1] = arr[end];
+		arr[end] = swapTemp;
+		return i + 1;
+	}
+
+	public static int getMaxFreqDeviation(String s) {
+		// Write your code here
+		if (s == null && s.length() == 0) {
+			return 0;
+		}
+		Map<String, Integer> minimus = getMap(s, (value, counter) -> value > counter);
+		Map<String, Integer> maximus = getMap(s, (value, counter) -> value < counter);
+		if (maximus.size() == 1 && minimus.size() == 1 && maximus.containsKey(minimus.keySet().iterator().next())) {
+			return 0;
+		} else {
+			List<Integer> max = new ArrayList<>(maximus.values());
+			Collections.sort(max);
+			List<Integer> min = new ArrayList<>(minimus.values());
+			Collections.sort(min);
+			Integer key1 = min.get(0);
+			Integer key2 = max.get(max.size() - 1);
+			return key2 - key1;
+		}
+	}
+
+	private static Map<String, Integer> getMap(String s, BiFunction<Integer, Integer, Boolean> test) {
+		Map<String, Integer> map = new HashMap<>();
+		String last = "";
+		for (int i = 0; i < s.length(); i++) {
+			String currentStr = s.substring(i, i + 1);
+			int counter = map.getOrDefault(currentStr, 1);
+			Integer value = map.get(currentStr);
+			if (currentStr.equals(last)) {
+				counter++;
+			}
+			if (value == null || test.apply(value, counter)) {
+				map.put(currentStr, counter);
+			}
+			last = currentStr;
+
+		}
+		return map;
+	}
+
+	public static long getHeaviestPackage(List<Integer> packageWeights) {
+		// Write your code here
+		List<Integer> list = new ArrayList<>(packageWeights);
+		List<Integer> list2 = new ArrayList<>();
+		boolean merged = false;
+		while (true) {
+			int firstMaximuxIndex = 0;
+			for (int i = 0; i < list.size(); i++) {
+				if (i - 1 > 0 && list.get(i) < list.get(i - 1)) {
+					break;
+				}
+				if (i + 1 < list.size() && list.get(i) < list.get(i + 1)) {
+					firstMaximuxIndex = i + 1;
+					merged = true;
+				}
+			}
+			if (!merged) {
+				break;
+			}
+			if (firstMaximuxIndex - 1 >= 0) {
+				for (int i = 0; i < firstMaximuxIndex - 1; i++) {
+					list2.add(list.get(i));
+				}
+				list2.add(list.get(firstMaximuxIndex) + list.get(firstMaximuxIndex - 1));
+			}
+			for (int i = firstMaximuxIndex + 1; i < list.size(); i++) {
+				list2.add(list.get(i));
+			}
+			list = new ArrayList<>(list2);
+			list2 = new ArrayList<>();
+			merged = false;
+		}
+		Collections.sort(list, (d1, d2) -> -d1.compareTo(d2));
+		return list.get(0);
+	}
+
+	public static List<Integer> numberOfItems(String s, List<Integer> startIndices, List<Integer> endIndices) {
+		// Write your code here
+		if (startIndices.size() == endIndices.size()) {
+			ArrayList<Integer> list = new ArrayList<>();
+			for (int i = 0; i < startIndices.size(); i++) {
+				int index1 = startIndices.get(i) - 1;
+				int index2 = endIndices.get(i);
+				String substring = s.substring(index1, index2);
+				Integer counter = null;
+				for (int j = 0; j < substring.length(); j++) {
+					String ss = substring.substring(j, j + 1);
+					if (ss.equals("|") && counter != null) {
+						list.add(counter);
+						counter = 0;
+					} else if (ss.equals("|")) {
+						counter = 0;
+					}
+					if (counter != null && ss.equals("*")) {
+						counter++;
+					}
+				}
+			}
+			return list;
+		} else {
+			return Arrays.asList(0);
+		}
+	}
+
+	public static List<String> processLogs(List<String> logs, int threshold) {
+		// Write your code here
+		// Map<Long,List<Object[]>> map=new TreeMap<>(logs.stream().map(str->{
+		//     String[] arr=str.split(" ");
+		//     return new Object[]{Long.valueOf(arr[0]),arr[1],arr[2]};
+		//     }).collect(Collectors.groupingBy(arr->(Long)arr[0])));
+		// List<String> list=map.entrySet().stream().map(entry->entry.getValue().stream().map(obj->obj.toString()).reduce("", (str1,str2)->str1+str2)).collect(Collectors.toList());
+		Map<String, Integer> map = logs.stream().map(l -> l.split(" "))
+				.filter(arr -> arr.length == 3).filter(arr -> Integer.valueOf(arr[2]) >= threshold)
+				.collect(Collectors.groupingBy(arr -> arr[0], Collectors.collectingAndThen(Collectors.toList(), list -> {
+//					return list.stream().map(arr -> Integer.valueOf(arr[2])).reduce(0, (d1, d2) -> d1 + d2);
+					return list.size();
+				})));
+		map.putAll(logs.stream().map(l -> l.split(" "))
+				.filter(arr -> arr.length == 3).filter(arr -> Integer.valueOf(arr[2]) >= threshold)
+				.collect(Collectors.groupingBy(arr -> arr[1], Collectors.collectingAndThen(Collectors.toList(), list -> {
+//					return list.stream().map(arr -> Integer.valueOf(arr[1])).reduce(0, (d1, d2) -> d1 + d2);
+					return list.size();
+				}))));
+		List<String> list = map.entrySet().stream().filter(entry -> entry.getValue() >= threshold).map(entry -> entry.getKey()).collect(Collectors.toList());
+		Collections.sort(list, (d1, d2) -> d1.compareTo(d2));
+		return list.stream().map(d -> d.toString()).collect(Collectors.toList());
+	}
+
+	public static void generateCode() {
+		String xml = "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckDateDL\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckE2\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckE4\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckE5\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckE6\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckE7\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckE8\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckEC\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckH8\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckH82\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckH83\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckH84\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckHE\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckCS\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckMD\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckMP\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpMP01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS05\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS06\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS07\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS08\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS09\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS10\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS11\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS12\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS13\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDS14\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDSMS01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDSMS02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDSMS03\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPD01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPD02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPD03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPD04\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPD05\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPD06\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPD07\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpMD01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpMD02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckSpecialH3\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLpuSO\" />\n"
+				+ "                <bean class=\"ru.ibs.pmp.service.check.msk.CheckEN1\" />\n"
+				+ "                <bean class=\"ru.ibs.pmp.service.check.msk.CheckEN2\" />\n"
+				+ "                <bean class=\"ru.ibs.pmp.service.check.msk.CheckEN3\" />\n"
+				+ "                <bean class=\"ru.ibs.pmp.service.check.msk.CheckEN4\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckH31\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckH61\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckH62\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckH64\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckH65\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckH66\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDC01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDC02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDC03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDC04\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDC05\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDC06\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDC07\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD03\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD04\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD05\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD06\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD07\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD08\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD09\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD10\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDD11\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckVU\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckInvoiceNU\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckInvoiceUV\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckR1\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckR12\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckR13\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckR11\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckR2\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckR21\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckR22\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckR23\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckR24\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckR301\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckNL\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckNS\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckHN\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckNK\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckInvoiceDV\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckSpecialistVD\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckNO\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckNM\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPI06\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPI09\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPO01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPO02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPO03\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPO04\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPR01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPR03\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPR05\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpD2\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPD08\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPD09\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPD10\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC04\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC05\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC06\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC07\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC08\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC09\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC10\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC11\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC12\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC13\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC14\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC15\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpPC16\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckUO\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckUO3\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckNB01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckNB02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpRF03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpRF04\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpRF05\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPatientE2_1\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPatientEA\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN2\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN3\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN05\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN06\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN07\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN08\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN17\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN18\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN20\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpIN21\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpTD01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpTD02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpTD03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpTD04\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpTV01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpTV02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpNV1\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpNV3\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpNV4\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpNV5\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpNV7\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CompositeCheckNV\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDH01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDH02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDH03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDH04\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpG31\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpG32\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpG33\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpE11\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpE12\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpE13\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpE14\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpHC02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpHC03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpHO01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpHO03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDV01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpHT01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpHT02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpHT03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpHT04\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpHT06\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpE9Nil\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpKE005\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpKE006\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDir01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDir02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDir03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDir04\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDir05\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpDir11\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpOrd01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpOrd02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpOrd03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpOrd04\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpOrd05\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckXD01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckXD02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckXD03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckXD04\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckXD05\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckXD06\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckXD08\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckXD09\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckXD10\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckDD00\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckDD12\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckTF01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpD601\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckHSRV1\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckNR\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpVR01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpVR02\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpVR03\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPmpVR04\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLS01\" />\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLS02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLS03\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLS04\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLS05\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRN01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRB01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRT01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRT02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRT03\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRT04\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRT05\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckZNO1\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckZNO2\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckZNO3\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckZNO6\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckZNO7\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckZNO8\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckZNO9\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckZNO10\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckZNO11\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckZNO12\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRF07\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRF09\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckVP01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckO601\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckOJ01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckOJ02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckOW02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckOV02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.Check0104\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckOR01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckOY01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckOY02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckOY03\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckOO01\"/>\n"
+				+ "                <bean class=\"ru.ibs.pmp.service.check.msk.CheckOO02\"/>\n"
+				+ "                <bean class=\"ru.ibs.pmp.service.check.msk.CheckOO03\"/>\n"
+				+ "                <bean class=\"ru.ibs.pmp.service.check.msk.CheckOO04\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckO105\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckOS02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRean99\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckRean00\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckCons01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckVM02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckVM03\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckE93Nil\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckE94Nil\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckE95Nil\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckE96Nil\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckEL01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckEK01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLK10\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckEK02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckUrl\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckNW1\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLK08\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckNW2\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLK06\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLK07\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckPRD1\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLK06\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckVMP1\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLK01\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLK02\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLK03\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLK04\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckLK05\"/>\n"
+				+ "		<bean class=\"ru.ibs.pmp.service.check.msk.CheckHV3\"/>";
+		String[] split = xml.split("\n");
+		Set<String> set = new HashSet<>();
+		for (String str : split) {
+			int mskIndex = str.lastIndexOf("msk.");
+			int index2 = str.indexOf("/>");
+			String className_ = str.substring(mskIndex, index2).trim();
+			String className = className_.substring("msk.".length(), className_.length() - 1);
+			if (!set.add(className)) {
+				continue;
+			}
+//			System.out.println("	private static " + className + " get" + className + "(GetPatientPojo getPatientPojo, GetCertByJobFeature getCertByJobFeature, FindNsiEntry findNsiEntry, FindNsiSplpuEntry findNsiSplpuEntry,\n"
+//					+ "			FindNsiEntries findNsiEntries, GetJobFeature getJobFeature, GetLpuTreeByIdFeature getLpuTreeById, ServiceFacade serviceFacade) {\n"
+//					+ "		" + className + " " + firstLetterToLower(className) + " = new " + className + "();\n"
+//					+ "		baseInitOfCheck(" + firstLetterToLower(className) + ", getPatientPojo, getCertByJobFeature, findNsiEntry, findNsiSplpuEntry, findNsiEntries, getJobFeature, getLpuTreeById, serviceFacade);\n"
+//					+ "		return " + firstLetterToLower(className) + ";\n"
+//					+ "	}\n\n");
+//			System.out.println("" + className + "  " + firstLetterToLower(className) + "  = get" + className + "(getPatientPojo, getCertByJobFeature, findNsiEntry, findNsiSplpuEntry, findNsiEntries, getJob, getLpuTreeById, serviceFacade);");
+			System.out.print(firstLetterToLower(className) + ", ");
+		}
+	}
+
+	private static String firstLetterToLower(String className) {
+		return className.substring(0, 1).toLowerCase() + className.substring(1, className.length());
+	}
+
+	public static void testMaps2() throws InterruptedException, ParseException {
+		ConcurrentSkipListMap<Date, Integer> map = new ConcurrentSkipListMap<>();
+		ConcurrentSkipListMap<String, Date> map2 = new ConcurrentSkipListMap<>();
+		Date date1 = new Date();
+		map.put(date1, 8);
+		Thread.sleep(2000);
+		Date date2 = new Date();
+		map.put(date2, 10);
+		map2.put("1", date1);
+		map2.put("2", date2);
+		Thread.sleep(2000);
+		map2.get("1").setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2003-01-11 00:00:00").getTime());
+		map2.get("2").setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2010-02-22 00:00:00").getTime());
+		ConcurrentNavigableMap<Date, Integer> headMap = map.headMap(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2005-04-24 00:00:00"));
+		System.out.println("----------");
+	}
+
+	public static Long getDateDiffInMonth2(Date d1, Date d2) {
+		if (d1 == null || d2 == null) {
+			return null;
+		}
+		java.time.LocalDate locald1 = dateToLocalDateTime(d1).toLocalDate();
+		java.time.LocalDate locald2 = dateToLocalDateTime(d2).toLocalDate();
+		return Period.between(locald1, locald2).toTotalMonths();
+	}
+
+	public static Long getDateDiffInMonth(Date d1, Date d2) {
+		if (d1 == null || d2 == null) {
+			return null;
+		}
+		java.time.LocalDate locald1 = dateToLocalDateTime(toPeriod(d1)).toLocalDate();
+		java.time.LocalDate locald2 = dateToLocalDateTime(toPeriod(d2)).toLocalDate();
+		return Period.between(locald1, locald2).toTotalMonths();
+	}
+
+	public static LocalDateTime dateToLocalDateTime(Date date) {
+		return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+	}
+
+	public static Date toPeriod(Date date) {
+		if (date == null) {
+			return null;
+		}
+		return org.apache.commons.lang3.time.DateUtils.truncate(date, Calendar.MONTH);
+	}
+
+	private static void testBigDecimal(BigDecimal weight) {
+		int intValue = weight.divide(BigDecimal.valueOf(1000)).intValue();
+		BigDecimal add = weight.add(BigDecimal.valueOf(weight.longValue()).negate());
+		int intValue2 = add.multiply(BigDecimal.valueOf(100L)).intValue();
+		System.out.println(intValue + " - " + intValue2);
+		if (intValue > 0 || intValue2 > 90) {
+			System.out.println(weight.toString() + " - Bad value!");
+		}
+	}
+
+	private static void testBigDecimal2(BigDecimal weight) {
+		String str = weight.toString();
+		if (str.contains(".")) {
+			int length = str.substring(0, str.indexOf(".")).length();
+			int length2 = str.substring(str.indexOf(".") + 1).length();
+			System.out.println(length + " - " + length2);
+		} else {
+			int length = str.length();
+			System.out.println(length);
+		}
+	}
+
+	private static void testMaps() {
+		Object[][] objects = new Object[][]{new Object[]{1, null}, new Object[]{2, "2"}};
+		Map<Object, Object> map = Arrays.stream(objects).collect(Collectors.groupingBy(obj -> obj[0], Collectors.collectingAndThen(Collectors.toList(), ff -> ff.get(0)[1])));
+		System.out.println(map);
+	}
+
+	private static final String USER_AGENT = "Apache-HttpClient/4.1.1 (java 1.5)";
+
+	private static byte[] sendPost(String url, String requestMethod, String params, Map<String, String> headers) throws Exception {
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+		con.setRequestMethod("POST");
+		con.setRequestProperty("User-Agent", USER_AGENT);
+		con.setRequestProperty("Accept-Language", "UTF-8");
+		for (Entry<String, String> entry : headers.entrySet()) {
+			con.setRequestProperty(entry.getKey(), entry.getValue());
+		}
+
+		con.setDoOutput(true);
+		try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(con.getOutputStream())) {
+			outputStreamWriter.write(params.toString());
+			outputStreamWriter.flush();
+		}
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'POST' request to URL : " + url);
+//        System.out.println("Post parameters : " + urlParameters);
+		System.out.println("Response Code : " + responseCode);
+		if (responseCode == 200) {
+			return readInputStream(new BufferedInputStream(con.getInputStream()));
+		} else {
+			return readInputStream(new BufferedInputStream(con.getErrorStream()));
+		}
+	}
+
+	private static final int BUFFER_SIZE = 1024 * 1024;
+	private static final int SMALL_BUFFER_SIZE = 1024 * 1024;
+
+	public static byte[] readInputStream(InputStream inputStream) throws IOException {
+		byte[] bytes = new byte[BUFFER_SIZE];
+		byte[] bytes3 = null;
+		int previousIndex = 0;
+		try (BufferedInputStream in = new BufferedInputStream(inputStream)) {
+			Integer read = 0;
+			Integer available = 0;
+			do {
+				available = in.available();
+				byte[] bytes2 = new byte[available > SMALL_BUFFER_SIZE ? available : SMALL_BUFFER_SIZE];
+				read = in.read(bytes2);
+				if (read > 0 && read + previousIndex > bytes.length) {
+					int newBufferSize = Math.max(bytes2.length, BUFFER_SIZE + bytes.length + previousIndex);
+					bytes3 = new byte[newBufferSize];
+					System.arraycopy(bytes, 0, bytes3, 0, bytes.length);
+					bytes = new byte[newBufferSize];
+					System.arraycopy(bytes3, 0, bytes, 0, bytes3.length);
+					System.arraycopy(bytes2, 0, bytes, previousIndex, read);
+					previousIndex += read;
+				} else if (read > 0) {
+					System.arraycopy(bytes2, 0, bytes, previousIndex, read);
+					previousIndex += read;
+				}
+			} while (read > 0);
+		}
+		bytes3 = new byte[previousIndex];
+		System.arraycopy(bytes, 0, bytes3, 0, previousIndex);
+		return bytes3;
 	}
 
 	private static void cacheTest() throws InterruptedException {
@@ -3634,8 +4302,7 @@ public class SomeClass {
 			if (fl == null) {
 				// Failed to acquire lock
 			} else
-                try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					final WritableByteChannel outChannel = Channels.newChannel(baos)) {
+                try (final ByteArrayOutputStream baos = new ByteArrayOutputStream(); final WritableByteChannel outChannel = Channels.newChannel(baos)) {
 				for (final ByteBuffer buffer = ByteBuffer.allocate(1024); fc.read(buffer) != -1;) {
 					buffer.flip();
 					outChannel.write(buffer);
