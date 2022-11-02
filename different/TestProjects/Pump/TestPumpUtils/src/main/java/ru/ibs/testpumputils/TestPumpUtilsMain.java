@@ -192,7 +192,8 @@ public class TestPumpUtilsMain {
 //			ActMeeReportFileExporter3Test.test();
 //            SaveMedicalCaseServiceImplTest.test();
 //            AuditUtilTest.test();
-            Task15072Test.test();
+//            Task15072Test.test();
+            TestPmpParcelInsertion.test(args);
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();

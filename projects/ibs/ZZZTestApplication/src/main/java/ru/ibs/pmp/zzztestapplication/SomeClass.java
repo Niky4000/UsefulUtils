@@ -570,9 +570,50 @@ public class SomeClass {
 //		}
 //		List<Integer> list = Arrays.asList(3, 7, 2, 1);
 //		Collections.sort(list, (d1, d2) -> d1.compareTo(d2));
-		int i = -2;
-		i >>>= 1;
-		System.out.println(i);
+//		int i = -2;
+//		i >>>= 1;
+//		System.out.println(i);
+//		testExecutorService();
+		System.out.println(55 & 1);
+		System.out.println(56 & 1);
+	}
+
+	public static void testExecutorService() {
+		AtomicInteger j = new AtomicInteger(1);
+//		ExecutorService service = Executors.newFixedThreadPool(2);
+		ArrayBlockingQueue<Runnable> arrayBlockingQueue = new ArrayBlockingQueue<>(4);
+		ThreadPoolExecutor service = new ThreadPoolExecutor(2, 2, 60000L, TimeUnit.HOURS, arrayBlockingQueue, (task, executor) -> {
+			System.out.println("Task was rejected!");
+			while (true) {
+				try {
+					arrayBlockingQueue.put(task);
+					break;
+				} catch (InterruptedException ex) {
+					continue;
+				}
+			}
+		});
+		for (int i = 0; i < 20; i++) {
+			service.submit(() -> {
+				try {
+					Thread.sleep(4000);
+				} catch (InterruptedException ex) {
+					Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+				}
+				System.out.println(Thread.currentThread().getName() + " has finished " + j.getAndIncrement() + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()) + "!");
+			});
+		}
+		service.shutdown();
+		while (true) {
+			try {
+				System.out.println("Waiting was started!");
+				service.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+				break;
+			} catch (InterruptedException ex) {
+				Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+		System.out.println("Waiting is finished!");
 	}
 
 	public void quickSort(int arr[], int begin, int end) {
