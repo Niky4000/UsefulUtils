@@ -191,6 +191,7 @@ public class TestPumpUtilsMain {
 //			HorizCalcServiceImplTest.test();
 //			ActMeeReportFileExporter3Test.test();
 //            SaveMedicalCaseServiceImplTest.test();
+//            MgfomiExternalServiceTest.test();
 //            AuditUtilTest.test();
 //            Task15072Test.test();
             TestPmpParcelInsertion.test(args);
