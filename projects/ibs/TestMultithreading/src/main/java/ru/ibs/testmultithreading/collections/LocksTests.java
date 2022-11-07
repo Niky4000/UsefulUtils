@@ -1,17 +1,18 @@
 package ru.ibs.testmultithreading.collections;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.StampedLock;
+import java.util.function.Supplier;
 import ru.ibs.testmultithreading.utils.ThreadUtils;
+import static ru.ibs.testmultithreading.utils.ThreadUtils.waitSomeTime;
 
 public class LocksTests {
 
@@ -133,6 +134,58 @@ public class LocksTests {
 				ThreadUtils.waitSomeTime(4);
 			}
 		});
+	}
+
+	Supplier<String> getTime = () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date());
+
+	public void stopAnyNumberOfThreadsOnLock() {
+		final int threadCount = 8;
+		final AtomicBoolean unlock = new AtomicBoolean(false);
+		class WorkerThread extends Thread {
+
+			public WorkerThread(String string) {
+				super(string);
+			}
+
+			@Override
+			public void run() {
+				System.out.println("Work started by " + Thread.currentThread().getName() + " " + getTime.get() + "!");
+				synchronized (unlock) {
+					do {
+						try {
+							unlock.wait();
+						} catch (InterruptedException ex) {
+							continue;
+						}
+					} while (!unlock.getAndSet(false));
+					System.out.println("Work is done by " + Thread.currentThread().getName() + " " + getTime.get() + "!");
+				}
+			}
+		}
+		class ManagerThread extends Thread {
+
+			public ManagerThread(String string) {
+				super(string);
+			}
+
+			@Override
+			public void run() {
+				System.out.println("ManagerThread started! " + getTime.get() + "!");
+				for (int i = 0; i < threadCount; i++) {
+					waitSomeTime(4);
+					unlock.set(true);
+					synchronized (unlock) {
+						unlock.notify();
+					}
+					System.out.println("---");
+				}
+				System.out.println("ManagerThread finished! " + getTime.get() + "!");
+			}
+		}
+		for (int i = 0; i < threadCount; i++) {
+			new WorkerThread("Worker" + (i + 1)).start();
+		}
+		new ManagerThread("ManagerThread").start();
 	}
 
 //	public void testStampedLock() {
