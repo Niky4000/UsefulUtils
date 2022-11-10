@@ -194,7 +194,8 @@ public class TestPumpUtilsMain {
 //            MgfomiExternalServiceTest.test();
 //            AuditUtilTest.test();
 //            Task15072Test.test();
-            TestPmpParcelInsertion.test(args);
+//            TestPmpParcelInsertion.test(args);
+            SearchTapInfoByFilterPojoFeatureTest.test(args);
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
