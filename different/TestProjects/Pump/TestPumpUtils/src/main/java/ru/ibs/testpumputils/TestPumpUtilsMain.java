@@ -195,7 +195,9 @@ public class TestPumpUtilsMain {
 //            AuditUtilTest.test();
 //            Task15072Test.test();
 //            TestPmpParcelInsertion.test(args);
-            SearchTapInfoByFilterPojoFeatureTest.test(args);
+//            SearchTapInfoByFilterPojoFeatureTest.test(args);
+//            MedicalEconomicsResultsConclusionTest.test();
+            RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlTest.test();
         } finally {
 //            sessionFactoryProxy.cleanSessions();
 //            sessionFactoryProxy.close();
