@@ -88,6 +88,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -574,8 +575,296 @@ public class SomeClass {
 //		i >>>= 1;
 //		System.out.println(i);
 //		testExecutorService();
-		System.out.println(55 & 1);
-		System.out.println(56 & 1);
+//		System.out.println(55 & 1);
+//		System.out.println(56 & 1);
+//		System.out.println(compareDatesWithTruncation(new java.sql.Timestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2022-12-12 12:12:12").getTime()), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2022-12-12 12:12:12")));
+//		System.out.println(compareDatesWithTruncation(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2022-12-12 12:12:12"), new java.sql.Timestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2022-12-12 12:12:12").getTime())));
+//		artemTask();
+//		makeQuery();
+//		testLinkedHashMap();
+//		createDoc();
+		CreateWordTableMerge.create();
+	}
+
+	private static void createDoc() throws IOException {
+//		new WordDocumentTest().createWord();
+		new MedicalAndEconomicControlActWord().create();
+	}
+
+	private static void testLinkedHashMap() {
+		LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+		for (int i = 1; i <= 20; i++) {
+			map.put(i + "", "Hello " + i + "!");
+		}
+		for (Entry<String, String> entry : map.entrySet()) {
+			System.out.println("key: " + entry.getKey() + " value: " + entry.getValue());
+		}
+	}
+
+	private static void makeQuery() {
+		String str = "BILL_FLK_LOG_TABLE_SEQ\n"
+				+ "DBF_SEQ_PMP_DIAGNOSIS\n"
+				+ "DBF_SEQ_PMP_MED_CASE\n"
+				+ "DBF_SEQ_PMP_SIMPL_SERV\n"
+				+ "FTYPE_EXPLANATION_SEQ\n"
+				+ "GIS_FILE_REC_SEQ\n"
+				+ "GIS_FILE_SEQ\n"
+				+ "HIBERNATE_SEQUENCE\n"
+				+ "KMP_CON_DECEASED_PAT_SEQ\n"
+				+ "KMP_MEDICAMENT_PRESCRIBE_SEQ\n"
+				+ "KMP_OUTGOING_DIRECTIONS_SEQ\n"
+				+ "KMP_PRECALC_BILL_DATA_SEQ\n"
+				+ "KMP_PRECALC_TABLE_LOG_SEQ\n"
+				+ "MEDCASE_URL_VALIDATION_SEQ\n"
+				+ "MOVE_TS_CUR_SRIPTS_SEQUENCE\n"
+				+ "MTR_TER_DIAG_SEQ\n"
+				+ "PMP_ACADEMIC_DEGREES_SEQ\n"
+				+ "PMP_ADDRESSES_SEQ\n"
+				+ "PMP_AN_MES_SEQ\n"
+				+ "PMP_AN_PERS_SEQ\n"
+				+ "PMP_AN_POLIS_SEQ\n"
+				+ "PMP_AN_SUM_SEQ\n"
+				+ "PMP_AN_TARIFF_SEQ\n"
+				+ "PMP_ARC_TASK_SEQUENCE\n"
+				+ "PMP_AWARDS_SEQ\n"
+				+ "PMP_BILL_FLK_ASK_SEQ\n"
+				+ "PMP_BILL_FLK_CHECKS_SEQ\n"
+				+ "PMP_BILL_FLK_EXCEPTIONS_SEQ\n"
+				+ "PMP_BILL_FLK_EXCEPTIONS_S_SEQ\n"
+				+ "PMP_BILL_FLK_EXCEPT_VER_SEQ\n"
+				+ "PMP_BILL_FLK_INVOICE_SEQ\n"
+				+ "PMP_BILL_FLK_R_SEQ\n"
+				+ "PMP_BILL_FLK_S_SEQ\n"
+				+ "PMP_BILL_FLK_VERSIONS_SEQ\n"
+				+ "PMP_BILL_FLK_СHECKS_VERS_SEQ\n"
+				+ "PMP_BILL_ITEM_SEQ\n"
+				+ "PMP_BILL_REPORT_SEQ\n"
+				+ "PMP_BILL_SEQ\n"
+				+ "PMP_BILL_STATISTICS_SEQ\n"
+				+ "PMP_BILL_TIME_SEQ\n"
+				+ "PMP_BULK_DOCS_SYNC_SEQ\n"
+				+ "PMP_CERTIFICATIONS_SEQ\n"
+				+ "PMP_CHILDREN_SEQ\n"
+				+ "PMP_CITIZENSHIPS_SEQ\n"
+				+ "PMP_CONSUMABLE_SEQ\n"
+				+ "PMP_COST_ITEM_SEQ\n"
+				+ "PMP_CREATE_UPDATE_RESULT_SEQ\n"
+				+ "PMP_CTRL_ERROR_SEQ\n"
+				+ "PMP_CTRL_ERROR_SMP_SEQ\n"
+				+ "PMP_DBF_SEQ\n"
+				+ "PMP_DIAG_SEQ\n"
+				+ "PMP_DIPLOMAS_SEQ\n"
+				+ "PMP_DIPLOMA_SPECIALITY_SEQ\n"
+				+ "PMP_DIPLOMA_TYPES_SEQ\n"
+				+ "PMP_DIRECTION_ACTION_SEQ\n"
+				+ "PMP_DOC_SIGN_SEQ\n"
+				+ "PMP_DOC_SING_SEQ\n"
+				+ "PMP_FLK_DESCRIPTION_SEQ\n"
+				+ "PMP_FLK_SEQ\n"
+				+ "PMP_HEAD_DEPARTMENTS_SEQ\n"
+				+ "PMP_HORIZ_CALC_SEQ\n"
+				+ "PMP_HOSPITAL_CASE_SEQ\n"
+				+ "PMP_HOSPITAL_DEPT_STAY_SEQ\n"
+				+ "PMP_HOSPITAL_OPERATION_SEQ\n"
+				+ "PMP_HOSPITAL_REANIMATION_SEQ\n"
+				+ "PMP_HOSP_DEPT_STAY_SEQ\n"
+				+ "PMP_HOSP_MEDICAMENT_SEQ\n"
+				+ "PMP_HOSP_OPERATION_SEQ\n"
+				+ "PMP_HOSP_REANIMATION_SEQ\n"
+				+ "PMP_HOSP_SERVICE_SEQ\n"
+				+ "PMP_IDENTITY_DOC_TYPES_SEQ\n"
+				+ "PMP_INDICATOR_SEQ\n"
+				+ "PMP_INVOICE_ITEM_SEQ\n"
+				+ "PMP_INVOICE_SEQ\n"
+				+ "PMP_KLADR_SEQ\n"
+				+ "PMP_LOCAL_PATIENT_REVINFO_SQ\n"
+				+ "PMP_LPU_DEPARTMENTS_SEQ\n"
+				+ "PMP_LPU_SEQ\n"
+				+ "PMP_MAILGW_ATTACHMENT_SEQ\n"
+				+ "PMP_MAILGW_LOG_SEQ\n"
+				+ "PMP_MARRIAGES_SEQ\n"
+				+ "PMP_MEDCASEDIRECTIONR_SEQ\n"
+				+ "PMP_MEDCASE_ONK_CONS_SEQ\n"
+				+ "PMP_MEDCASE_ONK_DIAG_SEQ\n"
+				+ "PMP_MEDCASE_ONK_PROTL_SEQ\n"
+				+ "PMP_MEDCASE_ONK_USL_SEQ\n"
+				+ "PMP_MEDICAL_CASE_DIRECTION_SEQ\n"
+				+ "PMP_MEDICAL_CASE_NUMBER_SEQ\n"
+				+ "PMP_MEDICINE_SEQ\n"
+				+ "PMP_MED_DEV_SEQ\n"
+				+ "PMP_ME_ERROR_SEQ\n"
+				+ "PMP_MILITARY_SERVICES_SEQ\n"
+				+ "PMP_MODEPT_REVINFO_SEQ\n"
+				+ "PMP_MODEPT_SEQ\n"
+				+ "PMP_MON_FAKT_SEQ\n"
+				+ "PMP_MON_PF_SEQ\n"
+				+ "PMP_MON_PLAN_SEQ\n"
+				+ "PMP_MON_PLAN_SMO_SEQ\n"
+				+ "PMP_MON_VER_SEQ\n"
+				+ "PMP_MOSPRLPU_SEQ\n"
+				+ "PMP_MO_REVINFO_SEQ\n"
+				+ "PMP_ONKCONS_MEMBERS_SEQ\n"
+				+ "PMP_PARCEL_BINAR_COMPONENT_SEQ\n"
+				+ "PMP_PARCEL_COMPONENT_ROW_SEQ\n"
+				+ "PMP_PARCEL_FILE_DATA_SEQ\n"
+				+ "PMP_PARCEL_MED_DEV_SEQ\n"
+				+ "PMP_PARCEL_MON_SEQ\n"
+				+ "PMP_PARCEL_ROW_FIELD_SEQ\n"
+				+ "PMP_PARCEL_SEQ\n"
+				+ "PMP_PARCEL_TABLE_COMPONENT_SEQ\n"
+				+ "PMP_PHONES_SEQ\n"
+				+ "PMP_PI_SEQ\n"
+				+ "PMP_POST_GRAD_EDUCATIONS_SEQ\n"
+				+ "PMP_POST_GRAD_EDUC_TYPE_SEQ\n"
+				+ "PMP_PRACTITIONERS_SEQ\n"
+				+ "PMP_PRACTITIONER_AWARDS_SEQ\n"
+				+ "PMP_PRACTITIONER_CHILDREN_SEQ\n"
+				+ "PMP_PRACTITIONER_DOC_SEQ\n"
+				+ "PMP_PRACTITIONER_PHONES_SEQ\n"
+				+ "PMP_PS_SEQ\n"
+				+ "PMP_QUALIFICATIONS_SEQ\n"
+				+ "PMP_QUALIFICATION_CAT_SEQ\n"
+				+ "PMP_REGISTRATION_TYPES_SEQ\n"
+				+ "PMP_REQUIREMENT_SEQ\n"
+				+ "PMP_REQ_EXPORT_SEQ\n"
+				+ "PMP_REQ_PROTOCOL_SEQ\n"
+				+ "PMP_RISK_FACTOR_SEQ\n"
+				+ "PMP_RPT_VOLUME_FAKT_MON_SEQ\n"
+				+ "PMP_SCHOOLS_SEQ\n"
+				+ "PMP_SERVICE_MEDICAMENT_SEQ\n"
+				+ "PMP_SKILL_IMPROVEMENTS_SEQ\n"
+				+ "PMP_SPC_SEQ\n"
+				+ "PMP_SYNC_LOG_SEQ\n"
+				+ "PMP_TF_SEQ\n"
+				+ "PMP_TI_SEQ\n"
+				+ "PMP_UD_ERROR_SEQ\n"
+				+ "PMP_UPLOAD_LOG_ERROR_SEQ\n"
+				+ "PMP_UPLOAD_LOG_ERROR_SEQ_ATT\n"
+				+ "PMP_UP_ERROR_SEQ\n"
+				+ "PRACT_EXPERT_JOB_SEQ\n"
+				+ "REVINFO_SQ\n"
+				+ "REVINFO_SQ_ALT\n"
+				+ "SEQ_ANNUAL_FACTS\n"
+				+ "SEQ_ANNUAL_FACT_VERSIONS\n"
+				+ "SEQ_ANNUAL_PLANS\n"
+				+ "SEQ_ANNUAL_PLAN_VERSIONS\n"
+				+ "SEQ_FLK_STATE\n"
+				+ "SEQ_INSURED_COUNTS\n"
+				+ "SEQ_MONITORING_REPORTS\n"
+				+ "SEQ_PMP_ACCOUNTING_PERIOD\n"
+				+ "SEQ_PMP_BILL_260_SYNC_ID\n"
+				+ "SEQ_PMP_BULK_DOCS_SYNC_ID\n"
+				+ "SEQ_PMP_BULK_SERV_UPD_CHAN_VAL\n"
+				+ "SEQ_PMP_BULK_SER_UPDATE_SESS\n"
+				+ "SEQ_PMP_BULK_SER_UPD_SE_VALUES\n"
+				+ "SEQ_PMP_CHECK_ERROR\n"
+				+ "SEQ_PMP_CLINICAL_EXAM_DATA\n"
+				+ "SEQ_PMP_CLINICAL_EXAM_MESSAGE\n"
+				+ "SEQ_PMP_CLINICAL_EXAM_PATIENT\n"
+				+ "SEQ_PMP_DOC_FOR_SIGN\n"
+				+ "SEQ_PMP_ERZ_ATTACHMENT_RECORD\n"
+				+ "SEQ_PMP_ERZ_ATTACH_RECORD_RESP\n"
+				+ "SEQ_PMP_ERZ_ATTACH_SESSION\n"
+				+ "SEQ_PMP_ERZ_ATTACH_SESS_PAYER\n"
+				+ "SEQ_PMP_ERZ_VERIFICAT_MESSAGE\n"
+				+ "SEQ_PMP_ERZ_VERIFICAT_RECORD\n"
+				+ "SEQ_PMP_ERZ_VERIFICAT_SESSION\n"
+				+ "SEQ_PMP_FLK_STATE_STATUS\n"
+				+ "SEQ_PMP_INVOICES\n"
+				+ "SEQ_PMP_JOB_TRACK_MESSAGE\n"
+				+ "SEQ_PMP_LOCAL_PATIENT\n"
+				+ "SEQ_PMP_LOCAL_PATIENT_ADDRESS\n"
+				+ "SEQ_PMP_LOCAL_PATIENT_ATTACH\n"
+				+ "SEQ_PMP_LOCAL_PATIENT_DOCUMENT\n"
+				+ "SEQ_PMP_LOCAL_PATIENT_ID\n"
+				+ "SEQ_PMP_LOCAL_PATIENT_MEDCARD\n"
+				+ "SEQ_PMP_LOCAL_PATIENT_POLICY\n"
+				+ "SEQ_PMP_MODEPT\n"
+				+ "SEQ_PMP_PARCEL_BRSP\n"
+				+ "SEQ_PMP_PARCEL_CV_LS\n"
+				+ "SEQ_PMP_PARCEL_D\n"
+				+ "SEQ_PMP_PARCEL_H\n"
+				+ "SEQ_PMP_PARCEL_HO\n"
+				+ "SEQ_PMP_PARCEL_HOXX\n"
+				+ "SEQ_PMP_PARCEL_HS\n"
+				+ "SEQ_PMP_PARCEL_MED_DEV\n"
+				+ "SEQ_PMP_PARCEL_MED_DEVXX\n"
+				+ "SEQ_PMP_PARCEL_NV\n"
+				+ "SEQ_PMP_PARCEL_ONK_CONS\n"
+				+ "SEQ_PMP_PARCEL_ONK_DIAG\n"
+				+ "SEQ_PMP_PARCEL_ONK_LS\n"
+				+ "SEQ_PMP_PARCEL_ONK_NAPR_V_OUT\n"
+				+ "SEQ_PMP_PARCEL_ONK_PROT\n"
+				+ "SEQ_PMP_PARCEL_ONK_SL\n"
+				+ "SEQ_PMP_PARCEL_ONK_USL\n"
+				+ "SEQ_PMP_PARCEL_PDF\n"
+				+ "SEQ_PMP_PARCEL_PRIK\n"
+				+ "SEQ_PMP_PARCEL_R\n"
+				+ "SEQ_PMP_PARCEL_RIN\n"
+				+ "SEQ_PMP_PARCEL_RXX\n"
+				+ "SEQ_PMP_PARCEL_S\n"
+				+ "SEQ_PMP_PARCEL_SPR\n"
+				+ "SEQ_PMP_PARCEL_SSP\n"
+				+ "SEQ_PMP_PARCEL_STASMP\n"
+				+ "SEQ_PMP_PARCEL_SXX\n"
+				+ "SEQ_PMP_PLAN_PROFILE_RATES\n"
+				+ "SEQ_PMP_PRACTID\n"
+				+ "SEQ_PMP_PRACTJOBID\n"
+				+ "SEQ_PMP_PRACTSERTIFICATID\n"
+				+ "SEQ_PMP_REPORT_ID\n"
+				+ "SEQ_PMP_REPORT_PARAMETER_ID\n"
+				+ "SEQ_PMP_REPORT_SYNC_ID\n"
+				+ "SEQ_PMP_SERVICES\n"
+				+ "SEQ_PMP_SERVICE_ERRORS\n"
+				+ "SEQ_PMP_SOFA_MEASURE\n"
+				+ "SEQ_PMP_SOFA_SYS_SCORE\n"
+				+ "SEQ_PMP_UNIDENTIFIED_PATIENT\n"
+				+ "SEQ_QUARTER_PLANS\n"
+				+ "SEQ_QUARTER_SMO_FACTS\n"
+				+ "SEQ_SMO_APPROVEMENTS\n"
+				+ "SEQ_SMO_EXAMINATION_CARD\n"
+				+ "SEQ_SMO_PLANS\n"
+				+ "SOFT_INFO_SEQ\n"
+				+ "SQ_SYS_MESSAGES\n"
+				+ "TMP_IIV_MOVE_TS_SEQUENCE";
+//		String sql = Arrays.stream(str.split("\n")).reduce("", (str1, str2) -> "select '" + str1 + "' as ss from dual\nunion all\nselect '" + str2 + "' as ss from dual");
+//		System.out.println("with main_q as (\n" + sql + "\n)\nselect * from main_q where ss not in(select sequence_name from all_sequences where sequence_owner='PMP_PROD')");
+		StringBuilder sb = new StringBuilder("with main_q as (\n");
+		List<String> list = Arrays.asList(str.split("\n"));
+		for (int i = 0; i < list.size(); i++) {
+			sb.append("select '" + list.get(i) + "' as ss from dual");
+			if (i < list.size() - 1) {
+				sb.append("\nunion all\n");
+			}
+		}
+		sb.append("\n)\nselect * from main_q where ss not in(select sequence_name from all_sequences where sequence_owner='PMP_PROD')");
+		System.out.println(sb.toString());
+	}
+
+	private static void artemTask() {
+		List<Long> aList = new ArrayList<>();
+		getAi(972, aList);
+		for (int i = 0; i < aList.size(); i++) {
+			System.out.println(aList.get(i));
+		}
+	}
+
+	private static long getAi(int n, List<Long> aList) {
+		for (int i = 1; i <= n; i++) {
+			long delimeter = getZ(i) - 140;
+			long sum = aList.stream().reduce(87507398L, (d1, d2) -> d1 + d2) * 140;
+			long ai = sum / delimeter;
+			aList.add(ai);
+		}
+		return aList.get(aList.size() - 1);
+	}
+
+	private static long getZ(int i) {
+		return ((i + 1) * (3 * i - 10) * (3 * i - 14));
+	}
+
+	private static boolean compareDatesWithTruncation(Date date1, Date date2) {
+		return date1 != null && date2 != null ? Long.valueOf(org.apache.commons.lang3.time.DateUtils.truncate(date1, Calendar.DAY_OF_MONTH).getTime()).equals(org.apache.commons.lang3.time.DateUtils.truncate(date2, Calendar.DAY_OF_MONTH).getTime()) : false;
 	}
 
 	public static void testExecutorService() {
