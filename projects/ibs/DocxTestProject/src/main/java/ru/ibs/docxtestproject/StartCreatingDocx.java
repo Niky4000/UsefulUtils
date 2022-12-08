@@ -116,7 +116,7 @@ public class StartCreatingDocx {
 		configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.pmp.db.url"));
 		configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.pmp.db.username"));
 		configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.pmp.db.password"));
-		EntityScanner.scanPackages().addTo(configuration);
+		EntityScanner.scanPackages("ru.ibs.docxtestproject.bean").addTo(configuration);
 		configuration.configure();
 //        ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
 //        return configuration.buildSessionFactory(serviceRegistry);
