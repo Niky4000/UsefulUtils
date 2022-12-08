@@ -40,7 +40,6 @@ public class TestTable {
 		}
 	}
 
-
 	private void createTable(final XWPFDocument document) {
 		//XWPFDocument doc = new XWPFDocument();
 		XWPFTable table = document.createTable(1, 2);

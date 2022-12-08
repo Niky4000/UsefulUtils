@@ -583,7 +583,15 @@ public class SomeClass {
 //		makeQuery();
 //		testLinkedHashMap();
 //		createDoc();
-		CreateWordTableMerge.create();
+//		CreateWordTableMerge.create();
+		lower();
+	}
+
+	private static void lower() {
+		String str = "select R_N,PERIOD,LPU_ID,PARCEL_ID,PROF,USL_OK,OPL_QT,OPL_SUM,ERR_QT,ERR_SUM,ITOG_QT,ITOG_SUM,LAST_DAY,DS";
+		String str2 = "select RN,PERIOD,LPU_ID,PARCEL_ID,RECID,SN_POL,USL_OK,DATE_BEGIN,DATE_END,PROF_COD,PROF,COD,COUNT_ERR,ERR_CODE,ERR_CODE_1,ERR_CODE_2,ERR_CODE_3,ERR_CODE_4,ERR_CODE_5,SANK_SUM,ERR_SUM,FINE_SUM,LAST_DAY,DS";
+		System.out.println(str.toLowerCase());
+		System.out.println(str2.toLowerCase());
 	}
 
 	private static void createDoc() throws IOException {

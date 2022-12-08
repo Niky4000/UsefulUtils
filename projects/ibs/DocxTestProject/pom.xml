@@ -31,6 +31,21 @@
             <artifactId>poi-ooxml-schemas</artifactId>
             <version>4.1.2</version>
         </dependency>-->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>4.3.6.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.v-ladynev</groupId>
+            <artifactId>fluent-hibernate-core</artifactId>
+            <version>0.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.ibs.lib</groupId>
+            <artifactId>help-lib</artifactId>
+            <version>0.2</version>
+        </dependency>
     </dependencies>
     <repositories>        
         <repository>
