@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -26,7 +27,7 @@ public class StartCreatingDocx {
 			Collection<MedicalAndEconomicControlActWordSecondTableBean> medicalAndEconomicControlActWordSecondTableBeanCollection = getMedicalAndEconomicControlActWordSecondTableBeanCollection();
 			MedicalAndEconomicControlActWord medicalAndEconomicControlActWord = new MedicalAndEconomicControlActWord();
 			FieldUtil.setField(medicalAndEconomicControlActWord, sessionFactory, "sessionFactory");
-			medicalAndEconomicControlActWord.create(medicalAndEconomicControlActWordHeadBean, medicalAndEconomicControlActWordFirstTableBeanCollection, medicalAndEconomicControlActWordSecondTableBeanCollection);
+			medicalAndEconomicControlActWord.create(1962L, new SimpleDateFormat("yyyy-MM-dd").parse("2022-02-01"), 1415550L);
 //			new TestTable().create();
 		} finally {
 			sessionFactory.close();
