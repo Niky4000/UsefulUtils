@@ -45,7 +45,6 @@ public class MedicalAndEconomicControlActWordFirstTableBean {
 		errSum = array[9] != null ? ((Number) array[9]).doubleValue() : null;
 		itogQt = array[10] != null ? ((Number) array[10]).doubleValue() : null;
 		itogSum = array[11] != null ? ((Number) array[11]).doubleValue() : null;
-
 	}
 
 	public Long getRn() {

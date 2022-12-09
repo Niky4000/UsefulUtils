@@ -48,8 +48,6 @@ public class MedicalAndEconomicControlActWordSecondTableBean {
 	private Double errSum;
 //     FINE_SUM    VARCHAR(30)
 	private String fineSum;
-//     LAST_DAY VARCHAR2(20)
-	private String lastDay;
 //     DS      VARCHAR2(6)
 	private String ds;
 
@@ -79,8 +77,7 @@ public class MedicalAndEconomicControlActWordSecondTableBean {
 		sankSum = array[19] != null ? (String) array[19] : null;
 		errSum = array[20] != null ? ((Number) array[20]).doubleValue() : null;
 		fineSum = array[21] != null ? (String) array[21] : null;
-		lastDay = array[22] != null ? (String) array[22] : null;
-		ds = array[23] != null ? (String) array[23] : null;
+		ds = array[22] != null ? (String) array[22] : null;
 	}
 
 	public Long getRn() {
@@ -257,14 +254,6 @@ public class MedicalAndEconomicControlActWordSecondTableBean {
 
 	public void setFineSum(String fineSum) {
 		this.fineSum = fineSum;
-	}
-
-	public String getLastDay() {
-		return lastDay;
-	}
-
-	public void setLastDay(String lastDay) {
-		this.lastDay = lastDay;
 	}
 
 	public String getDs() {
