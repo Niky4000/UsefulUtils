@@ -28,15 +28,24 @@ public class MedicalAndEconomicControlActWordFirstTableBean {
 	private Double itogQt;
 //     ITOG_SUM NUMBER
 	private Double itogSum;
-//     LAST_DAY VARCHAR2(20)
-	private String lastDay;
-//     DS      VARCHAR2(6)
-	private String ds;
 
 	public MedicalAndEconomicControlActWordFirstTableBean() {
 	}
 
 	public MedicalAndEconomicControlActWordFirstTableBean(Object[] array) {
+		rn = array[0] != null ? ((Number) array[0]).longValue() : null;
+		period = array[1] != null ? (Date) array[1] : null;
+		lpuId = array[2] != null ? ((Number) array[2]).longValue() : null;
+		parcelId = array[3] != null ? ((Number) array[3]).longValue() : null;
+		prof = array[4] != null ? (String) array[4] : null;
+		uslOk = array[5] != null ? (String) array[5] : null;
+		oplQt = array[6] != null ? ((Number) array[6]).doubleValue() : null;
+		oplSum = array[7] != null ? ((Number) array[7]).doubleValue() : null;
+		errQt = array[8] != null ? ((Number) array[8]).doubleValue() : null;
+		errSum = array[9] != null ? ((Number) array[9]).doubleValue() : null;
+		itogQt = array[10] != null ? ((Number) array[10]).doubleValue() : null;
+		itogSum = array[11] != null ? ((Number) array[11]).doubleValue() : null;
+
 	}
 
 	public Long getRn() {
@@ -133,21 +142,5 @@ public class MedicalAndEconomicControlActWordFirstTableBean {
 
 	public void setItogSum(Double itogSum) {
 		this.itogSum = itogSum;
-	}
-
-	public String getLastDay() {
-		return lastDay;
-	}
-
-	public void setLastDay(String lastDay) {
-		this.lastDay = lastDay;
-	}
-
-	public String getDs() {
-		return ds;
-	}
-
-	public void setDs(String ds) {
-		this.ds = ds;
 	}
 }

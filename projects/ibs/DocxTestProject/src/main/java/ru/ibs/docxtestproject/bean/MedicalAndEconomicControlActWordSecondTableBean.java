@@ -57,6 +57,30 @@ public class MedicalAndEconomicControlActWordSecondTableBean {
 	}
 
 	public MedicalAndEconomicControlActWordSecondTableBean(Object[] array) {
+		rn = array[0] != null ? ((Number) array[0]).longValue() : null;
+		period = array[1] != null ? (Date) array[1] : null;
+		lpuId = array[2] != null ? ((Number) array[2]).longValue() : null;
+		parcelId = array[3] != null ? ((Number) array[3]).longValue() : null;
+		recid = array[4] != null ? (String) array[4] : null;
+		snPol = array[5] != null ? (String) array[5] : null;
+		uslOk = array[6] != null ? (String) array[6] : null;
+		dateBegin = array[7] != null ? (String) array[7] : null;
+		dateEnd = array[8] != null ? (String) array[8] : null;
+		profCode = array[9] != null ? (String) array[9] : null;
+		prof = array[10] != null ? (String) array[10] : null;
+		code = array[11] != null ? (String) array[11] : null;
+		countErr = array[12] != null ? ((Number) array[12]).longValue() : null;
+		errCode = array[13] != null ? (String) array[13] : null;
+		errCode1 = array[14] != null ? (String) array[14] : null;
+		errCode2 = array[15] != null ? (String) array[15] : null;
+		errCode3 = array[16] != null ? (String) array[16] : null;
+		errCode4 = array[17] != null ? (String) array[17] : null;
+		errCode5 = array[18] != null ? (String) array[18] : null;
+		sankSum = array[19] != null ? (String) array[19] : null;
+		errSum = array[20] != null ? ((Number) array[20]).doubleValue() : null;
+		fineSum = array[21] != null ? (String) array[21] : null;
+		lastDay = array[22] != null ? (String) array[22] : null;
+		ds = array[23] != null ? (String) array[23] : null;
 	}
 
 	public Long getRn() {
