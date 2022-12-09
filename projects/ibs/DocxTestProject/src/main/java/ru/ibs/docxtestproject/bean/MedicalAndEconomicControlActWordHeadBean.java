@@ -17,7 +17,7 @@ public class MedicalAndEconomicControlActWordHeadBean {
 	private String smoQq;
 	private Double serviceSumAll;
 	private String admName;
-	private Date lastDay;
+	private String lastDay;
 
 	public MedicalAndEconomicControlActWordHeadBean() {
 	}
@@ -34,9 +34,9 @@ public class MedicalAndEconomicControlActWordHeadBean {
 		moMcod = array[8] != null ? (String) array[8] : null;
 		smoName = array[9] != null ? (String) array[9] : null;
 		smoQq = array[10] != null ? (String) array[10] : null;
-		serviceSumAll = array[11] != null ? ((Number) array[11]).doubleValue() : null;
+		serviceSumAll = array[11] != null ? ((Number) array[11]).doubleValue() : 0d;
 		admName = array[12] != null ? (String) array[12] : null;
-		lastDay = array[13] != null ? (Date) array[13] : null;
+		lastDay = array[13] != null ? (String) array[13] : null;
 	}
 
 	public Date getPeriod() {
@@ -143,11 +143,11 @@ public class MedicalAndEconomicControlActWordHeadBean {
 		this.admName = admName;
 	}
 
-	public Date getLastDay() {
+	public String getLastDay() {
 		return lastDay;
 	}
 
-	public void setLastDay(Date lastDay) {
+	public void setLastDay(String lastDay) {
 		this.lastDay = lastDay;
 	}
 }

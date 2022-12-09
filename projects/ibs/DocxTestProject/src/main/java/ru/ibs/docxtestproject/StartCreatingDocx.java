@@ -27,7 +27,7 @@ public class StartCreatingDocx {
 			Collection<MedicalAndEconomicControlActWordSecondTableBean> medicalAndEconomicControlActWordSecondTableBeanCollection = getMedicalAndEconomicControlActWordSecondTableBeanCollection();
 			MedicalAndEconomicControlActWord medicalAndEconomicControlActWord = new MedicalAndEconomicControlActWord();
 			FieldUtil.setField(medicalAndEconomicControlActWord, sessionFactory, "sessionFactory");
-			medicalAndEconomicControlActWord.create(1962L, new SimpleDateFormat("yyyy-MM-dd").parse("2022-02-01"), 1415550L);
+			medicalAndEconomicControlActWord.create(1962L, new SimpleDateFormat("yyyy-MM-dd").parse("2022-02-01"), 1415550L, args[0]);
 //			new TestTable().create();
 		} finally {
 			sessionFactory.close();

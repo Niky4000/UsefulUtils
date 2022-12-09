@@ -1,5 +1,6 @@
 package ru.ibs.docxtestproject;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,7 +33,7 @@ public class MedicalAndEconomicControlActWord {
 
 	SessionFactory sessionFactory;
 
-	public void create(Long lpuId, Date period, Long parcelId) throws IOException {
+	public void create(Long lpuId, Date period, Long parcelId, String path) throws IOException {
 		String periodStr = new SimpleDateFormat("yyyy-MM").format(period);
 		List<Object[]> headList;
 		if (!lpuId.equals(4708L)) {
@@ -45,16 +46,15 @@ public class MedicalAndEconomicControlActWord {
 		MedicalAndEconomicControlActWordHeadBean medicalAndEconomicControlActWordHeadBean = new MedicalAndEconomicControlActWordHeadBean(headList.get(0));
 		List<MedicalAndEconomicControlActWordFirstTableBean> medicalAndEconomicControlActWordFirstTableBeanCollection = table1ObjectList.stream().map(MedicalAndEconomicControlActWordFirstTableBean::new).collect(Collectors.toList());
 		List<MedicalAndEconomicControlActWordSecondTableBean> medicalAndEconomicControlActWordSecondTableBeanCollection = table2ObjectList.stream().map(MedicalAndEconomicControlActWordSecondTableBean::new).collect(Collectors.toList());
-		create(medicalAndEconomicControlActWordHeadBean, medicalAndEconomicControlActWordFirstTableBeanCollection, medicalAndEconomicControlActWordSecondTableBeanCollection);
+		create(medicalAndEconomicControlActWordHeadBean, medicalAndEconomicControlActWordFirstTableBeanCollection, medicalAndEconomicControlActWordSecondTableBeanCollection, path);
 	}
 
-	public void create(MedicalAndEconomicControlActWordHeadBean medicalAndEconomicControlActWordHeadBean, Collection<MedicalAndEconomicControlActWordFirstTableBean> medicalAndEconomicControlActWordFirstTableBeanCollection, Collection<MedicalAndEconomicControlActWordSecondTableBean> medicalAndEconomicControlActWordSecondTableBeanCollection) throws IOException {
-		String path = "/home/me/tmp/reportDoc/";
+	public void create(MedicalAndEconomicControlActWordHeadBean medicalAndEconomicControlActWordHeadBean, Collection<MedicalAndEconomicControlActWordFirstTableBean> medicalAndEconomicControlActWordFirstTableBeanCollection, Collection<MedicalAndEconomicControlActWordSecondTableBean> medicalAndEconomicControlActWordSecondTableBeanCollection, String path) throws IOException {
 		//Check the generated path. If it is not there, create it.
-		if (!Paths.get(path).toFile().exists()) {
-			Files.createDirectories(Paths.get(path));
+		if (!new File(path).getParentFile().exists()) {
+			Files.createDirectories(Paths.get(new File(path).getParentFile().getAbsolutePath()));
 		}
-		try (FileOutputStream out = new FileOutputStream(path + "createdWord.docx");
+		try (FileOutputStream out = new FileOutputStream(path);
 				XWPFDocument document = new XWPFDocument();
 				XWPFDocument document2 = new XWPFDocument();
 				XWPFDocument document3 = new XWPFDocument();) {
