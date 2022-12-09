@@ -38,11 +38,11 @@ public class StartCreatingDocx {
 		MedicalAndEconomicControlActWordHeadBean head = new MedicalAndEconomicControlActWordHeadBean();
 		head.setServiceSumAll(88888.88d);
 		head.setDateCrt(new Date());
-		head.setLastDay("2022.12.12");
-		head.setMoName("Очень классная ЛПУ");
+//		head.setLastDay("2022.12.12");
+//		head.setMoName("Очень классная ЛПУ");
 		head.setNum(77);
-		head.setPeriodStr("декабрь 2022 года");
-		head.setSmoName("Очень классаная СМО");
+//		head.setPeriodStr("декабрь 2022 года");
+//		head.setSmoName("Очень классаная СМО");
 		return head;
 	}
 
@@ -67,8 +67,8 @@ public class StartCreatingDocx {
 		bean.setErrSum(errSum);
 		bean.setItogQt(itogQt);
 		bean.setItogSum(itogSum);
-		bean.setLastDay(lastDay);
-		bean.setDs(ds);
+//		bean.setLastDay(lastDay);
+//		bean.setDs(ds);
 		return bean;
 	}
 
