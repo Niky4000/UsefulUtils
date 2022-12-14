@@ -52,7 +52,11 @@
             <version>0.2</version>
         </dependency>
     </dependencies>
-    <repositories>        
+    <repositories>
+        <repository>
+            <id>mvnrepository</id>
+            <url>http://www.datanucleus.org/downloads/maven2/</url>
+        </repository>  
         <repository>
             <id>com.e-iceblue</id>
             <name>e-iceblue</name>

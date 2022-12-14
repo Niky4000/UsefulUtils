@@ -248,7 +248,7 @@ public class MedicalAndEconomicControlActWord {
 		}
 		int row = 0;
 		if (firstRow != null) {
-			createParagraph(table.getRows().get(row++).getCell(0).getParagraphArray(0), "Специалист, проводивший медико-экономический контроль:", ParagraphAlignment.LEFT, defaultTextSize);
+			createParagraph(table.getRows().get(row++).getCell(0).getParagraphArray(0), firstRow, ParagraphAlignment.LEFT, defaultTextSize);
 		}
 		createParagraph(table.getRows().get(row++).getCell(2).getParagraphArray(0), "\"__\" __________ 202_ г.", ParagraphAlignment.CENTER, defaultTextSize);
 		createParagraph(table.getRows().get(row).getCell(0).getParagraphArray(0), "(подпись)", ParagraphAlignment.CENTER, defaultTextSize);
