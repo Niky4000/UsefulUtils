@@ -23,7 +23,7 @@
   	<org-apache-commons-version>3.0</org-apache-commons-version>
   	<commons-configuration-version>1.6</commons-configuration-version>
   	<commons-cli-version>1.2</commons-cli-version>
-  	<org-apache-httpcomponents-version>4.3.5</org-apache-httpcomponents-version>
+  	<org-apache-httpcomponents-version>4.5.13</org-apache-httpcomponents-version>
   </properties>
   
   <dependencies>
