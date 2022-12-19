@@ -58,14 +58,14 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlTh
 		this.serviceSumThatShouldBeHoldedOnTheNextPeriod = array[8] != null ? ((Number) array[8]).doubleValue() : null;
 		this.qtAll = array[9] != null ? ((Number) array[9]).intValue() : null;
 		this.sumAll = holdedServiceSum;
-		this.qtAll1 = array[11] != null ? ((Number) array[11]).intValue() : null;
-		this.sumAll1 = array[12] != null ? ((Number) array[12]).doubleValue() : null;
-		this.qtAll2 = array[13] != null ? ((Number) array[13]).intValue() : null;
-		this.sumAll2 = array[14] != null ? ((Number) array[14]).doubleValue() : null;
-		this.qtAll3 = array[15] != null ? ((Number) array[15]).intValue() : null;
-		this.sumAll3 = array[16] != null ? ((Number) array[16]).doubleValue() : null;
-		this.qtAll4 = array[17] != null ? ((Number) array[17]).intValue() : null;
-		this.sumAll4 = array[18] != null ? ((Number) array[18]).doubleValue() : null;
+		this.qtAll1 = array[10] != null ? ((Number) array[10]).intValue() : null;
+		this.sumAll1 = array[11] != null ? ((Number) array[11]).doubleValue() : null;
+		this.qtAll2 = array[12] != null ? ((Number) array[12]).intValue() : null;
+		this.sumAll2 = array[13] != null ? ((Number) array[13]).doubleValue() : null;
+		this.qtAll3 = array[14] != null ? ((Number) array[14]).intValue() : null;
+		this.sumAll3 = array[15] != null ? ((Number) array[15]).doubleValue() : null;
+		this.qtAll4 = array[16] != null ? ((Number) array[16]).intValue() : null;
+		this.sumAll4 = array[17] != null ? ((Number) array[17]).doubleValue() : null;
 	}
 
 	public Integer getFilId() {
