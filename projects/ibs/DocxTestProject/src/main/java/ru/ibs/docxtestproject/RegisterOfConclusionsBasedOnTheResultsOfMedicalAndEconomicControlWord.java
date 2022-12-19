@@ -98,8 +98,8 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
 			createThirdTable(document, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBeanCollection);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "Дата предоставления счетов Федеральному фонду обязательного медицинского страхования/территориальному фонду обязательного медицинского страхования _________ г.", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "Дата проверки счетов (реестров) " + new SimpleDateFormat("dd.MM.yyyy").format(new Date()) + " г.", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "Дата предоставления счетов Федеральному фонду обязательного медицинского страхования/территориальному фонду обязательного медицинского страхования " + dh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getDateSend()) + " г.", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "Дата проверки счетов (реестров) " + dh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getDateCrt()) + ".", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "Руководитель (уполномоченное лицо) Федерального фонда обязательного медицинского страхования/территориального фонда обязательного медицинского страхования:", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
 			createSignTable(document, null, null);
