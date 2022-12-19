@@ -1,14 +1,11 @@
 package ru.ibs.docxtestproject.bean;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean {
 
 	private Integer filId;
 	private String iotd;
 	private Long billId;
-	private Integer quarter;
+	private String quarter;
 	private Double excessSum;
 	private Double serviceSum;
 	private Double notAcceptedServiceSum;
@@ -32,13 +29,13 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlTh
 		this.filId = array[0] != null ? ((Number) array[0]).intValue() : null;
 		this.iotd = array[1] != null ? (String) array[1] : null;
 		this.billId = array[2] != null ? ((Number) array[2]).longValue() : null;
-		this.quarter = array[3] != null ? ((Number) array[3]).intValue() : null;
+		this.quarter = array[3] != null ? (String) array[3] : null;
 		this.excessSum = array[4] != null ? ((Number) array[4]).doubleValue() : null;
 		this.serviceSum = array[5] != null ? ((Number) array[5]).doubleValue() : null;
-		this.notAcceptedServiceSum = array[6] != null ? ((Number) array[6]).doubleValue() : null;
-		this.notAcceptedServiceSumBeforeRepeatedCheck = array[7] != null ? ((Number) array[7]).doubleValue() : null;
-		this.holdedServiceSum = array[8] != null ? ((Number) array[8]).doubleValue() : null;
-		this.serviceSumThatShouldBeHoldedOnTheNextPeriod = array[9] != null ? ((Number) array[9]).doubleValue() : null;
+		this.notAcceptedServiceSum = array[5] != null ? ((Number) array[5]).doubleValue() : null;
+		this.notAcceptedServiceSumBeforeRepeatedCheck = array[6] != null ? ((Number) array[6]).doubleValue() : null;
+		this.holdedServiceSum = array[7] != null ? ((Number) array[7]).doubleValue() : null;
+		this.serviceSumThatShouldBeHoldedOnTheNextPeriod = array[8] != null ? ((Number) array[8]).doubleValue() : null;
 	}
 
 	public Integer getFilId() {
@@ -65,11 +62,11 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlTh
 		this.billId = billId;
 	}
 
-	public Integer getQuarter() {
+	public String getQuarter() {
 		return quarter;
 	}
 
-	public void setQuarter(Integer quarter) {
+	public void setQuarter(String quarter) {
 		this.quarter = quarter;
 	}
 

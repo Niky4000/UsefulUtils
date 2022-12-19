@@ -4,13 +4,13 @@ import java.util.Date;
 
 public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean {
 
-	private Integer uslOk;
+	private String uslOk;
 	private Integer filId;
 	private Long billId;
 	private String iotd;
-	private Date dateMn;
+	private String dateMn;
 	private String policyNumber;
-	private Integer territoryCode;
+	private String territoryCode;
 	private String errorCode;
 	private Double serviceSum;
 	private String financialSanctionsCode;
@@ -22,13 +22,13 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSe
 
 	public RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(Object[] array) {
 		if (array != null) {
-			this.uslOk = array[0] != null ? ((Number) array[0]).intValue() : null;
+			this.uslOk = array[0] != null ? (String) array[0] : null;
 			this.filId = array[1] != null ? ((Number) array[1]).intValue() : null;
 			this.billId = array[2] != null ? ((Number) array[2]).longValue() : null;
 			this.iotd = array[3] != null ? (String) array[3] : null;
-			this.dateMn = array[4] != null ? (Date) array[4] : null;
+			this.dateMn = array[4] != null ? (String) array[4] : null;
 			this.policyNumber = array[5] != null ? (String) array[5] : null;
-			this.territoryCode = array[6] != null ? ((Number) array[6]).intValue() : null;
+			this.territoryCode = array[6] != null ? (String) array[6] : null;
 			this.errorCode = array[7] != null ? (String) array[7] : null;
 			this.serviceSum = array[8] != null ? ((Number) array[8]).doubleValue() : null;
 			this.financialSanctionsCode = array[9] != null ? (String) array[9] : null;
@@ -36,11 +36,11 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSe
 		}
 	}
 
-	public Integer getUslOk() {
+	public String getUslOk() {
 		return uslOk;
 	}
 
-	public void setUslOk(Integer uslOk) {
+	public void setUslOk(String uslOk) {
 		this.uslOk = uslOk;
 	}
 
@@ -68,11 +68,11 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSe
 		this.iotd = iotd;
 	}
 
-	public Date getDateMn() {
+	public String getDateMn() {
 		return dateMn;
 	}
 
-	public void setDateMn(Date dateMn) {
+	public void setDateMn(String dateMn) {
 		this.dateMn = dateMn;
 	}
 
@@ -84,11 +84,11 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSe
 		this.policyNumber = policyNumber;
 	}
 
-	public Integer getTerritoryCode() {
+	public String getTerritoryCode() {
 		return territoryCode;
 	}
 
-	public void setTerritoryCode(Integer territoryCode) {
+	public void setTerritoryCode(String territoryCode) {
 		this.territoryCode = territoryCode;
 	}
 
