@@ -12,7 +12,7 @@ public class StartCreatingDocx {
 
 	public static void main(String[] args) throws Exception {
 //		MedicalAndEconomicControlActWordLauncher.start(args, () -> buildSessionFactory());
-		RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWordLauncher.start(args, null);
+		RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWordLauncher.start(args, () -> buildSessionFactory());
 	}
 
 	public static SessionFactory buildSessionFactory() {
