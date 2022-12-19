@@ -1,28 +1,50 @@
 package ru.ibs.docxtestproject.bean;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean {
 
-	private Date period;
+	private Date dateCrt;
+	private Date dateSend;
+	private Integer num;
 	private String periodStr;
-	private String lpuFullName;
-	private Integer caseIdCount;
-	private Double serviceSum;
-	private Integer caseIdCount2Stationary;
-	private Double serviceSum2Stationary;
-	private Integer caseIdCount3NotAccepted;
-	private Double serviceSum3NotAccepted;
-	private Date lastSendingDate;
+	private String lastDay;
+	private String moName;
 
-	public Date getPeriod() {
-		return period;
+	public RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean() {
 	}
 
-	public void setPeriod(Date period) {
-		this.period = period;
+	public RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean(Object[] array) {
+		this.dateCrt = array[0] != null ? (Date) array[0] : null;
+		this.dateSend = array[1] != null ? (Date) array[1] : null;
+		this.num = array[2] != null ? ((Number) array[2]).intValue() : null;
+		this.periodStr = array[3] != null ? (String) array[3] : null;
+		this.lastDay = array[4] != null ? (String) array[4] : null;
+		this.moName = array[5] != null ? (String) array[5] : null;
+	}
+
+	public Date getDateCrt() {
+		return dateCrt;
+	}
+
+	public void setDateCrt(Date dateCrt) {
+		this.dateCrt = dateCrt;
+	}
+
+	public Date getDateSend() {
+		return dateSend;
+	}
+
+	public void setDateSend(Date dateSend) {
+		this.dateSend = dateSend;
+	}
+
+	public Integer getNum() {
+		return num;
+	}
+
+	public void setNum(Integer num) {
+		this.num = num;
 	}
 
 	public String getPeriodStr() {
@@ -33,73 +55,19 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHe
 		this.periodStr = periodStr;
 	}
 
-	public String getLpuFullName() {
-		return lpuFullName;
+	public String getLastDay() {
+		return lastDay;
 	}
 
-	public void setLpuFullName(String lpuFullName) {
-		this.lpuFullName = lpuFullName;
+	public void setLastDay(String lastDay) {
+		this.lastDay = lastDay;
 	}
 
-	public int getLastDayOfPeriod() {
-		Calendar instance = Calendar.getInstance();
-		instance.setTime(period);
-		return instance.getActualMaximum(Calendar.DAY_OF_MONTH);
+	public String getMoName() {
+		return moName;
 	}
 
-	public Integer getCaseIdCount() {
-		return caseIdCount;
-	}
-
-	public void setCaseIdCount(Integer caseIdCount) {
-		this.caseIdCount = caseIdCount;
-	}
-
-	public Double getServiceSum() {
-		return serviceSum;
-	}
-
-	public void setServiceSum(Double serviceSum) {
-		this.serviceSum = serviceSum;
-	}
-
-	public Integer getCaseIdCount2Stationary() {
-		return caseIdCount2Stationary;
-	}
-
-	public void setCaseIdCount2Stationary(Integer caseIdCount2Stationary) {
-		this.caseIdCount2Stationary = caseIdCount2Stationary;
-	}
-
-	public Double getServiceSum2Stationary() {
-		return serviceSum2Stationary;
-	}
-
-	public void setServiceSum2Stationary(Double serviceSum2Stationary) {
-		this.serviceSum2Stationary = serviceSum2Stationary;
-	}
-
-	public Integer getCaseIdCount3NotAccepted() {
-		return caseIdCount3NotAccepted;
-	}
-
-	public void setCaseIdCount3NotAccepted(Integer caseIdCount3NotAccepted) {
-		this.caseIdCount3NotAccepted = caseIdCount3NotAccepted;
-	}
-
-	public Double getServiceSum3NotAccepted() {
-		return serviceSum3NotAccepted;
-	}
-
-	public void setServiceSum3NotAccepted(Double serviceSum3NotAccepted) {
-		this.serviceSum3NotAccepted = serviceSum3NotAccepted;
-	}
-
-	public String getLastSendingDate() {
-		return lastSendingDate != null ? new SimpleDateFormat("dd.MM.yyyy").format(lastSendingDate) : "";
-	}
-
-	public void setLastSendingDate(Date lastSendingDate) {
-		this.lastSendingDate = lastSendingDate;
+	public void setMoName(String moName) {
+		this.moName = moName;
 	}
 }

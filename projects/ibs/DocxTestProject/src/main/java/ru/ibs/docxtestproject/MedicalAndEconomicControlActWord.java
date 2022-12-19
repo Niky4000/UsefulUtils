@@ -31,18 +31,19 @@ import ru.ibs.pmp.common.lib.Db;
 
 public class MedicalAndEconomicControlActWord {
 
-	SessionFactory sessionFactory;
+	SessionFactory smoSessionFactory;
+	private static final long EMERGENCY = 4708L;
 
 	public void create(Long lpuId, Date period, Long parcelId, String path) throws IOException {
 		String periodStr = new SimpleDateFormat("yyyy-MM").format(period);
 		List<Object[]> headList;
-		if (!lpuId.equals(4708L)) {
-			headList = Db.select(sessionFactory, session -> session.createSQLQuery("select period,period_str,mo_id,parcel_id,num,date_crt,date_send,mo_name,mo_mcod,smo_name,smo_qq,service_sum_all,adm_name,last_day from table (pmp_smo1.pmp_akt_mek_v1.INIT_GET_report(:periodStr, :lpuId, :parcelId, null, null))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
+		if (!lpuId.equals(EMERGENCY)) {
+			headList = Db.select(smoSessionFactory, session -> session.createSQLQuery("select period,period_str,mo_id,parcel_id,num,date_crt,date_send,mo_name,mo_mcod,smo_name,smo_qq,service_sum_all,adm_name,last_day from table (pmp_akt_mek_v1.INIT_GET_report(:periodStr, :lpuId, :parcelId, null, null))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
 		} else {
-			headList = Db.select(sessionFactory, session -> session.createSQLQuery("select period,period_str,mo_id,parcel_id,num,date_crt,date_send,mo_name,mo_mcod,smo_name,smo_qq,service_sum_all,adm_name,last_day from table (pmp_smo1.pmp_akt_mek_v1.init_get_report_smp(:periodStr, :lpuId, :parcelId, null, null))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
+			headList = Db.select(smoSessionFactory, session -> session.createSQLQuery("select period,period_str,mo_id,parcel_id,num,date_crt,date_send,mo_name,mo_mcod,smo_name,smo_qq,service_sum_all,adm_name,last_day from table (pmp_akt_mek_v1.init_get_report_smp(:periodStr, :lpuId, :parcelId, null, null))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
 		}
-		List<Object[]> table1ObjectList = Db.select(sessionFactory, session -> session.createSQLQuery("select r_n,period,lpu_id,parcel_id,prof,usl_ok,opl_qt,opl_sum,err_qt,err_sum,itog_qt,itog_sum from table (pmp_smo1.pmp_akt_mek_v1.get_tbl1(:periodStr, :lpuId, :parcelId))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
-		List<Object[]> table2ObjectList = Db.select(sessionFactory, session -> session.createSQLQuery("select rn,period,lpu_id,parcel_id,recid,sn_pol,usl_ok,date_begin,date_end,prof_cod,prof,cod,count_err,err_code,err_code_1,err_code_2,err_code_3,err_code_4,err_code_5,sank_sum,err_sum,fine_sum,ds from table (pmp_smo1.pmp_akt_mek_v1.get_tbl2(:periodStr, :lpuId, :parcelId))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
+		List<Object[]> table1ObjectList = Db.select(smoSessionFactory, session -> session.createSQLQuery("select r_n,period,lpu_id,parcel_id,prof,usl_ok,opl_qt,opl_sum,err_qt,err_sum,itog_qt,itog_sum from table (pmp_akt_mek_v1.get_tbl1(:periodStr, :lpuId, :parcelId))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
+		List<Object[]> table2ObjectList = Db.select(smoSessionFactory, session -> session.createSQLQuery("select rn,period,lpu_id,parcel_id,recid,sn_pol,usl_ok,date_begin,date_end,prof_cod,prof,cod,count_err,err_code,err_code_1,err_code_2,err_code_3,err_code_4,err_code_5,sank_sum,err_sum,fine_sum,ds from table (pmp_akt_mek_v1.get_tbl2(:periodStr, :lpuId, :parcelId))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
 		MedicalAndEconomicControlActWordHeadBean medicalAndEconomicControlActWordHeadBean = new MedicalAndEconomicControlActWordHeadBean(headList.get(0));
 		List<MedicalAndEconomicControlActWordFirstTableBean> medicalAndEconomicControlActWordFirstTableBeanCollection = table1ObjectList.stream().map(MedicalAndEconomicControlActWordFirstTableBean::new).collect(Collectors.toList());
 		List<MedicalAndEconomicControlActWordSecondTableBean> medicalAndEconomicControlActWordSecondTableBeanCollection = table2ObjectList.stream().map(MedicalAndEconomicControlActWordSecondTableBean::new).collect(Collectors.toList());

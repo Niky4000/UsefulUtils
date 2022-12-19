@@ -1,21 +1,48 @@
 package ru.ibs.docxtestproject.bean;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean {
 
+	private Integer uslOk;
 	private Integer filId;
-	private String iotd;
 	private Long billId;
-	private Date period;
+	private String iotd;
+	private Date dateMn;
 	private String policyNumber;
 	private Integer territoryCode;
-	private String violationCode;
+	private String errorCode;
 	private Double serviceSum;
-	private Integer financialSanctionsCode;
-	private Double financialSanctionsSum;
-	private String otherViolationCodes;
+	private String financialSanctionsCode;
+	private String otherErrorCodes;
+
+//	usl_ok,fil_id,bill_id,iotd,date_mm,sn_pol,cod_terr,err_code_1,service_sum,cod_fine,err_other
+	public RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean() {
+	}
+
+	public RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(Object[] array) {
+		if (array != null) {
+			this.uslOk = array[0] != null ? ((Number) array[0]).intValue() : null;
+			this.filId = array[1] != null ? ((Number) array[1]).intValue() : null;
+			this.billId = array[2] != null ? ((Number) array[2]).longValue() : null;
+			this.iotd = array[3] != null ? (String) array[3] : null;
+			this.dateMn = array[4] != null ? (Date) array[4] : null;
+			this.policyNumber = array[5] != null ? (String) array[5] : null;
+			this.territoryCode = array[6] != null ? ((Number) array[6]).intValue() : null;
+			this.errorCode = array[7] != null ? (String) array[7] : null;
+			this.serviceSum = array[8] != null ? ((Number) array[8]).doubleValue() : null;
+			this.financialSanctionsCode = array[9] != null ? (String) array[9] : null;
+			this.otherErrorCodes = array[10] != null ? (String) array[10] : null;
+		}
+	}
+
+	public Integer getUslOk() {
+		return uslOk;
+	}
+
+	public void setUslOk(Integer uslOk) {
+		this.uslOk = uslOk;
+	}
 
 	public Integer getFilId() {
 		return filId;
@@ -23,14 +50,6 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSe
 
 	public void setFilId(Integer filId) {
 		this.filId = filId;
-	}
-
-	public String getIotd() {
-		return iotd;
-	}
-
-	public void setIotd(String iotd) {
-		this.iotd = iotd;
 	}
 
 	public Long getBillId() {
@@ -41,16 +60,20 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSe
 		this.billId = billId;
 	}
 
-	public Date getPeriod() {
-		return period;
+	public String getIotd() {
+		return iotd;
 	}
 
-	public void setPeriod(Date period) {
-		this.period = period;
+	public void setIotd(String iotd) {
+		this.iotd = iotd;
 	}
 
-	public String getMonth() {
-		return new SimpleDateFormat("MM").format(period);
+	public Date getDateMn() {
+		return dateMn;
+	}
+
+	public void setDateMn(Date dateMn) {
+		this.dateMn = dateMn;
 	}
 
 	public String getPolicyNumber() {
@@ -69,12 +92,12 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSe
 		this.territoryCode = territoryCode;
 	}
 
-	public String getViolationCode() {
-		return violationCode;
+	public String getErrorCode() {
+		return errorCode;
 	}
 
-	public void setViolationCode(String violationCode) {
-		this.violationCode = violationCode;
+	public void setErrorCode(String errorCode) {
+		this.errorCode = errorCode;
 	}
 
 	public Double getServiceSum() {
@@ -85,27 +108,19 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSe
 		this.serviceSum = serviceSum;
 	}
 
-	public Integer getFinancialSanctionsCode() {
+	public String getFinancialSanctionsCode() {
 		return financialSanctionsCode;
 	}
 
-	public void setFinancialSanctionsCode(Integer financialSanctionsCode) {
+	public void setFinancialSanctionsCode(String financialSanctionsCode) {
 		this.financialSanctionsCode = financialSanctionsCode;
 	}
 
-	public Double getFinancialSanctionsSum() {
-		return financialSanctionsSum;
+	public String getOtherErrorCodes() {
+		return otherErrorCodes;
 	}
 
-	public void setFinancialSanctionsSum(Double financialSanctionsSum) {
-		this.financialSanctionsSum = financialSanctionsSum;
-	}
-
-	public String getOtherViolationCodes() {
-		return otherViolationCodes;
-	}
-
-	public void setOtherViolationCodes(String otherViolationCodes) {
-		this.otherViolationCodes = otherViolationCodes;
+	public void setOtherErrorCodes(String otherErrorCodes) {
+		this.otherErrorCodes = otherErrorCodes;
 	}
 }

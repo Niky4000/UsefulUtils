@@ -1,6 +1,8 @@
 package ru.ibs.docxtestproject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -13,31 +15,28 @@ import ru.ibs.docxtestproject.bean.RegisterOfConclusionsBasedOnTheResultsOfMedic
 
 public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWordLauncher {
 
-	public static void start(String[] args, Supplier<SessionFactory> getSessionFactory) throws IOException {
+	public static void start(String[] args, Supplier<SessionFactory> getSessionFactory) throws IOException, ParseException {
 		RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean = createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean();
 		RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean = createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean();
-		Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection1 = Arrays.asList(createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(5555, "iotd", 22L, new Date(), "policyNumber", 77, "violationCode", 12d, 88, 88d, "other"), createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(4444, "iotd22", 44L, new Date(), "policyNumber2", 88, "violationCode2", 312d, 588, 488d, "other2"));
-		Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection2 = Arrays.asList(createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(5555, "iotd", 22L, new Date(), "policyNumber", 77, "violationCode", 12d, 88, 88d, "other"), createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(4444, "iotd22", 44L, new Date(), "policyNumber2", 88, "violationCode2", 312d, 588, 488d, "other2"));
-		Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection3 = Arrays.asList(createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(5555, "iotd", 22L, new Date(), "policyNumber", 77, "violationCode", 12d, 88, 88d, "other"), createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(4444, "iotd22", 44L, new Date(), "policyNumber2", 88, "violationCode2", 312d, 588, 488d, "other2"));
-		Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection4 = Arrays.asList(createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(5555, "iotd", 22L, new Date(), "policyNumber", 77, "violationCode", 12d, 88, 88d, "other"), createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(4444, "iotd22", 44L, new Date(), "policyNumber2", 88, "violationCode2", 312d, 588, 488d, "other2"));
-		Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBeanCollection = Arrays.asList(createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean(8888, "iotd", 888888L, new Date(), 8888d, 12345678d, 222d, 42d, 80d, 120d), createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean(4444, "iotd4", 44L, new Date(), 22d, 44d, 66d, 88d, 10d, 20d));
+		Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection1 = Arrays.asList(createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(5555, "iotd", 22L, new Date(), "policyNumber", 77, "violationCode", 12d, 88, "other"), createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(4444, "iotd22", 44L, new Date(), "policyNumber2", 88, "violationCode2", 312d, 588, "other2"));
+		Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection2 = Arrays.asList(createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(5555, "iotd", 22L, new Date(), "policyNumber", 77, "violationCode", 12d, 88, "other"), createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(4444, "iotd22", 44L, new Date(), "policyNumber2", 88, "violationCode2", 312d, 588, "other2"));
+		Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection3 = Arrays.asList(createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(5555, "iotd", 22L, new Date(), "policyNumber", 77, "violationCode", 12d, 88, "other"), createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(4444, "iotd22", 44L, new Date(), "policyNumber2", 88, "violationCode2", 312d, 588, "other2"));
+		Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection4 = Arrays.asList(createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(5555, "iotd", 22L, new Date(), "policyNumber", 77, "violationCode", 12d, 88, "other"), createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(4444, "iotd22", 44L, new Date(), "policyNumber2", 88, "violationCode2", 312d, 588, "other2"));
+		Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBeanCollection = Arrays.asList(createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean(8888, "iotd", 888888L, new Date(), 8888d, 2, 222d, 42d, 80d, 120d), createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean(4444, "iotd4", 44L, new Date(), 22d, 2, 66d, 88d, 10d, 20d));
 		String path = args[0];
 		RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWord registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWord = new RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWord();
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWord.create(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection1, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection2, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection3, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection4, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBeanCollection, path);
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWord.create(1962L, new SimpleDateFormat("yyyy-MM-dd").parse("2022-02-01"), 1415550L, args[0]);
 	}
 
 	private static RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean() {
 		RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean = new RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean();
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setLpuFullName("Интересная ЛПУ");
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setPeriod(new Date());
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setDateCrt(new Date());
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setDateSend(new Date());
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setLastDay("lastDay");
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setMoName("Интересная ЛПУ");
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setNum(5);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setPeriodStr("Какой-то период");
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setCaseIdCount(22222);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setServiceSum(88888888d);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setCaseIdCount2Stationary(22);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setServiceSum2Stationary(88d);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setCaseIdCount3NotAccepted(44);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setServiceSum3NotAccepted(8888d);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.setLastSendingDate(new Date());
 		return registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean;
 	}
 
@@ -80,28 +79,27 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 		return registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean;
 	}
 
-	private static RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(Integer filId, String iotd, Long billId, Date period, String policyNumber, Integer territoryCode, String violationCode, Double serviceSum, Integer financialSanctionsCode, Double financialSanctionsSum, String otherViolationCodes) {
+	private static RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean(Integer filId, String iotd, Long billId, Date period, String policyNumber, Integer territoryCode, String violationCode, Double serviceSum, Integer financialSanctionsCode, String otherViolationCodes) {
 		RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean = new RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean();
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setFilId(filId);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setIotd(iotd);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setBillId(billId);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setPeriod(period);
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setDateMn(period);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setPolicyNumber(policyNumber);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setTerritoryCode(territoryCode);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setViolationCode(violationCode);
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setErrorCode(violationCode);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setServiceSum(serviceSum);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setFinancialSanctionsCode(financialSanctionsCode);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setFinancialSanctionsSum(financialSanctionsSum);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setOtherViolationCodes(otherViolationCodes);
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setFinancialSanctionsCode(financialSanctionsCode.toString());
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean.setOtherErrorCodes(otherViolationCodes);
 		return registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean;
 	}
 
-	private static RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean(Integer filId, String iotd, Long billId, Date period, Double excessSum, Double serviceSum, Double notAcceptedServiceSum, Double notAcceptedServiceSumBeforeRepeatedCheck, Double holdedServiceSum, Double serviceSumThatShouldBeHoldedOnTheNextPeriod) {
+	private static RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean createRegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean(Integer filId, String iotd, Long billId, Date period, Double excessSum, Integer quarter, Double notAcceptedServiceSum, Double notAcceptedServiceSumBeforeRepeatedCheck, Double holdedServiceSum, Double serviceSumThatShouldBeHoldedOnTheNextPeriod) {
 		RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean = new RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean();
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean.setFilId(filId);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean.setIotd(iotd);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean.setBillId(billId);
-		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean.setPeriod(period);
+		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean.setQuarter(quarter);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean.setExcessSum(excessSum);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean.setNotAcceptedServiceSum(notAcceptedServiceSum);
 		registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean.setNotAcceptedServiceSumBeforeRepeatedCheck(notAcceptedServiceSumBeforeRepeatedCheck);

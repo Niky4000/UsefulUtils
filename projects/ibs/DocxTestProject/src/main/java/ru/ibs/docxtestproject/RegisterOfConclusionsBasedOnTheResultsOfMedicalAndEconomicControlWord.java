@@ -9,10 +9,13 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.TableRowAlign;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.hibernate.SessionFactory;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STPageOrientation;
 import static ru.ibs.docxtestproject.WordUtils.changeOrientation;
 import static ru.ibs.docxtestproject.WordUtils.createParagraph;
@@ -24,8 +27,24 @@ import ru.ibs.docxtestproject.bean.RegisterOfConclusionsBasedOnTheResultsOfMedic
 import ru.ibs.docxtestproject.bean.RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean;
 import ru.ibs.docxtestproject.bean.RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean;
 import ru.ibs.docxtestproject.bean.RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean;
+import ru.ibs.pmp.common.lib.Db;
 
 public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWord {
+
+	SessionFactory smoSessionFactory;
+
+	public void create(Long lpuId, Date period, Long parcelId, String path) throws IOException {
+		String periodStr = new SimpleDateFormat("yyyy-MM").format(period);
+		List<Object[]> headList = Db.select(smoSessionFactory, session -> session.createSQLQuery("select date_crt,date_send,num,period_str,last_day,mo_name from table(pmp_reestr_akt_v1.get_report(:periodStr, :lpuId, :parcelId, null, null))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
+		List<Object[]> firstTableList = Db.select(smoSessionFactory, session -> session.createSQLQuery("select opl_qtall,opl_sumall,opl_qt1,opl_sum1,opl_qt2,opl_sum2,opl_qt3,opl_sum3,opl_qt4,opl_sum4,itog_qtall,itog_sumall,itog_qt1,itog_sum1,itog_qt2,itog_sum2,itog_qt3,itog_sum3,itog_qt4,itog_sum4,err_qtall,err_sumall,err_qt1,err_sum1,err_qt2,err_sum2,err_qt3,err_sum3,err_qt4,err_sum4,qt_defect_pp,sum_defect_pp,qt_defect_pq,sum_defect_pq from table(pmp_reestr_akt_v1. get_tbl1(:periodStr, :lpuId, :parcelId, null, null))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
+		List<Object[]> secondTableList = Db.select(smoSessionFactory, session -> session.createSQLQuery("select usl_ok,fil_id,bill_id,iotd,date_mm,sn_pol,cod_terr,err_code_1,service_sum,cod_fine,err_other from table(pmp_reestr_akt_v1.GET_tbl2(:periodStr, :lpuId, :parcelId, null, null))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
+		List<Object[]> thirdTableList = Db.select(smoSessionFactory, session -> session.createSQLQuery("select fil_id,iotd,bill_id,quarter_sum,sum_pre,sum_fill,sum_pre,sum_all,0 from table(pmp_reestr_akt_v1.GET_tbl3(:periodStr, :lpuId, :parcelId, null, null))").setParameter("lpuId", lpuId).setParameter("periodStr", periodStr).setParameter("parcelId", parcelId).list());
+		List<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean> headBeanList = headList.stream().map(RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean::new).collect(Collectors.toList());
+		List<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean> firstTableBeanList = firstTableList.stream().map(RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean::new).collect(Collectors.toList());
+		List<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> secondTableBeanList = secondTableList.stream().map(RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean::new).collect(Collectors.toList());
+		List<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean> thirdTableBeanList = thirdTableList.stream().map(RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean::new).collect(Collectors.toList());
+
+	}
 
 	public void create(RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean, RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean, Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection1, Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection2, Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection3, Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection4, Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBeanCollection, String path) throws IOException {
 		if (!new File(path).getParentFile().exists()) {
@@ -36,12 +55,13 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 			changeOrientation(document, STPageOrientation.LANDSCAPE);
 			createParagraph(document, "Реестр", ParagraphAlignment.CENTER, 12);
 			createParagraph(document, "заключений по результатам медико-экономического контроля", ParagraphAlignment.CENTER, 12);
-			createParagraph(document, "от 01 " + registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getPeriodStr() + " г. по " + registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getLastDayOfPeriod() + " " + registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getPeriodStr() + " г.", ParagraphAlignment.CENTER, 12);
+			createParagraph(document, "от " + dh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getDateCrt()) + "  г. № " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getNum()), ParagraphAlignment.CENTER, 12);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "Период с \"01\" " + registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getPeriodStr() + " г. по \" " + registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getLastDay() + " \" " + registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getPeriodStr() + " г.", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "Федеральный фонд обязательного медицинского страхования/территориальный фонд обязательного медицинского страхования, получивший счета от медицинской организации Московский городской фонд обязательного медицинского страхования", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "Код Федерального фонда обязательного медицинского страхования/территориального фонда обязательного медицинского страхования, получившего счета от медицинской организации ________________________________________________________ ", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "Код территории местонахождения Федерального фонда обязательного медицинского страхования/территориального фонда обязательного медицинского страхования ________________________________________________________________ ", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "Наименование медицинской организации, предоставившей счет " + registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getLpuFullName(), ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "Наименование медицинской организации, предоставившей счет " + registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getMoName(), ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "Код медицинской организации, предоставившей счет ____________________________", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "Код территории местонахождения медицинской организации, предоставившей счет ", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "(Код ОКТМО)", ParagraphAlignment.LEFT, 12);
@@ -49,24 +69,24 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
 			createFirstTable(document, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "2.1. Не подлежит оплате, всего " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getCaseIdCount()) + " случаев оказания медицинской помощи на сумму " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getServiceSum()) + " рублей.", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "2.1.1. За оказание медицинской помощи в стационарных условиях " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getCaseIdCount2Stationary()) + " случаев оказания медицинской помощи на сумму " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getServiceSum2Stationary()) + " рублей.", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "2.1. Не подлежит оплате, всего " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean.getChapter3TotalServiceCount()) + " случаев оказания медицинской помощи на сумму " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean.getChapter3TotalServiceSum()) + " рублей.", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "2.1.1. За оказание медицинской помощи в стационарных условиях " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean.getChapter3Row1ServiceSum()) + " случаев оказания медицинской помощи на сумму " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean.getChapter3Row1ServiceSum()) + " рублей.", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
 			createSecondTable(document, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection1);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "2.1.2. За оказание медицинской помощи в условиях дневного стационара _______случаев оказания медицинской помощи на сумму ______ рублей.", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "2.1.2. За оказание медицинской помощи в условиях дневного стационара " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean.getChapter3Row2ServiceSum()) + " случаев оказания медицинской помощи на сумму " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean.getChapter3Row2ServiceSum()) + " рублей.", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
 			createSecondTable(document, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection2);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "2.1.3. За оказание медицинской помощи в амбулаторных условиях _______ случаев оказания медицинской помощи на сумму ________ рублей.", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "2.1.3. За оказание медицинской помощи в амбулаторных условиях " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean.getChapter3Row3ServiceSum()) + " случаев оказания медицинской помощи на сумму " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean.getChapter3Row3ServiceSum()) + " рублей.", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
 			createSecondTable(document, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection3);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "2.1.4. За оказание медицинской помощи вне медицинской организации ________ случаев оказания медицинской помощи на сумму ______ рублей.", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "2.1.4. За оказание медицинской помощи вне медицинской организации " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean.getChapter3Row4ServiceSum()) + " случаев оказания медицинской помощи на сумму " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean.getChapter3Row4ServiceSum()) + " рублей.", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
 			createSecondTable(document, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection4);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "2.2. Не принято к оплате в связи с превышением установленных комиссией по разработке территориальной программы обязательного медицинского страхования объемов медицинской помощи, всего " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getCaseIdCount()) + " случаев оказания медицинской помощи на сумму " + nh(registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getServiceSum2Stationary()) + " рублей.", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "2.2. Не принято к оплате в связи с превышением установленных комиссией по разработке территориальной программы обязательного медицинского страхования объемов медицинской помощи, всего ________ случаев оказания медицинской помощи на сумму _____ рублей.", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "В том числе:", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "	а) за оказание медицинской помощи в стационарных условиях __________ случаев оказания медицинской помощи на сумму __________ рублей;", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "	б) за оказание медицинской помощи в условиях дневного стационара __________ случаев оказания медицинской помощи на сумму __________ рублей;", ParagraphAlignment.LEFT, 12);
@@ -75,7 +95,7 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
 			createThirdTable(document, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBeanCollection);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "Дата предоставления счетов Федеральному фонду обязательного медицинского страхования/территориальному фонду обязательного медицинского страхования " + registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getLastSendingDate() + " г.", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "Дата предоставления счетов Федеральному фонду обязательного медицинского страхования/территориальному фонду обязательного медицинского страхования _________ г.", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "Дата проверки счетов (реестров) " + new SimpleDateFormat("dd.MM.yyyy").format(new Date()) + " г.", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "Руководитель (уполномоченное лицо) Федерального фонда обязательного медицинского страхования/территориального фонда обязательного медицинского страхования:", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
@@ -191,14 +211,14 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 			createParagraph(table.getRows().get(rowIndex).getCell(0).getParagraphArray(0), nh(next.getFilId()), ParagraphAlignment.CENTER, defaultTextSize);
 			createParagraph(table.getRows().get(rowIndex).getCell(1).getParagraphArray(0), next.getIotd(), ParagraphAlignment.CENTER, defaultTextSize);
 			createParagraph(table.getRows().get(rowIndex).getCell(2).getParagraphArray(0), nh(next.getBillId()), ParagraphAlignment.CENTER, defaultTextSize);
-			createParagraph(table.getRows().get(rowIndex).getCell(3).getParagraphArray(0), next.getMonth(), ParagraphAlignment.CENTER, defaultTextSize);
+			createParagraph(table.getRows().get(rowIndex).getCell(3).getParagraphArray(0), dh(next.getDateMn()), ParagraphAlignment.CENTER, defaultTextSize);
 			createParagraph(table.getRows().get(rowIndex).getCell(4).getParagraphArray(0), next.getPolicyNumber(), ParagraphAlignment.CENTER, defaultTextSize);
 			createParagraph(table.getRows().get(rowIndex).getCell(5).getParagraphArray(0), nh(next.getTerritoryCode()), ParagraphAlignment.CENTER, defaultTextSize);
-			createParagraph(table.getRows().get(rowIndex).getCell(6).getParagraphArray(0), next.getViolationCode(), ParagraphAlignment.CENTER, defaultTextSize);
+			createParagraph(table.getRows().get(rowIndex).getCell(6).getParagraphArray(0), next.getErrorCode(), ParagraphAlignment.CENTER, defaultTextSize);
 			createParagraph(table.getRows().get(rowIndex).getCell(7).getParagraphArray(0), nh(next.getServiceSum()), ParagraphAlignment.CENTER, defaultTextSize);
-			createParagraph(table.getRows().get(rowIndex).getCell(8).getParagraphArray(0), nh(next.getFinancialSanctionsCode()), ParagraphAlignment.CENTER, defaultTextSize);
-			createParagraph(table.getRows().get(rowIndex).getCell(9).getParagraphArray(0), nh(next.getFinancialSanctionsSum()), ParagraphAlignment.CENTER, defaultTextSize);
-			createParagraph(table.getRows().get(rowIndex).getCell(10).getParagraphArray(0), next.getOtherViolationCodes(), ParagraphAlignment.CENTER, defaultTextSize);
+			createParagraph(table.getRows().get(rowIndex).getCell(8).getParagraphArray(0), next.getFinancialSanctionsCode(), ParagraphAlignment.CENTER, defaultTextSize);
+			createParagraph(table.getRows().get(rowIndex).getCell(9).getParagraphArray(0), nh(next.getServiceSum()), ParagraphAlignment.CENTER, defaultTextSize);
+			createParagraph(table.getRows().get(rowIndex).getCell(10).getParagraphArray(0), next.getOtherErrorCodes(), ParagraphAlignment.CENTER, defaultTextSize);
 			rowIndex++;
 		}
 	}
@@ -233,7 +253,7 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 			createParagraph(table.getRows().get(rowIndex).getCell(0).getParagraphArray(0), nh(next.getFilId()), ParagraphAlignment.CENTER, defaultTextSize);
 			createParagraph(table.getRows().get(rowIndex).getCell(1).getParagraphArray(0), next.getIotd(), ParagraphAlignment.CENTER, defaultTextSize);
 			createParagraph(table.getRows().get(rowIndex).getCell(2).getParagraphArray(0), nh(next.getBillId()), ParagraphAlignment.CENTER, defaultTextSize);
-			createParagraph(table.getRows().get(rowIndex).getCell(3).getParagraphArray(0), next.getMonth(), ParagraphAlignment.CENTER, defaultTextSize);
+			createParagraph(table.getRows().get(rowIndex).getCell(3).getParagraphArray(0), nh(next.getQuarter()), ParagraphAlignment.CENTER, defaultTextSize);
 			createParagraph(table.getRows().get(rowIndex).getCell(4).getParagraphArray(0), nh(next.getExcessSum()), ParagraphAlignment.CENTER, defaultTextSize);
 			createParagraph(table.getRows().get(rowIndex).getCell(5).getParagraphArray(0), nh(next.getServiceSum()), ParagraphAlignment.CENTER, defaultTextSize);
 			createParagraph(table.getRows().get(rowIndex).getCell(6).getParagraphArray(0), nh(next.getNotAcceptedServiceSum()), ParagraphAlignment.CENTER, defaultTextSize);
@@ -274,5 +294,9 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 
 	private String nh(Number n) {
 		return n != null ? n.toString() : "";
+	}
+
+	private String dh(Date d) {
+		return d != null ? new SimpleDateFormat("dd.MM.yyyy").format(d) : "";
 	}
 }

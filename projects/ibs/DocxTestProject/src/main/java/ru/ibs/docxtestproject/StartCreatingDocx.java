@@ -20,9 +20,9 @@ public class StartCreatingDocx {
 			Properties p = new Properties();
 			p.load(new FileInputStream(new File(System.getProperty("pmp.config.path"))));
 			Configuration configuration = new Configuration();
-			configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.pmp.db.url"));
-			configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.pmp.db.username"));
-			configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.pmp.db.password"));
+			configuration.setProperty("hibernate.connection.url", p.getProperty("runtime.smo.db.url"));
+			configuration.setProperty("hibernate.connection.username", p.getProperty("runtime.smo.db.username"));
+			configuration.setProperty("hibernate.connection.password", p.getProperty("runtime.smo.db.password"));
 			EntityScanner.scanPackages("ru.ibs.docxtestproject.bean").addTo(configuration);
 			configuration.configure();
 			SessionFactory sessionFactory = configuration.buildSessionFactory();
