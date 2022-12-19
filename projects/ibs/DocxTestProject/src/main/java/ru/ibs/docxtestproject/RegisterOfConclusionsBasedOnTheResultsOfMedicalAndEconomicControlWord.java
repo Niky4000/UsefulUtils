@@ -67,7 +67,7 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 			createParagraph(document, "Наименование медицинской организации, предоставившей счет " + registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean.getMoName(), ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "Код медицинской организации, предоставившей счет ____________________________", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "Код территории местонахождения медицинской организации, предоставившей счет ", ParagraphAlignment.LEFT, 12);
-			createParagraph(document, "(Код ОКТМО)", ParagraphAlignment.LEFT, 12);
+			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "1. Сведения о результатах медико-экономического контроля:", ParagraphAlignment.LEFT, 12);
 			createParagraph(document, "", ParagraphAlignment.LEFT, 12);
 			createFirstTable(document, registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean);
