@@ -57,7 +57,7 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlTh
 		this.holdedServiceSum = array[7] != null ? ((Number) array[7]).doubleValue() : null;
 		this.serviceSumThatShouldBeHoldedOnTheNextPeriod = array[8] != null ? ((Number) array[8]).doubleValue() : null;
 		this.qtAll = array[9] != null ? ((Number) array[9]).intValue() : null;
-		this.sumAll = array[10] != null ? ((Number) array[10]).doubleValue() : null;
+		this.sumAll = holdedServiceSum;
 		this.qtAll1 = array[11] != null ? ((Number) array[11]).intValue() : null;
 		this.sumAll1 = array[12] != null ? ((Number) array[12]).doubleValue() : null;
 		this.qtAll2 = array[13] != null ? ((Number) array[13]).intValue() : null;
