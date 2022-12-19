@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.TableRowAlign;
@@ -43,7 +45,8 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 		List<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean> firstTableBeanList = firstTableList.stream().map(RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean::new).collect(Collectors.toList());
 		List<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> secondTableBeanList = secondTableList.stream().map(RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean::new).collect(Collectors.toList());
 		List<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean> thirdTableBeanList = thirdTableList.stream().map(RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean::new).collect(Collectors.toList());
-
+		Map<String, List<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean>> secondTableBeanMap = secondTableBeanList.stream().collect(Collectors.groupingBy(RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean::getUslOk));
+		create(headBeanList.get(0), firstTableBeanList.get(0), secondTableBeanMap.getOrDefault("1", new ArrayList<>(1)), secondTableBeanMap.getOrDefault("2", new ArrayList<>(1)), secondTableBeanMap.getOrDefault("3", new ArrayList<>(1)), secondTableBeanMap.getOrDefault("4", new ArrayList<>(1)), thirdTableBeanList, path);
 	}
 
 	public void create(RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlHeadBean, RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlFirstTableBean, Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection1, Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection2, Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection3, Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlSecondTableBeanCollection4, Collection<RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBean> registerOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlThirdTableBeanCollection, String path) throws IOException {
