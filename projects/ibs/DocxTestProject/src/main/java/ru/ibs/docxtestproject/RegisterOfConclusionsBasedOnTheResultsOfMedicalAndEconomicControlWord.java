@@ -295,8 +295,26 @@ public class RegisterOfConclusionsBasedOnTheResultsOfMedicalAndEconomicControlWo
 		}
 	}
 
+	private static final String zeroEnding = ".0";
+	private static final String dot = ".";
+
 	private String nh(Number n) {
-		return n != null ? n.toString() : "";
+		if (n != null) {
+			String str = n.toString();
+			if (str.endsWith(zeroEnding)) {
+				return str.substring(0, str.length() - zeroEnding.length());
+			} else if (str.contains(dot)) {
+				if (str.substring(str.indexOf(dot), str.length()).length() < 2) {
+					return str + "0";
+				} else {
+					return str;
+				}
+			} else {
+				return str;
+			}
+		} else {
+			return "";
+		}
 	}
 
 	private String dh(Date d) {
