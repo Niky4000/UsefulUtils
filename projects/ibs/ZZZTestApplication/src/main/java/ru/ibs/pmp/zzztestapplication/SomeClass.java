@@ -125,6 +125,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -584,7 +585,17 @@ public class SomeClass {
 //		testLinkedHashMap();
 //		createDoc();
 //		CreateWordTableMerge.create();
-		lower();
+//		lower();
+		getTheMostCommonDigit();
+	}
+
+	private static void getTheMostCommonDigit() {
+		Stream.of(1, 3, 4, 3, 4, 3, 2, 3, 3, 3, 3, 3)
+				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+				.entrySet()
+				.stream()
+				.max(Map.Entry.comparingByValue())
+				.ifPresent(System.out::println);
 	}
 
 	private static void lower() {
