@@ -21,23 +21,22 @@ public class SomeClass {
 //		System.out.println(nh(8.22d));
 //		System.out.println(nh(2.2d));
 //		System.out.println(nh(0d));
-//		int[] a = new int[10];
-//		arrayMethod(a);
-//		System.out.println(a.length);
-//		Java java = new Java();
-//		java.subject("Hi");
-//		java.subject(20);
-//		List<Integer> list = new ArrayList<>();
-//		list.add(10);
-//		listMethod(list);
-//		System.out.println(list);
-//		int[] a = new int[10];
-//		a[0] = 10;
-//		arrayMethod2(a);
-//		for (int i = 0; i < a.length; i++) {
-//			System.out.println(a[i]);
-//		}
-		handleBooks();
+		int[] a = new int[10];
+		arrayMethod(a);
+		System.out.println(a.length);
+		printArray(a);
+		Java java = new Java();
+		java.subject("Hi");
+		java.subject(20);
+		List<Integer> list = new ArrayList<>();
+		list.add(10);
+		listMethod(list);
+		System.out.println(list);
+		int[] b = new int[10];
+		b[0] = 10;
+		arrayMethod2(b);
+		printArray(b);
+//		handleBooks();
 	}
 
 	private static void handleBooks() {
@@ -87,6 +86,12 @@ public class SomeClass {
 		list = list2;
 		list.add(30);
 		list.remove(Integer.valueOf(10));
+	}
+
+	private static void printArray(int[] a) {
+		for (int i = 0; i < a.length; i++) {
+			System.out.println(a[i]);
+		}
 	}
 
 	public static class Java<S> {
