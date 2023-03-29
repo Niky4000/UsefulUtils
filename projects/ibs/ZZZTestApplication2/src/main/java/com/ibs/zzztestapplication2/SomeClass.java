@@ -1,8 +1,14 @@
 package com.ibs.zzztestapplication2;
 
+import com.ibs.bean.ComparableBean;
 import java.text.DecimalFormat;
 import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.AbstractOwnableSynchronizer;
 import java.util.concurrent.locks.AbstractQueuedLongSynchronizer;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
@@ -17,7 +23,44 @@ public class SomeClass {
 //		System.out.println(nh(2.2d));
 //		System.out.println(nh(0d));
 //		printPar(3);
-		System.out.println(makeChange(50, 25));
+//		System.out.println(makeChange(50, 25));
+//		testSingleThread();
+		testCompareChain();
+	}
+
+	private static void testCompareChain() {
+		List<ComparableBean> list = Arrays.asList(new ComparableBean(2, "name"), new ComparableBean(0, "name"), new ComparableBean(0, "name"));
+		Collections.sort(list);
+		System.out.println(list);
+	}
+
+	private void methodToSynchronize() {
+
+	}
+
+	private static void testSingleThread() {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executor.submit(getRunnable());
+		executor.submit(getRunnable());
+		executor.submit(getRunnable());
+		System.out.println("testSingleThread!");
+		executor.shutdown();
+	}
+
+	private static Runnable getRunnable() {
+		return () -> {
+			try {
+				System.out.println("Started!");
+				Thread.sleep(4000);
+				System.out.println("Working!");
+				Thread.sleep(4000);
+				System.out.println("Finished!");
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				e.printStackTrace();
+
+			}
+		};
 	}
 
 	public static int makeChange(int n, int denom) {
