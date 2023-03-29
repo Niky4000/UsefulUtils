@@ -3,9 +3,11 @@ package com.ibs.zzztestapplication2;
 import com.ibs.bean.ComparableBean;
 import java.io.File;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +47,9 @@ public class SomeClass {
 //		printPar(3);
 //		System.out.println(makeChange(50, 25));
 //		testSingleThread();
-		testCompareChain();
+//		testCompareChain();
+		// Wed, 29 Mar 2023 14:54:33 GMT
+		System.out.println(new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z").format(new Date()));
 	}
 
 	private static void testCompareChain() {
