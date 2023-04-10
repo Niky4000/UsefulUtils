@@ -1,10 +1,18 @@
 package com.ibs.zzztestapplication2;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.ibs.bean.ComparableBean;
+import static com.ibs.utils.StringSimilarity.printSimilarity;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -12,14 +20,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SomeClass {
 
 	public static void main(String[] args) throws Exception {
-		//		System.out.println(nh(12345678.22d));
+//		System.out.println(nh(12345678.22d));
 //		System.out.println(nh(18.22d));
 //		System.out.println(nh(8.22d));
 //		System.out.println(nh(2.2d));
@@ -40,102 +57,201 @@ public class SomeClass {
 //		arrayMethod2(b);
 //		printArray(b);
 //		handleBooks();
-//		swap(40, 50);
-//		handleAsyncConfigs();
-		String headerAuthorization = System.getenv("HEADER_AUTHORIZATION");
-		System.out.println(headerAuthorization);
+//
+//		printPar(3);
+//		System.out.println(makeChange(50, 25));
+//		testSingleThread();
+//		testCompareChain();
+		// Wed, 29 Mar 2023 14:54:33 GMT
+//		System.out.println(new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z").format(new Date()));
+//		testSimilarity();
+//		testCache();
+//		System.out.println(LocalDate.of(2022, 12, 12).toString());
+		completableFutureTest();
 	}
 
-	private static void handleAsyncConfigs() throws IOException {
-		Map<String, String> properties = loadPropertiesAsMap(new String(Files.readAllBytes(new File("/home/me/GIT/ferzl/ferzlConfigs/async-service.properties").toPath())));
-		Map<String, String> configs = getConfigsFromYml(new String(Files.readAllBytes(new File("/home/me/GIT/ferzl/async-service/src/main/resources/application.yml").toPath())));
-		handleConfigs(configs, properties);
-	}
-
-	private static Map<String, String> loadPropertiesAsMap(String propertiesStr) {
-		String[] split = propertiesStr.split("\n");
-		Map<String, String> configs = new LinkedHashMap<>(split.length);
-		for (String str_ : split) {
-			if (str_.trim().length() == 0 || str_.trim().startsWith("#")) {
-				continue;
+	private static void completableFutureTest() throws Exception {
+		CompletableFuture<String> supplyAsync = CompletableFuture.<String>supplyAsync(() -> {
+			System.out.println("1");
+			waitSomeTime(4);
+			if (false) {
+				throw new RuntimeException();
 			}
-			String[] str2 = str_.split("=");
-			configs.put(str2[0], str2[1]);
-		}
-		return configs;
-	}
-
-	private static void handleConfigs(Map<String, String> configs, Map<String, String> properties) {
-//		properties.forEach((name, value) -> {
-//			if (!configs.containsKey(name)) {
-//				System.out.println(name + "=" + value);
-//			}
-//		});
-		configs.forEach((name, value) -> {
-			if (!properties.containsKey(name)) {
-				System.out.println(name + "=" + value);
+			return "Hello ";
+		}).handleAsync((s, ex) -> {
+			if (s != null) {
+				return s + "! Hello again! ";
+			} else {
+				return "Exception occured! ";
 			}
 		});
+		CompletableFuture<String> supplyAsync2 = CompletableFuture.<String>supplyAsync(() -> {
+			System.out.println("2");
+			waitSomeTime(10);
+			return "World";
+		});
+		CompletableFuture<String> supplyAsync3 = CompletableFuture.<String>supplyAsync(() -> {
+			System.out.println("3");
+			waitSomeTime(20);
+			return "!!!";
+		});
+		CompletableFuture<String> future = supplyAsync.thenCombineAsync(supplyAsync2, (s1, s2) -> s1 + s2).thenCombine(supplyAsync3, (s1, s2) -> s1 + s2);
+//		CompletableFuture<String> future = supplyAsync.thenComposeAsync(k -> supplyAsync2).thenApplyAsync(s -> k + s).thenCombine(supplyAsync3, (s1, s2) -> s1 + s2);
+//		String str = future.getNow("No result!");
+		String str = future.get();
+//		String str = Stream.of(supplyAsync, supplyAsync2, supplyAsync3).map(CompletableFuture::join).collect(Collectors.joining());
+		System.out.println(str);
+		ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 4, 4, TimeUnit.MINUTES, new ArrayBlockingQueue<Runnable>(Integer.MAX_VALUE));
+		ForkJoinPool forkJoinPool = new ForkJoinPool();
+		forkJoinPool.invoke(null);
 	}
 
-	private static Map<String, String> getConfigsFromYml(String yml) {
-		String[] split = yml.split("\n");
-		Map<String, String> configs = new LinkedHashMap<>(split.length);
-		LinkedList<String> previousConfigs = new LinkedList<>();
-		for (String str_ : split) {
-			if (str_.trim().length() == 0 || str_.trim().startsWith("#")) {
-				continue;
-			}
-			String[] str2 = str_.split(":");
-			String name = str2[0].trim();
-			String value = str2.length >= 2 ? str2[1].trim().replace("${", "") : null;
-			String defaultValue = str2.length == 3 ? str2[2].trim().replace("}", "") : null;
-			int configLevel = getConfigLevel(str2[0]);
-//			System.out.println(str2[0]);
-			if (configLevel < previousConfigs.size()) {
-				previousConfigs.set(configLevel, name);
-			} else {
-				previousConfigs.add(name);
-			}
-			Iterator<String> iterator = previousConfigs.descendingIterator();
-			while (previousConfigs.size() - 1 > configLevel) {
-				iterator.next();
-				iterator.remove();
-			}
-			if (value != null) {
-				configs.put(previousConfigs.stream().reduce((s1, s2) -> s1 + "." + s2).get(), defaultValue != null ? defaultValue : value);
-			}
+	private static void waitSomeTime(int seconds) {
+		try {
+			Thread.sleep(seconds * 1000);
+		} catch (InterruptedException ex) {
+			ex.printStackTrace();
 		}
-		return configs;
 	}
 
-	private static char[] SPACE = "  ".toCharArray();
+	private static void testCache() {
+		final int TIME_TO_LIVE = 1;
+		final com.github.benmanes.caffeine.cache.Cache<String, Integer> cache = Caffeine.<String, Map<String, String>>newBuilder().expireAfterWrite(TIME_TO_LIVE, TimeUnit.HOURS).build();
+		createThread(getSomeRunnableForCacheTest(cache), "thread1");
+		createThread(getSomeRunnableForCacheTest(cache), "thread2");
+		createThread(getSomeRunnableForCacheTest(cache), "thread3");
+		createThread(getSomeRunnableForCacheTest(cache), "thread4");
+	}
 
-	private static int getConfigLevel(String str) {
-		int countNulls = 0, countOnes = 0;
-		char[] toCharArray = str.toCharArray();
-		int level = 0;
-		for (int i = 0; i < toCharArray.length; i += SPACE.length) {
-			boolean equal = true;
-			for (int j = 0; j < SPACE.length; j++) {
-				if (SPACE[j] != toCharArray[i]) {
-					equal = false;
-				}
+	private static Thread createThread(Runnable runnable, String name) {
+		Thread thread = new Thread(runnable);
+		thread.setName(name);
+		thread.start();
+		return thread;
+	}
+
+	private static Runnable getSomeRunnableForCacheTest(com.github.benmanes.caffeine.cache.Cache<String, Integer> cache) {
+		return () -> {
+			computeSomethingInTheCache(cache, "test");
+			computeSomethingInTheCache(cache, "test2");
+			computeSomethingInTheCache(cache, "test3");
+			computeSomethingInTheCache(cache, "test4");
+		};
+	}
+
+	private static void computeSomethingInTheCache(com.github.benmanes.caffeine.cache.Cache<String, Integer> cache, String key) {
+		Integer value = cache.asMap().computeIfAbsent(key, s -> {
+			try {
+				System.out.println(getCurrentTime() + " " + Thread.currentThread().getName() + ": Waiting...");
+				Thread.sleep(10000);
+			} catch (InterruptedException ex) {
+				Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
 			}
-			if (equal) {
-				level++;
-			} else {
+			System.out.println(getCurrentTime() + " " + Thread.currentThread().getName() + ": Computing...");
+			return Double.valueOf(Math.random() * 100).intValue();
+		});
+		System.out.println(getCurrentTime() + " " + Thread.currentThread().getName() + ": value: " + value + "!");
+	}
+
+	private static String getCurrentTime() {
+		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date());
+	}
+
+	public static void testSimilarity() {
+		printSimilarity("", "");
+		printSimilarity("1234567890", "1");
+		printSimilarity("1234567890", "123");
+		printSimilarity("1234567890", "1234567");
+		printSimilarity("1234567890", "1234567890");
+		printSimilarity("1234567890", "1234567980");
+		printSimilarity("47/2010", "472010");
+		printSimilarity("47/2010", "472011");
+		printSimilarity("47/2010", "AB.CDEF");
+		printSimilarity("47/2010", "4B.CDEFG");
+		printSimilarity("47/2010", "AB.CDEFG");
+		printSimilarity("The quick fox jumped", "The fox jumped");
+		printSimilarity("The quick fox jumped", "The fox");
+		printSimilarity("kitten", "sitting");
+	}
+
+	private static void testCompareChain() {
+		List<ComparableBean> list = Arrays.asList(new ComparableBean(2, "name"), new ComparableBean(0, "name"), new ComparableBean(0, "name"));
+		Collections.sort(list);
+		System.out.println(list);
+	}
+
+	private void methodToSynchronize() {
+
+	}
+
+	private static void testSingleThread() {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executor.submit(getRunnable());
+		executor.submit(getRunnable());
+		executor.submit(getRunnable());
+		System.out.println("testSingleThread!");
+		executor.shutdown();
+	}
+
+	private static Runnable getRunnable() {
+		return () -> {
+			try {
+				System.out.println("Started!");
+				Thread.sleep(4000);
+				System.out.println("Working!");
+				Thread.sleep(4000);
+				System.out.println("Finished!");
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				e.printStackTrace();
+
+			}
+		};
+	}
+
+	public static int makeChange(int n, int denom) {
+		int next_denom = 0;
+		switch (denom) {
+			case 25:
+				next_denom = 10;
 				break;
-			}
+			case 10:
+				next_denom = 5;
+				break;
+			case 5:
+				next_denom = 1;
+				break;
+			case 1:
+				return 1;
 		}
-		return level;
+		int ways = 0;
+		for (int i = 0; i * denom <= n; i++) {
+			ways += makeChange(n - i * denom, next_denom);
+		}
+		return ways;
 	}
 
-	private static void swap(int a, int b) {
-		a = a ^ b;
-		b = a ^ b;
-		a = a ^ b;
-		System.out.println("a=" + a + " b=" + b + "!");
+	public static void printPar(int l, int r, char[] str, int count) {
+		if (l < 0 || r < l) {
+			return; // invalid state
+		}
+		if (l == 0 && r == 0) {
+			System.out.println(str); // found one, so print it
+		} else {
+			if (l > 0) { // try a left paren, if there are some available
+				str[count] = '(';
+				printPar(l - 1, r, str, count + 1);
+			}
+			if (r > l) { // try a right paren, if there’s a matching left
+				str[count] = ')';
+				printPar(l, r - 1, str, count + 1);
+			}
+		}
+	}
+
+	public static void printPar(int count) {
+		char[] str = new char[count * 2];
+		printPar(count, count, str, 0);
 	}
 
 	private static void handleBooks() {
