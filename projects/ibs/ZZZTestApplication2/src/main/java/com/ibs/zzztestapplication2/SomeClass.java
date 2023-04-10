@@ -1,9 +1,12 @@
 package com.ibs.zzztestapplication2;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.ibs.bean.ComparableBean;
+import static com.ibs.utils.StringSimilarity.printSimilarity;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,15 +16,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SomeClass {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 //		System.out.println(nh(12345678.22d));
 //		System.out.println(nh(18.22d));
 //		System.out.println(nh(8.22d));
@@ -49,7 +59,115 @@ public class SomeClass {
 //		testSingleThread();
 //		testCompareChain();
 		// Wed, 29 Mar 2023 14:54:33 GMT
-		System.out.println(new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z").format(new Date()));
+//		System.out.println(new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z").format(new Date()));
+//		testSimilarity();
+//		testCache();
+//		System.out.println(LocalDate.of(2022, 12, 12).toString());
+		completableFutureTest();
+	}
+
+	private static void completableFutureTest() throws Exception {
+		CompletableFuture<String> supplyAsync = CompletableFuture.<String>supplyAsync(() -> {
+			System.out.println("1");
+			waitSomeTime(4);
+			if (false) {
+				throw new RuntimeException();
+			}
+			return "Hello ";
+		}).handleAsync((s, ex) -> {
+			if (s != null) {
+				return s + "! Hello again! ";
+			} else {
+				return "Exception occured! ";
+			}
+		});
+		CompletableFuture<String> supplyAsync2 = CompletableFuture.<String>supplyAsync(() -> {
+			System.out.println("2");
+			waitSomeTime(10);
+			return "World";
+		});
+		CompletableFuture<String> supplyAsync3 = CompletableFuture.<String>supplyAsync(() -> {
+			System.out.println("3");
+			waitSomeTime(20);
+			return "!!!";
+		});
+		CompletableFuture<String> future = supplyAsync.thenCombineAsync(supplyAsync2, (s1, s2) -> s1 + s2).thenCombine(supplyAsync3, (s1, s2) -> s1 + s2);
+//		CompletableFuture<String> future = supplyAsync.thenComposeAsync(k -> supplyAsync2).thenApplyAsync(s -> k + s).thenCombine(supplyAsync3, (s1, s2) -> s1 + s2);
+//		String str = future.getNow("No result!");
+		String str = future.get();
+//		String str = Stream.of(supplyAsync, supplyAsync2, supplyAsync3).map(CompletableFuture::join).collect(Collectors.joining());
+		System.out.println(str);
+		ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 4, 4, TimeUnit.MINUTES, new ArrayBlockingQueue<Runnable>(Integer.MAX_VALUE));
+		ForkJoinPool forkJoinPool = new ForkJoinPool();
+		forkJoinPool.invoke(null);
+	}
+
+	private static void waitSomeTime(int seconds) {
+		try {
+			Thread.sleep(seconds * 1000);
+		} catch (InterruptedException ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	private static void testCache() {
+		final int TIME_TO_LIVE = 1;
+		final com.github.benmanes.caffeine.cache.Cache<String, Integer> cache = Caffeine.<String, Map<String, String>>newBuilder().expireAfterWrite(TIME_TO_LIVE, TimeUnit.HOURS).build();
+		createThread(getSomeRunnableForCacheTest(cache), "thread1");
+		createThread(getSomeRunnableForCacheTest(cache), "thread2");
+		createThread(getSomeRunnableForCacheTest(cache), "thread3");
+		createThread(getSomeRunnableForCacheTest(cache), "thread4");
+	}
+
+	private static Thread createThread(Runnable runnable, String name) {
+		Thread thread = new Thread(runnable);
+		thread.setName(name);
+		thread.start();
+		return thread;
+	}
+
+	private static Runnable getSomeRunnableForCacheTest(com.github.benmanes.caffeine.cache.Cache<String, Integer> cache) {
+		return () -> {
+			computeSomethingInTheCache(cache, "test");
+			computeSomethingInTheCache(cache, "test2");
+			computeSomethingInTheCache(cache, "test3");
+			computeSomethingInTheCache(cache, "test4");
+		};
+	}
+
+	private static void computeSomethingInTheCache(com.github.benmanes.caffeine.cache.Cache<String, Integer> cache, String key) {
+		Integer value = cache.asMap().computeIfAbsent(key, s -> {
+			try {
+				System.out.println(getCurrentTime() + " " + Thread.currentThread().getName() + ": Waiting...");
+				Thread.sleep(10000);
+			} catch (InterruptedException ex) {
+				Logger.getLogger(SomeClass.class.getName()).log(Level.SEVERE, null, ex);
+			}
+			System.out.println(getCurrentTime() + " " + Thread.currentThread().getName() + ": Computing...");
+			return Double.valueOf(Math.random() * 100).intValue();
+		});
+		System.out.println(getCurrentTime() + " " + Thread.currentThread().getName() + ": value: " + value + "!");
+	}
+
+	private static String getCurrentTime() {
+		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date());
+	}
+
+	public static void testSimilarity() {
+		printSimilarity("", "");
+		printSimilarity("1234567890", "1");
+		printSimilarity("1234567890", "123");
+		printSimilarity("1234567890", "1234567");
+		printSimilarity("1234567890", "1234567890");
+		printSimilarity("1234567890", "1234567980");
+		printSimilarity("47/2010", "472010");
+		printSimilarity("47/2010", "472011");
+		printSimilarity("47/2010", "AB.CDEF");
+		printSimilarity("47/2010", "4B.CDEFG");
+		printSimilarity("47/2010", "AB.CDEFG");
+		printSimilarity("The quick fox jumped", "The fox jumped");
+		printSimilarity("The quick fox jumped", "The fox");
+		printSimilarity("kitten", "sitting");
 	}
 
 	private static void testCompareChain() {
