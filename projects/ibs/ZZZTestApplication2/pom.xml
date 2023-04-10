@@ -17,16 +17,6 @@
             <version>2.8.0</version>
         </dependency>
     </dependencies>
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.ibs</groupId>
-	<artifactId>ZZZTestApplication2</artifactId>
-	<version>0.1</version>
-	<packaging>jar</packaging>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
-	</properties>
 	<build>
 		<plugins>
 			<plugin>
