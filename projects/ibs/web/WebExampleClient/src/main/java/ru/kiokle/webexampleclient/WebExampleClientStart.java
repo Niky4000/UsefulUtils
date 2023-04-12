@@ -18,8 +18,18 @@ public class WebExampleClientStart {
 	public static void main(String[] args) throws Exception {
 		String startResult = new WebExampleClientStart().sendPost("http://localhost:8080/api/test-controller/test?str=Hello%20" + new SimpleDateFormat("yyyy-MM-dd%20HH:mm:ss:SSS").format(new Date()) + "!", RequestMethod.GET, getAuthMap(), null);
 		System.out.println(startResult);
+//		String startResult = new WebExampleClientStart().sendPost("http://localhost:8080/api/test-controller/test?str=Hello%20" + new SimpleDateFormat("yyyy-MM-dd%20HH:mm:ss:SSS").format(new Date()) + "!", RequestMethod.GET, getAuthMap(), null);
+//		System.out.println(startResult);
 		String startResult2 = new WebExampleClientStart().sendPost("http://localhost:8080/api/test-controller/test2", RequestMethod.POST, getAuthMap(), "Hello! Hello post method " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date()) + "!");
 		System.out.println(startResult2);
+//		String startResult2 = new WebExampleClientStart().sendPost("http://localhost:8080/api/url-controller/shorten-url", RequestMethod.POST, getAuthMap(), "http://codenco.us/very-long-string-fkfdonsdjkbfkjsdbkdsnbfkdsnbfksdbfdskbdekjblnfd");
+//		System.out.println(startResult2);
+//		String startResult2 = new WebExampleClientStart().sendPost("http://localhost:8080/", RequestMethod.POST, getAuthMap(), "Message");
+//		System.out.println(startResult2);
+//		String startResult2 = new WebExampleClientStart().sendPost("http://localhost:8080/api/url-controller/get-url", RequestMethod.POST, getAuthMap(), "231caeb5-3748-4c9b-9265-81e2453cb623");
+//		System.out.println(startResult2);
+//		String startResult = new WebExampleClientStart().sendPost("http://localhost:8080/?str=TestMessage", RequestMethod.GET, getAuthMap(), null);
+//		System.out.println(startResult);
 	}
 
 	private static LinkedHashMap<String, String> getAuthMap() {
