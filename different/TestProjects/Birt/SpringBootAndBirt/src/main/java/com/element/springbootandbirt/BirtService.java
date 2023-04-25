@@ -19,8 +19,10 @@ public class BirtService {
 	public void run() {
 		System.out.println("Hello!");
 		try {
-			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", "/home/me/eclipse-birt/workspace/test/test.csv"));
-			buildReport("testReport", "xlsx", "/home/me/tmp/reports", "/home/me/eclipse-birt/workspace/test/new_template.rpttemplate", parameters);
+//			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", "/home/me/eclipse-birt/workspace/test/test.csv"));
+//			buildReport("testReport", "xlsx", "/home/me/tmp/reports", "/home/me/eclipse-birt/workspace/test/new_template.rpttemplate", parameters);
+			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", "/home/me/eclipse-birt/workspace/test/some_report.csv"));
+			buildReport("testReport", "xlsx", "/home/me/tmp/reports", "/home/me/eclipse-birt/workspace/test/some_report.rptdesign", parameters);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

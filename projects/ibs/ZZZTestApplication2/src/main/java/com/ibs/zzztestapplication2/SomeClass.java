@@ -2,7 +2,18 @@ package com.ibs.zzztestapplication2;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.ibs.bean.ComparableBean;
+import com.ibs.sortings.MergeSort;
+import com.ibs.sortings.QuickSort;
 import static com.ibs.utils.StringSimilarity.printSimilarity;
+import com.tinkof.CalculateSum;
+import com.tinkof.Combination;
+import com.tinkof.Combination2;
+import com.tinkof.Compression;
+import com.tinkof.Filter;
+import com.tinkof.FiveLetters;
+import com.tinkof.Letters;
+import com.tinkof.Pangram;
+import com.tinkof.RecursivePrinter;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -26,6 +37,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class SomeClass {
@@ -62,7 +74,70 @@ public class SomeClass {
 //		testSimilarity();
 //		testCache();
 //		System.out.println(LocalDate.of(2022, 12, 12).toString());
-		completableFutureTest();
+//		completableFutureTest();
+//		int[] arr = new int[]{3, 2, 1, 4};
+//		QuickSort.quickSort(arr, 0, arr.length - 1);
+//System.out.println(IntStream.of(arr).mapToObj(i -> Integer.valueOf(i)).collect(Collectors.toList()));		
+//		int[] arr = new int[]{1, 5, 8, 10, 12};
+//		int[] arr2 = new int[]{2, 3};
+//		int[] merge = MergeSort.merge(arr, arr2);
+//		System.out.println(IntStream.of(merge).mapToObj(i -> Integer.valueOf(i)).collect(Collectors.toList()));
+//		CalculateSum.calk();
+//		Pangram.testPangram();
+//		Letters.test();
+//		Combination.test();
+//		List<int[]> generate = Combination2.generate(5, 2);
+//		for (int[] r : generate) {
+//			System.out.println(r[0] + " " + r[1]);
+//		}
+//		RecursivePrinter.test();
+//		Compression.test();
+//		Filter.test();
+//		FiveLetters.test();
+//		renameFiles(new File("/home/me/Обучающие видео/JAVA – получи Чёрный Пояс!/"));
+		getToken("\"{\"token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzZXNzaW9uLWlkIjoiYXN5bmMuc2VydmljZUBydGstZWxlbWVudC5ydSJ9.6N6eAoQjDgyOL8rjIH3hARFFwl3CZ9H7DEb9QfmPfcA\"}\"");
+	}
+
+	private static final String TOKEN_HEAD = "{\"token\":\"";
+
+	private static String getToken(String sendPost) {
+		int indexOf = sendPost.indexOf(TOKEN_HEAD) + TOKEN_HEAD.length();
+		int lastIndexOf = sendPost.indexOf("\"}");
+		String token = sendPost.substring(indexOf, lastIndexOf);
+		return token;
+	}
+
+	private static void testIterable() {
+//		class TestList<T> implements Iterable<T> {
+//
+//			@Override
+//			public Iterator iterator() {
+//				throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//			}
+//		}
+//		TestList<Object> list = new TestList<>();
+//		for (Object : list) {
+//
+//		}
+	}
+
+	private static void renameFiles(File dir) {
+		String badPart = "[MEGASLIV.BIZ] ";
+		for (File file : dir.listFiles()) {
+			if (file.isDirectory()) {
+				renameFiles(file);
+			}
+			rename(file, badPart);
+		}
+	}
+
+	private static void rename(File file, String badPart) {
+		File parentDir = file.getParentFile();
+		String fileName = file.getName();
+		if (fileName.contains(badPart)) {
+			File newFile = new File(parentDir.getAbsolutePath() + File.separator + fileName.replace(badPart, ""));
+			file.renameTo(newFile);
+		}
 	}
 
 	private static void completableFutureTest() throws Exception {
