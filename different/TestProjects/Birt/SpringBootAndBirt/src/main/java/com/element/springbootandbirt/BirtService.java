@@ -21,7 +21,11 @@ public class BirtService {
 		try {
 //			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", "/home/me/eclipse-birt/workspace/test/test.csv"));
 //			buildReport("testReport", "xlsx", "/home/me/tmp/reports", "/home/me/eclipse-birt/workspace/test/new_template.rpttemplate", parameters);
-			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", "/home/me/eclipse-birt/workspace/test/some_report.csv"));
+			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", "/home/me/eclipse-birt/workspace/test/some_report.csv"), new ReportParameter("tableHeadText", "<b>Статистика по методам МПИ</b><br>\n"
+					+ "Дата формирования отчёта: 01.04.2023 00:00:00<br>\n"
+					+ "На дату: 01.04.2023<br>\n"
+					+ "Тип организации: ТФОМС<br>\n"
+					+ "Организации: Все"));
 			buildReport("testReport", "xlsx", "/home/me/tmp/reports", "/home/me/eclipse-birt/workspace/test/some_report.rptdesign", parameters);
 		} catch (Exception ex) {
 			ex.printStackTrace();
