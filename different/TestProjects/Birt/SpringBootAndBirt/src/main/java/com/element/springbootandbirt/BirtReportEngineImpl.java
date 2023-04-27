@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.birt.core.exception.BirtException;
@@ -70,7 +71,11 @@ public class BirtReportEngineImpl {
         birtEngine = factory.createReportEngine(engineConfig);
     }
 
-    public void buildReport(String reportContent, List<ReportParameter> parameters, String outputFormat, String outpuFile) {
+	public void buildReport(String reportContent, List<ReportParameter> parameters, String outputFormat, String outpuFile) {
+		buildReport(reportContent, parameters, outputFormat, (options) -> options.setOutputFileName(outpuFile));
+	}
+	
+    public void buildReport(String reportContent, List<ReportParameter> parameters, String outputFormat, Consumer<IRenderOption> optionsConsumer) {
         if (birtEngine == null) {
             init();
         }
@@ -87,7 +92,7 @@ public class BirtReportEngineImpl {
                     birtTask.setParameterValue(parameter.getName(), parameter.getValue());
                 }
             }
-            birtTask.setRenderOption(prepareRenderOptions(outputFormat, outpuFile));
+            birtTask.setRenderOption(prepareRenderOptions(outputFormat, optionsConsumer));
             birtTask.run();
         } catch (Exception engEx) {
             log.error(ENGINE_EXCEPTION_MSG_TEXT, engEx);
@@ -124,26 +129,27 @@ public class BirtReportEngineImpl {
         return design;
     }
 
-    private IRenderOption prepareRenderOptions(String outputFormat, String outputFile) throws IllegalArgumentException {
-        IRenderOption options = null;
-        if ("HTML".equalsIgnoreCase(outputFormat)) {
-            options = prepareHTMLRenderOptions();
-        } else if ("PDF".equalsIgnoreCase(outputFormat)) {
-            options = preparePDFRenderOptions();
-        } else if ("XLS".equalsIgnoreCase(outputFormat)) {
-            options = prepareXLSRenderOptions();
-        } else if ("DOC".equalsIgnoreCase(outputFormat)) {
-            options = prepareDOCRenderOptions();
-        } else if ("XLSX".equalsIgnoreCase(outputFormat)) {
-            options = prepareXLSXRenderOptions();
-        } else if ("XML".equalsIgnoreCase(outputFormat)) {
-            options = prepareXMLRenderOptions();
-        } else {
-            throw new IllegalArgumentException("Not supported output format:" + outputFormat);
-        }
-        options.setOutputFileName(outputFile);
-        return options;
-    }
+	private IRenderOption prepareRenderOptions(String outputFormat, Consumer<IRenderOption> optionsConsumer) throws IllegalArgumentException {
+		IRenderOption options = null;
+		if ("HTML".equalsIgnoreCase(outputFormat)) {
+			options = prepareHTMLRenderOptions();
+		} else if ("PDF".equalsIgnoreCase(outputFormat)) {
+			options = preparePDFRenderOptions();
+		} else if ("XLS".equalsIgnoreCase(outputFormat)) {
+			options = prepareXLSRenderOptions();
+		} else if ("DOC".equalsIgnoreCase(outputFormat)) {
+			options = prepareDOCRenderOptions();
+		} else if ("XLSX".equalsIgnoreCase(outputFormat)) {
+			options = prepareXLSXRenderOptions();
+		} else if ("XML".equalsIgnoreCase(outputFormat)) {
+			options = prepareXMLRenderOptions();
+		} else {
+			throw new IllegalArgumentException("Not supported output format:" + outputFormat);
+		}
+		optionsConsumer.accept(options);
+//        options.setOutputFileName(outputFile);
+		return options;
+	}
 
     private IRenderOption prepareHTMLRenderOptions() {
         HTMLRenderOption options = new HTMLRenderOption();
