@@ -38,40 +38,36 @@ import org.springframework.stereotype.Service;
 public class BirtService {
 
 	public void run(String[] args) {
-//		java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=21044 -jar /home/me/GIT/UsefulUtils/different/TestProjects/Birt/SpringBootAndBirt/target/SpringBootAndBirt-0.1.jar -reportFile /home/me/VMWareShared/reports/test.xlsx -data /home/me/eclipse-birt/workspace/test/some_report.csv /home/me/eclipse-birt/workspace/test/some_report2.csv /home/me/eclipse-birt/workspace/test/some_report3.csv -names ТФОМС СМО МО
+//		java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=21044 -jar /home/me/GIT/UsefulUtils/different/TestProjects/Birt/SpringBootAndBirt/target/SpringBootAndBirt-0.1.jar -reportFile /home/me/VMWareShared/reports/test.xlsx -reportDesign /home/me/eclipse-birt/workspace/test/some_report.rptdesign -data /home/me/eclipse-birt/workspace/test/some_report.csv /home/me/eclipse-birt/workspace/test/some_report2.csv /home/me/eclipse-birt/workspace/test/some_report3.csv -names ТФОМС СМО МО
 		System.out.println("Hello!");
 		List<String> argList = Arrays.asList(args);
 		if (!argList.isEmpty()) {
 			try {
 				String reportFileStr = getParameter("-reportFile", argList);
+				String reportDesignStr = getParameter("-reportDesign", argList);
 				List<String> dataList = getParameterList("-data", argList);
 				List<String> nameList = getParameterList("-names", argList);
 				if (dataList.size() != nameList.size()) {
 					System.out.println("-data must be equal to -names!");
 					System.exit(0);
 				}
-//			File reportFile = new File("/home/me/VMWareShared/reports/test.xlsx");
 				File reportFile = new File(reportFileStr);
 				if (reportFile.exists()) {
 					reportFile.delete();
 				}
-				ByteArrayInputStream[] byteArrayInputStreamArray = dataList.stream().map(this::createReportAndPutItToTheInputStream).toArray(ByteArrayInputStream[]::new);
+				ByteArrayInputStream[] byteArrayInputStreamArray = dataList.stream().map(reportData -> createReportAndPutItToTheInputStream(reportData, reportDesignStr)).toArray(ByteArrayInputStream[]::new);
 				List<AbstractMap.SimpleEntry<String, InputStream>> list = new ArrayList<>(nameList.size());
 				for (int i = 0; i < nameList.size(); i++) {
 					list.add(new AbstractMap.SimpleEntry<String, InputStream>(nameList.get(i), byteArrayInputStreamArray[i]));
 				}
 				AbstractMap.SimpleEntry[] array = list.toArray(AbstractMap.SimpleEntry[]::new);
-//				ByteArrayInputStream byteArrayInputStream = createReportAndPutItToTheInputStream("/home/me/eclipse-birt/workspace/test/some_report.csv");
-//				ByteArrayInputStream byteArrayInputStream2 = createReportAndPutItToTheInputStream("/home/me/eclipse-birt/workspace/test/some_report2.csv");
-//				ByteArrayInputStream byteArrayInputStream3 = createReportAndPutItToTheInputStream("/home/me/eclipse-birt/workspace/test/some_report3.csv");
-//				readAndCopySheetArray(reportFile.getAbsolutePath(), new AbstractMap.SimpleEntry<String, InputStream>("ТФОМС", byteArrayInputStream), new AbstractMap.SimpleEntry<String, InputStream>("СМО", byteArrayInputStream2), new AbstractMap.SimpleEntry<String, InputStream>("МО", byteArrayInputStream3));
 				readAndCopySheetArray(reportFile.getAbsolutePath(), array);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 		} else {
 			System.out.println("Usage:");
-			System.out.println("-reportFile [path] -data [path1] [path2]... -names [name1] [name2]...");
+			System.out.println("-reportFile [path] -reportDesign [path] -data [path1] [path2]... -names [name1] [name2]...");
 		}
 		System.exit(0);
 	}
@@ -96,7 +92,7 @@ public class BirtService {
 		}
 	}
 
-	private ByteArrayInputStream createReportAndPutItToTheInputStream(String reportDataPath) {
+	private ByteArrayInputStream createReportAndPutItToTheInputStream(String reportDataPath, String reportDesign) {
 		try {
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", reportDataPath),
@@ -105,7 +101,7 @@ public class BirtService {
 					new ReportParameter("tableHeadText2", "На дату: 01.04.2023"),
 					new ReportParameter("tableHeadText3", "Тип организации: ТФОМС"),
 					new ReportParameter("tableHeadText4", "Организации: Все"));
-			buildReport("testReport", "xlsx", "/home/me/tmp/reports", "/home/me/eclipse-birt/workspace/test/some_report.rptdesign", parameters, (options) -> options.setOutputStream(byteArrayOutputStream));
+			buildReport("xlsx", reportDesign, parameters, (options) -> options.setOutputStream(byteArrayOutputStream));
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 			return byteArrayInputStream;
 		} catch (Exception ex) {
@@ -282,6 +278,13 @@ public class BirtService {
 		cellStyle.setBorderColor(BorderSide.LEFT, otherCellStyle.getBorderColor(XSSFCellBorder.BorderSide.LEFT));
 		cellStyle.setBorderColor(BorderSide.RIGHT, otherCellStyle.getBorderColor(XSSFCellBorder.BorderSide.RIGHT));
 		myCell.setCellStyle(cellStyle);
+	}
+
+	public void buildReport(String fileExtension, String reportDesign, List<ReportParameter> parameters, Consumer<IRenderOption> optionsConsumer) throws IllegalArgumentException, IllegalStateException, FileNotFoundException {
+		BirtReportEngineImpl birtReportEngineImpl = new BirtReportEngineImpl();
+		birtReportEngineImpl.prepareEngine(new EngineContext());
+		String reportContent = readFile(new FileInputStream(new File(reportDesign)));
+		birtReportEngineImpl.buildReport(reportContent, parameters, fileExtension.toUpperCase(), optionsConsumer);
 	}
 
 	public File buildReport(String fileName, String fileExtension, String tmpFolderPath, String reportDesign, List<ReportParameter> parameters, Consumer<IRenderOption> optionsConsumer) throws IllegalArgumentException, IllegalStateException, FileNotFoundException {
