@@ -15,14 +15,16 @@ public class StartSpringBootAndBirt {
 
 	@Autowired
 	BirtService birtService;
+	private static volatile String[] arguments;
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void doSomethingAfterStartup() {
 		System.out.println("Hello world, I have just started up!");
-		birtService.run();
+		birtService.run(arguments);
 	}
 
 	public static void main(String[] args) {
+		arguments = args;
 		SpringApplication.run(StartSpringBootAndBirt.class, args);
 	}
 }

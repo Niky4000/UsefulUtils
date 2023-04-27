@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -32,88 +31,50 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.extensions.XSSFCellBorder;
 import org.apache.poi.xssf.usermodel.extensions.XSSFCellBorder.BorderSide;
 import org.eclipse.birt.report.engine.api.IRenderOption;
-import org.springframework.stereotype.Service;
 
-@Service
 public class BirtService {
 
-	public void run(String[] args) {
-//		java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=21044 -jar /home/me/GIT/UsefulUtils/different/TestProjects/Birt/SpringBootAndBirt/target/SpringBootAndBirt-0.1.jar -reportFile /home/me/VMWareShared/reports/test.xlsx -data /home/me/eclipse-birt/workspace/test/some_report.csv /home/me/eclipse-birt/workspace/test/some_report2.csv /home/me/eclipse-birt/workspace/test/some_report3.csv -names ТФОМС СМО МО
+	public void run() {
 		System.out.println("Hello!");
-		List<String> argList = Arrays.asList(args);
-		if (!argList.isEmpty()) {
-			try {
-				String reportFileStr = getParameter("-reportFile", argList);
-				List<String> dataList = getParameterList("-data", argList);
-				List<String> nameList = getParameterList("-names", argList);
-				if (dataList.size() != nameList.size()) {
-					System.out.println("-data must be equal to -names!");
-					System.exit(0);
-				}
-//			File reportFile = new File("/home/me/VMWareShared/reports/test.xlsx");
-				File reportFile = new File(reportFileStr);
-				if (reportFile.exists()) {
-					reportFile.delete();
-				}
-				ByteArrayInputStream[] byteArrayInputStreamArray = dataList.stream().map(this::createReportAndPutItToTheInputStream).toArray(ByteArrayInputStream[]::new);
-				List<AbstractMap.SimpleEntry<String, InputStream>> list = new ArrayList<>(nameList.size());
-				for (int i = 0; i < nameList.size(); i++) {
-					list.add(new AbstractMap.SimpleEntry<String, InputStream>(nameList.get(i), byteArrayInputStreamArray[i]));
-				}
-				AbstractMap.SimpleEntry[] array = list.toArray(AbstractMap.SimpleEntry[]::new);
-//				ByteArrayInputStream byteArrayInputStream = createReportAndPutItToTheInputStream("/home/me/eclipse-birt/workspace/test/some_report.csv");
-//				ByteArrayInputStream byteArrayInputStream2 = createReportAndPutItToTheInputStream("/home/me/eclipse-birt/workspace/test/some_report2.csv");
-//				ByteArrayInputStream byteArrayInputStream3 = createReportAndPutItToTheInputStream("/home/me/eclipse-birt/workspace/test/some_report3.csv");
-//				readAndCopySheetArray(reportFile.getAbsolutePath(), new AbstractMap.SimpleEntry<String, InputStream>("ТФОМС", byteArrayInputStream), new AbstractMap.SimpleEntry<String, InputStream>("СМО", byteArrayInputStream2), new AbstractMap.SimpleEntry<String, InputStream>("МО", byteArrayInputStream3));
-				readAndCopySheetArray(reportFile.getAbsolutePath(), array);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		} else {
-			System.out.println("Usage:");
-			System.out.println("-reportFile [path] -data [path1] [path2]... -names [name1] [name2]...");
+		try {
+			//			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", "/home/me/eclipse-birt/workspace/test/test.csv"));
+//			buildReport("testReport", "xlsx", "/home/me/tmp/reports", "/home/me/eclipse-birt/workspace/test/new_template.rpttemplate", parameters);            
+			ByteArrayInputStream byteArrayInputStream = createReportAndPutItToTheInputStream("/home/me/eclipse-birt/workspace/test/some_report.csv");
+			ByteArrayInputStream byteArrayInputStream2 = createReportAndPutItToTheInputStream("/home/me/eclipse-birt/workspace/test/some_report2.csv");
+			ByteArrayInputStream byteArrayInputStream3 = createReportAndPutItToTheInputStream("/home/me/eclipse-birt/workspace/test/some_report3.csv");
+//            readAndCopySheet("/home/me/Downloads/templates/template.xlsx", "/home/me/tmp/reports/test.xlsx");
+//            readAndCopySheet("/home/me/tmp/reports/test.xlsx", new FileInputStream("/home/me/tmp/reports/testReport.xlsx"));
+//			readAndCopySheetArray("/home/me/tmp/reports/test.xlsx", new AbstractMap.SimpleEntry<String, InputStream>("ТФОМС", byteArrayInputStream), new AbstractMap.SimpleEntry<String, InputStream>("СМО", byteArrayInputStream2), new AbstractMap.SimpleEntry<String, InputStream>("МО", byteArrayInputStream3));
+			readAndCopySheetArray("/home/me/VMWareShared/reports/test.xlsx", new AbstractMap.SimpleEntry<String, InputStream>("ТФОМС", byteArrayInputStream), new AbstractMap.SimpleEntry<String, InputStream>("СМО", byteArrayInputStream2), new AbstractMap.SimpleEntry<String, InputStream>("МО", byteArrayInputStream3));
+//			readAndCopySheetArray("/home/me/VMWareShared/reports/test.xlsx", new AbstractMap.SimpleEntry<String, InputStream>("ТФОМС", byteArrayInputStream));
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 		System.exit(0);
 	}
 
-	public static String getParameter(String param, List<String> argList) {
-		return argList.contains(param) ? argList.get(argList.indexOf(param) + 1) : null;
+	private ByteArrayInputStream createReportAndPutItToTheInputStream(String reportDataPath) throws FileNotFoundException, IllegalStateException, IllegalArgumentException {
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", reportDataPath), new ReportParameter("tableHeadText", "<b>Статистика по методам МПИ</b><br>"
+//                + "Дата формирования отчёта: 01.04.2023 00:00:00</br>"
+//                + "На дату: 01.04.2023<br>"
+//                + "Тип организации: ТФОМС</br>"
+//                + "Организации: Все"));
+		List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", reportDataPath),
+				new ReportParameter("tableHeadText", "Статистика по методам МПИ"),
+				new ReportParameter("tableHeadText1", "Дата формирования отчёта: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())),
+				new ReportParameter("tableHeadText2", "На дату: 01.04.2023"),
+				new ReportParameter("tableHeadText3", "Тип организации: ТФОМС"),
+				new ReportParameter("tableHeadText4", "Организации: Все"));
+//		List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", reportDataPath), new ReportParameter("tableHeadText", "ZZZZZZZ<br></br>ZZZZZZZ<br></br>ZZZZZZZ"));
+//		List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", reportDataPath), new ReportParameter("tableHeadText", "Статистика по методам МПИ"));
+		buildReport("testReport", "xlsx", "/home/me/tmp/reports", "/home/me/eclipse-birt/workspace/test/some_report.rptdesign", parameters, (options) -> options.setOutputStream(byteArrayOutputStream));
+		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+		return byteArrayInputStream;
 	}
 
-	public static List<String> getParameterList(String param, List<String> argList) {
-		if (argList.contains(param)) {
-			List<String> list = new ArrayList<>();
-			for (int i = argList.indexOf(param) + 1; i < argList.size(); i++) {
-				if (!argList.get(i).startsWith("-")) {
-					list.add(argList.get(i));
-				} else {
-					break;
-				}
-			}
-			return list;
-		} else {
-			return null;
-		}
-	}
-
-	private ByteArrayInputStream createReportAndPutItToTheInputStream(String reportDataPath) {
-		try {
-			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", reportDataPath),
-					new ReportParameter("tableHeadText", "Статистика по методам МПИ"),
-					new ReportParameter("tableHeadText1", "Дата формирования отчёта: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())),
-					new ReportParameter("tableHeadText2", "На дату: 01.04.2023"),
-					new ReportParameter("tableHeadText3", "Тип организации: ТФОМС"),
-					new ReportParameter("tableHeadText4", "Организации: Все"));
-			buildReport("testReport", "xlsx", "/home/me/tmp/reports", "/home/me/eclipse-birt/workspace/test/some_report.rptdesign", parameters, (options) -> options.setOutputStream(byteArrayOutputStream));
-			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-			return byteArrayInputStream;
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	public void readAndCopySheetArray(String outputFileName, Entry<String, InputStream>... inputStream) throws IOException {
+	private void readAndCopySheetArray(String outputFileName, Entry<String, InputStream>... inputStream) throws IOException {
+//        List<BufferedInputStream> streamList = Stream.of(inputStream).map(Entry::getValue).map(BufferedInputStream::new).collect(Collectors.toList());
 		try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFileName, true))) {
 			List<Entry<String, XSSFWorkbook>> workbookList = Stream.of(inputStream).map(entry -> {
 				try {
@@ -122,6 +83,7 @@ public class BirtService {
 					throw new RuntimeException(ex);
 				}
 			}).collect(Collectors.toList());
+//            XSSFWorkbook workbook = new XSSFWorkbook(bis);
 			XSSFWorkbook myWorkBook = new XSSFWorkbook();
 			for (Entry<String, XSSFWorkbook> workbookEntry : workbookList) {
 				String sheetName = workbookEntry.getKey();
@@ -140,12 +102,14 @@ public class BirtService {
 						for (int iRow = fRow; iRow <= lRow; iRow++) {
 							XSSFRow row = sheet.getRow(iRow);
 							XSSFRow myRow = mySheet.createRow(iRow);
+//                        myRow.setHeight((short) -1);
 							if (row != null) {
 								int fCell = row.getFirstCellNum();
 								int lCell = row.getLastCellNum();
 								for (int iCell = fCell; iCell < lCell; iCell++) {
 									XSSFCell cell = row.getCell(iCell);
 									XSSFCell myCell = myRow.createCell(iCell);
+//                                myCell.getRow().setHeight((short) -1);
 									if (HSSFCell.CELL_TYPE_STRING == cell.getCellType() && cell.getStringCellValue().contains("\n")) {
 										int numberOfLines = cell.getStringCellValue().split("\n").length;
 										myRow.setHeightInPoints(numberOfLines * mySheet.getDefaultRowHeightInPoints());
@@ -156,18 +120,23 @@ public class BirtService {
 											case HSSFCell.CELL_TYPE_BLANK:
 												myCell.setCellValue("");
 												break;
+
 											case HSSFCell.CELL_TYPE_BOOLEAN:
 												myCell.setCellValue(cell.getBooleanCellValue());
 												break;
+
 											case HSSFCell.CELL_TYPE_ERROR:
 												myCell.setCellErrorValue(cell.getErrorCellValue());
 												break;
+
 											case HSSFCell.CELL_TYPE_FORMULA:
 												myCell.setCellFormula(cell.getCellFormula());
 												break;
+
 											case HSSFCell.CELL_TYPE_NUMERIC:
 												myCell.setCellValue(cell.getNumericCellValue());
 												break;
+
 											case HSSFCell.CELL_TYPE_STRING:
 												myCell.setCellValue(cell.getStringCellValue());
 												break;
@@ -186,6 +155,7 @@ public class BirtService {
 					}
 				}
 			}
+			//            bis.close();
 			myWorkBook.write(bos);
 			bos.close();
 		} finally {
@@ -199,7 +169,7 @@ public class BirtService {
 		}
 	}
 
-	public void readAndCopySheet(String outputFileName, InputStream inputStream) throws IOException {
+	private void readAndCopySheet(String outputFileName, InputStream inputStream) throws IOException {
 		try (BufferedInputStream bis = new BufferedInputStream(inputStream); //
 				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFileName, true));) {
 			XSSFWorkbook workbook = new XSSFWorkbook(bis);
@@ -218,12 +188,14 @@ public class BirtService {
 					for (int iRow = fRow; iRow <= lRow; iRow++) {
 						XSSFRow row = sheet.getRow(iRow);
 						XSSFRow myRow = mySheet.createRow(iRow);
+//                        myRow.setHeight((short) -1);
 						if (row != null) {
 							int fCell = row.getFirstCellNum();
 							int lCell = row.getLastCellNum();
 							for (int iCell = fCell; iCell < lCell; iCell++) {
 								XSSFCell cell = row.getCell(iCell);
 								XSSFCell myCell = myRow.createCell(iCell);
+//                                myCell.getRow().setHeight((short) -1);
 								if (HSSFCell.CELL_TYPE_STRING == cell.getCellType() && cell.getStringCellValue().contains("\n")) {
 									int numberOfLines = cell.getStringCellValue().split("\n").length;
 									myRow.setHeightInPoints(numberOfLines * mySheet.getDefaultRowHeightInPoints());
@@ -234,18 +206,23 @@ public class BirtService {
 										case HSSFCell.CELL_TYPE_BLANK:
 											myCell.setCellValue("");
 											break;
+
 										case HSSFCell.CELL_TYPE_BOOLEAN:
 											myCell.setCellValue(cell.getBooleanCellValue());
 											break;
+
 										case HSSFCell.CELL_TYPE_ERROR:
 											myCell.setCellErrorValue(cell.getErrorCellValue());
 											break;
+
 										case HSSFCell.CELL_TYPE_FORMULA:
 											myCell.setCellFormula(cell.getCellFormula());
 											break;
+
 										case HSSFCell.CELL_TYPE_NUMERIC:
 											myCell.setCellValue(cell.getNumericCellValue());
 											break;
+
 										case HSSFCell.CELL_TYPE_STRING:
 											myCell.setCellValue(cell.getStringCellValue());
 											break;
@@ -263,7 +240,9 @@ public class BirtService {
 					}
 				}
 			}
+//            bis.close();
 			myWorkBook.write(bos);
+//            bos.close();
 		}
 	}
 
@@ -284,9 +263,10 @@ public class BirtService {
 		myCell.setCellStyle(cellStyle);
 	}
 
-	public File buildReport(String fileName, String fileExtension, String tmpFolderPath, String reportDesign, List<ReportParameter> parameters, Consumer<IRenderOption> optionsConsumer) throws IllegalArgumentException, IllegalStateException, FileNotFoundException {
+	private File buildReport(String fileName, String fileExtension, String tmpFolderPath, String reportDesign, List<ReportParameter> parameters, Consumer<IRenderOption> optionsConsumer) throws IllegalArgumentException, IllegalStateException, FileNotFoundException {
 		BirtReportEngineImpl birtReportEngineImpl = new BirtReportEngineImpl();
 		birtReportEngineImpl.prepareEngine(new EngineContext());
+//		String reportContent = readFile(BirtService.class.getClassLoader().getResourceAsStream(reportDesign));
 		String reportContent = readFile(new FileInputStream(new File(reportDesign)));
 		File file = new File(tmpFolderPath + File.separator + fileName + "." + fileExtension.toLowerCase());
 		birtReportEngineImpl.buildReport(reportContent, parameters, fileExtension.toUpperCase(), optionsConsumer);
