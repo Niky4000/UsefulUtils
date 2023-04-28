@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -101,7 +102,23 @@ public class BirtService {
 					new ReportParameter("tableHeadText2", "На дату: 01.04.2023"),
 					new ReportParameter("tableHeadText3", "Тип организации: ТФОМС"),
 					new ReportParameter("tableHeadText4", "Организации: Все"));
-			buildReport("xlsx", reportDesign, parameters, (options) -> options.setOutputStream(byteArrayOutputStream));
+			buildReport("xlsx", reportDesign, parameters, (options) -> options.setOutputStream(byteArrayOutputStream), null);
+			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+			return byteArrayInputStream;
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	private ByteArrayInputStream createReportAndPutItToTheInputStream2(String reportDataPath, String reportDesign) {
+		try {
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", reportDataPath));
+			buildReport("xlsx", reportDesign, parameters, (options) -> options.setOutputStream(byteArrayOutputStream), str -> str.replace("${tableHeadText}", "Статистика по методам МПИ\n"
+					+ "Дата формирования отчёта: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "\n"
+					+ "На дату: 01.04.2023\n"
+					+ "Тип организации: ТФОМС\n"
+					+ "Организации: Все"));
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 			return byteArrayInputStream;
 		} catch (Exception ex) {
@@ -280,10 +297,15 @@ public class BirtService {
 		myCell.setCellStyle(cellStyle);
 	}
 
-	public void buildReport(String fileExtension, String reportDesign, List<ReportParameter> parameters, Consumer<IRenderOption> optionsConsumer) throws IllegalArgumentException, IllegalStateException, FileNotFoundException {
+	public void buildReport(String fileExtension, String reportDesign, List<ReportParameter> parameters, Consumer<IRenderOption> optionsConsumer, Function<String, String>... replacements) throws IllegalArgumentException, IllegalStateException, FileNotFoundException {
 		BirtReportEngineImpl birtReportEngineImpl = new BirtReportEngineImpl();
 		birtReportEngineImpl.prepareEngine(new EngineContext());
 		String reportContent = readFile(new FileInputStream(new File(reportDesign)));
+		if (replacements != null) {
+			for (Function<String, String> replacement : replacements) {
+				reportContent = replacement.apply(reportContent);
+			}
+		}
 		birtReportEngineImpl.buildReport(reportContent, parameters, fileExtension.toUpperCase(), optionsConsumer);
 	}
 

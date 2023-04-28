@@ -95,7 +95,9 @@ public class SomeClass {
 //		Filter.test();
 //		FiveLetters.test();
 //		renameFiles(new File("/home/me/Обучающие видео/JAVA – получи Чёрный Пояс!/"));
-		getToken("\"{\"token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzZXNzaW9uLWlkIjoiYXN5bmMuc2VydmljZUBydGstZWxlbWVudC5ydSJ9.6N6eAoQjDgyOL8rjIH3hARFFwl3CZ9H7DEb9QfmPfcA\"}\"");
+//		getToken("\"{\"token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzZXNzaW9uLWlkIjoiYXN5bmMuc2VydmljZUBydGstZWxlbWVudC5ydSJ9.6N6eAoQjDgyOL8rjIH3hARFFwl3CZ9H7DEb9QfmPfcA\"}\"");
+		ConfigsHandler.handleAsyncConfigs();
+//		ConfigsHandler.handleReportConfigs();
 	}
 
 	private static final String TOKEN_HEAD = "{\"token\":\"";
