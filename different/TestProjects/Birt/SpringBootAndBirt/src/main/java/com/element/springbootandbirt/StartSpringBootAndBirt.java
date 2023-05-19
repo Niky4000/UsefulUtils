@@ -20,7 +20,7 @@ public class StartSpringBootAndBirt {
 	@EventListener(ApplicationReadyEvent.class)
 	public void doSomethingAfterStartup() {
 		System.out.println("Hello world, I have just started up!");
-		birtService.run(arguments);
+		birtService.run2(arguments);
 	}
 
 	public static void main(String[] args) {

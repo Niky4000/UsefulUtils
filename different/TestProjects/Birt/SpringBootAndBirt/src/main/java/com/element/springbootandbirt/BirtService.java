@@ -12,6 +12,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -37,6 +40,41 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BirtService {
+
+	// -reportFile /home/me/VMWareShared/reports/test.xlsx -reportDesign /home/me/eclipse-birt/workspace/test/some_report2.rptdesign -data /home/me/eclipse-birt/workspace/test/some_report.csv /home/me/eclipse-birt/workspace/test/some_report2.csv /home/me/eclipse-birt/workspace/test/some_report3.csv -names ТФОМС СМО МО
+	public void run2(String[] args) {
+		List<String> argList = Arrays.asList(args);
+		try {
+			String reportDesignStr = getParameter("-reportDesign", argList);
+			List<String> dataList = getParameterList("-data", argList);
+			String reportFileStr = getParameter("-reportFile", argList);
+			File reportFile = new File(reportFileStr);
+			if (reportFile.exists()) {
+				reportFile.delete();
+			}
+			createReportAndPutItToTheInputStream(dataList.get(0), dataList.get(1), dataList.get(2), reportDesignStr, reportFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void createReportAndPutItToTheInputStream(String reportDataPath, String reportDataPath2, String reportDataPath3, String reportDesign, File reportFile) {
+		try (OutputStream outputStream = new FileOutputStream(reportFile)) {
+			List<ReportParameter> parameters = Arrays.asList(new ReportParameter("reportPath", reportDataPath),
+					new ReportParameter("reportPath2", reportDataPath2),
+					new ReportParameter("reportPath3", reportDataPath3),
+					new ReportParameter("tableHeadText", "Статистика по методам МПИ"),
+					new ReportParameter("tableHeadText1", "Дата формирования отчёта: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())),
+					new ReportParameter("tableHeadText2", "На дату: 01.04.2023"),
+					new ReportParameter("tableHeadText3", "Тип организации: ТФОМС"),
+					new ReportParameter("tableHeadText4", "Организации: Все"));
+			buildReport("xlsx", reportDesign, parameters, (options) -> options.setOutputStream(outputStream), null);
+			System.out.println("Finished!");
+			System.exit(0);
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
 
 	public void run(String[] args) {
 //		java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=21044 -jar /home/me/GIT/UsefulUtils/different/TestProjects/Birt/SpringBootAndBirt/target/SpringBootAndBirt-0.1.jar -reportFile /home/me/VMWareShared/reports/test.xlsx -reportDesign /home/me/eclipse-birt/workspace/test/some_report.rptdesign -data /home/me/eclipse-birt/workspace/test/some_report.csv /home/me/eclipse-birt/workspace/test/some_report2.csv /home/me/eclipse-birt/workspace/test/some_report3.csv -names ТФОМС СМО МО
