@@ -2,27 +2,21 @@ package com.ibs.zzztestapplication2;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.ibs.bean.ComparableBean;
-import com.ibs.sortings.MergeSort;
-import com.ibs.sortings.QuickSort;
 import static com.ibs.utils.StringSimilarity.printSimilarity;
-import com.tinkof.CalculateSum;
-import com.tinkof.Combination;
-import com.tinkof.Combination2;
-import com.tinkof.Compression;
-import com.tinkof.Filter;
-import com.tinkof.FiveLetters;
-import com.tinkof.Letters;
-import com.tinkof.Pangram;
-import com.tinkof.RecursivePrinter;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -37,7 +31,6 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class SomeClass {
@@ -96,8 +89,68 @@ public class SomeClass {
 //		FiveLetters.test();
 //		renameFiles(new File("/home/me/Обучающие видео/JAVA – получи Чёрный Пояс!/"));
 //		getToken("\"{\"token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzZXNzaW9uLWlkIjoiYXN5bmMuc2VydmljZUBydGstZWxlbWVudC5ydSJ9.6N6eAoQjDgyOL8rjIH3hARFFwl3CZ9H7DEb9QfmPfcA\"}\"");
-		ConfigsHandler.handleAsyncConfigs();
+//		ConfigsHandler.handleAsyncConfigs();
 //		ConfigsHandler.handleReportConfigs();
+//		Integer k = 22222;
+//		System.out.println(k == 22222);
+//		testPutIfAbsent();
+//		testMapCompute();
+		testLocalDateToString();
+	}
+
+	private static void testLocalDateToString() {
+		System.out.println(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date()));
+		Instant instant = Instant.now();
+		System.out.println(instant.toString());
+	}
+
+	private static void testMapCompute() {
+		Map<String, List<Integer>> map = new HashMap<>();
+		List list1 = map.compute("he", (key, valueList) -> {
+			List list = valueList != null ? valueList : new ArrayList<>();
+			list.add(0);
+			list.add(2);
+			return list;
+		});
+		List list2 = map.compute("he", (key, valueList) -> {
+			List list = valueList != null ? valueList : new ArrayList<>();
+			list.add(4);
+			list.add(8);
+			return list;
+		});
+		List<Integer> list3 = map.computeIfAbsent("he", key -> {
+			return new ArrayList<>();
+		});
+		List<Integer> list4 = map.computeIfAbsent("te", key -> {
+			List<Integer> list = new ArrayList<>();
+			list.add(8888);
+			return list;
+		});
+		System.out.println(list1 == list2);
+		System.out.println(list1 == list3);
+		System.out.println(list4);
+		System.out.println(map);
+	}
+
+	private static void testPutIfAbsent() {
+		Map<String, List<Integer>> map = new HashMap<>();
+		map.put("te", new ArrayList());
+		List list_ = map.get("te");
+		list_.add(new Object());
+		list_.add(new Object());
+		List list2_ = map.put("te", new ArrayList());
+		System.out.println(list_ == list2_);
+		map.putIfAbsent("he", new ArrayList<>());
+		List<Integer> list = map.get("he");
+		list.add(4);
+		list.add(8);
+		map.putIfAbsent("he", new ArrayList<>());
+		List<Integer> list2 = map.get("he");
+		list.add(2);
+		list.add(0);
+		System.out.println(list == list2);
+		System.out.println(list);
+		System.out.println(map);
 	}
 
 	private static final String TOKEN_HEAD = "{\"token\":\"";
