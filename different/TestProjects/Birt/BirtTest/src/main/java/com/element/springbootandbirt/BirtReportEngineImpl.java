@@ -36,7 +36,7 @@ public class BirtReportEngineImpl {
 
 	private String fontConfigLocation;
 	private final static String BIRT_TEMPLATE_FILE_EXTENSION = ".rptdesign";
-	private final static String ENGINE_EXCEPTION_MSG_TEXT = "Ошибка движка отчетов: ";
+	private final static String ENGINE_EXCEPTION_MSG_TEXT = "Ошибка движка отчётов: ";
 	// Контекст движка
 	private EngineContext context;
 	// Непосредственно движок бирта
@@ -109,11 +109,11 @@ public class BirtReportEngineImpl {
 	}
 
 	/**
-	 * Метод возвращает дизайн отчета. Дизайн берется их кеша, или загружается
+	 * Метод возвращает дизайн отчёта. Дизайн берется их кеша, или загружается
 	 * средствами BIRT, если он отсутствует в кеше
 	 *
-	 * @param reportContent - содержимое отчета
-	 * @return - дизайн отчета {@link IReportRunnable}
+	 * @param reportContent - содержимое отчёта
+	 * @return - дизайн отчёта {@link IReportRunnable}
 	 * @throws EngineException - исключение движка
 	 */
 	private IReportRunnable getReportDesign(String reportContent) throws EngineException, IOException {

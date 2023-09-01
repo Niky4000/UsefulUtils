@@ -4,11 +4,13 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.ibs.bean.ComparableBean;
 import static com.ibs.utils.StringSimilarity.printSimilarity;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,15 +18,21 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -34,6 +42,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SomeClass {
+
+	private static final String COMMA = ",";
 
 	public static void main(String[] args) throws Exception {
 //		System.out.println(nh(12345678.22d));
@@ -68,6 +78,7 @@ public class SomeClass {
 //		testCache();
 //		System.out.println(LocalDate.of(2022, 12, 12).toString());
 //		completableFutureTest();
+		completableFutureTest2();
 //		int[] arr = new int[]{3, 2, 1, 4};
 //		QuickSort.quickSort(arr, 0, arr.length - 1);
 //System.out.println(IntStream.of(arr).mapToObj(i -> Integer.valueOf(i)).collect(Collectors.toList()));		
@@ -95,7 +106,37 @@ public class SomeClass {
 //		System.out.println(k == 22222);
 //		testPutIfAbsent();
 //		testMapCompute();
-		testLocalDateToString();
+//		testLocalDateToString();
+//		Object obj = new Object();
+//		obj.hashCode();
+//		Set<String> allQueryEventTypesSet = Set.of("4,2,3,5,1,4,4".split(COMMA));
+//		System.out.println(allQueryEventTypesSet);
+//		testFunctionalInterface();
+	}
+
+	private static void testCollections() {
+		CopyOnWriteArrayList<String> copyOnWriteArrayList = new CopyOnWriteArrayList<String>();
+		CopyOnWriteArraySet<String> copyOnWriteArraySet = new CopyOnWriteArraySet<String>();
+		ConcurrentSkipListMap<String, String> concurrentSkipListMap = new ConcurrentSkipListMap<String, String>();
+		ConcurrentSkipListSet<String> concurrentSkipListSet = new ConcurrentSkipListSet<String>();
+		TreeSet<String> treeSet = new TreeSet<String>();
+		ArrayDeque<String> arrayDeque = new ArrayDeque<String>();
+		ConcurrentLinkedQueue<String> concurrentLinkedQueue = new ConcurrentLinkedQueue<String>();
+		ConcurrentLinkedDeque concurrentLinkedDeque = new ConcurrentLinkedDeque();
+		ArrayBlockingQueue<String> arrayBlockingQueue = new ArrayBlockingQueue<String>(10);
+		LinkedBlockingQueue<String> linkedBlockingQueue = new LinkedBlockingQueue<String>();
+	}
+
+	private static void testFunctionalInterface() throws IOException {
+		ClassFunctionException io = (s1, s2, s3) -> {
+			File file = new File(s1);
+			if (file.exists()) {
+				file.delete();
+			}
+			Files.write(file.toPath(), (s2 + s3).getBytes(), StandardOpenOption.CREATE_NEW);
+			return "";
+		};
+		io.getSomething("/tmp/someFile", "Hello ", "World!!!");
 	}
 
 	private static void testLocalDateToString() {
@@ -220,15 +261,37 @@ public class SomeClass {
 			waitSomeTime(20);
 			return "!!!";
 		});
-		CompletableFuture<String> future = supplyAsync.thenCombineAsync(supplyAsync2, (s1, s2) -> s1 + s2).thenCombine(supplyAsync3, (s1, s2) -> s1 + s2);
-//		CompletableFuture<String> future = supplyAsync.thenComposeAsync(k -> supplyAsync2).thenApplyAsync(s -> k + s).thenCombine(supplyAsync3, (s1, s2) -> s1 + s2);
+//		CompletableFuture<String> future = supplyAsync.thenCombineAsync(supplyAsync2, (s1, s2) -> s1 + s2).thenCombine(supplyAsync3, (s1, s2) -> s1 + s2);
+		CompletableFuture<String> future = supplyAsync.thenComposeAsync(k -> supplyAsync2).thenCombine(supplyAsync3, (s1, s2) -> s1 + s2);
 //		String str = future.getNow("No result!");
 		String str = future.get();
 //		String str = Stream.of(supplyAsync, supplyAsync2, supplyAsync3).map(CompletableFuture::join).collect(Collectors.joining());
 		System.out.println(str);
-		ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 4, 4, TimeUnit.MINUTES, new ArrayBlockingQueue<Runnable>(Integer.MAX_VALUE));
-		ForkJoinPool forkJoinPool = new ForkJoinPool();
-		forkJoinPool.invoke(null);
+//		ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 4, 4, TimeUnit.MINUTES, new ArrayBlockingQueue<Runnable>(Integer.MAX_VALUE));
+//		ForkJoinPool forkJoinPool = new ForkJoinPool();
+//		forkJoinPool.invoke(null);
+	}
+
+	private static void completableFutureTest2() throws Exception {
+		CompletableFuture<String> supplyAsync = CompletableFuture.<String>supplyAsync(() -> {
+			System.out.println("++++");
+			waitSomeTime(8);
+			return "Hello!";
+		});
+//		CompletableFuture<String> supplyAsync2 = CompletableFuture.<String>supplyAsync(() -> {
+//			waitSomeTime(4);
+//			System.out.println("----");
+//			return "World!";
+//		});
+//		CompletableFuture<String> thenCombine = supplyAsync.thenCombine(supplyAsync2, (s1, s2) -> s1 + " " + s2);
+		CompletableFuture<String> thenCompose = supplyAsync.thenCompose(s -> {
+			return CompletableFuture.<String>supplyAsync(() -> {
+				waitSomeTime(4);
+				System.out.println("----");
+				return s + " World!";
+			});
+		});
+		System.out.println(thenCompose.get());
 	}
 
 	private static void waitSomeTime(int seconds) {
