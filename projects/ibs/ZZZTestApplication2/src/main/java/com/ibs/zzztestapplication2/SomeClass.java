@@ -2,6 +2,7 @@ package com.ibs.zzztestapplication2;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.ibs.bean.ComparableBean;
+import com.ibs.bean.SomeTestStaticClass;
 import static com.ibs.utils.StringSimilarity.printSimilarity;
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,7 +80,7 @@ public class SomeClass {
 //		testCache();
 //		System.out.println(LocalDate.of(2022, 12, 12).toString());
 //		completableFutureTest();
-		completableFutureTest2();
+//		completableFutureTest2();
 //		int[] arr = new int[]{3, 2, 1, 4};
 //		QuickSort.quickSort(arr, 0, arr.length - 1);
 //System.out.println(IntStream.of(arr).mapToObj(i -> Integer.valueOf(i)).collect(Collectors.toList()));		
@@ -112,6 +114,23 @@ public class SomeClass {
 //		Set<String> allQueryEventTypesSet = Set.of("4,2,3,5,1,4,4".split(COMMA));
 //		System.out.println(allQueryEventTypesSet);
 //		testFunctionalInterface();
+//		System.out.println(handleName("КИРГИЗИЯ,.: Киргизская Республика"));
+
+	}
+
+	private static void testStaticClasses() {
+		SomeTestStaticClass someTestStaticClass = new SomeTestStaticClass();
+		SomeTestStaticClass.SomeInternalClass2 someInternalClass2 = someTestStaticClass.new SomeInternalClass2();
+		SomeTestStaticClass.SomeInternalClass someInternalClass = new SomeTestStaticClass.SomeInternalClass();
+	}
+
+	private static String handleName(String name) {
+		return Stream.of(name.split(" ")).filter(str -> !isCapitalized(str)).reduce((s1, s2) -> s1 + " " + s2).get();
+	}
+
+	private static boolean isCapitalized(String str) {
+		String replaceAll = Pattern.compile("[^А-Яа-я]").matcher(str).replaceAll("");
+		return Pattern.compile("^[А-Я]+$").matcher(replaceAll).matches();
 	}
 
 	private static void testCollections() {
