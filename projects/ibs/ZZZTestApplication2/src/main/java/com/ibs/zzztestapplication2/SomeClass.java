@@ -6,34 +6,46 @@ import com.ibs.bean.SomeTestStaticClass;
 import static com.ibs.utils.StringSimilarity.printSimilarity;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -104,6 +116,7 @@ public class SomeClass {
 //		getToken("\"{\"token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzZXNzaW9uLWlkIjoiYXN5bmMuc2VydmljZUBydGstZWxlbWVudC5ydSJ9.6N6eAoQjDgyOL8rjIH3hARFFwl3CZ9H7DEb9QfmPfcA\"}\"");
 //		ConfigsHandler.handleAsyncConfigs();
 //		ConfigsHandler.handleReportConfigs();
+		ConfigsHandler.handleMpiServiceConfigs();
 //		Integer k = 22222;
 //		System.out.println(k == 22222);
 //		testPutIfAbsent();
@@ -115,13 +128,133 @@ public class SomeClass {
 //		System.out.println(allQueryEventTypesSet);
 //		testFunctionalInterface();
 //		System.out.println(handleName("КИРГИЗИЯ,.: Киргизская Республика"));
+//		testMapOfMethod();
+//		testCreateLinkedHashMap();
+//		tinkovTest();
+//		testMap();
+//		testSet();
+//		testExecutor();
+	}
 
+	private static void testExecutor() throws InterruptedException, ExecutionException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+		ConcurrentHashMap<String, List<String>> map = new ConcurrentHashMap<>();
+		List<String> putIfAbsent = map.putIfAbsent("1", new ArrayList<>());
+		List<String> putIfAbsent2 = map.putIfAbsent("1", Arrays.asList("1", "2"));
+		List<String> putIfAbsent3 = map.putIfAbsent("1", Arrays.asList("1", "2", "3", "4"));
+		ExecutorService threadPoolExecutor2 = Executors.newWorkStealingPool();
+		ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(0, 18, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<>(2)) {
+			@Override
+			protected void beforeExecute(Thread t, Runnable r) {
+				System.out.println(Thread.currentThread().getName() + " is going to be executed!");
+				super.beforeExecute(t, r);
+			}
+
+			@Override
+			protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
+				return super.newTaskFor(callable); //To change body of generated methods, choose Tools | Templates.
+			}
+
+			@Override
+			protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
+				return super.newTaskFor(runnable, value); //To change body of generated methods, choose Tools | Templates.
+			}
+
+		};
+		int prestartAllCoreThreads = threadPoolExecutor.prestartAllCoreThreads();
+		boolean prestartCoreThread = threadPoolExecutor.prestartCoreThread();
+		threadPoolExecutor.setCorePoolSize(10);
+		int prestartAllCoreThreads2 = threadPoolExecutor.prestartAllCoreThreads();
+		threadPoolExecutor.setCorePoolSize(2);
+		for (int j = 0; j < 2; j++) {
+			for (int i = 0; i < 18; i++) {
+				BlockingQueue<Runnable> queue = threadPoolExecutor.getQueue();
+				Future<String> future = threadPoolExecutor.submit(() -> {
+					try {
+						System.out.println(Thread.currentThread().getName() + " started!");
+						Thread.sleep(20000);
+						System.out.println(Thread.currentThread().getName() + " finished!");
+					} catch (InterruptedException ex) {
+						ex.printStackTrace();
+					}
+					return "Hello!";
+				});
+				Field workQueueField = ThreadPoolExecutor.class.getDeclaredField("workQueue");
+				workQueueField.setAccessible(true);
+				BlockingQueue workQueue = (BlockingQueue) workQueueField.get(threadPoolExecutor);
+				System.out.println("Task was added! queueSize = " + queue.size() + "! workQueueSize = " + workQueue.size() + "!");
+				Thread.sleep(200);
+			}
+			Thread.sleep(40000);
+		}
+//		System.out.println(future.get());
+		Thread.sleep(40000);
+		threadPoolExecutor.shutdown();
+	}
+
+	private static void testMap() {
+		Map<String, String> treeMap = new TreeMap<>();
+		Map<String, String> map0 = new HashMap<>();
+		Map<String, String> map = new HashMap<>(4, 1f);
+		Map<String, String> map2 = new HashMap<>(4);
+		Map<String, String> map3 = new HashMap<>(4, 2f);
+		for (int i = 0; i < 8; i++) {
+			map0.put(i + "", i + "");
+		}
+		System.out.println(map0.toString());
+	}
+
+	private static void testSet() {
+		ArrayDeque<String> arrayDeque = new ArrayDeque<String>();
+		Set<String> set = new HashSet<>(4, 1f);
+		Set<String> set2 = new HashSet<>(4);
+		Set<String> set3 = new HashSet<>(4, 2f);
+		for (int i = 0; i < 8; i++) {
+			set3.add(i + "");
+		}
+		System.out.println(set3.toString());
+	}
+
+	private static void tinkovTest() {
+		Set<Integer> set1 = new HashSet(Arrays.asList(1, 2, 4, 5));
+		Set<Integer> set2 = new HashSet(Arrays.asList(3, 3, 4));
+		Set<Integer> set3 = new HashSet(Arrays.asList(2, 3, 4, 5, 6));
+		set1.retainAll(set2);
+		set1.retainAll(set3);
+		System.out.println(set1);
+	}
+
+	private static void testCreateLinkedHashMap() {
+		Map<String, String> additionanFederalRegions = createLinkedHashMap(new String[]{"9", "10"}, "Байконур", "Федеральный округ №");
+		additionanFederalRegions.entrySet().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
+		Map<String, List<Map.Entry<String, String>>> additionalRussianRegions = createLinkedHashMap(new String[]{"9", "10"}, List.of(new AbstractMap.SimpleEntry<>("55000", "г. Байконур")), List.of(new AbstractMap.SimpleEntry<>("21000", "Донецкая Народная Республика"), new AbstractMap.SimpleEntry<>("43000", "Луганская Народная Республика"), new AbstractMap.SimpleEntry<>("23000", "Запорожская область"), new AbstractMap.SimpleEntry<>("74000", "Херсонская область")));
+		additionalRussianRegions.entrySet().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
+		Map<String, Integer> map = createLinkedHashMap(new String[]{"9", "10"}, 88, 55);
+		Map<String, SomeClass> map2 = createLinkedHashMap(new String[]{"9", "10"}, new SomeClass(), new SomeClass());
+		map.entrySet().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
+	}
+
+	private static <T> Map<String, T> createLinkedHashMap(String[] key, T... value) {
+		if (key.length != value.length) {
+			throw new RuntimeException("createLinkedHashMap: key.length != value.length!");
+		}
+		Map<String, T> map = new LinkedHashMap<>(key.length);
+		for (int i = 0; i < key.length; i++) {
+			map.put(key[i], value[i]);
+		}
+		return map;
+	}
+
+	private static void testMapOfMethod() {
+		Map<String, String> map = Map.of("1", "A", "2", "B", "3", "C", "4", "D", "5", "E", "6", "F", "7", "G", "8", "H", "9", "I", "10", "J");
+		map.values().forEach(System.out::println);
+		System.out.println("----------");
+		map.entrySet().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
 	}
 
 	private static void testStaticClasses() {
 		SomeTestStaticClass someTestStaticClass = new SomeTestStaticClass();
-		SomeTestStaticClass.SomeInternalClass2 someInternalClass2 = someTestStaticClass.new SomeInternalClass2();
-		SomeTestStaticClass.SomeInternalClass someInternalClass = new SomeTestStaticClass.SomeInternalClass();
+//		SomeTestStaticClass.SomeInternalClass2 someInternalClass2 = someTestStaticClass.new SomeInternalClass2();
+//		SomeTestStaticClass.SomeInternalClass someInternalClass = new SomeTestStaticClass.SomeInternalClass();
 	}
 
 	private static String handleName(String name) {
@@ -144,6 +277,7 @@ public class SomeClass {
 		ConcurrentLinkedDeque concurrentLinkedDeque = new ConcurrentLinkedDeque();
 		ArrayBlockingQueue<String> arrayBlockingQueue = new ArrayBlockingQueue<String>(10);
 		LinkedBlockingQueue<String> linkedBlockingQueue = new LinkedBlockingQueue<String>();
+		ConcurrentHashMap<String, String> concurrentHashMap = new ConcurrentHashMap<String, String>();
 	}
 
 	private static void testFunctionalInterface() throws IOException {

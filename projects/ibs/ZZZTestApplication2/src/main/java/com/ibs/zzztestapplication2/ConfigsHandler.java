@@ -22,6 +22,12 @@ public class ConfigsHandler {
 		handleConfigs(configs, properties);
 	}
 
+	public static void handleMpiServiceConfigs() throws IOException {
+		Map<String, String> properties = loadPropertiesAsMap(new String(Files.readAllBytes(new File("/home/me/GIT/ferzl/ferzlConfigs/mpi_service.properties").toPath())));
+		Map<String, String> configs = getConfigsFromYml(new String(Files.readAllBytes(new File("/home/me/GIT/ferzl/mpi-service/src/main/resources/application.yml").toPath())));
+		handleConfigs(configs, properties);
+	}
+
 	private static Map<String, String> loadPropertiesAsMap(String propertiesStr) {
 		String[] split = propertiesStr.split("\n");
 		Map<String, String> configs = new LinkedHashMap<>(split.length);
