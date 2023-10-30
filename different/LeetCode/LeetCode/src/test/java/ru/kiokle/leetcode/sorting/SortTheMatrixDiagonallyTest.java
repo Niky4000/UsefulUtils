@@ -1,5 +1,6 @@
-package ru.kiokle.leetcode;
+package ru.kiokle.leetcode.sorting;
 
+import ru.kiokle.leetcode.sorting.SortTheMatrixDiagonally;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;

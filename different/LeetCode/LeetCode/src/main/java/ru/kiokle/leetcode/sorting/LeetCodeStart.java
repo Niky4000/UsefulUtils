@@ -1,4 +1,4 @@
-package ru.kiokle.leetcode;
+package ru.kiokle.leetcode.sorting;
 
 public class LeetCodeStart {
 

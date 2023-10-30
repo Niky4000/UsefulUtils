@@ -1,9 +1,9 @@
-package ru.kiokle.leetcode;
+package ru.kiokle.leetcode.sorting;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import ru.kiokle.leetcode.bean.TreeNode;
+import ru.kiokle.leetcode.sorting.bean.TreeNode;
 
 public class AllElementsInTwoBinarySearchTrees {
 

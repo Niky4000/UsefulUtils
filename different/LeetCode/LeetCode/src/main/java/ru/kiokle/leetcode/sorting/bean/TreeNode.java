@@ -1,4 +1,4 @@
-package ru.kiokle.leetcode.bean;
+package ru.kiokle.leetcode.sorting.bean;
 
 public class TreeNode {
 

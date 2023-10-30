@@ -1,5 +1,6 @@
-package ru.kiokle.leetcode;
+package ru.kiokle.leetcode.sorting;
 
+import ru.kiokle.leetcode.sorting.SetMismatch;
 import java.util.stream.IntStream;
 import org.junit.Test;
 

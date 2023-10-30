@@ -1,4 +1,4 @@
-package ru.kiokle.leetcode;
+package ru.kiokle.leetcode.sorting;
 
 import java.util.Collections;
 import java.util.List;

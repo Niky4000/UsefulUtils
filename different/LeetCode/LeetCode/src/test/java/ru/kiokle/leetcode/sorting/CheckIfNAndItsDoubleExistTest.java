@@ -1,5 +1,6 @@
-package ru.kiokle.leetcode;
+package ru.kiokle.leetcode.sorting;
 
+import ru.kiokle.leetcode.sorting.CheckIfNAndItsDoubleExist;
 import org.junit.Test;
 
 public class CheckIfNAndItsDoubleExistTest {
