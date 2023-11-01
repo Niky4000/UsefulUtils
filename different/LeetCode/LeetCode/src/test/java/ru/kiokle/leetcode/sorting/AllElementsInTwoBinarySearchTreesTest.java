@@ -1,6 +1,5 @@
 package ru.kiokle.leetcode.sorting;
 
-import ru.kiokle.leetcode.sorting.AllElementsInTwoBinarySearchTrees;
 import java.util.List;
 import org.junit.Test;
 import ru.kiokle.leetcode.sorting.bean.TreeNode;
