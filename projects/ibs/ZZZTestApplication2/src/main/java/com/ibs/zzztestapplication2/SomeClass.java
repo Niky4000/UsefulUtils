@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -156,8 +157,116 @@ public class SomeClass {
 //        Long i = 2000000000000000000L;
 //        Long j = 2000000000000000000L;
 //        System.out.println(i * j);
-        BigInteger bigInteger = new BigInteger("");
-        BigDecimal bigDecimal = new BigDecimal("");
+//        BigInteger bigInteger = new BigInteger("");
+//        BigDecimal bigDecimal = new BigDecimal("");
+//        int n = 3;
+//        String[] arr = new String[n * 2];
+//        createRightParenthese(arr, n, n, 0);
+//        int[] arr = new int[]{7, 4, 3, 5, 8, 2, 1, 6};
+//        insertionSortImperative(arr);
+//        IntStream.of(arr).forEach(i -> System.out.println(i));
+//        System.out.println(getAllPossibleCombinations(new int[]{1, 2, 3, 4, 5}));
+        System.out.println(getAllPossibleCombinations(new int[]{1, 2, 3}));
+        System.out.println(getAllPossibleCombinationsForClosestNeighbours(new int[]{1, 2, 3}));
+    }
+
+    private static final Set<Integer> allowedNeighbourDifference = Set.of(-1, 0, 1);
+
+    private static ArrayList<ArrayList<Integer>> getAllPossibleCombinationsForClosestNeighbours(int[] arr) {
+        ArrayList<ArrayList<Integer>> out = new ArrayList<>();
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(arr[0]);
+        out.add(list);
+        for (int i = 1; i < arr.length; i++) {
+            ArrayList<ArrayList<Integer>> addLater = new ArrayList<>();
+            for (ArrayList<Integer> subList : out) {
+                for (int j = 0; j <= subList.size(); j++) {
+                    if (j < subList.size()) {
+                        Integer left = subList.get(j - 1 < 0 ? j : j - 1);
+                        Integer right = subList.get(j + 1 < subList.size() ? j + 1 : j);
+                        if (allowedNeighbourDifference.contains(arr[i] - left) || allowedNeighbourDifference.contains(arr[i] - right)) {
+                            ArrayList<Integer> clone = (ArrayList<Integer>) subList.clone();
+                            clone.add(j, arr[i]);
+                            addLater.add(clone);
+                        }
+                    } else {
+                        Integer left = subList.get(j - 1 < 0 ? j : j - 1);
+                        if (allowedNeighbourDifference.contains(arr[i] - left)) {
+                            subList.add(arr[i]);
+                            addLater.add(subList);
+                        }
+                        break;
+                    }
+                }
+            }
+            out = addLater;
+        }
+        return out;
+    }
+
+    private static ArrayList<ArrayList<Integer>> getAllPossibleCombinations(int[] arr) {
+        ArrayList<ArrayList<Integer>> out = new ArrayList<>();
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(arr[0]);
+        out.add(list);
+        for (int i = 1; i < arr.length; i++) {
+            ArrayList<ArrayList<Integer>> addLater = new ArrayList<>();
+            for (ArrayList<Integer> subList : out) {
+                for (int j = 0; j <= subList.size(); j++) {
+                    if (j < subList.size()) {
+                        ArrayList<Integer> clone = (ArrayList<Integer>) subList.clone();
+                        clone.add(j, arr[i]);
+                        addLater.add(clone);
+                    } else {
+                        subList.add(arr[i]);
+                        addLater.add(subList);
+                        break;
+                    }
+                }
+            }
+            out = addLater;
+        }
+        return out;
+    }
+
+    public static void insertionSortImperative(int[] input) {
+        for (int i = 1; i < input.length; i++) {
+            int key = input[i];
+            int j = i - 1;
+            while (j >= 0 && input[j] > key) {
+                input[j + 1] = input[j];
+                j = j - 1;
+            }
+            input[j + 1] = key;
+        }
+    }
+
+    private static String arrayToString(int[] arr) {
+        return IntStream.range(0, arr.length).map(i -> arr[i]).mapToObj(i -> i + "").reduce("", (d1, d2) -> d1 + " " + d2);
+    }
+
+    private static final String l = "(";
+    private static final String r = ")";
+
+    private static void createRightParenthese(String[] arr, int left, int right, int index) {
+        // ()()
+        // (())
+        //
+        // ((()))
+        if (left < 0 || right < 0) {
+            return;
+        }
+        if (left == 0 && right == 0) {
+            System.out.println(Stream.of(arr).reduce("", (s1, s2) -> s1 + s2));
+        }
+        if (left > 0) {
+            arr[index] = l;
+            createRightParenthese(arr, left - 1, right, index + 1);
+        }
+        if (right > left) {
+            arr[index] = r;
+            createRightParenthese(arr, left, right - 1, index + 1);
+        }
     }
 
     private static void testPriorityQueue() {
