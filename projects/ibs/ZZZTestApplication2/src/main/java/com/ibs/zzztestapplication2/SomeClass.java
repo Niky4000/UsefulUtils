@@ -2,15 +2,12 @@ package com.ibs.zzztestapplication2;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.ibs.bean.ComparableBean;
+import com.ibs.bean.MyEnum;
 import com.ibs.bean.SomeTestStaticClass;
-import com.ibs.sortings.MergeSort2;
-import com.ibs.sortings.QuickSort2;
 import static com.ibs.utils.StringSimilarity.printSimilarity;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
@@ -22,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -49,7 +48,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -166,8 +164,28 @@ public class SomeClass {
 //        insertionSortImperative(arr);
 //        IntStream.of(arr).forEach(i -> System.out.println(i));
 //        System.out.println(getAllPossibleCombinations(new int[]{1, 2, 3, 4, 5}));
-        System.out.println(getAllPossibleCombinations(new int[]{1, 2, 3}));
-        System.out.println(getAllPossibleCombinationsForClosestNeighbours(new int[]{1, 2, 3}));
+//        System.out.println(getAllPossibleCombinations(new int[]{1, 2, 3}));
+//        System.out.println(getAllPossibleCombinationsForClosestNeighbours(new int[]{1, 2, 3}));
+        queueTest();
+    }
+
+    private static void queueTest() {
+        Deque<Integer> queue = new ArrayDeque<>();
+        queue.add(1);
+        queue.add(2);
+        queue.add(3);
+        queue.add(4);
+        queue.addFirst(200);
+        queue.addLast(400);
+        System.out.println(queue);
+        Integer poll = queue.poll();
+        Integer poll2 = queue.poll();
+        Integer poll3 = queue.poll();
+        Integer poll4 = queue.poll();
+        Integer poll5 = queue.pollLast();
+        System.out.println(queue);
+        MyEnum[] values = MyEnum.values();
+        System.out.println(values);
     }
 
     private static final Set<Integer> allowedNeighbourDifference = Set.of(-1, 0, 1);
