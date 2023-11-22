@@ -123,7 +123,7 @@ public class SomeClass {
 //		getToken("\"{\"token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzZXNzaW9uLWlkIjoiYXN5bmMuc2VydmljZUBydGstZWxlbWVudC5ydSJ9.6N6eAoQjDgyOL8rjIH3hARFFwl3CZ9H7DEb9QfmPfcA\"}\"");
 //		ConfigsHandler.handleAsyncConfigs();
 //		ConfigsHandler.handleReportConfigs();
-        ConfigsHandler.handleMpiServiceConfigs();
+//        ConfigsHandler.handleMpiServiceConfigs();
 //		Integer k = 22222;
 //		System.out.println(k == 22222);
 //		testPutIfAbsent();
