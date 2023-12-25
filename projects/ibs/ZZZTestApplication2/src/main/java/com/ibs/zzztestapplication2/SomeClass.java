@@ -45,9 +45,11 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -55,6 +57,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -166,7 +170,136 @@ public class SomeClass {
 //        System.out.println(getAllPossibleCombinations(new int[]{1, 2, 3, 4, 5}));
 //        System.out.println(getAllPossibleCombinations(new int[]{1, 2, 3}));
 //        System.out.println(getAllPossibleCombinationsForClosestNeighbours(new int[]{1, 2, 3}));
-        queueTest();
+//        queueTest();
+//        threadJoinExceptionTest();
+//        testExecutorServiceShutdownNow();
+//        testExecutorCompletionService();
+//        testFutureCancel();
+        testComputeIfAbsent();
+    }
+
+    private static void testComputeIfAbsent() {
+        Map<String, String> map = new HashMap<>();
+        Function<String, String> function = k -> {
+            System.out.println("Computed " + k + "!");
+            return k + "value";
+        };
+        System.out.println(map.computeIfAbsent("key", function));
+        System.out.println(map.computeIfAbsent("key", function));
+        System.out.println(map.computeIfAbsent("key2", function));
+        System.out.println(map.computeIfAbsent("key2", function));
+    }
+
+    private static void testFutureCancel() throws InterruptedException {
+        ExecutorService executor = Executors.newCachedThreadPool();
+        AtomicInteger threadIndex = new AtomicInteger();
+        Supplier<Callable<String>> callableFactory = () -> () -> {
+            int index = threadIndex.incrementAndGet();
+            try {
+                Thread.sleep(8000);
+            } catch (InterruptedException ex) {
+                System.out.println("Interrupted! " + index);
+            }
+            System.out.println("Thread " + index + " finished " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()) + "!");
+            return "" + index;
+        };
+        Future<String> future = executor.submit(callableFactory.get());
+        executor.shutdown();
+        Thread.sleep(2000);
+        boolean canceled = future.cancel(true);
+        System.out.println("canceled = " + canceled);
+        FutureTask<String> futureTask = new FutureTask<>(callableFactory.get());
+        new Thread(futureTask).start();
+        Thread.sleep(2000);
+        boolean canceled2 = futureTask.cancel(true);
+        System.out.println("canceled = " + canceled2);
+    }
+
+    private static void testExecutorCompletionService() throws InterruptedException, ExecutionException {
+        ExecutorService executor = Executors.newCachedThreadPool();
+        ExecutorCompletionService<String> executorCompletionService = new ExecutorCompletionService<>(executor);
+        AtomicInteger threadIndex = new AtomicInteger();
+        Supplier<Callable<String>> callableFactory = () -> () -> {
+            int index = threadIndex.incrementAndGet();
+            try {
+                Thread.sleep(8000);
+            } catch (InterruptedException ex) {
+                System.out.println("Interrupted! " + index);
+            }
+            System.out.println("Thread " + index + " finished " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()) + "!");
+            return "" + index;
+        };
+        int count = 4;
+        for (int i = 0; i < count; i++) {
+            executorCompletionService.submit(callableFactory.get());
+            Thread.sleep(2000);
+        }
+        executor.shutdown();
+        for (int i = 0; i < count; i++) {
+            Future<String> take = executorCompletionService.take();
+            System.out.println(take.get() + " " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss_SSS").format(new Date()));
+        }
+    }
+
+    private static void testExecutorServiceShutdownNow() throws InterruptedException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        AtomicInteger threadIndex = new AtomicInteger();
+        Supplier<Runnable> runnableFactory = () -> () -> {
+            int index = threadIndex.incrementAndGet();
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                System.out.println("Interrupted first time! " + index);
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                System.out.println("Interrupted second time! " + index);
+            }
+            System.out.println("Thread finished! " + index);
+        };
+        executor.submit(runnableFactory.get());
+//         Thread.sleep(2200);
+        executor.submit(runnableFactory.get());
+//        Thread.sleep(3000);
+//        List<Runnable> shutdownNow = executor.shutdownNow();
+//        for (Runnable r : shutdownNow) {
+//            Thread thread = new Thread(r);
+//            thread.start();
+//            thread.join();
+//        }
+        executor.shutdown();
+        System.out.println("Hello!");
+    }
+
+    private static void threadJoinExceptionTest() throws InterruptedException {
+        Thread thread = new Thread(() -> {
+            try {
+                System.out.println(Thread.currentThread().isInterrupted());
+                System.out.println(Thread.currentThread().isInterrupted());
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                System.out.println(Thread.currentThread().isInterrupted());
+                System.out.println("Interrupted first time!");
+                System.out.println(Thread.interrupted());
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                System.out.println(Thread.currentThread().isInterrupted());
+                System.out.println("Interrupted second time!");
+                System.out.println(Thread.currentThread().isInterrupted());
+            }
+            throw new RuntimeException();
+        });
+        thread.start();
+        Thread.sleep(500);
+        thread.interrupt();
+        try {
+            thread.join();
+        } catch (Exception e) {
+            System.out.println("Join exception occured!");
+        }
     }
 
     private static void queueTest() {

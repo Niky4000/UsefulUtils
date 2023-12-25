@@ -2,6 +2,7 @@ sudo apt install net-tools
 sudo apt install psensor
 sudo apt install gnome-tweaks
 И поставить переключение языка на left win key!
+sudo apt install gedit
 sudo apt install gparted
 sudo apt install grdesktop
 sudo snap install skype --classic
@@ -47,6 +48,12 @@ sudo apt-get install filezilla
 sudo apt-get install ffmpeg
 sudo apt install xsane
 sudo apt install traceroute
+sudo apt install wxhexeditor
+apt-get install steghide
+sudo dpkg -i nomachine_8.3.1_1_amd64.deb
+
+-- Temporary
+sudo dpkg -i dion_4.7.0_amd64.deb (sudo dpkg -r dion)
 
 -- Kernel recovery!
 sudo apt-add-repository -y ppa:cappelikan/ppa
@@ -92,6 +99,7 @@ java -version
 
 
 Configuring Shadowsocks client (https://www.linuxbabe.com/redhat/shadowsocks-libev-proxy-server-centos)
+sudo snap install shadowsocks-libev
 sudo snap install shadowsocks-libev1
 sudo nano /var/snap/shadowsocks-libev/common/client-config.json
 --------------------------------------------------------------------------------
