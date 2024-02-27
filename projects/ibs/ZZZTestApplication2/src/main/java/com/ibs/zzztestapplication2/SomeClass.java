@@ -218,8 +218,8 @@ public class SomeClass {
         int i2 = Integer.MAX_VALUE;
         long l1 = Long.MIN_VALUE;
         long l2 = Long.MAX_VALUE;
-        BigInteger.valueOf(3333L);
-        BigDecimal.valueOf(2222L);
+        BigInteger bigInteger = BigInteger.valueOf(3333L);
+        BigDecimal bigDecimal = BigDecimal.valueOf(2222L);
         System.out.println();
     }
 
