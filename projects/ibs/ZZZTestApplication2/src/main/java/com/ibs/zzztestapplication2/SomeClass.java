@@ -5,14 +5,23 @@ import com.ibs.bean.ComparableBean;
 import com.ibs.bean.MyEnum;
 import com.ibs.bean.SomeTestStaticClass;
 import static com.ibs.utils.StringSimilarity.printSimilarity;
+import com.java.test.questions.JavaTestQuestions;
+import com.java.test.questions.Overload;
+import com.java.test.questions.Test6;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import static java.time.temporal.ChronoUnit.NANOS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -28,6 +37,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
@@ -175,7 +185,62 @@ public class SomeClass {
 //        testExecutorServiceShutdownNow();
 //        testExecutorCompletionService();
 //        testFutureCancel();
-        testComputeIfAbsent();
+//        testComputeIfAbsent();
+//        testLocalDateTime();
+//        List<List<Integer>> partition = partition(IntStream.range(0, 102).mapToObj(i -> i).collect(Collectors.toList()), 100);
+//        List<List<Integer>> partition2 = partition(IntStream.range(0, 1).mapToObj(i -> i).collect(Collectors.toList()), 100);
+//        List<List<Integer>> partition3 = partition(IntStream.range(0, 100).mapToObj(i -> i).collect(Collectors.toList()), 100);
+//        List<List<Integer>> partition4 = partition(IntStream.range(0, 1000).mapToObj(i -> i).collect(Collectors.toList()), 100);
+//        System.out.println(partition);
+//        System.out.println(partition2);
+//        System.out.println(partition3);
+//        System.out.println(partition4);
+//        Optional<List<Integer>> findAny = partition.stream().findAny();
+        testQuestions();
+    }
+
+    public static void testQuestions() {
+        JavaTestQuestions javaTestQuestions = new JavaTestQuestions();
+        javaTestQuestions.test1();
+        javaTestQuestions.test2();
+        Test6.say(1);
+        Test6.say(2);
+        Test6.say(3);
+        Test6.say(4);
+        Overload.call();
+        Overload.call2();
+        int var1 = 777;
+        long var2 = 888L;
+        long k = var1 + var2;
+        short s1 = Short.MIN_VALUE;
+        short s2 = Short.MAX_VALUE;
+        int i1 = Integer.MIN_VALUE;
+        int i2 = Integer.MAX_VALUE;
+        long l1 = Long.MIN_VALUE;
+        long l2 = Long.MAX_VALUE;
+        BigInteger.valueOf(3333L);
+        BigDecimal.valueOf(2222L);
+        System.out.println();
+    }
+
+    public static <T> List<List<T>> partition(List<T> list, int partition) {
+        if (list.isEmpty()) {
+            return new ArrayList<>(1);
+        } else if (list.size() > partition) {
+            List<List<T>> ret = new ArrayList<>(list.size() / partition + 1);
+            for (int i = 0; i < Math.ceil((double) list.size() / (double) partition); i++) {
+                ret.add(list.subList(i * partition, Math.min((i + 1) * partition, list.size())));
+            }
+            return ret;
+        } else {
+            return Arrays.asList(list);
+        }
+    }
+
+    private static void testLocalDateTime() {
+        ArrayList<Object> list = new ArrayList<>(new ArrayList<>());
+        LocalDateTime dt = LocalDate.now().atStartOfDay().plusDays(1L).minus(1L, NANOS);
+        System.out.println(dt.toString());
     }
 
     private static void testComputeIfAbsent() {

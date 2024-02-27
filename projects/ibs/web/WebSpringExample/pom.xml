@@ -36,7 +36,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>ru.kiokle.webembeddedexample.WebEmbeddedExampleStart</mainClass>
+                                    <mainClass>ru.kiokle.webspringexample.WebSpringExampleStart</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>

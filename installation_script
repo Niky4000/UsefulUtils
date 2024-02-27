@@ -32,6 +32,7 @@ sudo apt install vlc
 sudo apt install doublecmd-gtk
 cd ~/Distributives
 sh GitAhead-2.6.3.sh
+sudo apt-get install rabbitvcs-nautilus
 sudo add-apt-repository ppa:unit193/encryption
 sudo apt update
 sudo apt install veracrypt
