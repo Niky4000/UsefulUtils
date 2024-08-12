@@ -1,0 +1,4 @@
+Open "http://127.0.0.1:7657/configclients"
+Uncheck "Run at Startup?"
+Restart I2P
+Manually open your browser of choice

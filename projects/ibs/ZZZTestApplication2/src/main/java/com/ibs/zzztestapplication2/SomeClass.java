@@ -15,31 +15,31 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import static java.time.temporal.ChronoUnit.NANOS;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -135,7 +135,7 @@ public class SomeClass {
 //		FiveLetters.test();
 //		renameFiles(new File("/home/me/Обучающие видео/JAVA – получи Чёрный Пояс!/"));
 //		getToken("\"{\"token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzZXNzaW9uLWlkIjoiYXN5bmMuc2VydmljZUBydGstZWxlbWVudC5ydSJ9.6N6eAoQjDgyOL8rjIH3hARFFwl3CZ9H7DEb9QfmPfcA\"}\"");
-//		ConfigsHandler.handleAsyncConfigs();
+        ConfigsHandler.handleAsyncConfigs();
 //		ConfigsHandler.handleReportConfigs();
 //        ConfigsHandler.handleMpiServiceConfigs();
 //		Integer k = 22222;
@@ -196,7 +196,96 @@ public class SomeClass {
 //        System.out.println(partition3);
 //        System.out.println(partition4);
 //        Optional<List<Integer>> findAny = partition.stream().findAny();
-        testQuestions();
+//        testQuestions();
+//        testArrayOutOfIndexException();
+//        incrementAddress("java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=21044 -jar /home/me/GIT/NetUtils/SimpleHttpServer/target/SimpleHttpServer_5025.jar -port 7662");
+//        System.out.println(modifyUrl("http://192.168.1.88/mystyle.css"));
+//        System.out.println(modifyUrl("http://192.168.1.88:8080/mystyle.css"));
+//        testNullSort();
+//        testInts();
+        testDateFormats();
+    }
+
+    private static void testDateFormats() throws ParseException {
+        Date jud = new SimpleDateFormat("yyyy-MM-dd").parse("2014-02-28");
+        String month = DateFormat.getDateInstance(SimpleDateFormat.LONG, new Locale("ru")).format(jud);
+        System.out.println(month);
+    }
+
+    private static void testInts() {
+        int[] x = {345, 167, 016};
+        for (int i = 0; i < x.length; i++) {
+            System.out.print(x[i] + " ");
+        }
+    }
+
+    private static void testNullSort() {
+
+        class NullableObject {
+
+            private Long id;
+            private String value;
+            private String value2;
+
+            public NullableObject(Long id, String value, String value2) {
+                this.id = id;
+                this.value = value;
+                this.value2 = value2;
+            }
+
+            public Long getId() {
+                return id;
+            }
+
+            public String getValue() {
+                return value;
+            }
+
+            public String getValue2() {
+                return value2;
+            }
+
+            @Override
+            public String toString() {
+                return "NullableObject{" + "id=" + id + ", value=" + value + ", value2=" + value2 + '}';
+            }
+        }
+//        List<NullableObject> list = Arrays.asList(new NullableObject(1L, null, ""), new NullableObject(2L, "1", ""), new NullableObject(3L, null, "2"));
+        List<NullableObject> list = Arrays.asList(new NullableObject(1L, "8", ""), new NullableObject(2L, "1", ""), new NullableObject(3L, "", "2"));
+        Collections.sort(list, Comparator.comparing(NullableObject::getValue).thenComparing(Comparator.comparing(NullableObject::getValue2)).thenComparing(Comparator.comparing(NullableObject::getId)));
+        System.out.println(list);
+    }
+
+    private static String modifyUrl(String url) {
+        url = url.replace("http://", "https://");
+        if (url.replace("https://", "").contains(":")) {
+            int index1 = url.indexOf(":", "https://".length());
+            int index2 = url.indexOf("/", index1);
+            url = url.substring(0, index1) + ":443" + url.substring(index2);
+        } else {
+            int index2 = url.lastIndexOf("/");
+            url = url.substring(0, index2) + ":443" + url.substring(index2);
+        }
+        return url;
+    }
+    private static final String address = "address=";
+
+    private static String incrementAddress(String commandLineArgument) {
+        int addressIndex = commandLineArgument.indexOf(address);
+        int endIndex = commandLineArgument.indexOf(" ", addressIndex + address.length());
+        String portStr = commandLineArgument.substring(addressIndex + address.length(), endIndex);
+        Integer debugPort = Integer.valueOf(portStr);
+        debugPort++;
+        String newCommandLineArgument = commandLineArgument.replace(portStr, debugPort.toString());
+        return newCommandLineArgument;
+    }
+
+    public static void testArrayOutOfIndexException() {
+        File reportDataUri = new File("reportDataUri");
+        Map.Entry<File, String>[] arr = new AbstractMap.SimpleEntry[]{new AbstractMap.SimpleEntry<>(reportDataUri, "Отчёт")};
+        for (Map.Entry<File, String> reportDataPathEntry : arr) {
+            System.out.println(reportDataPathEntry.getKey().toString() + " " + reportDataPathEntry.getValue());
+        }
     }
 
     public static void testQuestions() {

@@ -20,7 +20,8 @@ sudo dpkg -i jdk-11.0.16.1_linux-x64_bin.deb
 sudo dpkg -i smartgit-22_1_1.deb
 sudo apt install libgl1-mesa-glx libegl1-mesa libxcb-xtest0
 sudo dpkg -i zoom_amd64.deb
-sudo apt install dbeaver-ce
+#sudo apt install dbeaver-ce
+sudo snap install dbeaver-ce
 sudo apt install docker
 sudo apt install docker.io
 sudo apt install docker-compose
@@ -36,6 +37,7 @@ sudo apt-get install rabbitvcs-nautilus
 sudo add-apt-repository ppa:unit193/encryption
 sudo apt update
 sudo apt install veracrypt
+sudo apt install file-roller
 sudo apt install p7zip-full p7zip-rar
 cd ~/Distributives
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -52,6 +54,10 @@ sudo apt install traceroute
 sudo apt install wxhexeditor
 apt-get install steghide
 sudo dpkg -i nomachine_8.3.1_1_amd64.deb
+
+-- CPU Temperature
+sudo apt install i7z
+sudo apt-get install hardinfo
 
 -- Temporary
 sudo dpkg -i dion_4.7.0_amd64.deb (sudo dpkg -r dion)
@@ -71,6 +77,9 @@ dpkg -l | grep linux-header
 sudo apt-get purge linux-headers-6.2.0-32-generic
 sudo apt autoremove
 
+-- View heic
+sudo apt install heif-gdk-pixbuf
+eog IMG_1763.HEIC # After this, e.g. Eye of Gnome eog image.heic will display your image.
 
 -- kali
 sudo apt install nmap
