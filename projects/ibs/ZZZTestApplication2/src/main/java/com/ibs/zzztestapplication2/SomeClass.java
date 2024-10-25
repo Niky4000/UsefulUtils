@@ -71,6 +71,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -135,7 +136,7 @@ public class SomeClass {
 //		FiveLetters.test();
 //		renameFiles(new File("/home/me/Обучающие видео/JAVA – получи Чёрный Пояс!/"));
 //		getToken("\"{\"token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzZXNzaW9uLWlkIjoiYXN5bmMuc2VydmljZUBydGstZWxlbWVudC5ydSJ9.6N6eAoQjDgyOL8rjIH3hARFFwl3CZ9H7DEb9QfmPfcA\"}\"");
-        ConfigsHandler.handleAsyncConfigs();
+//        ConfigsHandler.handleAsyncConfigs();
 //		ConfigsHandler.handleReportConfigs();
 //        ConfigsHandler.handleMpiServiceConfigs();
 //		Integer k = 22222;
@@ -203,7 +204,28 @@ public class SomeClass {
 //        System.out.println(modifyUrl("http://192.168.1.88:8080/mystyle.css"));
 //        testNullSort();
 //        testInts();
-        testDateFormats();
+//        testDateFormats();
+//        testDate();
+//        testPattern();
+        testPattern2("10.10.2024");
+        testPattern2("Hello!");
+    }
+
+    private static void testPattern2(String dateStr) {
+        Matcher matcher = Pattern.compile("^\\d\\d.\\d\\d.\\d\\d\\d\\d$").matcher(dateStr);
+        System.out.println("value = " + matcher.matches() + "!");
+    }
+
+    private static void testPattern() {
+        Matcher matcher = Pattern.compile("^(asc)|(desc)$").matcher("desc");
+        System.out.println("value = " + matcher.matches() + "!");
+    }
+
+    private static void testDate() {
+//        Matcher matcher = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T09:08:17.312Z");
+//        Matcher matcher = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T12:08:17+03:00");
+        Matcher matcher = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T09:08:17+03:00");
+        System.out.println("value = " + matcher.matches() + "!");
     }
 
     private static void testDateFormats() throws ParseException {

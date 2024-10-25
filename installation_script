@@ -2,6 +2,7 @@ sudo apt install net-tools
 sudo apt install psensor
 sudo apt install gnome-tweaks
 И поставить переключение языка на left win key!
+gnome-language-selector и установить русскую locale
 sudo apt install gedit
 sudo apt install gparted
 sudo apt install grdesktop
@@ -16,8 +17,8 @@ sudo apt install openssh-server -y
 sudo systemctl enable ssh
 sudo apt install git
 cd ~/Distributives
-sudo dpkg -i jdk-11.0.16.1_linux-x64_bin.deb
-sudo dpkg -i smartgit-22_1_1.deb
+sudo dpkg -i jdk-11.0.16.1_linux-x64_bin.deb (sudo ln -s /usr/lib/jvm/jdk-11/bin/java /usr/bin/java)
+#sudo dpkg -i smartgit-22_1_1.deb
 sudo apt install libgl1-mesa-glx libegl1-mesa libxcb-xtest0
 sudo dpkg -i zoom_amd64.deb
 #sudo apt install dbeaver-ce
@@ -52,8 +53,9 @@ sudo apt-get install ffmpeg
 sudo apt install xsane
 sudo apt install traceroute
 sudo apt install wxhexeditor
-apt-get install steghide
+sudo apt install steghide
 sudo dpkg -i nomachine_8.3.1_1_amd64.deb
+sudo apt install libreoffice
 
 -- CPU Temperature
 sudo apt install i7z
