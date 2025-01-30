@@ -8,21 +8,29 @@ sudo apt install gparted
 sudo apt install grdesktop
 sudo snap install skype --classic
 После этого зайти на searhorse и сделать пустой password на default keyring или не ставить его на skype'е вообще!
+Потом сделать так:
+sudo nano /etc/gdm3/custom.conf
+Remove "#" from "WaylandEnable=false" line.
+#WaylandEnable=false
+INTO
+WaylandEnable=false
 sudo apt install thunar
 sudo apt install virtualbox
+sudo adduser $USER vboxusers // Это нужно для прокидывания USB-устройств!
 sudo apt install openvpn
 sudo apt install tigervnc-viewer
 sudo apt install wireguard
 sudo apt install openssh-server -y
 sudo systemctl enable ssh
 sudo apt install git
-cd ~/Distributives
+cd ~/Distributives/JDK
 sudo dpkg -i jdk-11.0.16.1_linux-x64_bin.deb (sudo ln -s /usr/lib/jvm/jdk-11/bin/java /usr/bin/java)
 #sudo dpkg -i smartgit-22_1_1.deb
 sudo apt install libgl1-mesa-glx libegl1-mesa libxcb-xtest0
 sudo dpkg -i zoom_amd64.deb
 #sudo apt install dbeaver-ce
 sudo snap install dbeaver-ce
+# Скачать можно тут: https://dbeaver.io/files/
 sudo apt install docker
 sudo apt install docker.io
 sudo apt install docker-compose
@@ -95,6 +103,17 @@ HandleLidSwitch=lock
 sudo systemctl restart systemd-logind
 
 
+How to set Monday as the first day of the week in GNOME 2 Calendar applet?
+On Ubuntu 23.10, this is now in Settings > Language and Region, then click Formats for Your Account and/or Login Screen. The availability of a locale depends on whether it's installed, click on Manage Installed Languages accordingly. There you can also click Apply system-wide in tabs Language and/or Regional Formats, if required – I assume with superuser permissions.
+
+In my case I chose "English (Ireland)" which gave me Monday as first day in the calendar, "correct" number formats and currency, and other goodies
+
+
+The repository 'http://security.ubuntu.com/ubuntu mantic-security Release' no longer has a Release file.
+me@me:~$ sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+me@me:~$ sudo sed -i -re 's/([a-z]{2}\.)?archive.ubuntu.com|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+
+
 How can I deactivate Bluetooth on system startup?
 sudo nano /etc/bluetooth/main.conf
 AutoEnable=true -> AutoEnable=false
@@ -108,6 +127,17 @@ sudo update-alternatives --install /usr/bin/java java ${JAVA_HOME%*/}/bin/java 2
 sudo update-alternatives --install /usr/bin/javac javac ${JAVA_HOME%*/}/bin/javac 20000
 update-alternatives --config java
 java -version
+
+
+Are there some VeraCrypt installation troubles?
+https://askubuntu.com/questions/1464953/veracrypt-cannot-be-installed-in-kubuntu-23-04
+sudo apt install libfuse2
+sudo ./veracrypt-1.25.9-setup-gtk3-gui-x64
+When prompted do not install it but click on "Extract .tar Package File".The installation package is extracted on /tmp.
+cd tmp
+tar xvf veracrypt_1.25.9_amd64.tar.gz
+sudo cp -R usr/* /usr/
+veracrypt
 
 
 Configuring Shadowsocks client (https://www.linuxbabe.com/redhat/shadowsocks-libev-proxy-server-centos)

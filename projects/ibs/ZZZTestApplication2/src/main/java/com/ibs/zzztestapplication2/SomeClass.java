@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import static java.time.temporal.ChronoUnit.NANOS;
 import java.util.AbstractMap;
 import java.util.ArrayDeque;
@@ -205,10 +206,26 @@ public class SomeClass {
 //        testNullSort();
 //        testInts();
 //        testDateFormats();
-//        testDate();
+        testDate();
 //        testPattern();
-        testPattern2("10.10.2024");
-        testPattern2("Hello!");
+//        testPattern2("10.10.2024");
+//        testPattern2("Hello!");
+//        get10OctoberDays();
+//        get30OctoberDays();
+    }
+
+    private static void get10OctoberDays() {
+        for (int i = 0; i <= 100; i++) {
+            LocalDate date = LocalDate.of(1985 + i, Month.OCTOBER, 10);
+            System.out.println(date.toString() + ": " + date.getDayOfWeek().name());
+        }
+    }
+
+    private static void get30OctoberDays() {
+        for (int i = 0; i <= 100; i++) {
+            LocalDate date = LocalDate.of(1984 + i, Month.OCTOBER, 30);
+            System.out.println(date.toString() + ": " + date.getDayOfWeek().name());
+        }
     }
 
     private static void testPattern2(String dateStr) {
@@ -222,10 +239,12 @@ public class SomeClass {
     }
 
     private static void testDate() {
-//        Matcher matcher = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T09:08:17.312Z");
-//        Matcher matcher = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T12:08:17+03:00");
-        Matcher matcher = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T09:08:17+03:00");
-        System.out.println("value = " + matcher.matches() + "!");
+        Matcher matcher1 = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T09:08:17.312Z");
+        Matcher matcher2 = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T12:08:17+03:00");
+        Matcher matcher3 = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T09:08:17+03:00");
+        System.out.println("value = " + matcher1.matches() + "!");
+        System.out.println("value = " + matcher2.matches() + "!");
+        System.out.println("value = " + matcher3.matches() + "!");
     }
 
     private static void testDateFormats() throws ParseException {
