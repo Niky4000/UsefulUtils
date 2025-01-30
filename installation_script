@@ -130,6 +130,7 @@ java -version
 
 
 Are there some VeraCrypt installation troubles?
+https://www.veracrypt.fr/en/Downloads.html
 https://askubuntu.com/questions/1464953/veracrypt-cannot-be-installed-in-kubuntu-23-04
 sudo apt install libfuse2
 sudo ./veracrypt-1.25.9-setup-gtk3-gui-x64
