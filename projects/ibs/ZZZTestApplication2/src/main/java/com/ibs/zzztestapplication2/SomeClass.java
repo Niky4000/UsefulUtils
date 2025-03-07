@@ -3,6 +3,7 @@ package com.ibs.zzztestapplication2;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.ibs.bean.ComparableBean;
 import com.ibs.bean.MyEnum;
+import com.ibs.bean.SomeBean;
 import com.ibs.bean.SomeTestStaticClass;
 import static com.ibs.utils.StringSimilarity.printSimilarity;
 import com.java.test.questions.JavaTestQuestions;
@@ -206,12 +207,22 @@ public class SomeClass {
 //        testNullSort();
 //        testInts();
 //        testDateFormats();
-        testDate();
+//        testDate();
+//        testExpression();
 //        testPattern();
 //        testPattern2("10.10.2024");
 //        testPattern2("Hello!");
 //        get10OctoberDays();
 //        get30OctoberDays();
+        testNull();
+    }
+
+    private static void testNull() {
+        if (new SomeBean().getSomeField() != "") {
+            System.out.println("Hello!");
+        } else {
+            System.out.println("Hello2!");
+        }
     }
 
     private static void get10OctoberDays() {
@@ -242,9 +253,20 @@ public class SomeClass {
         Matcher matcher1 = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T09:08:17.312Z");
         Matcher matcher2 = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T12:08:17+03:00");
         Matcher matcher3 = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T09:08:17+03:00");
+        Matcher matcher4 = Pattern.compile("^[0-9]{4}-((0[1-9])|(1[0-2]))-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(()|(.[0-9]{1,6})|(Z|([+-](0[0-9]|1[0-2]):([0-5][0-9])))|(.[0-9]{1,6}))|)$").matcher("2019-02-27T09:08:17Z");
         System.out.println("value = " + matcher1.matches() + "!");
         System.out.println("value = " + matcher2.matches() + "!");
         System.out.println("value = " + matcher3.matches() + "!");
+        System.out.println("value = " + matcher4.matches() + "!");
+    }
+
+    private static void testExpression() {
+        //        Matcher matcher5 = Pattern.compile("^[0-9]{0,17}(()|(.?[0-9]{2}))$").matcher("22223333444455556.02");
+        String expression = "^-?[0-9]{1,17}(()|(\\.[0-9]{1,2}))$";
+        for (String str : List.of("22223333444455556", "-22223333444455556", "2", "-2", "-2.2", "2.22", "22223333444455556.22", "-22223333444455556.22", "22223333444455556.2", "-22223333444455556.2", "22223333444455556.", "", "uuu")) {
+            Matcher matcher = Pattern.compile(expression).matcher(str);
+            System.out.println("value = " + str + " matches = " + matcher.matches() + "!");
+        }
     }
 
     private static void testDateFormats() throws ParseException {

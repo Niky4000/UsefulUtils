@@ -14,9 +14,10 @@ Remove "#" from "WaylandEnable=false" line.
 #WaylandEnable=false
 INTO
 WaylandEnable=false
+sudo snap install teams-for-linux // Вместо Skype!
 sudo apt install thunar
 sudo apt install virtualbox
-sudo adduser $USER vboxusers // Это нужно для прокидывания USB-устройств!
+sudo adduser $USER vboxusers // Это нужно для прокидывания USB-устройств! И перезагрузиться потом!
 sudo apt install openvpn
 sudo apt install tigervnc-viewer
 sudo apt install wireguard
