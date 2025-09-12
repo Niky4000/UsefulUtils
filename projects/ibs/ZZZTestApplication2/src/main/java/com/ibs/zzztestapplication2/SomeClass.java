@@ -214,7 +214,37 @@ public class SomeClass {
 //        testPattern2("Hello!");
 //        get10OctoberDays();
 //        get30OctoberDays();
-        testNull();
+//        testNull();
+//        testLocalDatesEquality();
+//        testDatesEquality();
+        testQuestion(List.of(new Object()));
+    }
+
+    private static void testQuestion(List<?> data) {
+        Object o = new Object();
+//        data.add(o);
+        Object get = data.get(0);
+        System.out.println(o);
+    }
+
+    private static void testDatesEquality() {
+        Date date1 = new Date(123456);
+        Date date2 = new Date(123456);
+        if (date1 != date2) {
+            System.out.println("Hello!");
+        } else {
+            System.out.println("Hello2!");
+        }
+    }
+
+    private static void testLocalDatesEquality() {
+        LocalDate date1 = LocalDate.of(2022, Month.MARCH, 22);
+        LocalDate date2 = LocalDate.of(2022, Month.MARCH, 22);
+        if (date1 != date2) {
+            System.out.println("Hello!");
+        } else {
+            System.out.println("Hello2!");
+        }
     }
 
     private static void testNull() {
