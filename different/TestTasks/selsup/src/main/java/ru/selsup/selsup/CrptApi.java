@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import javax.sql.DataSource;
 
 public class CrptApi {
 
@@ -35,10 +34,15 @@ public class CrptApi {
     private static final int BUFFER_SIZE = 1024;
     private static final String ID = "id=";
 
+    public static void main(String[] args) throws Exception {
+        CrptApi crptApi = new CrptApi(TimeUnit.SECONDS, 10);
+        crptApi.startServer();
+    }
+
     public CrptApi(TimeUnit timeUnit, int requestLimit) {
         this.timeUnit = timeUnit;
         this.requestLimit = requestLimit;
-        databasePath = FileUtils.getPathToJar().getParentFile().getParent() + File.separator + "myNewDatabase";
+        databasePath = FileUtils.getPathToJar().getParent() + File.separator + "myNewDatabase";
         jdbcUrl = "jdbc:h2:" + databasePath;
         username = "sa";
         password = "";
@@ -66,11 +70,6 @@ public class CrptApi {
         }
         writeHttpResponse(exchange);
     });
-
-    public static void main(String[] args) throws Exception {
-        CrptApi crptApi = new CrptApi(TimeUnit.SECONDS, 10);
-        crptApi.startServer();
-    }
 
     public void startServer() throws InterruptedException {
         createDatabase();
@@ -178,23 +177,8 @@ public class CrptApi {
         }
     }
 
-    private static void insertDocContent(DataSource dataSource, String uuid, String content) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement("insert into doc_content (uuid,content,create_date) values(?,?,?)");) {
-            connection.setAutoCommit(false);
-            statement.setString(1, uuid);
-            statement.setString(2, content);
-            statement.setDate(3, new java.sql.Date(new java.util.Date().getTime()));
-            try {
-                statement.execute();
-                connection.commit();
-            } finally {
-                statement.close();
-            }
-        }
-    }
-
     private void createDatabase() {
+        System.out.println("databasePath = " + databasePath);
         if (!new File(databasePath + ".mv.db").exists()) {
             try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);
                     PreparedStatement statement = conn.prepareStatement("create table documents(id long, content text, signature text, primary key (id))");) {

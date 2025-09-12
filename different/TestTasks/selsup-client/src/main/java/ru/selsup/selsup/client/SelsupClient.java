@@ -15,10 +15,10 @@ public class SelsupClient {
 
     public static void main(String[] args) throws Exception {
         LinkedHashMap<String, String> map = new LinkedHashMap<>();
-//        for (int i = 0; i < 20; i++) {
-//            String response = new SelsupClient().sendPost("http://localhost:8080/document", RequestMethod.POST, map, "{\"id\":\"" + i + "\", \"content\": \"content\", \"signature\": \"signature\"}");
-//            System.out.println(response);
-//        }
+        for (int i = 0; i < 20; i++) {
+            String response = new SelsupClient().sendPost("http://localhost:8080/document", RequestMethod.POST, map, "{\"id\":\"" + i + "\", \"content\": \"content\", \"signature\": \"signature\"}");
+            System.out.println(response);
+        }
         String response = new SelsupClient().sendPost("http://localhost:8080/getDocument?id=2", RequestMethod.GET, map, null);
         System.out.println(response);
     }
@@ -30,7 +30,6 @@ public class SelsupClient {
         GET, POST
     }
 
-    // HTTP POST request
     @SuppressWarnings("all")
     private String sendPost(String urlStr, RequestMethod requestMethod, Map<String, String> headers, String urlParameters) throws Exception {
         URL url = new URL(urlStr);
@@ -40,10 +39,6 @@ public class SelsupClient {
         headers.entrySet().forEach(entry -> con.setRequestProperty(entry.getKey(), entry.getValue()));
         con.setDoOutput(true);
         if (requestMethod.equals(RequestMethod.POST)) {
-//			try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-//				wr.writeBytes(urlParameters);
-//				wr.flush();
-//			}
             try (OutputStream wr = con.getOutputStream()) {
                 wr.write(urlParameters.getBytes());
                 wr.flush();
