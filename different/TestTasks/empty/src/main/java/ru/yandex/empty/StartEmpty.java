@@ -5,13 +5,16 @@
  */
 package ru.yandex.empty;
 
+import java.util.concurrent.ExecutionException;
+
 /**
  *
  * @author me
  */
 public class StartEmpty {
 
-    public static void main(String[] args) {
-        System.out.println("Hello World!!!");
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
+//        CustomThreadPool.start();
     }
+
 }
