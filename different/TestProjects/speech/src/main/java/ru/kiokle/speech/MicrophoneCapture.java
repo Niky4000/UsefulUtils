@@ -11,6 +11,7 @@ import javax.sound.sampled.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -216,24 +217,85 @@ public class MicrophoneCapture {
         }
     }
 
-    public static void captureWithSpeech2() throws Exception {
-        try (Model model = new Model("/home/me/Downloads/vosk-model-ru-0.42")) {
-            System.out.println("READY!!!");
-            try (Recognizer recognizer = new Recognizer(model, 44100)) {
-                try (InputStream ais = getAudioInputStream2((b, nbytes) -> {
-                    if (recognizer.acceptWaveForm(b, nbytes)) {
-                        System.out.println(recognizer.getResult());
-                    } else {
-                        System.out.println(recognizer.getPartialResult());
-                    }
-                });) {
+    public static void captureWithSpeech2(String[] args) throws Exception {
+        List<String> argsList = List.of(args);
+        String modelPath = getConfig("-model", argsList);
+        if (modelPath == null) {
+            System.out.println("Please select the (-model) model path!");
+        }
+        String microphone = getConfig("-microphone", argsList);
+        if (microphone == null) {
+            System.out.println("Please select the (-microphone) microphone!");
+            Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
+            if (mixerInfos.length > 0) {
+                System.out.println("Evailable microphones:");
+                for (Mixer.Info mixer : mixerInfos) {
+                    System.out.println("-------");
+                    System.out.println();
+                    System.out.println(mixer.getName());
+                    System.out.println(mixer.getDescription());
+                    System.out.println();
+                    System.out.println("-------");
+                    System.out.println();
                 }
-                System.out.println(recognizer.getFinalResult());
+            } else {
+                System.out.println("There are no evailable microphones!");
+            }
+        }
+        if (modelPath != null && microphone != null) {
+            try (Model model = new Model(modelPath)) { // "/home/me/Downloads/vosk-model-ru-0.42"
+                System.out.println("READY!!!");
+                try (Recognizer recognizer = new Recognizer(model, 44100)) {
+                    try (InputStream ais = getAudioInputStream2((b, nbytes) -> {
+                        boolean acceptWaveForm = recognizer.acceptWaveForm(b, nbytes);
+                        simpleHandler2(acceptWaveForm, recognizer);
+                    }, microphone);) {
+                    }
+                    System.out.println(recognizer.getFinalResult());
+                }
             }
         }
     }
 
-    private static InputStream getAudioInputStream2(BiConsumer<byte[], Integer> recognizer) {
+    private static void simpleHandler(boolean acceptWaveForm, Recognizer recognizer) {
+        if (acceptWaveForm) {
+            System.out.println(recognizer.getResult());
+        } else {
+            System.out.println(recognizer.getPartialResult());
+        }
+    }
+
+    private static String previousMessage = "";
+
+    private static void simpleHandler2(boolean acceptWaveForm, Recognizer recognizer) {
+        String message = getMessage(acceptWaveForm ? recognizer.getResult() : recognizer.getPartialResult());
+        if (message.length() == 0) {
+            if (previousMessage.length() > 0) {
+                System.out.println(previousMessage);
+            }
+            previousMessage = "";
+        } else {
+            previousMessage = message;
+        }
+    }
+
+    private static String getMessage(String dirtyMessage) {
+        String key = "\" : \"";
+        int indexOf = dirtyMessage.indexOf(key);
+        int indexOf2 = dirtyMessage.indexOf("\"\n", indexOf);
+        return dirtyMessage.substring(indexOf + key.length(), indexOf2);
+    }
+
+    public static String getConfig(String arg, List<String> argList) {
+        int indexOf = argList.indexOf(arg);
+        if (indexOf >= 0) {
+            return argList.get(indexOf + 1);
+        } else {
+            return null;
+        }
+    }
+
+    private static InputStream getAudioInputStream2(BiConsumer<byte[], Integer> recognizer, String microphone) {
         try {
             // 1. Define the audio format
             AudioFormat format = new AudioFormat(44100.0f, 16, 1, true, true);
@@ -244,7 +306,7 @@ public class MicrophoneCapture {
             Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
             Map<String, Mixer.Info> map = Stream.of(mixerInfos).collect(Collectors.toMap(Mixer.Info::getName, obj -> obj));
 //            TargetDataLine line = AudioSystem.getTargetDataLine(format, mixerInfos[7]);
-            TargetDataLine line = AudioSystem.getTargetDataLine(format, map.get("sofhdadsp [plughw:0,7]"));
+            TargetDataLine line = AudioSystem.getTargetDataLine(format, map.get(microphone)); // "sofhdadsp [plughw:0,7]"
 
             // 3. Open and start the line
             line.open(format);
@@ -268,20 +330,16 @@ public class MicrophoneCapture {
                     }
                 }
             });
-            stopper.start();
-            // 5. Read data (can also use AudioSystem.write() to save to a file directly)
-            // This will block until the line is closed
-//            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[1]);
-//            byteArrayInputStream.
-//            AudioSystem.write(ais, AudioFileFormat.Type.WAVE, byteArrayOutputStream);
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new WaveFileWriterWithSpeech().write(ais, AudioFileFormat.Type.WAVE, out, recognizer);
-            File file = new File("/home/me/Downloads/recording.wav");
-            if (file.exists()) {
-                file.delete();
-            }
-            Files.write(file.toPath(), out.toByteArray(), StandardOpenOption.CREATE_NEW);
+//            stopper.start();
+
+//            ByteArrayOutputStream out = new ByteArrayOutputStream();
+//            new WaveFileWriterWithSpeech().write(ais, AudioFileFormat.Type.WAVE, out, recognizer);
+            new WaveFileWriterWithSpeech().write(ais, AudioFileFormat.Type.WAVE, null, recognizer);
+//            File file = new File("/home/me/Downloads/recording.wav");
+//            if (file.exists()) {
+//                file.delete();
+//            }
+//            Files.write(file.toPath(), out.toByteArray(), StandardOpenOption.CREATE_NEW);
             return ais;
 
         } catch (Exception e) {

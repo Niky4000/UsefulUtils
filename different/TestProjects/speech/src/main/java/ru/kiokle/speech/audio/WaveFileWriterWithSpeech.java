@@ -71,7 +71,7 @@ public class WaveFileWriterWithSpeech extends SunFileWriter {
     public int write(AudioInputStream stream, AudioFileFormat.Type fileType, OutputStream out, BiConsumer<byte[], Integer> recognizer) throws IOException {
         Objects.requireNonNull(stream);
         Objects.requireNonNull(fileType);
-        Objects.requireNonNull(out);
+//        Objects.requireNonNull(out);
 
         //$$fb the following check must come first ! Otherwise
         // the next frame length check may throw an IOException and
@@ -99,7 +99,7 @@ public class WaveFileWriterWithSpeech extends SunFileWriter {
         // first write the file without worrying about length fields
         final int bytesWritten;
         try (final FileOutputStream fos = new FileOutputStream(out);
-                final BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+             final BufferedOutputStream bos = new BufferedOutputStream(fos)) {
             bytesWritten = writeWaveFile(stream, waveFileFormat, bos);
         }
 
@@ -126,6 +126,7 @@ public class WaveFileWriterWithSpeech extends SunFileWriter {
     }
 
     //--------------------------------------------------------------------
+
     /**
      * Returns the AudioFileFormat describing the file that will be written from
      * this AudioInputStream. Throws IllegalArgumentException if not supported.
@@ -233,19 +234,25 @@ public class WaveFileWriterWithSpeech extends SunFileWriter {
 
             if (maxLength > 0) {
                 if (bytesRead < maxLength) {
-                    out.write(buffer, 0, bytesRead);
+                    if (out != null) {
+                        out.write(buffer, 0, bytesRead);
+                    }
                     recognizer.accept(buffer, bytesRead);
                     bytesWritten += bytesRead;
                     maxLength -= bytesRead;
                 } else {
-                    out.write(buffer, 0, maxLength);
+                    if (out != null) {
+                        out.write(buffer, 0, maxLength);
+                    }
                     recognizer.accept(buffer, bytesRead);
                     bytesWritten += maxLength;
                     maxLength = 0;
                     break;
                 }
             } else {
-                out.write(buffer, 0, bytesRead);
+                if (out != null) {
+                    out.write(buffer, 0, bytesRead);
+                }
                 recognizer.accept(buffer, bytesRead);
                 bytesWritten += bytesRead;
             }
@@ -292,13 +299,13 @@ public class WaveFileWriterWithSpeech extends SunFileWriter {
                     wav_type = WaveFileFormat.WAVE_FORMAT_PCM;
                     // plug in the transcoder to convert from PCM_SIGNED to PCM_UNSIGNED
                     codedAudioStream = AudioSystem.getAudioInputStream(new AudioFormat(
-                            AudioFormat.Encoding.PCM_UNSIGNED,
-                            audioStreamFormat.getSampleRate(),
-                            audioStreamFormat.getSampleSizeInBits(),
-                            audioStreamFormat.getChannels(),
-                            audioStreamFormat.getFrameSize(),
-                            audioStreamFormat.getFrameRate(),
-                            false),
+                                    AudioFormat.Encoding.PCM_UNSIGNED,
+                                    audioStreamFormat.getSampleRate(),
+                                    audioStreamFormat.getSampleSizeInBits(),
+                                    audioStreamFormat.getChannels(),
+                                    audioStreamFormat.getFrameSize(),
+                                    audioStreamFormat.getFrameRate(),
+                                    false),
                             (AudioInputStream) audioStream);
                 }
             }
@@ -309,13 +316,13 @@ public class WaveFileWriterWithSpeech extends SunFileWriter {
                     wav_type = WaveFileFormat.WAVE_FORMAT_PCM;
                     // plug in the transcoder to convert to PCM_SIGNED_LITTLE_ENDIAN
                     codedAudioStream = AudioSystem.getAudioInputStream(new AudioFormat(
-                            AudioFormat.Encoding.PCM_SIGNED,
-                            audioStreamFormat.getSampleRate(),
-                            audioStreamFormat.getSampleSizeInBits(),
-                            audioStreamFormat.getChannels(),
-                            audioStreamFormat.getFrameSize(),
-                            audioStreamFormat.getFrameRate(),
-                            false),
+                                    AudioFormat.Encoding.PCM_SIGNED,
+                                    audioStreamFormat.getSampleRate(),
+                                    audioStreamFormat.getSampleSizeInBits(),
+                                    audioStreamFormat.getChannels(),
+                                    audioStreamFormat.getFrameSize(),
+                                    audioStreamFormat.getFrameRate(),
+                                    false),
                             (AudioInputStream) audioStream);
                 }
             }
@@ -324,7 +331,7 @@ public class WaveFileWriterWithSpeech extends SunFileWriter {
         // Now push the header into a stream, concat, and return the new SequenceInputStream
         final byte[] header;
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                final DataOutputStream dos = new DataOutputStream(baos)) {
+             final DataOutputStream dos = new DataOutputStream(baos)) {
             // we write in littleendian...
             dos.writeInt(riffMagic);
             dos.writeInt(big2little(riffLength));

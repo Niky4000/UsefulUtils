@@ -22,11 +22,12 @@ import org.vosk.Model;
  */
 public class StartSpeech {
 
+    // java -jar /home/me/GIT/UsefulUtils/different/TestProjects/speech/target/speech.jar -model /home/me/Downloads/vosk-model-ru-0.42 -microphone "sofhdadsp [plughw:0,7]"
     public static void main(String[] args) throws Exception {
 //        speech();
 //        MicrophoneCapture.capture();
 //        MicrophoneCapture.capture2();
-        MicrophoneCapture.captureWithSpeech2();
+        MicrophoneCapture.captureWithSpeech2(args);
 //        speech();
 //        Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
 //        JavaSoundRecorder.main(args);
