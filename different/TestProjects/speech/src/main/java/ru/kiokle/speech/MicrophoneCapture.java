@@ -251,7 +251,7 @@ public class MicrophoneCapture {
                         simpleHandler2(acceptWaveForm, recognizer);
                     }, microphone);) {
                     }
-                    System.out.println(recognizer.getFinalResult());
+                    System.out.println(getMessage(recognizer.getFinalResult()));
                 }
             }
         }
