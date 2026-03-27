@@ -25,15 +25,16 @@ sudo apt install openssh-server -y
 sudo systemctl enable ssh
 sudo apt install git
 cd ~/Distributives/JDK
-sudo dpkg -i jdk-11.0.16.1_linux-x64_bin.deb (sudo ln -s /usr/lib/jvm/jdk-11/bin/java /usr/bin/java)
+#sudo dpkg -i jdk-11.0.16.1_linux-x64_bin.deb (sudo ln -s /usr/lib/jvm/jdk-11/bin/java /usr/bin/java)
+sudo dpkg -i jdk-17.0.10_linux-x64_bin.deb
 #sudo dpkg -i smartgit-22_1_1.deb
-sudo apt install libgl1-mesa-glx libegl1-mesa libxcb-xtest0
+sudo apt install libgl1-mesa-glx libegl1-mesa libxcb-xtest0 (или sudo apt install libxcb-xtest0 libxcb-cursor0)
 sudo dpkg -i zoom_amd64.deb
 #sudo apt install dbeaver-ce
-sudo snap install dbeaver-ce
+sudo snap install dbeaver-ce --classic
 # Скачать можно тут: https://dbeaver.io/files/
-sudo apt install docker
-sudo apt install docker.io
+#sudo apt install docker
+sudo apt install docker.io (sudo usermod -aG docker me)
 sudo apt install docker-compose
 sudo apt install gimp
 #sudo apt install telegram-desktop
@@ -42,11 +43,16 @@ sudo apt install wireshark
 sudo apt install vlc
 sudo apt install doublecmd-gtk
 cd ~/Distributives
-sh GitAhead-2.6.3.sh
-sudo apt-get install rabbitvcs-nautilus
+#sh GitAhead-2.6.3.sh
+#sudo apt-get install rabbitvcs-nautilus
 sudo add-apt-repository ppa:unit193/encryption
 sudo apt update
 sudo apt install veracrypt
+(Если так не получается, то:)
+(cd /home/me/Distributives/veracrypt/)
+(tar -xjf veracrypt-*-setup.tar.bz2)
+(./veracrypt-1.26.24-setup-gui-x64)
+(Запустится установщик)
 sudo apt install file-roller
 sudo apt install p7zip-full p7zip-rar
 cd ~/Distributives
@@ -54,16 +60,17 @@ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i google-chrome-stable_current_amd64.deb
 sudo apt install curl
 cd ~/Distributives
-wget https://download.cdn.viber.com/cdn/desktop/Linux/viber.deb
-sudo apt install gstreamer1.0-pulseaudio
-sudo dpkg -i viber.deb
+#wget https://download.cdn.viber.com/cdn/desktop/Linux/viber.deb
+#sudo apt install gstreamer1.0-pulseaudio
+#sudo dpkg -i viber.deb
 sudo apt-get install filezilla
 sudo apt-get install ffmpeg
 sudo apt install xsane
 sudo apt install traceroute
 sudo apt install wxhexeditor
 sudo apt install steghide
-sudo dpkg -i nomachine_8.3.1_1_amd64.deb
+#sudo dpkg -i nomachine_8.3.1_1_amd64.deb
+#sudo dpkg -i nomachine_9.4.14_1_amd64.deb # Тут возникают проблемы со звуком: звук отключается и не понятно как включить обратно!
 sudo apt install libreoffice
 sudo apt install transmission-gtk
 
@@ -193,3 +200,6 @@ systemctl status shadowsocks-client.service
 --------------------------------------------------------------------------------
 In Firefox, go to Edit > Preferences > General (or Tools -> Options -> General). Then scroll down to the bottom and click Settings in Network Proxy. In the Connection Settings window, select manual proxy configuration. Then select SOCKS v5 because Shadowsocks is a Socks5 proxy. Enter 127.0.0.1 in the SOCKS Host field and 1080 in the port field. Make sure Proxy DNS when using SOCKS v5 is enabled. Click OK to apply these modifications.
 --------------------------------------------------------------------------------
+
+
+sudo sed -i -re 's/([a-z]{2}\.)?archive.ubuntu.com|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
